@@ -30,11 +30,25 @@
     </section>
 
     <section id="artistView" class="space-y-6">
+      
+      <!-- NUEVA TARJETA: MANIFIESTO Y COMPROMISO COLABORATIVO -->
+      <div class="glass rounded-2xl p-6 space-y-3 border border-emerald-500/20">
+        <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">⚡ Nuestro Manifiesto</h3>
+        <p class="text-xs text-zinc-300 leading-relaxed">
+          <strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes. Nuestro objetivo es unir fuerzas para competir fuera de la liga de las grandes discográficas y ayudarnos entre nosotros a crecer.
+        </p>
+        <div class="pt-1 text-xs text-zinc-300 space-y-1.5 border-t border-white/5">
+          <p>🤝 <strong>Compromiso mutuo:</strong> Por respeto a los demás compañeros y para que el algoritmo nos impulse, te pedimos que reproduzcas la lista entera al menos <strong>1 o 2 veces por semana</strong>.</p>
+          <p>📌 <strong>Norma esencial:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify para poder participar en las ediciones.</p>
+        </div>
+      </div>
+
       <div class="glass rounded-2xl p-6 space-y-3">
         <h3 class="font-semibold">1. Guarda la playlist</h3>
         <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm">Abrir Playlist en Spotify</a>
-        <label class="flex gap-2 text-xs text-zinc-300 pt-2"><input type="checkbox" id="confirmSaveCheckbox" class="accent-emerald-500"> Confirmo que ya he guardado la playlist.</label>
+        <label class="flex gap-2 text-xs text-zinc-300 pt-2"><input type="checkbox" id="confirmSaveCheckbox" class="accent-emerald-500"> Confirmo que ya he guardado la playlist en mi biblioteca.</label>
       </div>
+
       <form id="submissionForm" onsubmit="return false;" class="glass rounded-2xl p-6 space-y-3 opacity-50 pointer-events-none">
         <h3 class="font-semibold">2. Envía tu canción</h3>
         <input type="text" id="artistName" required placeholder="Nombre del Artista *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
@@ -49,10 +63,15 @@
         <div class="text-xs space-y-1 text-zinc-300"><p>Artista: <strong id="receiptArtist" class="text-white"></strong></p><p>Canción: <strong id="receiptTitle" class="text-emerald-400"></strong></p><p>Correo: <span id="receiptEmail"></span></p></div>
       </div>
     </section>
+
     <section id="adminView" class="hidden space-y-6">
       <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-3">
-        <h3 class="font-bold">Acceso Curadores</h3>
-        <div class="flex gap-2"><input type="password" id="adminPassInput" placeholder="Clave" class="flex-1 px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"><button type="button" id="adminLoginBtn" class="px-4 py-2 neon-btn text-zinc-950 font-bold rounded text-sm">Entrar</button></div>
+        <h3 class="font-bold">Acceso Curadores (Seguro)</h3>
+        <div class="space-y-2">
+          <input type="email" id="adminEmailInput" placeholder="Correo de administrador" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+          <input type="password" id="adminPassInput" placeholder="Contraseña" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+          <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm">Entrar con Firebase</button>
+        </div>
       </div>
       <div id="adminDashboard" class="hidden space-y-4">
         <div class="glass rounded-2xl p-5 space-y-3">
@@ -70,10 +89,27 @@
     </section>
   </main>
   <footer class="text-xs text-zinc-500 mt-8">Next Wave Rising • Breyde&amp;Darko</footer>
+
+  <!-- SDK DE FIREBASE (COMPAT) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const URL_API = "https://firestore.googleapis.com/v1/projects/next-wave-rising-3ab56/databases/(default)/documents";
-      const PASS = "breyde2026";
+      const firebaseConfig = {
+        apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
+        authDomain: "next-wave-rising-3ab56.firebaseapp.com",
+        projectId: "next-wave-rising-3ab56",
+        storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
+        messagingSenderId: "690671071183",
+        appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+
       let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "" };
       let subs = [];
 
@@ -84,12 +120,18 @@
         document.getElementById("toggleAdminBtn").textContent = hid ? "Volver" : "Panel Curadores";
       });
 
-      document.getElementById("adminLoginBtn").addEventListener("click", () => {
-        if(document.getElementById("adminPassInput").value.trim() === PASS) {
+      document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+        const email = document.getElementById("adminEmailInput").value.trim();
+        const pass = document.getElementById("adminPassInput").value.trim();
+        if(!email || !pass) { alert("Introduce correo y contraseña."); return; }
+        try {
+          await auth.signInWithEmailAndPassword(email, pass);
           document.getElementById("adminLoginBox").classList.add("hidden");
           document.getElementById("adminDashboard").classList.remove("hidden");
           loadSubs();
-        } else alert("Clave incorrecta");
+        } catch(e) {
+          alert("Acceso denegado: Credenciales incorrectas.");
+        }
       });
 
       document.getElementById("confirmSaveCheckbox").addEventListener("change", e => {
@@ -122,14 +164,12 @@
 
       async function loadConfig() {
         try {
-          const res = await fetch(URL_API + "/settings/activeEdition");
-          if(res.ok) {
-            const d = await res.json();
-            if(d.fields) {
-              config.edition = d.fields.edition?.stringValue || config.edition;
-              config.playlistUrl = d.fields.playlistUrl?.stringValue || config.playlistUrl;
-              config.trackUrl = d.fields.trackUrl?.stringValue || config.trackUrl;
-            }
+          const snap = await db.collection("settings").doc("activeEdition").get();
+          if(snap.exists) {
+            const d = snap.data();
+            config.edition = d.edition || config.edition;
+            config.playlistUrl = d.playlistUrl || config.playlistUrl;
+            config.trackUrl = d.trackUrl || config.trackUrl;
           }
         } catch(e){}
         document.getElementById("editionTitle").textContent = config.edition;
@@ -151,21 +191,11 @@
       async function loadSubs() {
         const list = document.getElementById("submissionsList");
         try {
-          const res = await fetch(URL_API + "/submissions?pageSize=200");
-          if(!res.ok) throw new Error();
-          const d = await res.json();
-          subs = (d.documents || []).map(doc => {
-            const f = doc.fields || {};
-            return {
-              id: doc.name.split("/").pop(),
-              artist: f.artist?.stringValue || "",
-              title: f.title?.stringValue || "",
-              url: f.url?.stringValue || "",
-              email: f.email?.stringValue || "",
-              timestamp: Number(f.timestamp?.integerValue || 0),
-              dateString: f.dateString?.stringValue || ""
-            };
-          }).sort((a,b) => a.timestamp - b.timestamp);
+          const snapshot = await db.collection("submissions").orderBy("timestamp", "asc").get();
+          subs = [];
+          snapshot.forEach(doc => {
+            subs.push({ id: doc.id, ...doc.data() });
+          });
 
           document.getElementById("subCount").textContent = subs.length;
           if(subs.length === 0) { list.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>'; return; }
@@ -194,18 +224,24 @@
         receipt.classList.add("hidden");
 
         try {
-          await loadSubs();
-          if(subs.some(s => s.artist.toLowerCase() === artist.toLowerCase() || s.email.toLowerCase() === email.toLowerCase())) {
+          const snapshot = await db.collection("submissions").get();
+          let exists = false;
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.artist.toLowerCase() === artist.toLowerCase() || data.email.toLowerCase() === email.toLowerCase()) {
+              exists = true;
+            }
+          });
+
+          if(exists) {
             fb.textContent = "Ya has enviado 1 canción en esta edición."; fb.className = "text-xs text-center text-amber-400"; fb.classList.remove("hidden");
             document.getElementById("submitBtn").disabled = false; document.getElementById("submitBtn").textContent = "Enviar Propuesta"; return;
           }
 
           const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
-          const res = await fetch(URL_API + "/submissions", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fields: { artist: { stringValue: artist }, title: { stringValue: title }, url: { stringValue: url }, email: { stringValue: email }, timestamp: { integerValue: String(Date.now()) }, dateString: { stringValue: dateStr } } })
+          await db.collection("submissions").add({
+            artist, title, url, email, timestamp: Date.now(), dateString: dateStr
           });
-          if(!res.ok) throw new Error();
 
           document.getElementById("receiptArtist").textContent = artist;
           document.getElementById("receiptTitle").textContent = title;
@@ -215,7 +251,6 @@
           document.getElementById("submissionForm").reset();
           document.getElementById("confirmSaveCheckbox").checked = false;
           document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
-          await loadSubs();
         } catch(e) {
           fb.textContent = "Error al enviar."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden");
         } finally {
@@ -229,10 +264,7 @@
         config.playlistUrl = document.getElementById("adminPlaylistInput").value.trim() || config.playlistUrl;
         config.trackUrl = document.getElementById("adminTrackInput").value.trim() || "";
         try {
-          await fetch(URL_API + "/settings/activeEdition", {
-            method: "PATCH", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fields: { edition: { stringValue: config.edition }, playlistUrl: { stringValue: config.playlistUrl }, trackUrl: { stringValue: config.trackUrl } } })
-          });
+          await db.collection("settings").doc("activeEdition").set(config);
           await loadConfig();
           alert("Configuración y reproductor actualizados.");
         } catch(e){ alert("Error al guardar."); }
@@ -241,7 +273,10 @@
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
         if(!confirm("¿Vaciar lista?")) return;
         try {
-          for (const s of subs) { await fetch(URL_API + "/submissions/" + s.id, { method: "DELETE" }); }
+          const snapshot = await db.collection("submissions").get();
+          const batch = db.batch();
+          snapshot.docs.forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
           await loadSubs();
           alert("Reiniciado.");
         } catch(e){ alert("Error."); }
