@@ -68,19 +68,19 @@
       <!-- RELOJ CUENTA ATRÁS -->
       <div id="countdownBox" class="grid grid-cols-4 gap-2 pt-2 border-t border-white/10 text-center">
         <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdDays" class="block text-xl md:text-2xl font-extrabold text-emerald-400">00</span>
+          <span id="cdDays" class="block text-xl md:text-2xl font-extrabold text-emerald-400">--</span>
           <span class="text-[10px] uppercase tracking-wider text-zinc-400">Días</span>
         </div>
         <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdHours" class="block text-xl md:text-2xl font-extrabold text-white">00</span>
+          <span id="cdHours" class="block text-xl md:text-2xl font-extrabold text-white">--</span>
           <span class="text-[10px] uppercase tracking-wider text-zinc-400">Horas</span>
         </div>
         <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdMinutes" class="block text-xl md:text-2xl font-extrabold text-white">00</span>
+          <span id="cdMinutes" class="block text-xl md:text-2xl font-extrabold text-white">--</span>
           <span class="text-[10px] uppercase tracking-wider text-zinc-400">Min</span>
         </div>
         <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdSeconds" class="block text-xl md:text-2xl font-extrabold text-cyan-400">00</span>
+          <span id="cdSeconds" class="block text-xl md:text-2xl font-extrabold text-cyan-400">--</span>
           <span class="text-[10px] uppercase tracking-wider text-zinc-400">Seg</span>
         </div>
       </div>
@@ -208,12 +208,105 @@
     Next Wave Rising • Curado por Breyde&amp;Darko
   </footer>
 
-  <!-- FIREBASE SDK COMPAT (CARGA DIRECTA SIN MÓDULOS EXTERNOS) -->
+  <!-- SCRIPT 1: RELOJ Y UI AUTÓNOMOS (100% INDEPENDIENTES DE FIREBASE) -->
+  <script>
+    (function() {
+      const CURATOR_PASSWORD = "breyde2026";
+      const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+      const artistView = document.getElementById("artistView");
+      const adminView = document.getElementById("adminView");
+      const confirmSaveCheckbox = document.getElementById("confirmSaveCheckbox");
+      const submissionForm = document.getElementById("submissionForm");
+      const statusBadge = document.getElementById("statusBadge");
+
+      toggleAdminBtn.addEventListener("click", function() {
+        const isHidden = adminView.classList.contains("hidden");
+        adminView.classList.toggle("hidden", !isHidden);
+        artistView.classList.toggle("hidden", isHidden);
+        toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
+      });
+
+      document.getElementById("adminLoginBtn").addEventListener("click", function() {
+        const inputVal = document.getElementById("adminPassInput").value.trim();
+        if (inputVal === CURATOR_PASSWORD) {
+          document.getElementById("adminLoginBox").classList.add("hidden");
+          document.getElementById("adminDashboard").classList.remove("hidden");
+          if (typeof window.loadSubmissions === "function") {
+            window.loadSubmissions();
+          }
+        } else {
+          alert("Clave incorrecta");
+        }
+      });
+
+      confirmSaveCheckbox.addEventListener("change", function(e) {
+        submissionForm.classList.toggle("opacity-50", !e.target.checked);
+        submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
+      });
+
+      // Cálculo seguro de hora de España compatible con cualquier navegador móvil
+      function getSpainParts() {
+        const fmt = new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Europe/Madrid",
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        });
+        const parts = {};
+        fmt.formatToParts(new Date()).forEach(function(p) {
+          parts[p.type] = p.value;
+        });
+        const mapDay = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+        return {
+          day: mapDay[parts.weekday] !== undefined ? mapDay[parts.weekday] : new Date().getDay(),
+          hour: parseInt(parts.hour, 10) || 0,
+          minute: parseInt(parts.minute, 10) || 0,
+          second: parseInt(parts.second, 10) || 0
+        };
+      }
+
+      function updateCountdown() {
+        const now = getSpainParts();
+
+        if (now.day === 4) {
+          statusBadge.textContent = "Cerrada (Jueves de Curaduría)";
+          statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 self-start sm:self-center";
+          confirmSaveCheckbox.disabled = true;
+          submissionForm.classList.add("opacity-40", "pointer-events-none");
+          document.getElementById("cdDays").textContent = "00";
+          document.getElementById("cdHours").textContent = "00";
+          document.getElementById("cdMinutes").textContent = "00";
+          document.getElementById("cdSeconds").textContent = "00";
+          return;
+        }
+
+        const daysUntilThursday = (4 - now.day + 7) % 7 || 7;
+        const secondsPassedToday = now.hour * 3600 + now.minute * 60 + now.second;
+        const totalSeconds = Math.max(0, daysUntilThursday * 86400 - secondsPassedToday);
+
+        const d = Math.floor(totalSeconds / 86400);
+        const h = Math.floor((totalSeconds % 86400) / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+
+        document.getElementById("cdDays").textContent = String(d).padStart(2, "0");
+        document.getElementById("cdHours").textContent = String(h).padStart(2, "0");
+        document.getElementById("cdMinutes").textContent = String(m).padStart(2, "0");
+        document.getElementById("cdSeconds").textContent = String(s).padStart(2, "0");
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    })();
+  </script>
+
+  <!-- SCRIPT 2: FIREBASE FIRESTORE -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    const CURATOR_PASSWORD = "breyde2026";
     const firebaseConfig = {
       apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
       authDomain: "next-wave-rising-3ab56.firebaseapp.com",
@@ -237,71 +330,10 @@
     };
     let submissionsCache = [];
 
-    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
-    const artistView = document.getElementById("artistView");
-    const adminView = document.getElementById("adminView");
-    const confirmSaveCheckbox = document.getElementById("confirmSaveCheckbox");
     const submissionForm = document.getElementById("submissionForm");
     const feedbackMsg = document.getElementById("feedbackMsg");
-    const statusBadge = document.getElementById("statusBadge");
     const submitBtn = document.getElementById("submitBtn");
 
-    // 1. Navegación Panel Curadores
-    toggleAdminBtn.addEventListener("click", () => {
-      const isHidden = adminView.classList.contains("hidden");
-      adminView.classList.toggle("hidden", !isHidden);
-      artistView.classList.toggle("hidden", isHidden);
-      toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
-    });
-
-    // 2. Login Curadores
-    document.getElementById("adminLoginBtn").addEventListener("click", () => {
-      const inputVal = document.getElementById("adminPassInput").value.trim();
-      if (inputVal === CURATOR_PASSWORD) {
-        document.getElementById("adminLoginBox").classList.add("hidden");
-        document.getElementById("adminDashboard").classList.remove("hidden");
-        loadSubmissions();
-      } else {
-        alert("Clave incorrecta");
-      }
-    });
-
-    // 3. Desbloquear formulario
-    confirmSaveCheckbox.addEventListener("change", (e) => {
-      submissionForm.classList.toggle("opacity-50", !e.target.checked);
-      submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
-    });
-
-    // 4. Reloj cuenta atrás (Hora España)
-    function updateCountdown() {
-      const nowSpain = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
-      const dayOfWeek = nowSpain.getDay();
-
-      if (dayOfWeek === 4) {
-        statusBadge.textContent = "Cerrada (Jueves de Curaduría)";
-        statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 self-start sm:self-center";
-        confirmSaveCheckbox.disabled = true;
-        submissionForm.classList.add("opacity-40", "pointer-events-none");
-        document.getElementById("cdDays").textContent = "00";
-        document.getElementById("cdHours").textContent = "00";
-        document.getElementById("cdMinutes").textContent = "00";
-        document.getElementById("cdSeconds").textContent = "00";
-        return;
-      }
-
-      const targetThursday = new Date(nowSpain);
-      const daysUntilThursday = (4 - dayOfWeek + 7) % 7 || 7;
-      targetThursday.setDate(nowSpain.getDate() + daysUntilThursday);
-      targetThursday.setHours(0, 0, 0, 0);
-
-      const totalSeconds = Math.max(0, Math.floor((targetThursday - nowSpain) / 1000));
-      document.getElementById("cdDays").textContent = String(Math.floor(totalSeconds / 86400)).padStart(2, "0");
-      document.getElementById("cdHours").textContent = String(Math.floor((totalSeconds % 86400) / 3600)).padStart(2, "0");
-      document.getElementById("cdMinutes").textContent = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-      document.getElementById("cdSeconds").textContent = String(totalSeconds % 60).padStart(2, "0");
-    }
-
-    // 5. Cargar Configuración
     async function loadConfig() {
       if (!db) return;
       try {
@@ -320,8 +352,7 @@
       document.getElementById("adminPlaylistInput").value = currentConfig.playlistUrl;
     }
 
-    // 6. Cargar Propuestas
-    async function loadSubmissions() {
+    window.loadSubmissions = async function() {
       const list = document.getElementById("submissionsList");
       if (!db) {
         list.innerHTML = `<p class="text-rose-400 text-xs">No se pudo iniciar Firebase.</p>`;
@@ -355,9 +386,8 @@
       } catch (err) {
         list.innerHTML = `<p class="text-rose-400 text-xs">Error de Firestore: ${err.message}</p>`;
       }
-    }
+    };
 
-    // 7. Enviar Canción
     submissionForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const artist = document.getElementById("artistName").value.trim();
@@ -374,7 +404,7 @@
       submitBtn.textContent = "Verificando y enviando...";
 
       try {
-        await loadSubmissions();
+        await window.loadSubmissions();
         const duplicate = submissionsCache.some(
           (s) => s.artist.toLowerCase() === artist.toLowerCase() || (s.email && s.email.toLowerCase() === email.toLowerCase())
         );
@@ -392,28 +422,4 @@
           url,
           email,
           timestamp: Date.now(),
-          dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })
-        });
-
-        submissionForm.reset();
-        confirmSaveCheckbox.checked = false;
-        submissionForm.classList.add("opacity-50", "pointer-events-none");
-        showFeedback("¡Canción enviada correctamente a Next Wave Rising!", "text-emerald-400");
-        await loadSubmissions();
-      } catch (err) {
-        showFeedback("Error al guardar en Firebase: " + err.message, "text-rose-400");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
-      }
-    });
-
-    function showFeedback(text, colorClass) {
-      feedbackMsg.textContent = text;
-      feedbackMsg.className = `text-xs text-center pt-1 font-medium ${colorClass}`;
-      feedbackMsg.classList.remove("hidden");
-    }
-
-    // 8. Controles Curadores
-    document.getElementById("saveConfigBtn").addEventListener("click", async () => {
-      currentConfig.edition = document.getElementById("
+          dateString: new Date().toLocaleString("e
