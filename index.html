@@ -171,11 +171,11 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block text-xs text-zinc-400 mb-1">Nombre de la Edición</label>
-              <input type="text" id="adminEditionInput" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
+              <input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
             </div>
             <div>
               <label class="block text-xs text-zinc-400 mb-1">Enlace Playlist Spotify</label>
-              <input type="url" id="adminPlaylistInput" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
+              <input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
             </div>
           </div>
           <div class="flex flex-wrap gap-3 pt-2">
@@ -196,7 +196,7 @@
             </button>
           </div>
           <div id="submissionsList" class="space-y-3 text-sm">
-            <p class="text-zinc-500 text-xs">Cargando propuestas...</p>
+            <p class="text-zinc-500 text-xs">Conectando con la base de datos...</p>
           </div>
         </div>
       </div>
@@ -208,17 +208,45 @@
     Next Wave Rising • Curado por Breyde&amp;Darko
   </footer>
 
-  <!-- SCRIPT 1: INTERFAZ Y RELOJ INDEPENDIENTES (NUNCA SE BLOQUEAN) -->
+  <!-- FIREBASE SDK COMPAT (CARGA DIRECTA SIN MÓDULOS EXTERNOS) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
   <script>
     const CURATOR_PASSWORD = "breyde2026";
+    const firebaseConfig = {
+      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
+      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
+      projectId: "next-wave-rising-3ab56",
+      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
+      messagingSenderId: "690671071183",
+      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
+    };
+
+    let db = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+    } catch (e) {
+      console.error("Error inicializando Firebase:", e);
+    }
+
+    let currentConfig = {
+      edition: "Edición Semanal #1",
+      playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF"
+    };
+    let submissionsCache = [];
+
     const toggleAdminBtn = document.getElementById("toggleAdminBtn");
     const artistView = document.getElementById("artistView");
     const adminView = document.getElementById("adminView");
     const confirmSaveCheckbox = document.getElementById("confirmSaveCheckbox");
     const submissionForm = document.getElementById("submissionForm");
+    const feedbackMsg = document.getElementById("feedbackMsg");
     const statusBadge = document.getElementById("statusBadge");
+    const submitBtn = document.getElementById("submitBtn");
 
-    // Abrir / Cerrar Panel Curadores
+    // 1. Navegación Panel Curadores
     toggleAdminBtn.addEventListener("click", () => {
       const isHidden = adminView.classList.contains("hidden");
       adminView.classList.toggle("hidden", !isHidden);
@@ -226,25 +254,25 @@
       toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
     });
 
-    // Login Curadores
+    // 2. Login Curadores
     document.getElementById("adminLoginBtn").addEventListener("click", () => {
       const inputVal = document.getElementById("adminPassInput").value.trim();
       if (inputVal === CURATOR_PASSWORD) {
         document.getElementById("adminLoginBox").classList.add("hidden");
         document.getElementById("adminDashboard").classList.remove("hidden");
-        if (window.nwrLoadSubmissions) window.nwrLoadSubmissions();
+        loadSubmissions();
       } else {
         alert("Clave incorrecta");
       }
     });
 
-    // Checkbox desbloquear formulario
+    // 3. Desbloquear formulario
     confirmSaveCheckbox.addEventListener("change", (e) => {
       submissionForm.classList.toggle("opacity-50", !e.target.checked);
       submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
     });
 
-    // Reloj cuenta atrás hasta Jueves 00:00 (Hora España)
+    // 4. Reloj cuenta atrás (Hora España)
     function updateCountdown() {
       const nowSpain = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
       const dayOfWeek = nowSpain.getDay();
@@ -273,63 +301,34 @@
       document.getElementById("cdSeconds").textContent = String(totalSeconds % 60).padStart(2, "0");
     }
 
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-  </script>
-
-  <!-- SCRIPT 2: CONEXIÓN CON FIREBASE FIRESTORE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
-      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
-      projectId: "next-wave-rising-3ab56",
-      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
-      messagingSenderId: "690671071183",
-      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let currentConfig = {
-      edition: "Edición Semanal #1",
-      playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF"
-    };
-    let submissionsCache = [];
-
-    const editionTitle = document.getElementById("editionTitle");
-    const playlistLinkBtn = document.getElementById("playlistLinkBtn");
-    const feedbackMsg = document.getElementById("feedbackMsg");
-    const submitBtn = document.getElementById("submitBtn");
-
+    // 5. Cargar Configuración
     async function loadConfig() {
+      if (!db) return;
       try {
-        const configRef = doc(db, "settings", "activeEdition");
-        const snap = await getDoc(configRef);
-        if (snap.exists()) {
+        const snap = await db.collection("settings").doc("activeEdition").get();
+        if (snap.exists) {
           currentConfig = snap.data();
         } else {
-          await setDoc(configRef, currentConfig);
+          await db.collection("settings").doc("activeEdition").set(currentConfig);
         }
       } catch (err) {
-        console.warn("Aviso Firestore config:", err);
+        console.warn("Aviso cargando config:", err.message);
       }
-      editionTitle.textContent = currentConfig.edition;
-      playlistLinkBtn.href = currentConfig.playlistUrl;
+      document.getElementById("editionTitle").textContent = currentConfig.edition;
+      document.getElementById("playlistLinkBtn").href = currentConfig.playlistUrl;
       document.getElementById("adminEditionInput").value = currentConfig.edition;
       document.getElementById("adminPlaylistInput").value = currentConfig.playlistUrl;
     }
 
-    window.nwrLoadSubmissions = async function() {
+    // 6. Cargar Propuestas
+    async function loadSubmissions() {
       const list = document.getElementById("submissionsList");
+      if (!db) {
+        list.innerHTML = `<p class="text-rose-400 text-xs">No se pudo iniciar Firebase.</p>`;
+        return;
+      }
       try {
-        const q = query(collection(db, "submissions"), orderBy("timestamp", "asc"));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await db.collection("submissions").orderBy("timestamp", "asc").get();
         submissionsCache = [];
         querySnapshot.forEach((docSnap) => {
           submissionsCache.push({ id: docSnap.id, ...docSnap.data() });
@@ -337,7 +336,7 @@
 
         document.getElementById("subCount").textContent = submissionsCache.length;
         if (submissionsCache.length === 0) {
-          list.innerHTML = `<p class="text-zinc-500 text-xs">No hay propuestas registradas en esta edición.</p>`;
+          list.innerHTML = `<p class="text-zinc-400 text-xs">No hay propuestas registradas en esta edición.</p>`;
           return;
         }
 
@@ -354,11 +353,12 @@
           </div>
         `).join("");
       } catch (err) {
-        list.innerHTML = `<p class="text-rose-400 text-xs">Error conectando con Firestore: ${err.message}</p>`;
+        list.innerHTML = `<p class="text-rose-400 text-xs">Error de Firestore: ${err.message}</p>`;
       }
-    };
+    }
 
-    document.getElementById("submissionForm").addEventListener("submit", async (e) => {
+    // 7. Enviar Canción
+    submissionForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const artist = document.getElementById("artistName").value.trim();
       const title = document.getElementById("trackTitle").value.trim();
@@ -374,7 +374,7 @@
       submitBtn.textContent = "Verificando y enviando...";
 
       try {
-        await window.nwrLoadSubmissions();
+        await loadSubmissions();
         const duplicate = submissionsCache.some(
           (s) => s.artist.toLowerCase() === artist.toLowerCase() || (s.email && s.email.toLowerCase() === email.toLowerCase())
         );
@@ -386,7 +386,7 @@
           return;
         }
 
-        await addDoc(collection(db, "submissions"), {
+        await db.collection("submissions").add({
           artist,
           title,
           url,
@@ -395,13 +395,13 @@
           dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })
         });
 
-        e.target.reset();
-        document.getElementById("confirmSaveCheckbox").checked = false;
-        e.target.classList.add("opacity-50", "pointer-events-none");
+        submissionForm.reset();
+        confirmSaveCheckbox.checked = false;
+        submissionForm.classList.add("opacity-50", "pointer-events-none");
         showFeedback("¡Canción enviada correctamente a Next Wave Rising!", "text-emerald-400");
-        await window.nwrLoadSubmissions();
+        await loadSubmissions();
       } catch (err) {
-        showFeedback("Error al enviar: " + err.message, "text-rose-400");
+        showFeedback("Error al guardar en Firebase: " + err.message, "text-rose-400");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
@@ -414,5 +414,6 @@
       feedbackMsg.classList.remove("hidden");
     }
 
+    // 8. Controles Curadores
     document.getElementById("saveConfigBtn").addEventListener("click", async () => {
-      currentConfig.edition = documen
+      currentConfig.edition = document.getElementById("
