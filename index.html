@@ -52,15 +52,37 @@
   <!-- CONTENEDOR PRINCIPAL -->
   <main class="w-full max-w-2xl space-y-6">
 
-    <!-- ESTADO DE LA CONVOCATORIA -->
-    <section class="glass rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <p class="text-xs text-zinc-400 uppercase tracking-wider">Edición Activa</p>
-        <h2 id="editionTitle" class="text-lg font-bold text-white">Cargando edición...</h2>
-        <p class="text-xs text-zinc-400 mt-0.5">Cierre automático: Jueves 00:00h (hora España)</p>
+    <!-- ESTADO DE LA CONVOCATORIA Y CONTADOR EN VIVO -->
+    <section class="glass rounded-2xl p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <p class="text-xs text-zinc-400 uppercase tracking-wider">Edición Activa</p>
+          <h2 id="editionTitle" class="text-lg font-bold text-white">Edición Semanal #1</h2>
+          <p class="text-xs text-zinc-400 mt-0.5">Cierre automático: Jueves 00:00h (hora España)</p>
+        </div>
+        <div id="statusBadge" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 self-start sm:self-center">
+          Convocatoria Abierta
+        </div>
       </div>
-      <div id="statusBadge" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 self-start sm:self-center">
-        Convocatoria Abierta
+
+      <!-- RELOJ CUENTA ATRÁS -->
+      <div id="countdownBox" class="grid grid-cols-4 gap-2 pt-2 border-t border-white/10 text-center">
+        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
+          <span id="cdDays" class="block text-xl md:text-2xl font-extrabold text-emerald-400">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Días</span>
+        </div>
+        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
+          <span id="cdHours" class="block text-xl md:text-2xl font-extrabold text-white">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Horas</span>
+        </div>
+        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
+          <span id="cdMinutes" class="block text-xl md:text-2xl font-extrabold text-white">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Min</span>
+        </div>
+        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
+          <span id="cdSeconds" class="block text-xl md:text-2xl font-extrabold text-cyan-400">00</span>
+          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Seg</span>
+        </div>
       </div>
     </section>
 
@@ -226,16 +248,42 @@
     const statusBadge = document.getElementById("statusBadge");
     const submitBtn = document.getElementById("submitBtn");
 
-    // Comprobar cierre los Jueves a las 00:00 (hora peninsular española)
-    function checkDeadline() {
-      const spainTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
-      const isThursday = spainTime.getDay() === 4;
-      if (isThursday) {
+    // --- CONTADOR EN TIEMPO REAL HASTA EL JUEVES 00:00 (HORA ESPAÑA) ---
+    function updateCountdown() {
+      const nowSpain = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+      const dayOfWeek = nowSpain.getDay(); // 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
+
+      // Si es Jueves (día 4), la convocatoria permanece cerrada todo el día de curaduría
+      if (dayOfWeek === 4) {
         statusBadge.textContent = "Cerrada (Jueves de Curaduría)";
-        statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
+        statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 self-start sm:self-center";
         confirmSaveCheckbox.disabled = true;
         submissionForm.classList.add("opacity-40", "pointer-events-none");
+        document.getElementById("cdDays").textContent = "00";
+        document.getElementById("cdHours").textContent = "00";
+        document.getElementById("cdMinutes").textContent = "00";
+        document.getElementById("cdSeconds").textContent = "00";
+        return;
       }
+
+      // Calcular el próximo Jueves a las 00:00:00 (medianoche del miércoles al jueves)
+      const targetThursday = new Date(nowSpain);
+      const daysUntilThursday = (4 - dayOfWeek + 7) % 7 || 7;
+      targetThursday.setDate(nowSpain.getDate() + daysUntilThursday);
+      targetThursday.setHours(0, 0, 0, 0);
+
+      const diffMs = targetThursday - nowSpain;
+      const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      document.getElementById("cdDays").textContent = String(days).padStart(2, "0");
+      document.getElementById("cdHours").textContent = String(hours).padStart(2, "0");
+      document.getElementById("cdMinutes").textContent = String(minutes).padStart(2, "0");
+      document.getElementById("cdSeconds").textContent = String(seconds).padStart(2, "0");
     }
 
     // Cargar configuración desde Firestore
@@ -399,8 +447,9 @@
       alert("Lista copiada al portapapeles.");
     });
 
-    // Arranque
-    checkDeadline();
+    // Arranque inmediato + actualización cada segundo
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
     loadConfig();
   </script>
 </body>
