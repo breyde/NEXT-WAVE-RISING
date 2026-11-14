@@ -23,18 +23,13 @@
       </div>
     </section>
 
+    <!-- TEMA DESTACADO -->
     <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2">
-      <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">🎵 Tema Destacado</h3>
+      <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">🎵 TEMA DESTACADO</h3>
       <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </section>
 
     <section id="artistView" class="space-y-6">
-      <section class="glass rounded-2xl p-6 space-y-3 border border-cyan-500/20">
-        <div class="flex justify-between items-center"><h3 class="font-bold text-cyan-400 text-sm uppercase tracking-wider">🎶 Próximas Entradas</h3><span class="text-xs text-zinc-400">Total: <strong id="publicSubCount" class="text-white">0</strong></span></div>
-        <p class="text-xs text-zinc-300">Propuestas recibidas que optan a la próxima actualización. ¡Haz clic en Preview para escucharlas!</p>
-        <div id="publicSubmissionsList" class="space-y-3 text-xs pt-1"><p class="text-zinc-400">Cargando propuestas...</p></div>
-      </section>
-
       <div class="glass rounded-2xl p-6 space-y-3 border border-emerald-500/20">
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">⚡ Nuestro Manifiesto &amp; Recompensas</h3>
         <p class="text-xs text-zinc-300 leading-relaxed"><strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes para competir fuera de la liga de las grandes discográficas.</p>
@@ -64,6 +59,17 @@
         <h3 class="font-bold text-white text-sm">✓ ¡Propuesta recibida!</h3>
         <div class="text-xs space-y-1 text-zinc-300"><p>Artista: <strong id="receiptArtist" class="text-white"></strong></p><p>Canción: <strong id="receiptTitle" class="text-emerald-400"></strong></p><p>Correo: <span id="receiptEmail"></span></p></div>
       </div>
+
+      <!-- PRÓXIMAS ENTRADAS AL FINAL CON ESTILO TEMA DESTACADO -->
+      <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider">🎵 PRÓXIMAS ENTRADAS A LISTA NEXT WAVE RISING</h3>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">Total: <strong id="publicSubCount">0</strong></span>
+        </div>
+        <div id="publicSubmissionsList" class="space-y-4 pt-1">
+          <p class="text-zinc-400 text-xs">Cargando propuestas...</p>
+        </div>
+      </section>
     </section>
 
     <section id="adminView" class="hidden space-y-6">
@@ -101,11 +107,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    function togglePreview(id) {
-      const el = document.getElementById("preview-" + id);
-      if (el) el.classList.toggle("hidden");
-    }
-
     document.addEventListener("DOMContentLoaded", function() {
       const firebaseConfig = {
         apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
@@ -191,12 +192,6 @@
         return id ? "https://open.spotify.com/embed/track/" + id + "?utm_source=generator&theme=0" : "";
       }
 
-      function getTrackId(url) {
-        if (!url || !url.includes("spotify.com/track/")) return "";
-        const parts = url.split("?")[0].split("/");
-        return parts[parts.length - 1] || "";
-      }
-
       async function loadConfig() {
         try {
           const snap = await db.collection("settings").doc("activeEdition").get();
@@ -236,7 +231,7 @@
 
           if(subs.length === 0) {
             adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
-            publicList.innerHTML = '<p class="text-zinc-400 text-xs italic">Aún no hay propuestas enviadas para esta edición. ¡Sé el primero!</p>';
+            publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas enviadas para esta edición. ¡Sé el primero!</p>';
             return;
           }
 
@@ -247,28 +242,22 @@
             return '<div class="p-2.5 bg-zinc-900 rounded flex justify-between items-center"><div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + '</p></div><div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div></div>';
           }).join("");
 
+          // Renderizar cada canción con el reproductor oficial estilo "Tema Destacado"
           publicList.innerHTML = subs.map((s, i) => {
-            const cleanUrl = s.url.split("?")[0];
-            const trackId = getTrackId(s.url);
-            const previewBtn = trackId ? '<button onclick="togglePreview(\'' + s.id + '\')" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 rounded font-semibold hover:bg-emerald-500/30 transition">▶️ Preview</button>' : '';
-            const embedPlayer = trackId ? '<div id="preview-' + s.id + '" class="hidden pt-2"><iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/' + trackId + '?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>' : '';
-
-            return '<div class="p-3 bg-zinc-900/80 rounded-xl border border-white/5 space-y-2">' +
-              '<div class="flex justify-between items-center">' +
-                '<div><p class="font-bold text-white text-sm">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p>' +
-                '<p class="text-[10px] text-zinc-400">Registrado el ' + s.dateString + '</p></div>' +
-                '<div class="flex gap-1.5 items-center">' +
-                  previewBtn +
-                  '<a href="' + cleanUrl + '" target="_blank" class="px-2.5 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded font-semibold hover:bg-[#1DB954]/30 transition">Spotify</a>' +
-                '</div>' +
+            const embedUrl = toEmbed(s.url);
+            if (!embedUrl) return '';
+            return '<div class="space-y-1 pt-1">' +
+              '<div class="flex justify-between items-center px-1 text-xs text-zinc-400">' +
+                '<span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span>' +
+                '<span class="text-[10px]">Reg: ' + s.dateString + '</span>' +
               '</div>' +
-              embedPlayer +
+              '<iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>' +
             '</div>';
           }).join("");
 
         } catch(e){
           adminList.innerHTML = '<p class="text-rose-400">Error cargando datos.</p>';
-          publicList.innerHTML = '<p class="text-rose-400 text-xs">Error cargando la lista de propuestas.</p>';
+          publicList.innerHTML = '<p class="text-rose-400 text-xs text-center">Error cargando la lista de propuestas.</p>';
         }
       }
 
@@ -338,7 +327,7 @@
           const batch = db.batch();
           snapshot.docs.forEach(doc => batch.delete(doc.ref));
           await batch.commit();
-          await loadSubs();
+          loadSubs();
           alert("Reiniciado.");
         } catch(e){ alert("Error."); }
       });
