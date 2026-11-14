@@ -1,383 +1,233 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#09090b" />
-  <title>Next Wave Rising | Envío de Canciones</title>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next Wave Rising</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at top right, #1e1b4b, #09090b 65%);
-      color: #f4f4f5;
-      min-height: 100vh;
-    }
-    .glass {
-      background: rgba(24, 24, 27, 0.72);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .neon-btn {
-      background: linear-gradient(135deg, #10b981, #06b6d4);
-      transition: all 0.25s ease;
-    }
-    .neon-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
-    }
-    .neon-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-  </style>
+  <style>body{font-family:'Outfit',sans-serif;background:#09090b;color:#f4f4f5;min-height:100vh}.glass{background:rgba(24,24,27,0.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.08)}.neon-btn{background:linear-gradient(135deg,#10b981,#06b6d4)}</style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
-
-  <!-- CABECERA -->
-  <header class="w-full max-w-2xl flex justify-between items-center mb-8">
-    <div>
-      <span class="text-xs uppercase tracking-widest text-emerald-400 font-semibold">Curaduría Oficial • Breyde&amp;Darko</span>
-      <h1 class="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-emerald-400">
-        Next Wave Rising
-      </h1>
-    </div>
-    <button type="button" id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-200 hover:text-white border border-white/15 cursor-pointer z-10">
-      Panel Curadores
-    </button>
+  <header class="w-full max-w-2xl flex justify-between items-center mb-6">
+    <div><span class="text-xs uppercase text-emerald-400 font-semibold">Breyde&amp;Darko</span><h1 class="text-3xl font-extrabold text-white">Next Wave Rising</h1></div>
+    <button id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-200">Panel Curadores</button>
   </header>
-
-  <!-- CONTENEDOR PRINCIPAL -->
   <main class="w-full max-w-2xl space-y-6">
-
-    <!-- ESTADO DE LA CONVOCATORIA Y CONTADOR EN VIVO -->
-    <section class="glass rounded-2xl p-5 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <p class="text-xs text-zinc-400 uppercase tracking-wider">Edición Activa</p>
-          <h2 id="editionTitle" class="text-lg font-bold text-white">Edición Semanal #1</h2>
-          <p class="text-xs text-zinc-400 mt-0.5">Cierre automático: Jueves 00:00h (hora España)</p>
-        </div>
-        <div id="statusBadge" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 self-start sm:self-center">
-          Convocatoria Abierta
-        </div>
-      </div>
-
-      <!-- RELOJ CUENTA ATRÁS -->
-      <div id="countdownBox" class="grid grid-cols-4 gap-2 pt-2 border-t border-white/10 text-center">
-        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdDays" class="block text-xl md:text-2xl font-extrabold text-emerald-400">--</span>
-          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Días</span>
-        </div>
-        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdHours" class="block text-xl md:text-2xl font-extrabold text-white">--</span>
-          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Horas</span>
-        </div>
-        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdMinutes" class="block text-xl md:text-2xl font-extrabold text-white">--</span>
-          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Min</span>
-        </div>
-        <div class="bg-zinc-900/80 rounded-xl p-2.5 border border-white/5">
-          <span id="cdSeconds" class="block text-xl md:text-2xl font-extrabold text-cyan-400">--</span>
-          <span class="text-[10px] uppercase tracking-wider text-zinc-400">Seg</span>
-        </div>
+    <section class="glass rounded-2xl p-5 space-y-3">
+      <div class="flex justify-between items-center"><div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p class="text-xs text-zinc-400">Cierre: Jueves 00:00h</p></div><div id="statusBadge" class="px-3 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-400">Abierta</div></div>
+      <div id="countdownBox" class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-white/10">
+        <div class="bg-zinc-900 p-2 rounded"><span id="cdDays" class="text-lg font-bold text-emerald-400">00</span><span class="block text-[9px] text-zinc-400">DÍAS</span></div>
+        <div class="bg-zinc-900 p-2 rounded"><span id="cdHours" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">HORAS</span></div>
+        <div class="bg-zinc-900 p-2 rounded"><span id="cdMinutes" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">MIN</span></div>
+        <div class="bg-zinc-900 p-2 rounded"><span id="cdSeconds" class="text-lg font-bold text-cyan-400">00</span><span class="block text-[9px] text-zinc-400">SEG</span></div>
       </div>
     </section>
-
-    <!-- VISTA ARTISTA -->
     <section id="artistView" class="space-y-6">
-
-      <!-- PASO 1: GUARDAR PLAYLIST -->
-      <div class="glass rounded-2xl p-6 space-y-4">
-        <div class="flex items-center gap-3">
-          <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm">1</span>
-          <h3 class="text-lg font-semibold">Apoya la comunidad antes de enviar</h3>
-        </div>
-        <p class="text-sm text-zinc-300 leading-relaxed">
-          Para impulsar las escuchas de todos los participantes, es obligatorio <strong>guardar la playlist en tu biblioteca de Spotify</strong> antes de enviar tu tema.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-3 pt-1">
-          <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" rel="noopener noreferrer"
-             class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-sm transition">
-            Abrir Playlist en Spotify
-          </a>
-        </div>
-
-        <label class="flex items-start gap-3 pt-2 cursor-pointer select-none">
-          <input type="checkbox" id="confirmSaveCheckbox" class="mt-1 w-4 h-4 accent-emerald-500 rounded cursor-pointer" />
-          <span class="text-xs text-zinc-300">
-            Confirmo que ya he guardado <strong>Next Wave Rising</strong> en mi biblioteca de Spotify (se verificará antes de incluir la canción).
-          </span>
-        </label>
+      <div class="glass rounded-2xl p-6 space-y-3">
+        <h3 class="font-semibold">1. Guarda la playlist</h3>
+        <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm">Abrir Playlist en Spotify</a>
+        <label class="flex gap-2 text-xs text-zinc-300 pt-2"><input type="checkbox" id="confirmSaveCheckbox" class="accent-emerald-500"> Confirmo que ya he guardado la playlist.</label>
       </div>
-
-      <!-- PASO 2: FORMULARIO DE ENVÍO -->
-      <form id="submissionForm" onsubmit="return false;" class="glass rounded-2xl p-6 space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
-        <div class="flex items-center gap-3">
-          <span class="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-sm">2</span>
-          <h3 class="text-lg font-semibold">Envía tu canción (Máx. 1 por edición)</h3>
-        </div>
-
-        <div>
-          <label class="block text-xs text-zinc-400 mb-1">Nombre del Artista / Proyecto *</label>
-          <input type="text" id="artistName" required placeholder="Ej. Breyde"
-                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
-        </div>
-
-        <div>
-          <label class="block text-xs text-zinc-400 mb-1">Título de la Canción *</label>
-          <input type="text" id="trackTitle" required placeholder="Ej. Fast Lane"
-                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
-        </div>
-
-        <div>
-          <label class="block text-xs text-zinc-400 mb-1">Enlace de Spotify de la Canción *</label>
-          <input type="url" id="trackUrl" required placeholder="https://open.spotify.com/track/..."
-                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
-        </div>
-
-        <div>
-          <label class="block text-xs text-zinc-400 mb-1">Correo electrónico de contacto *</label>
-          <input type="email" id="artistEmail" required placeholder="tuemail@ejemplo.com"
-                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
-        </div>
-
-        <button type="button" id="submitBtn" class="w-full py-3 rounded-xl neon-btn text-zinc-950 font-bold text-sm">
-          Enviar Propuesta a Next Wave Rising
-        </button>
-
-        <p id="feedbackMsg" class="text-xs text-center hidden pt-2"></p>
+      <form id="submissionForm" onsubmit="return false;" class="glass rounded-2xl p-6 space-y-3 opacity-50 pointer-events-none">
+        <h3 class="font-semibold">2. Envía tu canción</h3>
+        <input type="text" id="artistName" required placeholder="Nombre del Artista *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+        <input type="text" id="trackTitle" required placeholder="Título de la Canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+        <input type="url" id="trackUrl" required placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+        <input type="email" id="artistEmail" required placeholder="Correo electrónico *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+        <button type="button" id="submitBtn" class="w-full py-3 neon-btn text-zinc-950 font-bold rounded-xl text-sm">Enviar Propuesta</button>
+        <p id="feedbackMsg" class="text-xs text-center hidden"></p>
       </form>
-
-      <!-- TARJETA COMPROBANTE OFICIAL DE ENVÍO -->
-      <div id="receiptCard" class="hidden glass rounded-2xl p-6 border border-emerald-500/40 bg-emerald-950/20 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">✓ Comprobante de Registro</span>
-          <span id="receiptEdition" class="text-xs text-zinc-400">Edición Semanal #1</span>
-        </div>
-        <h3 class="text-lg font-extrabold text-white">¡Propuesta recibida correctamente!</h3>
-        <div class="p-3.5 rounded-xl bg-zinc-900/90 border border-white/10 space-y-1.5 text-xs">
-          <p><span class="text-zinc-400">Artista:</span> <strong id="receiptArtist" class="text-white"></strong></p>
-          <p><span class="text-zinc-400">Canción:</span> <strong id="receiptTitle" class="text-emerald-400"></strong></p>
-          <p><span class="text-zinc-400">Correo registrado:</span> <span id="receiptEmail" class="text-zinc-200"></span></p>
-          <p><span class="text-zinc-400">Fecha y hora (España):</span> <span id="receiptDate" class="text-zinc-200"></span></p>
-        </div>
-        <p class="text-[11px] text-zinc-400 leading-relaxed">
-          Guarda una captura de este comprobante. Recuerda mantener <strong>Next Wave Rising</strong> guardada en tu biblioteca de Spotify para la revisión del jueves.
-        </p>
+      <div id="receiptCard" class="hidden glass rounded-2xl p-5 border border-emerald-500/40 bg-emerald-950/20 space-y-2">
+        <h3 class="font-bold text-white text-sm">✓ ¡Propuesta recibida!</h3>
+        <div class="text-xs space-y-1 text-zinc-300"><p>Artista: <strong id="receiptArtist" class="text-white"></strong></p><p>Canción: <strong id="receiptTitle" class="text-emerald-400"></strong></p><p>Correo: <span id="receiptEmail"></span></p></div>
       </div>
     </section>
-
-    <!-- VISTA PANEL DE CURADORES -->
     <section id="adminView" class="hidden space-y-6">
-      <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-4">
-        <h3 class="text-lg font-bold">Acceso Curadores (Breyde&amp;Darko)</h3>
-        <p class="text-xs text-zinc-400">Introduce la clave de administración para gestionar las propuestas.</p>
-        <div class="flex gap-2">
-          <input type="password" id="adminPassInput" placeholder="Clave de acceso"
-                 class="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-sm focus:outline-none focus:border-emerald-400" />
-          <button type="button" id="adminLoginBtn" class="px-5 py-2.5 rounded-xl neon-btn text-zinc-950 font-bold text-sm">Entrar</button>
-        </div>
+      <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-3">
+        <h3 class="font-bold">Acceso Curadores</h3>
+        <div class="flex gap-2"><input type="password" id="adminPassInput" placeholder="Clave" class="flex-1 px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"><button type="button" id="adminLoginBtn" class="px-4 py-2 neon-btn text-zinc-950 font-bold rounded text-sm">Entrar</button></div>
       </div>
-
-      <div id="adminDashboard" class="hidden space-y-6">
-        <div class="glass rounded-2xl p-6 space-y-4">
-          <h3 class="text-lg font-bold text-emerald-400">Configuración de la Edición</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-zinc-400 mb-1">Nombre de la Edición</label>
-              <input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
-            </div>
-            <div>
-              <label class="block text-xs text-zinc-400 mb-1">Enlace Playlist Spotify</label>
-              <input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
-            </div>
-          </div>
-          <div class="flex flex-wrap gap-3 pt-2">
-            <button type="button" id="saveConfigBtn" class="px-4 py-2 rounded-lg bg-emerald-500 text-zinc-950 font-bold text-xs hover:bg-emerald-400 transition">
-              Guardar Cambios
-            </button>
-            <button type="button" id="newEditionBtn" class="px-4 py-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold text-xs hover:bg-rose-500/30 transition">
-              Nueva Edición (Limpiar Lista)
-            </button>
-          </div>
+      <div id="adminDashboard" class="hidden space-y-4">
+        <div class="glass rounded-2xl p-5 space-y-3">
+          <h3 class="font-bold text-emerald-400 text-sm">Configuración</h3>
+          <input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+          <input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+          <div class="flex gap-2"><button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs">Guardar</button><button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs">Nueva Edición</button></div>
         </div>
-
-        <div class="glass rounded-2xl p-6 space-y-4">
-          <div class="flex justify-between items-center">
-            <h3 class="text-lg font-bold">Canciones Recibidas (<span id="subCount">0</span>)</h3>
-            <button type="button" id="exportListBtn" class="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition">
-              Copiar Lista
-            </button>
-          </div>
-          <div id="submissionsList" class="space-y-3 text-sm">
-            <p class="text-zinc-500 text-xs">Cargando propuestas...</p>
-          </div>
+        <div class="glass rounded-2xl p-5 space-y-3">
+          <div class="flex justify-between items-center"><h3 class="font-bold text-sm">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 rounded">Copiar Lista</button></div>
+          <div id="submissionsList" class="space-y-2 text-xs"><p class="text-zinc-400">Cargando...</p></div>
         </div>
       </div>
     </section>
-
   </main>
-
-  <footer class="w-full max-w-2xl text-center text-xs text-zinc-500 mt-12 pb-4">
-    Next Wave Rising • Curado por Breyde&amp;Darko
-  </footer>
-
-  <!-- CÓDIGO NATIVO DIRECTO -->
+  <footer class="text-xs text-zinc-500 mt-8">Next Wave Rising • Breyde&amp;Darko</footer>
   <script>
-    (function() {
-      const PROJECT_ID = "next-wave-rising-3ab56";
-      const BASE_URL = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents";
-      const CURATOR_PASSWORD = "breyde2026";
+    document.addEventListener("DOMContentLoaded", function() {
+      const URL_API = "https://firestore.googleapis.com/v1/projects/next-wave-rising-3ab56/databases/(default)/documents";
+      const PASS = "breyde2026";
+      let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" };
+      let subs = [];
 
-      let currentConfig = {
-        edition: "Edición Semanal #1",
-        playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF"
-      };
-      let submissionsCache = [];
-
-      const toggleAdminBtn = document.getElementById("toggleAdminBtn");
-      const artistView = document.getElementById("artistView");
-      const adminView = document.getElementById("adminView");
-      const confirmSaveCheckbox = document.getElementById("confirmSaveCheckbox");
-      const submissionForm = document.getElementById("submissionForm");
-      const feedbackMsg = document.getElementById("feedbackMsg");
-      const statusBadge = document.getElementById("statusBadge");
-      const submitBtn = document.getElementById("submitBtn");
-      const receiptCard = document.getElementById("receiptCard");
-
-      // 1. Navegación Panel Curadores
-      toggleAdminBtn.addEventListener("click", function() {
-        const isHidden = adminView.classList.contains("hidden");
-        adminView.classList.toggle("hidden", !isHidden);
-        artistView.classList.toggle("hidden", isHidden);
-        toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
+      document.getElementById("toggleAdminBtn").addEventListener("click", () => {
+        const hid = document.getElementById("adminView").classList.contains("hidden");
+        document.getElementById("adminView").classList.toggle("hidden", !hid);
+        document.getElementById("artistView").classList.toggle("hidden", hid);
+        document.getElementById("toggleAdminBtn").textContent = hid ? "Volver" : "Panel Curadores";
       });
 
-      // 2. Login Curadores
-      document.getElementById("adminLoginBtn").addEventListener("click", function() {
-        const inputVal = document.getElementById("adminPassInput").value.trim();
-        if (inputVal === CURATOR_PASSWORD) {
+      document.getElementById("adminLoginBtn").addEventListener("click", () => {
+        if(document.getElementById("adminPassInput").value.trim() === PASS) {
           document.getElementById("adminLoginBox").classList.add("hidden");
           document.getElementById("adminDashboard").classList.remove("hidden");
-          loadSubmissions();
-        } else {
-          alert("Clave incorrecta");
-        }
+          loadSubs();
+        } else alert("Clave incorrecta");
       });
 
-      // 3. Desbloquear formulario
-      confirmSaveCheckbox.addEventListener("change", function(e) {
-        submissionForm.classList.toggle("opacity-50", !e.target.checked);
-        submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
+      document.getElementById("confirmSaveCheckbox").addEventListener("change", e => {
+        document.getElementById("submissionForm").classList.toggle("opacity-50", !e.target.checked);
+        document.getElementById("submissionForm").classList.toggle("pointer-events-none", !e.target.checked);
       });
 
-      // 4. Reloj cuenta atrás (Hora España)
-      function getSpainParts() {
-        const fmt = new Intl.DateTimeFormat("en-GB", {
-          timeZone: "Europe/Madrid",
-          weekday: "short",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false
-        });
-        const parts = {};
-        fmt.formatToParts(new Date()).forEach(function(p) { parts[p.type] = p.value; });
-        const mapDay = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-        return {
-          day: mapDay[parts.weekday] !== undefined ? mapDay[parts.weekday] : new Date().getDay(),
-          hour: parseInt(parts.hour, 10) || 0,
-          minute: parseInt(parts.minute, 10) || 0,
-          second: parseInt(parts.second, 10) || 0
-        };
+      function clock() {
+        try {
+          const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+          const p = {}; fmt.formatToParts(new Date()).forEach(x => p[x.type] = x.value);
+          const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+          const day = map[p.weekday] !== undefined ? map[p.weekday] : new Date().getDay();
+          const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
+          if (day === 4) { document.getElementById("statusBadge").textContent = "Cerrada"; return; }
+          const left = Math.max(0, (((4 - day + 7) % 7 || 7) * 86400) - (h * 3600 + m * 60 + s));
+          document.getElementById("cdDays").textContent = String(Math.floor(left / 86400)).padStart(2, "0");
+          document.getElementById("cdHours").textContent = String(Math.floor((left % 86400) / 3600)).padStart(2, "0");
+          document.getElementById("cdMinutes").textContent = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
+          document.getElementById("cdSeconds").textContent = String(left % 60).padStart(2, "0");
+        } catch(e){}
       }
 
-      function updateCountdown() {
-        const now = getSpainParts();
-        if (now.day === 4) {
-          statusBadge.textContent = "Cerrada (Jueves de Curaduría)";
-          statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 self-start sm:self-center";
-          confirmSaveCheckbox.disabled = true;
-          submissionForm.classList.add("opacity-40", "pointer-events-none");
-          document.getElementById("cdDays").textContent = "00";
-          document.getElementById("cdHours").textContent = "00";
-          document.getElementById("cdMinutes").textContent = "00";
-          document.getElementById("cdSeconds").textContent = "00";
-          return;
-        }
-        const daysUntilThursday = (4 - now.day + 7) % 7 || 7;
-        const secondsPassedToday = now.hour * 3600 + now.minute * 60 + now.second;
-        const totalSeconds = Math.max(0, daysUntilThursday * 86400 - secondsPassedToday);
-
-        document.getElementById("cdDays").textContent = String(Math.floor(totalSeconds / 86400)).padStart(2, "0");
-        document.getElementById("cdHours").textContent = String(Math.floor((totalSeconds % 86400) / 3600)).padStart(2, "0");
-        document.getElementById("cdMinutes").textContent = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-        document.getElementById("cdSeconds").textContent = String(totalSeconds % 60).padStart(2, "0");
-      }
-
-      // 5. Cargar Configuración
       async function loadConfig() {
         try {
-          const res = await fetch(BASE_URL + "/settings/activeEdition");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.fields) {
-              currentConfig.edition = (data.fields.edition && data.fields.edition.stringValue) || currentConfig.edition;
-              currentConfig.playlistUrl = (data.fields.playlistUrl && data.fields.playlistUrl.stringValue) || currentConfig.playlistUrl;
+          const res = await fetch(URL_API + "/settings/activeEdition");
+          if(res.ok) {
+            const d = await res.json();
+            if(d.fields) {
+              config.edition = d.fields.edition?.stringValue || config.edition;
+              config.playlistUrl = d.fields.playlistUrl?.stringValue || config.playlistUrl;
             }
           }
-        } catch (err) {
-          console.warn("Usando config por defecto:", err);
-        }
-        document.getElementById("editionTitle").textContent = currentConfig.edition;
-        document.getElementById("playlistLinkBtn").href = currentConfig.playlistUrl;
-        document.getElementById("adminEditionInput").value = currentConfig.edition;
-        document.getElementById("adminPlaylistInput").value = currentConfig.playlistUrl;
+        } catch(e){}
+        document.getElementById("editionTitle").textContent = config.edition;
+        document.getElementById("playlistLinkBtn").href = config.playlistUrl;
+        document.getElementById("adminEditionInput").value = config.edition;
+        document.getElementById("adminPlaylistInput").value = config.playlistUrl;
       }
 
-      // 6. Cargar Propuestas con botón Escuchar + Avisar Email
-      async function loadSubmissions() {
+      async function loadSubs() {
         const list = document.getElementById("submissionsList");
         try {
-          const res = await fetch(BASE_URL + "/submissions?pageSize=200");
-          if (!res.ok) throw new Error("HTTP " + res.status);
-          const data = await res.json();
-          const docs = data.documents || [];
-
-          submissionsCache = docs.map(function(d) {
-            const f = d.fields || {};
-            const docId = d.name.split("/").pop();
+          const res = await fetch(URL_API + "/submissions?pageSize=200");
+          if(!res.ok) throw new Error();
+          const d = await res.json();
+          subs = (d.documents || []).map(doc => {
+            const f = doc.fields || {};
             return {
-              id: docId,
-              artist: (f.artist && f.artist.stringValue) || "",
-              title: (f.title && f.title.stringValue) || "",
-              url: (f.url && f.url.stringValue) || "",
-              email: (f.email && f.email.stringValue) || "",
-              timestamp: Number((f.timestamp && f.timestamp.integerValue) || 0),
-              dateString: (f.dateString && f.dateString.stringValue) || ""
+              id: doc.name.split("/").pop(),
+              artist: f.artist?.stringValue || "",
+              title: f.title?.stringValue || "",
+              url: f.url?.stringValue || "",
+              email: f.email?.stringValue || "",
+              timestamp: Number(f.timestamp?.integerValue || 0),
+              dateString: f.dateString?.stringValue || ""
             };
-          }).sort(function(a, b) { return a.timestamp - b.timestamp; });
+          }).sort((a,b) => a.timestamp - b.timestamp);
 
-          document.getElementById("subCount").textContent = submissionsCache.length;
-          if (submissionsCache.length === 0) {
-            list.innerHTML = '<p class="text-zinc-400 text-xs">No hay propuestas registradas en esta edición.</p>';
-            return;
+          document.getElementById("subCount").textContent = subs.length;
+          if(subs.length === 0) { list.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>'; return; }
+          list.innerHTML = subs.map((s, i) => {
+            const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
+            const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
+            return '<div class="p-2.5 bg-zinc-900 rounded flex justify-between items-center"><div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + '</p></div><div class="flex gap-1.5"><a href="' + s.url + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div></div>';
+          }).join("");
+        } catch(e){ list.innerHTML = '<p class="text-rose-400">Error cargando datos.</p>'; }
+      }
+
+      document.getElementById("submitBtn").addEventListener("click", async () => {
+        const artist = document.getElementById("artistName").value.trim();
+        const title = document.getElementById("trackTitle").value.trim();
+        const url = document.getElementById("trackUrl").value.trim();
+        const email = document.getElementById("artistEmail").value.trim();
+        const fb = document.getElementById("feedbackMsg");
+        const receipt = document.getElementById("receiptCard");
+
+        if(!artist || !title || !url || !email) { fb.textContent = "Rellena los campos."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
+        if(!url.includes("open.spotify.com/track/")) { fb.textContent = "Enlace Spotify no válido."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
+
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("submitBtn").textContent = "Enviando...";
+        receipt.classList.add("hidden");
+
+        try {
+          await loadSubs();
+          if(subs.some(s => s.artist.toLowerCase() === artist.toLowerCase() || s.email.toLowerCase() === email.toLowerCase())) {
+            fb.textContent = "Ya has enviado 1 canción en esta edición."; fb.className = "text-xs text-center text-amber-400"; fb.classList.remove("hidden");
+            document.getElementById("submitBtn").disabled = false; document.getElementById("submitBtn").textContent = "Enviar Propuesta"; return;
           }
 
-          list.innerHTML = submissionsCache.map(function(item, idx) {
-            const subject = encodeURIComponent("Next Wave Rising • Confirmación de propuesta (" + item.title + ")");
-            const body = encodeURIComponent(
-              "¡Hola " + item.artist + "!\n\n" +
-              "Hemos recibido correctamente tu canción \"" + item.title + "\" para la " + currentConfig.edition + " de Next Wave Rising (curada por Breyde&Darko).\n\n" +
-              "Recuerda mantener guardada la playlist en tu biblioteca de Spotify para la revisión del jueves.\n\n" +
-              "¡Un saludo y mucha suerte!\nBreyde & Darko"
-            );
-            const mailBtn = item.email
-              ? '<a href="mailto:' + item.email + '?subject=' + subject + '&body=' + body + '" class="text-xs px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-semibold hover:bg-cyan-500/30">Avisar Email</a>'
-              : '';
+          const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
+          const res = await fetch(URL_API + "/submissions", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fields: { artist: { stringValue: artist }, title: { stringValue: title }, url: { stringValue: url }, email: { stringValue: email }, timestamp: { integerValue: String(Date.now()) }, dateString: { stringValue: dateStr } } })
+          });
+          if(!res.ok) throw new Error();
 
-            return '<div class="p-3.5 rou
+          document.getElementById("receiptArtist").textContent = artist;
+          document.getElementById("receiptTitle").textContent = title;
+          document.getElementById("receiptEmail").textContent = email;
+          receipt.classList.remove("hidden");
+          fb.classList.add("hidden");
+          document.getElementById("submissionForm").reset();
+          document.getElementById("confirmSaveCheckbox").checked = false;
+          document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
+          await loadSubs();
+        } catch(e) {
+          fb.textContent = "Error al enviar."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden");
+        } finally {
+          document.getElementById("submitBtn").disabled = false;
+          document.getElementById("submitBtn").textContent = "Enviar Propuesta";
+        }
+      });
+
+      document.getElementById("saveConfigBtn").addEventListener("click", async () => {
+        config.edition = document.getElementById("adminEditionInput").value.trim() || config.edition;
+        config.playlistUrl = document.getElementById("adminPlaylistInput").value.trim() || config.playlistUrl;
+        try {
+          await fetch(URL_API + "/settings/activeEdition", {
+            method: "PATCH", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fields: { edition: { stringValue: config.edition }, playlistUrl: { stringValue: config.playlistUrl } } })
+          });
+          document.getElementById("editionTitle").textContent = config.edition;
+          document.getElementById("playlistLinkBtn").href = config.playlistUrl;
+          alert("Guardado.");
+        } catch(e){ alert("Error."); }
+      });
+
+      document.getElementById("newEditionBtn").addEventListener("click", async () => {
+        if(!confirm("¿Vaciar lista?")) return;
+        try {
+          for (const s of subs) { await fetch(URL_API + "/submissions/" + s.id, { method: "DELETE" }); }
+          await loadSubs();
+          alert("Reiniciado.");
+        } catch(e){ alert("Error."); }
+      });
+
+      document.getElementById("exportListBtn").addEventListener("click", () => {
+        navigator.clipboard.writeText(subs.map((s, i) => (i+1) + ". " + s.artist + " - " + s.title + " | " + s.email + " (" + s.url + ")").join("\n"));
+        alert("Copiado.");
+      });
+
+      clock(); setInterval(clock, 1000); loadConfig();
+    });
+  </script>
+</body>
+  </html>
+  
