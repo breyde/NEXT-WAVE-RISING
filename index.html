@@ -208,24 +208,23 @@
     Next Wave Rising • Curado por Breyde&amp;Darko
   </footer>
 
-  <!-- FIREBASE SDK (COMPATIBLE CON GITHUB PAGES) -->
+  <!-- FIREBASE SDK CONECTADO A TU PROYECTO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // 1. PEGA AQUÍ TUS CREDENCIALES DE FIREBASE
     const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_PROYECTO.firebaseapp.com",
-      projectId: "TU_PROYECTO_ID",
-      storageBucket: "TU_PROYECTO.appspot.com",
-      messagingSenderId: "TU_SENDER_ID",
-      appId: "TU_APP_ID"
+      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
+      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
+      projectId: "next-wave-rising-3ab56",
+      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
+      messagingSenderId: "690671071183",
+      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
     };
 
-    // 2. CONTRASEÑA DEL PANEL DE CURADORES
+    // Contraseña del panel de curadores (puedes cambiarla cuando quieras)
     const CURATOR_PASSWORD = "breyde2026";
     const DEFAULT_PLAYLIST = "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF";
 
@@ -251,9 +250,8 @@
     // --- CONTADOR EN TIEMPO REAL HASTA EL JUEVES 00:00 (HORA ESPAÑA) ---
     function updateCountdown() {
       const nowSpain = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
-      const dayOfWeek = nowSpain.getDay(); // 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
+      const dayOfWeek = nowSpain.getDay();
 
-      // Si es Jueves (día 4), la convocatoria permanece cerrada todo el día de curaduría
       if (dayOfWeek === 4) {
         statusBadge.textContent = "Cerrada (Jueves de Curaduría)";
         statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 self-start sm:self-center";
@@ -266,7 +264,6 @@
         return;
       }
 
-      // Calcular el próximo Jueves a las 00:00:00 (medianoche del miércoles al jueves)
       const targetThursday = new Date(nowSpain);
       const daysUntilThursday = (4 - dayOfWeek + 7) % 7 || 7;
       targetThursday.setDate(nowSpain.getDate() + daysUntilThursday);
@@ -297,7 +294,7 @@
           await setDoc(configRef, currentConfig);
         }
       } catch (err) {
-        console.warn("Usando configuración por defecto (revisa tus credenciales Firebase):", err);
+        console.warn("Aviso cargando configuración:", err);
       }
       editionTitle.textContent = currentConfig.edition;
       playlistLinkBtn.href = currentConfig.playlistUrl;
@@ -335,7 +332,7 @@
           </div>
         `).join("");
       } catch (err) {
-        list.innerHTML = `<p class="text-rose-400 text-xs">Error conectando con Firebase. Revisa tus claves y reglas de Firestore.</p>`;
+        list.innerHTML = `<p class="text-rose-400 text-xs">Error conectando con Firestore. Revisa las reglas de la base de datos.</p>`;
       }
     }
 
@@ -388,7 +385,7 @@
         showFeedback("¡Canción enviada correctamente a Next Wave Rising!", "text-emerald-400");
         await loadSubmissions();
       } catch (err) {
-        showFeedback("Error al enviar. Comprueba la configuración de Firebase.", "text-rose-400");
+        showFeedback("Error al enviar. Revisa las reglas de Firestore.", "text-rose-400");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
@@ -424,33 +421,4 @@
     });
 
     document.getElementById("saveConfigBtn").addEventListener("click", async () => {
-      currentConfig.edition = document.getElementById("adminEditionInput").value.trim() || currentConfig.edition;
-      currentConfig.playlistUrl = document.getElementById("adminPlaylistInput").value.trim() || currentConfig.playlistUrl;
-      await setDoc(doc(db, "settings", "activeEdition"), currentConfig);
-      editionTitle.textContent = currentConfig.edition;
-      playlistLinkBtn.href = currentConfig.playlistUrl;
-      alert("Configuración guardada en la nube.");
-    });
-
-    document.getElementById("newEditionBtn").addEventListener("click", async () => {
-      if (!confirm("¿Seguro que quieres vaciar la lista actual e iniciar una nueva edición semanal?")) return;
-      for (const item of submissionsCache) {
-        await deleteDoc(doc(db, "submissions", item.id));
-      }
-      await loadSubmissions();
-      alert("Lista reiniciada para la nueva edición.");
-    });
-
-    document.getElementById("exportListBtn").addEventListener("click", () => {
-      const text = submissionsCache.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ""} (${s.url})`).join("\n");
-      navigator.clipboard.writeText(text);
-      alert("Lista copiada al portapapeles.");
-    });
-
-    // Arranque inmediato + actualización cada segundo
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-    loadConfig();
-  </script>
-</body>
-</html>
+   
