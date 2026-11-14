@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#09090b" />
+  <title>Next Wave Rising | Envío de Canciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at top right, #1e1b4b, #09090b 65%);
+      color: #f4f4f5;
+      min-height: 100vh;
+    }
+    .glass {
+      background: rgba(24, 24, 27, 0.72);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .neon-btn {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      transition: all 0.25s ease;
+    }
+    .neon-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+    }
+    .neon-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center justify-between">
+
+  <!-- CABECERA -->
+  <header class="w-full max-w-2xl flex justify-between items-center mb-8">
+    <div>
+      <span class="text-xs uppercase tracking-widest text-emerald-400 font-semibold">Curaduría Oficial • Breyde</span>
+      <h1 class="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-emerald-400">
+        Next Wave Rising
+      </h1>
+    </div>
+    <button id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-400 hover:text-white transition">
+      Panel Curadora
+    </button>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="w-full max-w-2xl space-y-6">
+
+    <!-- ESTADO DE LA CONVOCATORIA -->
+    <section class="glass rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <p class="text-xs text-zinc-400 uppercase tracking-wider">Edición Activa</p>
+        <h2 id="editionTitle" class="text-lg font-bold text-white">Cargando edición...</h2>
+        <p class="text-xs text-zinc-400 mt-0.5">Cierre automático: Jueves 00:00h (hora España)</p>
+      </div>
+      <div id="statusBadge" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 self-start sm:self-center">
+        Convocatoria Abierta
+      </div>
+    </section>
+
+    <!-- VISTA ARTISTA -->
+    <section id="artistView" class="space-y-6">
+
+      <!-- PASO 1: GUARDAR PLAYLIST -->
+      <div class="glass rounded-2xl p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm">1</span>
+          <h3 class="text-lg font-semibold">Apoya la comunidad antes de enviar</h3>
+        </div>
+        <p class="text-sm text-zinc-300 leading-relaxed">
+          Para impulsar las escuchas de todos los participantes, es obligatorio <strong>guardar la playlist en tu biblioteca de Spotify</strong> antes de enviar tu tema.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-1">
+          <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold text-sm transition">
+            Abrir Playlist en Spotify
+          </a>
+        </div>
+
+        <label class="flex items-start gap-3 pt-2 cursor-pointer select-none">
+          <input type="checkbox" id="confirmSaveCheckbox" class="mt-1 w-4 h-4 accent-emerald-500 rounded cursor-pointer" />
+          <span class="text-xs text-zinc-300">
+            Confirmo que ya he guardado <strong>Next Wave Rising</strong> en mi biblioteca de Spotify (se verificará antes de incluir la canción).
+          </span>
+        </label>
+      </div>
+
+      <!-- PASO 2: FORMULARIO DE ENVÍO -->
+      <form id="submissionForm" class="glass rounded-2xl p-6 space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
+        <div class="flex items-center gap-3">
+          <span class="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-sm">2</span>
+          <h3 class="text-lg font-semibold">Envía tu canción (Máx. 1 por edición)</h3>
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Nombre del Artista / Proyecto *</label>
+          <input type="text" id="artistName" required placeholder="Ej. Breyde"
+                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Título de la Canción *</label>
+          <input type="text" id="trackTitle" required placeholder="Ej. Fast Lane"
+                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Enlace de Spotify de la Canción *</label>
+          <input type="url" id="trackUrl" required placeholder="https://open.spotify.com/track/..."
+                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">Usuario de TikTok o Instagram</label>
+          <input type="text" id="socialHandle" placeholder="@tuusuario"
+                 class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full py-3 rounded-xl neon-btn text-zinc-950 font-bold text-sm">
+          Enviar Propuesta a Next Wave Rising
+        </button>
+
+        <p id="feedbackMsg" class="text-xs text-center hidden pt-1"></p>
+      </form>
+    </section>
+
+    <!-- VISTA PANEL DE CURADORA -->
+    <section id="adminView" class="hidden space-y-6">
+      <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-bold">Acceso Curadora</h3>
+        <p class="text-xs text-zinc-400">Introduce tu clave de administración para gestionar las propuestas.</p>
+        <div class="flex gap-2">
+          <input type="password" id="adminPassInput" placeholder="Clave de acceso"
+                 class="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-sm focus:outline-none focus:border-emerald-400" />
+          <button id="adminLoginBtn" class="px-5 py-2.5 rounded-xl neon-btn text-zinc-950 font-bold text-sm">Entrar</button>
+        </div>
+      </div>
+
+      <div id="adminDashboard" class="hidden space-y-6">
+        <div class="glass rounded-2xl p-6 space-y-4">
+          <h3 class="text-lg font-bold text-emerald-400">Configuración de la Edición</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">Nombre de la Edición</label>
+              <input type="text" id="adminEditionInput" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs text-zinc-400 mb-1">Enlace Playlist Spotify</label>
+              <input type="url" id="adminPlaylistInput" class="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm" />
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button id="saveConfigBtn" class="px-4 py-2 rounded-lg bg-emerald-500 text-zinc-950 font-bold text-xs hover:bg-emerald-400 transition">
+              Guardar Cambios
+            </button>
+            <button id="newEditionBtn" class="px-4 py-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold text-xs hover:bg-rose-500/30 transition">
+              Nueva Edición (Archivar / Limpiar Lista)
+            </button>
+          </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 space-y-4">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-bold">Canciones Recibidas (<span id="subCount">0</span>)</h3>
+            <button id="exportListBtn" class="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition">
+              Copiar Lista
+            </button>
+          </div>
+          <div id="submissionsList" class="space-y-3 text-sm">
+            <p class="text-zinc-500 text-xs">Cargando propuestas...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="w-full max-w-2xl text-center text-xs text-zinc-500 mt-12 pb-4">
+    Next Wave Rising • Curado por Breyde
+  </footer>
+
+  <!-- FIREBASE SDK (COMPATIBLE CON GITHUB PAGES) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 1. PEGA AQUÍ TUS CREDENCIALES DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      projectId: "TU_PROYECTO_ID",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    // 2. CONTRASEÑA DEL PANEL DE CURADORA
+    const CURATOR_PASSWORD = "breyde2026";
+    const DEFAULT_PLAYLIST = "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF";
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentConfig = {
+      edition: "Edición Semanal #1",
+      playlistUrl: DEFAULT_PLAYLIST
+    };
+    let submissionsCache = [];
+
+    // Elementos DOM
+    const editionTitle = document.getElementById("editionTitle");
+    const playlistLinkBtn = document.getElementById("playlistLinkBtn");
+    const confirmSaveCheckbox = document.getElementById("confirmSaveCheckbox");
+    const submissionForm = document.getElementById("submissionForm");
+    const feedbackMsg = document.getElementById("feedbackMsg");
+    const statusBadge = document.getElementById("statusBadge");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // Comprobar cierre los Jueves a las 00:00 (hora peninsular española)
+    function checkDeadline() {
+      const spainTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+      const isThursday = spainTime.getDay() === 4;
+      if (isThursday) {
+        statusBadge.textContent = "Cerrada (Jueves de Curaduría)";
+        statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
+        confirmSaveCheckbox.disabled = true;
+        submissionForm.classList.add("opacity-40", "pointer-events-none");
+      }
+    }
+
+    // Cargar configuración desde Firestore
+    async function loadConfig() {
+      try {
+        const configRef = doc(db, "settings", "activeEdition");
+        const snap = await getDoc(configRef);
+        if (snap.exists()) {
+          currentConfig = snap.data();
+        } else {
+          await setDoc(configRef, currentConfig);
+        }
+      } catch (err) {
+        console.warn("Usando configuración por defecto (revisa tus credenciales Firebase):", err);
+      }
+      editionTitle.textContent = currentConfig.edition;
+      playlistLinkBtn.href = currentConfig.playlistUrl;
+      document.getElementById("adminEditionInput").value = currentConfig.edition;
+      document.getElementById("adminPlaylistInput").value = currentConfig.playlistUrl;
+    }
+
+    // Cargar propuestas desde Firestore
+    async function loadSubmissions() {
+      const list = document.getElementById("submissionsList");
+      try {
+        const q = query(collection(db, "submissions"), orderBy("timestamp", "asc"));
+        const querySnapshot = await getDocs(q);
+        submissionsCache = [];
+        querySnapshot.forEach((docSnap) => {
+          submissionsCache.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        document.getElementById("subCount").textContent = submissionsCache.length;
+        if (submissionsCache.length === 0) {
+          list.innerHTML = `<p class="text-zinc-500 text-xs">No hay propuestas registradas en esta edición.</p>`;
+          return;
+        }
+
+        list.innerHTML = submissionsCache.map((item, idx) => `
+          <div class="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <p class="font-bold text-white">${idx + 1}. ${item.artist} — <span class="text-emerald-400">${item.title}</span></p>
+              <p class="text-xs text-zinc-400">${item.social || "Sin redes"} • ${item.dateString}</p>
+            </div>
+            <a href="${item.url}" target="_blank" rel="noopener noreferrer"
+               class="text-xs px-3 py-1.5 rounded-lg bg-[#1DB954]/20 text-[#1DB954] font-semibold hover:bg-[#1DB954]/30 self-start sm:self-center">
+              Escuchar
+            </a>
+          </div>
+        `).join("");
+      } catch (err) {
+        list.innerHTML = `<p class="text-rose-400 text-xs">Error conectando con Firebase. Revisa tus claves y reglas de Firestore.</p>`;
+      }
+    }
+
+    confirmSaveCheckbox.addEventListener("change", (e) => {
+      submissionForm.classList.toggle("opacity-50", !e.target.checked);
+      submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
+    });
+
+    // Enviar canción a Firestore
+    submissionForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const artist = document.getElementById("artistName").value.trim();
+      const title = document.getElementById("trackTitle").value.trim();
+      const url = document.getElementById("trackUrl").value.trim();
+      const social = document.getElementById("socialHandle").value.trim();
+
+      if (!url.includes("open.spotify.com/track/")) {
+        showFeedback("Introduce un enlace válido de canción de Spotify (open.spotify.com/track/...).", "text-rose-400");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Verificando y enviando...";
+
+      try {
+        await loadSubmissions();
+        const duplicate = submissionsCache.some(
+          (s) => s.artist.toLowerCase() === artist.toLowerCase()
+        );
+
+        if (duplicate) {
+          showFeedback("Ya has enviado 1 canción en esta edición. ¡Gracias por participar!", "text-amber-400");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
+          return;
+        }
+
+        await addDoc(collection(db, "submissions"), {
+          artist,
+          title,
+          url,
+          social,
+          timestamp: Date.now(),
+          dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })
+        });
+
+        submissionForm.reset();
+        confirmSaveCheckbox.checked = false;
+        submissionForm.classList.add("opacity-50", "pointer-events-none");
+        showFeedback("¡Canción enviada correctamente a Next Wave Rising!", "text-emerald-400");
+        await loadSubmissions();
+      } catch (err) {
+        showFeedback("Error al enviar. Comprueba la configuración de Firebase.", "text-rose-400");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
+      }
+    });
+
+    function showFeedback(text, colorClass) {
+      feedbackMsg.textContent = text;
+      feedbackMsg.className = `text-xs text-center pt-1 font-medium ${colorClass}`;
+      feedbackMsg.classList.remove("hidden");
+    }
+
+    // Panel Curadora
+    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+    const artistView = document.getElementById("artistView");
+    const adminView = document.getElementById("adminView");
+
+    toggleAdminBtn.addEventListener("click", () => {
+      const isHidden = adminView.classList.contains("hidden");
+      adminView.classList.toggle("hidden", !isHidden);
+      artistView.classList.toggle("hidden", isHidden);
+      toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadora";
+    });
+
+    document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+      if (document.getElementById("adminPassInput").value === CURATOR_PASSWORD) {
+        document.getElementById("adminLoginBox").classList.add("hidden");
+        document.getElementById("adminDashboard").classList.remove("hidden");
+        await loadSubmissions();
+      } else {
+        alert("Clave incorrecta");
+      }
+    });
+
+    document.getElementById("saveConfigBtn").addEventListener("click", async () => {
+      currentConfig.edition = document.getElementById("adminEditionInput").value.trim() || currentConfig.edition;
+      currentConfig.playlistUrl = document.getElementById("adminPlaylistInput").value.trim() || currentConfig.playlistUrl;
+      await setDoc(doc(db, "settings", "activeEdition"), currentConfig);
+      editionTitle.textContent = currentConfig.edition;
+      playlistLinkBtn.href = currentConfig.playlistUrl;
+      alert("Configuración guardada en la nube.");
+    });
+
+    document.getElementById("newEditionBtn").addEventListener("click", async () => {
+      if (!confirm("¿Seguro que quieres vaciar la lista actual e iniciar una nueva edición semanal?")) return;
+      for (const item of submissionsCache) {
+        await deleteDoc(doc(db, "submissions", item.id));
+      }
+      await loadSubmissions();
+      alert("Lista reiniciada para la nueva edición.");
+    });
+
+    document.getElementById("exportListBtn").addEventListener("click", () => {
+      const text = submissionsCache.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} (${s.url})`).join("\n");
+      navigator.clipboard.writeText(text);
+      alert("Lista copiada al portapapeles.");
+    });
+
+    // Arranque
+    checkDeadline();
+    loadConfig();
+  </script>
+</body>
+  </html>
+  
