@@ -39,13 +39,13 @@
   <!-- CABECERA -->
   <header class="w-full max-w-2xl flex justify-between items-center mb-8">
     <div>
-      <span class="text-xs uppercase tracking-widest text-emerald-400 font-semibold">Curaduría Oficial • Breyde</span>
+      <span class="text-xs uppercase tracking-widest text-emerald-400 font-semibold">Curaduría Oficial • Breyde&amp;Darko</span>
       <h1 class="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-emerald-400">
         Next Wave Rising
       </h1>
     </div>
     <button id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-400 hover:text-white transition">
-      Panel Curadora
+      Panel Curadores
     </button>
   </header>
 
@@ -118,8 +118,8 @@
         </div>
 
         <div>
-          <label class="block text-xs text-zinc-400 mb-1">Usuario de TikTok o Instagram</label>
-          <input type="text" id="socialHandle" placeholder="@tuusuario"
+          <label class="block text-xs text-zinc-400 mb-1">Correo electrónico de contacto *</label>
+          <input type="email" id="artistEmail" required placeholder="tuemail@ejemplo.com"
                  class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
         </div>
 
@@ -131,11 +131,11 @@
       </form>
     </section>
 
-    <!-- VISTA PANEL DE CURADORA -->
+    <!-- VISTA PANEL DE CURADORES -->
     <section id="adminView" class="hidden space-y-6">
       <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-4">
-        <h3 class="text-lg font-bold">Acceso Curadora</h3>
-        <p class="text-xs text-zinc-400">Introduce tu clave de administración para gestionar las propuestas.</p>
+        <h3 class="text-lg font-bold">Acceso Curadores (Breyde&amp;Darko)</h3>
+        <p class="text-xs text-zinc-400">Introduce la clave de administración para gestionar las propuestas.</p>
         <div class="flex gap-2">
           <input type="password" id="adminPassInput" placeholder="Clave de acceso"
                  class="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-sm focus:outline-none focus:border-emerald-400" />
@@ -161,7 +161,7 @@
               Guardar Cambios
             </button>
             <button id="newEditionBtn" class="px-4 py-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold text-xs hover:bg-rose-500/30 transition">
-              Nueva Edición (Archivar / Limpiar Lista)
+              Nueva Edición (Limpiar Lista)
             </button>
           </div>
         </div>
@@ -183,7 +183,7 @@
   </main>
 
   <footer class="w-full max-w-2xl text-center text-xs text-zinc-500 mt-12 pb-4">
-    Next Wave Rising • Curado por Breyde
+    Next Wave Rising • Curado por Breyde&amp;Darko
   </footer>
 
   <!-- FIREBASE SDK (COMPATIBLE CON GITHUB PAGES) -->
@@ -203,7 +203,7 @@
       appId: "TU_APP_ID"
     };
 
-    // 2. CONTRASEÑA DEL PANEL DE CURADORA
+    // 2. CONTRASEÑA DEL PANEL DE CURADORES
     const CURATOR_PASSWORD = "breyde2026";
     const DEFAULT_PLAYLIST = "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF";
 
@@ -278,7 +278,7 @@
           <div class="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <p class="font-bold text-white">${idx + 1}. ${item.artist} — <span class="text-emerald-400">${item.title}</span></p>
-              <p class="text-xs text-zinc-400">${item.social || "Sin redes"} • ${item.dateString}</p>
+              <p class="text-xs text-zinc-400">${item.email || "Sin contacto"} • ${item.dateString}</p>
             </div>
             <a href="${item.url}" target="_blank" rel="noopener noreferrer"
                class="text-xs px-3 py-1.5 rounded-lg bg-[#1DB954]/20 text-[#1DB954] font-semibold hover:bg-[#1DB954]/30 self-start sm:self-center">
@@ -302,7 +302,7 @@
       const artist = document.getElementById("artistName").value.trim();
       const title = document.getElementById("trackTitle").value.trim();
       const url = document.getElementById("trackUrl").value.trim();
-      const social = document.getElementById("socialHandle").value.trim();
+      const email = document.getElementById("artistEmail").value.trim();
 
       if (!url.includes("open.spotify.com/track/")) {
         showFeedback("Introduce un enlace válido de canción de Spotify (open.spotify.com/track/...).", "text-rose-400");
@@ -315,11 +315,11 @@
       try {
         await loadSubmissions();
         const duplicate = submissionsCache.some(
-          (s) => s.artist.toLowerCase() === artist.toLowerCase()
+          (s) => s.artist.toLowerCase() === artist.toLowerCase() || (s.email && s.email.toLowerCase() === email.toLowerCase())
         );
 
         if (duplicate) {
-          showFeedback("Ya has enviado 1 canción en esta edición. ¡Gracias por participar!", "text-amber-400");
+          showFeedback("Ya has enviado 1 canción en esta edición (artista o correo ya registrado). ¡Gracias por participar!", "text-amber-400");
           submitBtn.disabled = false;
           submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
           return;
@@ -329,7 +329,7 @@
           artist,
           title,
           url,
-          social,
+          email,
           timestamp: Date.now(),
           dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })
         });
@@ -353,7 +353,7 @@
       feedbackMsg.classList.remove("hidden");
     }
 
-    // Panel Curadora
+    // Panel Curadores
     const toggleAdminBtn = document.getElementById("toggleAdminBtn");
     const artistView = document.getElementById("artistView");
     const adminView = document.getElementById("adminView");
@@ -362,7 +362,7 @@
       const isHidden = adminView.classList.contains("hidden");
       adminView.classList.toggle("hidden", !isHidden);
       artistView.classList.toggle("hidden", isHidden);
-      toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadora";
+      toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
     });
 
     document.getElementById("adminLoginBtn").addEventListener("click", async () => {
@@ -394,7 +394,7 @@
     });
 
     document.getElementById("exportListBtn").addEventListener("click", () => {
-      const text = submissionsCache.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} (${s.url})`).join("\n");
+      const text = submissionsCache.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ""} (${s.url})`).join("\n");
       navigator.clipboard.writeText(text);
       alert("Lista copiada al portapapeles.");
     });
@@ -404,5 +404,4 @@
     loadConfig();
   </script>
 </body>
-  </html>
-  
+</html>
