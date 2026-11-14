@@ -60,7 +60,7 @@
         <div class="text-xs space-y-1 text-zinc-300"><p>Artista: <strong id="receiptArtist" class="text-white"></strong></p><p>Canción: <strong id="receiptTitle" class="text-emerald-400"></strong></p><p>Correo: <span id="receiptEmail"></span></p></div>
       </div>
 
-      <!-- PRÓXIMAS ENTRADAS AL FINAL CON ESTILO TEMA DESTACADO -->
+      <!-- PRÓXIMAS ENTRADAS AL FINAL -->
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider">🎵 PRÓXIMAS ENTRADAS A LISTA NEXT WAVE RISING</h3>
@@ -186,7 +186,7 @@
       }
 
       function toEmbed(url) {
-        if (!url || !url.includes("spotify.com/track/")) return "";
+        if (!url || !url.includes("spotify.com/") || !url.includes("/track/")) return "";
         const parts = url.split("?")[0].split("/");
         const id = parts[parts.length - 1];
         return id ? "https://open.spotify.com/embed/track/" + id + "?utm_source=generator&theme=0" : "";
@@ -242,7 +242,6 @@
             return '<div class="p-2.5 bg-zinc-900 rounded flex justify-between items-center"><div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + '</p></div><div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div></div>';
           }).join("");
 
-          // Renderizar cada canción con el reproductor oficial estilo "Tema Destacado"
           publicList.innerHTML = subs.map((s, i) => {
             const embedUrl = toEmbed(s.url);
             if (!embedUrl) return '';
@@ -270,7 +269,14 @@
         const receipt = document.getElementById("receiptCard");
 
         if(!artist || !title || !url || !email) { fb.textContent = "Rellena los campos."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
-        if(!url.includes("open.spotify.com/track/")) { fb.textContent = "Enlace Spotify no válido."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
+        
+        // Comprobación flexible de enlace de Spotify (admite regionalismos como intl-es)
+        if(!url.includes("spotify.com/") || !url.includes("/track/")) { 
+          fb.textContent = "Enlace Spotify no válido (introduce un enlace de canción)."; 
+          fb.className = "text-xs text-center text-rose-400"; 
+          fb.classList.remove("hidden"); 
+          return; 
+        }
 
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("submitBtn").textContent = "Enviando...";
