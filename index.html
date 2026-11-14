@@ -115,7 +115,7 @@
       </div>
 
       <!-- PASO 2: FORMULARIO DE ENVÍO -->
-      <form id="submissionForm" class="glass rounded-2xl p-6 space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
+      <form id="submissionForm" onsubmit="return false;" class="glass rounded-2xl p-6 space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
         <div class="flex items-center gap-3">
           <span class="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-sm">2</span>
           <h3 class="text-lg font-semibold">Envía tu canción (Máx. 1 por edición)</h3>
@@ -145,12 +145,30 @@
                  class="w-full px-4 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-700 focus:border-emerald-400 focus:outline-none text-sm" />
         </div>
 
-        <button type="submit" id="submitBtn" class="w-full py-3 rounded-xl neon-btn text-zinc-950 font-bold text-sm">
+        <button type="button" id="submitBtn" class="w-full py-3 rounded-xl neon-btn text-zinc-950 font-bold text-sm">
           Enviar Propuesta a Next Wave Rising
         </button>
 
-        <p id="feedbackMsg" class="text-xs text-center hidden pt-1"></p>
+        <p id="feedbackMsg" class="text-xs text-center hidden pt-2"></p>
       </form>
+
+      <!-- TARJETA COMPROBANTE OFICIAL DE ENVÍO -->
+      <div id="receiptCard" class="hidden glass rounded-2xl p-6 border border-emerald-500/40 bg-emerald-950/20 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">✓ Comprobante de Registro</span>
+          <span id="receiptEdition" class="text-xs text-zinc-400">Edición Semanal #1</span>
+        </div>
+        <h3 class="text-lg font-extrabold text-white">¡Propuesta recibida correctamente!</h3>
+        <div class="p-3.5 rounded-xl bg-zinc-900/90 border border-white/10 space-y-1.5 text-xs">
+          <p><span class="text-zinc-400">Artista:</span> <strong id="receiptArtist" class="text-white"></strong></p>
+          <p><span class="text-zinc-400">Canción:</span> <strong id="receiptTitle" class="text-emerald-400"></strong></p>
+          <p><span class="text-zinc-400">Correo registrado:</span> <span id="receiptEmail" class="text-zinc-200"></span></p>
+          <p><span class="text-zinc-400">Fecha y hora (España):</span> <span id="receiptDate" class="text-zinc-200"></span></p>
+        </div>
+        <p class="text-[11px] text-zinc-400 leading-relaxed">
+          Guarda una captura de este comprobante. Recuerda mantener <strong>Next Wave Rising</strong> guardada en tu biblioteca de Spotify para la revisión del jueves.
+        </p>
+      </div>
     </section>
 
     <!-- VISTA PANEL DE CURADORES -->
@@ -196,7 +214,7 @@
             </button>
           </div>
           <div id="submissionsList" class="space-y-3 text-sm">
-            <p class="text-zinc-500 text-xs">Conectando con la base de datos...</p>
+            <p class="text-zinc-500 text-xs">Cargando propuestas...</p>
           </div>
         </div>
       </div>
@@ -208,17 +226,30 @@
     Next Wave Rising • Curado por Breyde&amp;Darko
   </footer>
 
-  <!-- SCRIPT 1: RELOJ Y UI AUTÓNOMOS (100% INDEPENDIENTES DE FIREBASE) -->
+  <!-- CÓDIGO NATIVO DIRECTO -->
   <script>
     (function() {
+      const PROJECT_ID = "next-wave-rising-3ab56";
+      const BASE_URL = "https://firestore.googleapis.com/v1/projects/" + PROJECT_ID + "/databases/(default)/documents";
       const CURATOR_PASSWORD = "breyde2026";
+
+      let currentConfig = {
+        edition: "Edición Semanal #1",
+        playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF"
+      };
+      let submissionsCache = [];
+
       const toggleAdminBtn = document.getElementById("toggleAdminBtn");
       const artistView = document.getElementById("artistView");
       const adminView = document.getElementById("adminView");
       const confirmSaveCheckbox = document.getElementById("confirmSaveCheckbox");
       const submissionForm = document.getElementById("submissionForm");
+      const feedbackMsg = document.getElementById("feedbackMsg");
       const statusBadge = document.getElementById("statusBadge");
+      const submitBtn = document.getElementById("submitBtn");
+      const receiptCard = document.getElementById("receiptCard");
 
+      // 1. Navegación Panel Curadores
       toggleAdminBtn.addEventListener("click", function() {
         const isHidden = adminView.classList.contains("hidden");
         adminView.classList.toggle("hidden", !isHidden);
@@ -226,25 +257,25 @@
         toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
       });
 
+      // 2. Login Curadores
       document.getElementById("adminLoginBtn").addEventListener("click", function() {
         const inputVal = document.getElementById("adminPassInput").value.trim();
         if (inputVal === CURATOR_PASSWORD) {
           document.getElementById("adminLoginBox").classList.add("hidden");
           document.getElementById("adminDashboard").classList.remove("hidden");
-          if (typeof window.loadSubmissions === "function") {
-            window.loadSubmissions();
-          }
+          loadSubmissions();
         } else {
           alert("Clave incorrecta");
         }
       });
 
+      // 3. Desbloquear formulario
       confirmSaveCheckbox.addEventListener("change", function(e) {
         submissionForm.classList.toggle("opacity-50", !e.target.checked);
         submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
       });
 
-      // Cálculo seguro de hora de España compatible con cualquier navegador móvil
+      // 4. Reloj cuenta atrás (Hora España)
       function getSpainParts() {
         const fmt = new Intl.DateTimeFormat("en-GB", {
           timeZone: "Europe/Madrid",
@@ -255,9 +286,7 @@
           hour12: false
         });
         const parts = {};
-        fmt.formatToParts(new Date()).forEach(function(p) {
-          parts[p.type] = p.value;
-        });
+        fmt.formatToParts(new Date()).forEach(function(p) { parts[p.type] = p.value; });
         const mapDay = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
         return {
           day: mapDay[parts.weekday] !== undefined ? mapDay[parts.weekday] : new Date().getDay(),
@@ -269,7 +298,6 @@
 
       function updateCountdown() {
         const now = getSpainParts();
-
         if (now.day === 4) {
           statusBadge.textContent = "Cerrada (Jueves de Curaduría)";
           statusBadge.className = "px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 self-start sm:self-center";
@@ -281,145 +309,75 @@
           document.getElementById("cdSeconds").textContent = "00";
           return;
         }
-
         const daysUntilThursday = (4 - now.day + 7) % 7 || 7;
         const secondsPassedToday = now.hour * 3600 + now.minute * 60 + now.second;
         const totalSeconds = Math.max(0, daysUntilThursday * 86400 - secondsPassedToday);
 
-        const d = Math.floor(totalSeconds / 86400);
-        const h = Math.floor((totalSeconds % 86400) / 3600);
-        const m = Math.floor((totalSeconds % 3600) / 60);
-        const s = totalSeconds % 60;
-
-        document.getElementById("cdDays").textContent = String(d).padStart(2, "0");
-        document.getElementById("cdHours").textContent = String(h).padStart(2, "0");
-        document.getElementById("cdMinutes").textContent = String(m).padStart(2, "0");
-        document.getElementById("cdSeconds").textContent = String(s).padStart(2, "0");
+        document.getElementById("cdDays").textContent = String(Math.floor(totalSeconds / 86400)).padStart(2, "0");
+        document.getElementById("cdHours").textContent = String(Math.floor((totalSeconds % 86400) / 3600)).padStart(2, "0");
+        document.getElementById("cdMinutes").textContent = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+        document.getElementById("cdSeconds").textContent = String(totalSeconds % 60).padStart(2, "0");
       }
 
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    })();
-  </script>
-
-  <!-- SCRIPT 2: FIREBASE FIRESTORE -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
-      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
-      projectId: "next-wave-rising-3ab56",
-      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
-      messagingSenderId: "690671071183",
-      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
-    };
-
-    let db = null;
-    try {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-    } catch (e) {
-      console.error("Error inicializando Firebase:", e);
-    }
-
-    let currentConfig = {
-      edition: "Edición Semanal #1",
-      playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF"
-    };
-    let submissionsCache = [];
-
-    const submissionForm = document.getElementById("submissionForm");
-    const feedbackMsg = document.getElementById("feedbackMsg");
-    const submitBtn = document.getElementById("submitBtn");
-
-    async function loadConfig() {
-      if (!db) return;
-      try {
-        const snap = await db.collection("settings").doc("activeEdition").get();
-        if (snap.exists) {
-          currentConfig = snap.data();
-        } else {
-          await db.collection("settings").doc("activeEdition").set(currentConfig);
+      // 5. Cargar Configuración
+      async function loadConfig() {
+        try {
+          const res = await fetch(BASE_URL + "/settings/activeEdition");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.fields) {
+              currentConfig.edition = (data.fields.edition && data.fields.edition.stringValue) || currentConfig.edition;
+              currentConfig.playlistUrl = (data.fields.playlistUrl && data.fields.playlistUrl.stringValue) || currentConfig.playlistUrl;
+            }
+          }
+        } catch (err) {
+          console.warn("Usando config por defecto:", err);
         }
-      } catch (err) {
-        console.warn("Aviso cargando config:", err.message);
-      }
-      document.getElementById("editionTitle").textContent = currentConfig.edition;
-      document.getElementById("playlistLinkBtn").href = currentConfig.playlistUrl;
-      document.getElementById("adminEditionInput").value = currentConfig.edition;
-      document.getElementById("adminPlaylistInput").value = currentConfig.playlistUrl;
-    }
-
-    window.loadSubmissions = async function() {
-      const list = document.getElementById("submissionsList");
-      if (!db) {
-        list.innerHTML = `<p class="text-rose-400 text-xs">No se pudo iniciar Firebase.</p>`;
-        return;
-      }
-      try {
-        const querySnapshot = await db.collection("submissions").orderBy("timestamp", "asc").get();
-        submissionsCache = [];
-        querySnapshot.forEach((docSnap) => {
-          submissionsCache.push({ id: docSnap.id, ...docSnap.data() });
-        });
-
-        document.getElementById("subCount").textContent = submissionsCache.length;
-        if (submissionsCache.length === 0) {
-          list.innerHTML = `<p class="text-zinc-400 text-xs">No hay propuestas registradas en esta edición.</p>`;
-          return;
-        }
-
-        list.innerHTML = submissionsCache.map((item, idx) => `
-          <div class="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <p class="font-bold text-white">${idx + 1}. ${item.artist} — <span class="text-emerald-400">${item.title}</span></p>
-              <p class="text-xs text-zinc-400">${item.email || "Sin contacto"} • ${item.dateString}</p>
-            </div>
-            <a href="${item.url}" target="_blank" rel="noopener noreferrer"
-               class="text-xs px-3 py-1.5 rounded-lg bg-[#1DB954]/20 text-[#1DB954] font-semibold hover:bg-[#1DB954]/30 self-start sm:self-center">
-              Escuchar
-            </a>
-          </div>
-        `).join("");
-      } catch (err) {
-        list.innerHTML = `<p class="text-rose-400 text-xs">Error de Firestore: ${err.message}</p>`;
-      }
-    };
-
-    submissionForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const artist = document.getElementById("artistName").value.trim();
-      const title = document.getElementById("trackTitle").value.trim();
-      const url = document.getElementById("trackUrl").value.trim();
-      const email = document.getElementById("artistEmail").value.trim();
-
-      if (!url.includes("open.spotify.com/track/")) {
-        showFeedback("Introduce un enlace válido de canción de Spotify (open.spotify.com/track/...).", "text-rose-400");
-        return;
+        document.getElementById("editionTitle").textContent = currentConfig.edition;
+        document.getElementById("playlistLinkBtn").href = currentConfig.playlistUrl;
+        document.getElementById("adminEditionInput").value = currentConfig.edition;
+        document.getElementById("adminPlaylistInput").value = currentConfig.playlistUrl;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Verificando y enviando...";
+      // 6. Cargar Propuestas con botón Escuchar + Avisar Email
+      async function loadSubmissions() {
+        const list = document.getElementById("submissionsList");
+        try {
+          const res = await fetch(BASE_URL + "/submissions?pageSize=200");
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const data = await res.json();
+          const docs = data.documents || [];
 
-      try {
-        await window.loadSubmissions();
-        const duplicate = submissionsCache.some(
-          (s) => s.artist.toLowerCase() === artist.toLowerCase() || (s.email && s.email.toLowerCase() === email.toLowerCase())
-        );
+          submissionsCache = docs.map(function(d) {
+            const f = d.fields || {};
+            const docId = d.name.split("/").pop();
+            return {
+              id: docId,
+              artist: (f.artist && f.artist.stringValue) || "",
+              title: (f.title && f.title.stringValue) || "",
+              url: (f.url && f.url.stringValue) || "",
+              email: (f.email && f.email.stringValue) || "",
+              timestamp: Number((f.timestamp && f.timestamp.integerValue) || 0),
+              dateString: (f.dateString && f.dateString.stringValue) || ""
+            };
+          }).sort(function(a, b) { return a.timestamp - b.timestamp; });
 
-        if (duplicate) {
-          showFeedback("Ya has enviado 1 canción en esta edición (artista o correo ya registrado).", "text-amber-400");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
-          return;
-        }
+          document.getElementById("subCount").textContent = submissionsCache.length;
+          if (submissionsCache.length === 0) {
+            list.innerHTML = '<p class="text-zinc-400 text-xs">No hay propuestas registradas en esta edición.</p>';
+            return;
+          }
 
-        await db.collection("submissions").add({
-          artist,
-          title,
-          url,
-          email,
-          timestamp: Date.now(),
-          dateString: new Date().toLocaleString("e
+          list.innerHTML = submissionsCache.map(function(item, idx) {
+            const subject = encodeURIComponent("Next Wave Rising • Confirmación de propuesta (" + item.title + ")");
+            const body = encodeURIComponent(
+              "¡Hola " + item.artist + "!\n\n" +
+              "Hemos recibido correctamente tu canción \"" + item.title + "\" para la " + currentConfig.edition + " de Next Wave Rising (curada por Breyde&Darko).\n\n" +
+              "Recuerda mantener guardada la playlist en tu biblioteca de Spotify para la revisión del jueves.\n\n" +
+              "¡Un saludo y mucha suerte!\nBreyde & Darko"
+            );
+            const mailBtn = item.email
+              ? '<a href="mailto:' + item.email + '?subject=' + subject + '&body=' + body + '" class="text-xs px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-semibold hover:bg-cyan-500/30">Avisar Email</a>'
+              : '';
+
+            return '<div class="p-3.5 rou
