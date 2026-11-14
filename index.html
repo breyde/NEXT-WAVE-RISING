@@ -31,15 +31,16 @@
 
     <section id="artistView" class="space-y-6">
       
-      <!-- NUEVA TARJETA: MANIFIESTO Y COMPROMISO COLABORATIVO -->
+      <!-- MANIFIESTO Y RECOMPENSAS -->
       <div class="glass rounded-2xl p-6 space-y-3 border border-emerald-500/20">
-        <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">⚡ Nuestro Manifiesto</h3>
+        <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">⚡ Nuestro Manifiesto &amp; Recompensas</h3>
         <p class="text-xs text-zinc-300 leading-relaxed">
           <strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes. Nuestro objetivo es unir fuerzas para competir fuera de la liga de las grandes discográficas y ayudarnos entre nosotros a crecer.
         </p>
-        <div class="pt-1 text-xs text-zinc-300 space-y-1.5 border-t border-white/5">
-          <p>🤝 <strong>Compromiso mutuo:</strong> Por respeto a los demás compañeros y para que el algoritmo nos impulse, te pedimos que reproduzcas la lista entera al menos <strong>1 o 2 veces por semana</strong>.</p>
-          <p>📌 <strong>Norma esencial:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify para poder participar en las ediciones.</p>
+        <div class="pt-1 text-xs text-zinc-300 space-y-2 border-t border-white/5">
+          <p>🤝 <strong>Compromiso mutuo:</strong> Reproduce la lista entera al menos <strong>1 o 2 veces por semana</strong> para apoyar a tus compañeros y activar el algoritmo.</p>
+          <p>📌 <strong>Norma esencial:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify para participar.</p>
+          <p class="text-emerald-400 font-semibold">🏆 Camino al éxito: Todas las canciones que participen pasarán automáticamente a formar parte de nuestra <strong>playlist mensual</strong>, y de ahí escalarán a la <strong>playlist anual</strong>. ¡Al finalizar el año habilitaremos un sistema de votación para elegir los mejores temas!</p>
         </div>
       </div>
 
@@ -88,9 +89,12 @@
       </div>
     </section>
   </main>
-  <footer class="text-xs text-zinc-500 mt-8">Next Wave Rising • Breyde&amp;Darko</footer>
+  
+  <footer class="text-xs text-zinc-500 mt-8 text-center space-y-1">
+    <p>Next Wave Rising • Breyde&amp;Darko</p>
+    <p class="text-[11px] text-zinc-400">👤 Visitantes únicos: <span id="uniqueVisitorCount" class="font-bold text-emerald-400">...</span></p>
+  </footer>
 
-  <!-- SDK DE FIREBASE (COMPAT) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -112,6 +116,30 @@
 
       let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "" };
       let subs = [];
+
+      async function trackUniqueVisitor() {
+        try {
+          const visitedKey = "nwr_visited_unique";
+          const countDocRef = db.collection("stats").doc("visitors");
+          if (!localStorage.getItem(visitedKey)) {
+            localStorage.setItem(visitedKey, "true");
+            await db.runTransaction(async (transaction) => {
+              const doc = await transaction.get(countDocRef);
+              let newCount = 1;
+              if (doc.exists) { newCount = (doc.data().total || 0) + 1; }
+              transaction.set(countDocRef, { total: newCount }, { merge: true });
+            });
+          }
+          const snap = await countDocRef.get();
+          if (snap.exists) {
+            document.getElementById("uniqueVisitorCount").textContent = snap.data().total || 1;
+          } else {
+            document.getElementById("uniqueVisitorCount").textContent = "1";
+          }
+        } catch (e) {
+          document.getElementById("uniqueVisitorCount").textContent = "-";
+        }
+      }
 
       document.getElementById("toggleAdminBtn").addEventListener("click", () => {
         const hid = document.getElementById("adminView").classList.contains("hidden");
@@ -287,7 +315,10 @@
         alert("Lista copiada (enlaces limpios).");
       });
 
-      clock(); setInterval(clock, 1000); loadConfig();
+      clock(); 
+      setInterval(clock, 1000); 
+      loadConfig();
+      trackUniqueVisitor();
     });
   </script>
 </body>
