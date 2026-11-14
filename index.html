@@ -44,7 +44,7 @@
         Next Wave Rising
       </h1>
     </div>
-    <button id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-400 hover:text-white transition">
+    <button type="button" id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-200 hover:text-white border border-white/15 cursor-pointer z-10">
       Panel Curadores
     </button>
   </header>
@@ -161,7 +161,7 @@
         <div class="flex gap-2">
           <input type="password" id="adminPassInput" placeholder="Clave de acceso"
                  class="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-sm focus:outline-none focus:border-emerald-400" />
-          <button id="adminLoginBtn" class="px-5 py-2.5 rounded-xl neon-btn text-zinc-950 font-bold text-sm">Entrar</button>
+          <button type="button" id="adminLoginBtn" class="px-5 py-2.5 rounded-xl neon-btn text-zinc-950 font-bold text-sm">Entrar</button>
         </div>
       </div>
 
@@ -179,10 +179,10 @@
             </div>
           </div>
           <div class="flex flex-wrap gap-3 pt-2">
-            <button id="saveConfigBtn" class="px-4 py-2 rounded-lg bg-emerald-500 text-zinc-950 font-bold text-xs hover:bg-emerald-400 transition">
+            <button type="button" id="saveConfigBtn" class="px-4 py-2 rounded-lg bg-emerald-500 text-zinc-950 font-bold text-xs hover:bg-emerald-400 transition">
               Guardar Cambios
             </button>
-            <button id="newEditionBtn" class="px-4 py-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold text-xs hover:bg-rose-500/30 transition">
+            <button type="button" id="newEditionBtn" class="px-4 py-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold text-xs hover:bg-rose-500/30 transition">
               Nueva Edición (Limpiar Lista)
             </button>
           </div>
@@ -191,7 +191,7 @@
         <div class="glass rounded-2xl p-6 space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-bold">Canciones Recibidas (<span id="subCount">0</span>)</h3>
-            <button id="exportListBtn" class="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition">
+            <button type="button" id="exportListBtn" class="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition">
               Copiar Lista
             </button>
           </div>
@@ -208,46 +208,43 @@
     Next Wave Rising • Curado por Breyde&amp;Darko
   </footer>
 
-  <!-- FIREBASE SDK CONECTADO A TU PROYECTO -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
-      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
-      projectId: "next-wave-rising-3ab56",
-      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
-      messagingSenderId: "690671071183",
-      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
-    };
-
-    // Contraseña del panel de curadores (puedes cambiarla cuando quieras)
+  <!-- SCRIPT 1: INTERFAZ Y RELOJ INDEPENDIENTES (NUNCA SE BLOQUEAN) -->
+  <script>
     const CURATOR_PASSWORD = "breyde2026";
-    const DEFAULT_PLAYLIST = "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF";
-
-    // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let currentConfig = {
-      edition: "Edición Semanal #1",
-      playlistUrl: DEFAULT_PLAYLIST
-    };
-    let submissionsCache = [];
-
-    // Elementos DOM
-    const editionTitle = document.getElementById("editionTitle");
-    const playlistLinkBtn = document.getElementById("playlistLinkBtn");
+    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+    const artistView = document.getElementById("artistView");
+    const adminView = document.getElementById("adminView");
     const confirmSaveCheckbox = document.getElementById("confirmSaveCheckbox");
     const submissionForm = document.getElementById("submissionForm");
-    const feedbackMsg = document.getElementById("feedbackMsg");
     const statusBadge = document.getElementById("statusBadge");
-    const submitBtn = document.getElementById("submitBtn");
 
-    // --- CONTADOR EN TIEMPO REAL HASTA EL JUEVES 00:00 (HORA ESPAÑA) ---
+    // Abrir / Cerrar Panel Curadores
+    toggleAdminBtn.addEventListener("click", () => {
+      const isHidden = adminView.classList.contains("hidden");
+      adminView.classList.toggle("hidden", !isHidden);
+      artistView.classList.toggle("hidden", isHidden);
+      toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
+    });
+
+    // Login Curadores
+    document.getElementById("adminLoginBtn").addEventListener("click", () => {
+      const inputVal = document.getElementById("adminPassInput").value.trim();
+      if (inputVal === CURATOR_PASSWORD) {
+        document.getElementById("adminLoginBox").classList.add("hidden");
+        document.getElementById("adminDashboard").classList.remove("hidden");
+        if (window.nwrLoadSubmissions) window.nwrLoadSubmissions();
+      } else {
+        alert("Clave incorrecta");
+      }
+    });
+
+    // Checkbox desbloquear formulario
+    confirmSaveCheckbox.addEventListener("change", (e) => {
+      submissionForm.classList.toggle("opacity-50", !e.target.checked);
+      submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
+    });
+
+    // Reloj cuenta atrás hasta Jueves 00:00 (Hora España)
     function updateCountdown() {
       const nowSpain = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
       const dayOfWeek = nowSpain.getDay();
@@ -269,21 +266,47 @@
       targetThursday.setDate(nowSpain.getDate() + daysUntilThursday);
       targetThursday.setHours(0, 0, 0, 0);
 
-      const diffMs = targetThursday - nowSpain;
-      const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
-
-      const days = Math.floor(totalSeconds / 86400);
-      const hours = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      document.getElementById("cdDays").textContent = String(days).padStart(2, "0");
-      document.getElementById("cdHours").textContent = String(hours).padStart(2, "0");
-      document.getElementById("cdMinutes").textContent = String(minutes).padStart(2, "0");
-      document.getElementById("cdSeconds").textContent = String(seconds).padStart(2, "0");
+      const totalSeconds = Math.max(0, Math.floor((targetThursday - nowSpain) / 1000));
+      document.getElementById("cdDays").textContent = String(Math.floor(totalSeconds / 86400)).padStart(2, "0");
+      document.getElementById("cdHours").textContent = String(Math.floor((totalSeconds % 86400) / 3600)).padStart(2, "0");
+      document.getElementById("cdMinutes").textContent = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+      document.getElementById("cdSeconds").textContent = String(totalSeconds % 60).padStart(2, "0");
     }
 
-    // Cargar configuración desde Firestore
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
+
+  <!-- SCRIPT 2: CONEXIÓN CON FIREBASE FIRESTORE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
+      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
+      projectId: "next-wave-rising-3ab56",
+      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
+      messagingSenderId: "690671071183",
+      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentConfig = {
+      edition: "Edición Semanal #1",
+      playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF"
+    };
+    let submissionsCache = [];
+
+    const editionTitle = document.getElementById("editionTitle");
+    const playlistLinkBtn = document.getElementById("playlistLinkBtn");
+    const feedbackMsg = document.getElementById("feedbackMsg");
+    const submitBtn = document.getElementById("submitBtn");
+
     async function loadConfig() {
       try {
         const configRef = doc(db, "settings", "activeEdition");
@@ -294,7 +317,7 @@
           await setDoc(configRef, currentConfig);
         }
       } catch (err) {
-        console.warn("Aviso cargando configuración:", err);
+        console.warn("Aviso Firestore config:", err);
       }
       editionTitle.textContent = currentConfig.edition;
       playlistLinkBtn.href = currentConfig.playlistUrl;
@@ -302,8 +325,7 @@
       document.getElementById("adminPlaylistInput").value = currentConfig.playlistUrl;
     }
 
-    // Cargar propuestas desde Firestore
-    async function loadSubmissions() {
+    window.nwrLoadSubmissions = async function() {
       const list = document.getElementById("submissionsList");
       try {
         const q = query(collection(db, "submissions"), orderBy("timestamp", "asc"));
@@ -332,17 +354,11 @@
           </div>
         `).join("");
       } catch (err) {
-        list.innerHTML = `<p class="text-rose-400 text-xs">Error conectando con Firestore. Revisa las reglas de la base de datos.</p>`;
+        list.innerHTML = `<p class="text-rose-400 text-xs">Error conectando con Firestore: ${err.message}</p>`;
       }
-    }
+    };
 
-    confirmSaveCheckbox.addEventListener("change", (e) => {
-      submissionForm.classList.toggle("opacity-50", !e.target.checked);
-      submissionForm.classList.toggle("pointer-events-none", !e.target.checked);
-    });
-
-    // Enviar canción a Firestore
-    submissionForm.addEventListener("submit", async (e) => {
+    document.getElementById("submissionForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const artist = document.getElementById("artistName").value.trim();
       const title = document.getElementById("trackTitle").value.trim();
@@ -358,13 +374,13 @@
       submitBtn.textContent = "Verificando y enviando...";
 
       try {
-        await loadSubmissions();
+        await window.nwrLoadSubmissions();
         const duplicate = submissionsCache.some(
           (s) => s.artist.toLowerCase() === artist.toLowerCase() || (s.email && s.email.toLowerCase() === email.toLowerCase())
         );
 
         if (duplicate) {
-          showFeedback("Ya has enviado 1 canción en esta edición (artista o correo ya registrado). ¡Gracias por participar!", "text-amber-400");
+          showFeedback("Ya has enviado 1 canción en esta edición (artista o correo ya registrado).", "text-amber-400");
           submitBtn.disabled = false;
           submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
           return;
@@ -379,13 +395,13 @@
           dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" })
         });
 
-        submissionForm.reset();
-        confirmSaveCheckbox.checked = false;
-        submissionForm.classList.add("opacity-50", "pointer-events-none");
+        e.target.reset();
+        document.getElementById("confirmSaveCheckbox").checked = false;
+        e.target.classList.add("opacity-50", "pointer-events-none");
         showFeedback("¡Canción enviada correctamente a Next Wave Rising!", "text-emerald-400");
-        await loadSubmissions();
+        await window.nwrLoadSubmissions();
       } catch (err) {
-        showFeedback("Error al enviar. Revisa las reglas de Firestore.", "text-rose-400");
+        showFeedback("Error al enviar: " + err.message, "text-rose-400");
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Enviar Propuesta a Next Wave Rising";
@@ -398,27 +414,5 @@
       feedbackMsg.classList.remove("hidden");
     }
 
-    // Panel Curadores
-    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
-    const artistView = document.getElementById("artistView");
-    const adminView = document.getElementById("adminView");
-
-    toggleAdminBtn.addEventListener("click", () => {
-      const isHidden = adminView.classList.contains("hidden");
-      adminView.classList.toggle("hidden", !isHidden);
-      artistView.classList.toggle("hidden", isHidden);
-      toggleAdminBtn.textContent = isHidden ? "Volver a Vista Artista" : "Panel Curadores";
-    });
-
-    document.getElementById("adminLoginBtn").addEventListener("click", async () => {
-      if (document.getElementById("adminPassInput").value === CURATOR_PASSWORD) {
-        document.getElementById("adminLoginBox").classList.add("hidden");
-        document.getElementById("adminDashboard").classList.remove("hidden");
-        await loadSubmissions();
-      } else {
-        alert("Clave incorrecta");
-      }
-    });
-
     document.getElementById("saveConfigBtn").addEventListener("click", async () => {
-   
+      currentConfig.edition = documen
