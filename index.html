@@ -14,29 +14,28 @@
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
-  <!-- CABECERA ESTABLE Y CENTRADA -->
+  <!-- CABECERA CON TÍTULO CENTRADO ARRIBA DEL TODO -->
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-4">
+    <!-- TÍTULO CENTRADO ARRIBA -->
+    <h1 class="text-3xl font-extrabold text-white tracking-wide text-center">Next Wave Rising</h1>
+
     <div class="w-full flex justify-between items-center text-xs">
       <!-- Selector de Idioma con Banderas -->
       <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md">
         <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
         <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
       </div>
-      <!-- Botón Vota Destacado -->
-      <button id="mainVoteBtn" onclick="toggleVoteModal()" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold transition flex items-center gap-1 shadow-md">
-        <span>⭐</span> <span id="txtVoteBtn">Vota Destacado</span>
-      </button>
+      <!-- Indicador de estado de votación arriba -->
+      <div id="headerVotingStatus" class="px-2.5 py-1 rounded-lg text-[10px] font-bold border"></div>
     </div>
 
-    <!-- TÍTULO CENTRADO -->
-    <h1 class="text-3xl font-extrabold text-white tracking-wide text-center">Next Wave Rising</h1>
-
-    <!-- NAVEGACIÓN DE 4 PESTAÑAS (ESTRUCTURA FIJA SIN MOVIMIENTOS) -->
-    <nav class="w-full grid grid-cols-4 gap-1.5">
-      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center transition">Semanal</button>
-      <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
-      <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
-      <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP Anual</button>
+    <!-- NAVEGACIÓN DE 5 PESTAÑAS FIJAS DEBAJO -->
+    <nav class="w-full grid grid-cols-5 gap-1">
+      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center transition">Semanal</button>
+      <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
+      <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
+      <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP</button>
+      <button onclick="switchTab('vote')" id="tabVote" class="tab-btn text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-emerald-500/30 text-emerald-400 text-center transition">Votar ⭐</button>
     </nav>
   </header>
 
@@ -142,6 +141,45 @@
       </section>
     </div>
 
+    <!-- ================= PESTAÑA 5: VOTAR DESTACADO ================= -->
+    <div id="viewVote" class="hidden space-y-6">
+      <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="voteTabTitle">⭐ VOTA PRÓXIMA DESTACADA</h3>
+          <span id="voteTabStatusBadge" class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">Activa</span>
+        </div>
+
+        <!-- BOTÓN DESPLEGABLE LLAMATIVO DE NORMAS DE VOTACIÓN -->
+        <div>
+          <button onclick="toggleVotingRules()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-zinc-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:opacity-90 transition animate-pulse">
+            <span>📜</span> <span data-i18n="rulesBtnText">¡Normas de Votación Importantes - Haz clic aquí!</span>
+          </button>
+          
+          <!-- Contenido Desplegable de Normas -->
+          <div id="votingRulesBox" class="hidden mt-2 glass rounded-xl p-4 border border-emerald-500/40 bg-zinc-900/95 text-xs text-zinc-300 space-y-2">
+            <h4 class="font-bold text-emerald-400 text-sm" data-i18n="rulesHeader">Reglas para emitir tu voto:</h4>
+            <ul class="list-disc pl-4 space-y-1.5">
+              <li data-i18n="rule1">Introduce tu correo electrónico en la casilla de abajo antes de empezar.</li>
+              <li data-i18n="rule2">Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.</li>
+              <li data-i18n="rule3">Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan.</li>
+              <li data-i18n="rule4">El sistema protege la transparencia controlando estrictamente el correo electrónico y la IP para permitir un único proceso de voto por persona.</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Campo global de correo para identificar al votante -->
+        <div class="bg-zinc-900/90 p-4 rounded-xl border border-white/10 space-y-2">
+          <label class="block text-xs font-semibold text-white" data-i18n="lblVoterEmail">Tu correo electrónico (necesario para emitir tus votos):</label>
+          <input type="email" id="globalVoterEmail" placeholder="tucorreo@email.com" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+          <p class="text-[11px] text-zinc-400" data-i18n="voteSubNotice">⚠️ <strong class="text-emerald-400">Obligatorio votar a exactamente 3 temas diferentes</strong>. Al dar al tercer voto, se te pedirá confirmación.</p>
+        </div>
+
+        <div id="voteTabViewList" class="space-y-4 pt-1">
+          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="loadingVotes">Cargando canciones para votar...</p>
+        </div>
+      </section>
+    </div>
+
     <!-- ================= PANEL CURADORES ================= -->
     <section id="adminView" class="hidden space-y-6">
       <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-3">
@@ -156,20 +194,20 @@
         <div class="glass rounded-2xl p-5 space-y-4">
           <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Votaciones</h3>
           
-          <!-- Control de Votación Activa / Inactiva -->
+          <!-- Control de Votación Activa / Inactiva con color claro -->
           <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
             <div>
-              <p class="font-bold text-white text-xs">Estado del Botón "Vota Destacado"</p>
-              <p id="votingIndicatorText" class="text-[10px] text-emerald-400 font-bold">● Votación Activa</p>
+              <p class="font-bold text-white text-xs">Estado de la Votación</p>
+              <p id="votingIndicatorText" class="text-[10px] font-bold">Cargando...</p>
             </div>
-            <button type="button" id="toggleVotingBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow">Desactivar Votación</button>
+            <button type="button" id="toggleVotingBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow">...</button>
           </div>
 
           <!-- Resetear Votos -->
           <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
             <div>
               <p class="font-bold text-white text-xs">Poner a Cero Votos</p>
-              <p class="text-[10px] text-zinc-400">Reinicia los contadores de todas las canciones.</p>
+              <p class="text-[10px] text-zinc-400">Reinicia los contadores de votos y registros de votantes.</p>
             </div>
             <button type="button" id="resetVotesBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Resetear Votos</button>
           </div>
@@ -181,26 +219,12 @@
         </div>
         <div class="glass rounded-2xl p-5 space-y-3">
           <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
-          <div id="submissionsList" class="space-y-2 text-xs"><p class="text-zinc-400">Cargando...</p></div>
+          <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
         </div>
       </div>
     </section>
   </main>
   
-  <!-- MODAL DE VOTACIÓN -->
-  <div id="voteModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass rounded-2xl p-6 max-w-lg w-full space-y-4 border border-emerald-500/40 relative">
-      <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h3 class="font-bold text-emerald-400 text-sm uppercase">⭐ Vota Próxima Destacada</h3>
-        <button onclick="toggleVoteModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
-      </div>
-      <p class="text-xs text-zinc-300">Selecciona tu tema favorito para apoyarlo y asegurar su doble inclusión en la próxima edición.</p>
-      <div id="voteTracksList" class="space-y-3 max-h-80 overflow-y-auto pr-1">
-        <p class="text-zinc-400 text-xs text-center py-4">Cargando canciones...</p>
-      </div>
-    </div>
-  </div>
-
   <!-- PIE DE PÁGINA CON EL BOTÓN DE CURADORES CENTRADO ABAJO -->
   <footer class="w-full max-w-2xl text-xs text-zinc-500 mt-12 text-center space-y-4 border-t border-white/10 pt-6">
     <div>
@@ -221,11 +245,11 @@
       es: {
         adminBtn: "Panel Curadores",
         backApp: "Volver a la App",
-        voteBtn: "Vota Destacado",
         tabWeekly: "Semanal",
         tabMonthly: "Mensual",
         tabAnnual: "Anual",
-        tabTop: "TOP Anual",
+        tabTop: "TOP",
+        tabVote: "Votar ⭐",
         lblDays: "DÍAS", lblHours: "HORAS", lblMins: "MIN", lblSecs: "SEG",
         txtFeatured: "🎵 TEMA DESTACADO",
         manifestTitle: "⚡ Nuestro Manifiesto & Recompensas",
@@ -254,16 +278,25 @@
         annualDesc: "Histórico de todas las canciones que han escalado desde la lista mensual durante el año.",
         annualEmpty: "Aquí se acumularán las canciones al completar los ciclos mensuales.",
         topHeader: "TOP ANUAL & VOTACIONES",
-        topDesc: "Al finalizar el año (31 de diciembre), habilitaremos aquí el sistema oficial de votación para que la comunidad y los artistas elijan las mejores canciones de <strong>Next Wave Rising</strong>. ¡Mantente atento!"
+        topDesc: "Al finalizar el año (31 de diciembre), habilitaremos aquí el sistema oficial de votación para que la comunidad y los artistas elijan las mejores canciones de <strong>Next Wave Rising</strong>. ¡Mantente atento!",
+        rulesBtnText: "📜 ¡Normas de Votación Importantes - Haz clic aquí!",
+        rulesHeader: "Reglas para emitir tu voto:",
+        rule1: "Introduce tu correo electrónico en la casilla de abajo antes de empezar.",
+        rule2: "Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.",
+        rule3: "Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan.",
+        rule4: "El sistema protege la transparencia controlando estrictamente el correo electrónico y la IP para permitir un único proceso de voto por persona.",
+        lblVoterEmail: "Tu correo electrónico (necesario para emitir tus votos):",
+        voteSubNotice: "⚠️ <strong>Obligatorio votar a exactamente 3 temas diferentes</strong>. Al dar al tercer voto, se te pedirá confirmación.",
+        loadingVotes: "Cargando canciones para votar..."
       },
       en: {
         adminBtn: "Curators Panel",
         backApp: "Back to App",
-        voteBtn: "Vote Featured",
         tabWeekly: "Weekly",
         tabMonthly: "Monthly",
         tabAnnual: "Annual",
-        tabTop: "TOP Annual",
+        tabTop: "TOP",
+        tabVote: "Vote ⭐",
         lblDays: "DAYS", lblHours: "HOURS", lblMins: "MINS", lblSecs: "SECS",
         txtFeatured: "🎵 FEATURED TRACK",
         manifestTitle: "⚡ Our Manifesto & Rewards",
@@ -292,12 +325,38 @@
         annualDesc: "Historical record of all tracks that scaled up from the monthly list during the year.",
         annualEmpty: "Tracks will accumulate here as monthly cycles complete.",
         topHeader: "TOP ANNUAL & VOTING",
-        topDesc: "At the end of the year (December 31st), we will enable the official voting system here for artists and community to choose the best tracks of <strong>Next Wave Rising</strong>. Stay tuned!"
+        topDesc: "At the end of the year (December 31st), we will enable the official voting system here for artists and community to choose the best tracks of <strong>Next Wave Rising</strong>. Stay tuned!",
+        rulesBtnText: "📜 Important Voting Rules - Click here!",
+        rulesHeader: "Rules to cast your vote:",
+        rule1: "Enter your email address in the box below before starting.",
+        rule2: "You must select and vote for exactly <strong>3 different tracks</strong>. You cannot repeat the same track.",
+        rule3: "When clicking your third vote, a confirmation prompt will appear: if you accept they are saved, if you cancel they are cancelled.",
+        rule4: "The system protects transparency by strictly controlling email and IP to allow a single voting process per person.",
+        lblVoterEmail: "Your email address (required to cast your votes):",
+        voteSubNotice: "⚠️ <strong>Mandatory to vote for exactly 3 different tracks</strong>. Upon your third vote, confirmation will be requested.",
+        loadingVotes: "Loading tracks to vote..."
       }
     };
 
     let currentLang = 'es';
     let globalVotingActive = true;
+    let clientIp = "";
+    let sessionPendingVotes = [];
+
+    async function fetchClientIp() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        clientIp = data.ip;
+      } catch (e) {
+        clientIp = "unknown_ip";
+      }
+    }
+
+    function toggleVotingRules() {
+      const box = document.getElementById('votingRulesBox');
+      if (box) box.classList.toggle('hidden');
+    }
 
     function setLanguage(lang) {
       currentLang = lang;
@@ -306,11 +365,11 @@
       
       const t = translations[lang];
       document.getElementById('txtAdminBtn').textContent = t.adminBtn;
-      document.getElementById('txtVoteBtn').textContent = t.voteBtn;
       document.getElementById('tabWeekly').textContent = t.tabWeekly;
       document.getElementById('tabMonthly').textContent = t.tabMonthly;
       document.getElementById('tabAnnual').textContent = t.tabAnnual;
       document.getElementById('tabTop').textContent = t.tabTop;
+      document.getElementById('tabVote').textContent = t.tabVote;
 
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -322,29 +381,31 @@
       });
     }
 
-    function toggleVoteModal() {
-      if (!globalVotingActive) {
-        alert(currentLang === 'es' ? "Las votaciones están desactivadas temporalmente por los curadores." : "Voting is temporarily disabled by curators.");
-        return;
-      }
-      const modal = document.getElementById('voteModal');
-      modal.classList.toggle('hidden');
-    }
-
     function switchTab(tab) {
-      ['weekly', 'monthly', 'annual', 'top'].forEach(t => {
-        document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
-        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('active', 'text-emerald-400');
-        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('text-zinc-400');
+      ['weekly', 'monthly', 'annual', 'top', 'vote'].forEach(t => {
+        const viewEl = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+        const tabEl = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (viewEl) viewEl.classList.add('hidden');
+        if (tabEl) {
+          tabEl.classList.remove('active', 'text-emerald-400');
+          tabEl.classList.add('text-zinc-400');
+        }
       });
       document.getElementById('adminView').classList.add('hidden');
-      document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
-      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active', 'text-emerald-400');
-      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('text-zinc-400');
+      
+      const targetView = document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      const targetTab = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      if (targetView) targetView.classList.remove('hidden');
+      if (targetTab) {
+        targetTab.classList.add('active', 'text-emerald-400');
+        targetTab.classList.remove('text-zinc-400');
+      }
       document.getElementById('txtAdminBtn').textContent = translations[currentLang].adminBtn;
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+      fetchClientIp();
+
       const firebaseConfig = {
         apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
         authDomain: "next-wave-rising-3ab56.firebaseapp.com",
@@ -383,12 +444,14 @@
       document.getElementById("toggleAdminBtn").addEventListener("click", () => {
         const adminView = document.getElementById("adminView");
         const isHidden = adminView.classList.contains("hidden");
-        ['weekly', 'monthly', 'annual', 'top'].forEach(t => document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden'));
+        ['weekly', 'monthly', 'annual', 'top', 'vote'].forEach(t => {
+          const v = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+          if(v) v.classList.add('hidden');
+        });
         adminView.classList.toggle("hidden", !isHidden);
         document.getElementById("txtAdminBtn").textContent = isHidden ? translations[currentLang].backApp : translations[currentLang].adminBtn;
       });
 
-      // Control de activación de votación en panel
       const toggleVotingBtn = document.getElementById("toggleVotingBtn");
       toggleVotingBtn.addEventListener("click", async () => {
         config.votingActive = !config.votingActive;
@@ -401,33 +464,58 @@
       function updateVotingUI(active) {
         globalVotingActive = active;
         const indicator = document.getElementById("votingIndicatorText");
-        const mainVoteBtn = document.getElementById("mainVoteBtn");
+        const headerIndicator = document.getElementById("headerVotingStatus");
+        const tabVoteBtn = document.getElementById("tabVote");
+        const voteTabStatusBadge = document.getElementById("voteTabStatusBadge");
+
         if(active) {
-          indicator.textContent = "● Votación Activa";
+          indicator.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>";
           indicator.className = "text-[10px] text-emerald-400 font-bold";
           toggleVotingBtn.textContent = "Desactivar Votación";
           toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow";
-          mainVoteBtn.style.opacity = "1";
-          mainVoteBtn.style.pointerEvents = "auto";
+          
+          headerIndicator.textContent = "🟢 Votación Activa";
+          headerIndicator.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+          
+          if(voteTabStatusBadge) {
+            voteTabStatusBadge.textContent = currentLang === 'es' ? "Activa" : "Active";
+            voteTabStatusBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold";
+          }
+          tabVoteBtn.style.opacity = "1";
+          tabVoteBtn.style.pointerEvents = "auto";
         } else {
-          indicator.textContent = "● Votación Desactivada";
+          indicator.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>";
           indicator.className = "text-[10px] text-rose-400 font-bold";
           toggleVotingBtn.textContent = "Activar Votación";
           toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
-          mainVoteBtn.style.opacity = "0.5";
+          
+          headerIndicator.textContent = "🔴 Votación Inactiva";
+          headerIndicator.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30";
+          
+          if(voteTabStatusBadge) {
+            voteTabStatusBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled";
+            voteTabStatusBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold";
+          }
+          tabVoteBtn.style.opacity = "0.6";
         }
       }
 
-      // Resetear Votos
       document.getElementById("resetVotesBtn").addEventListener("click", async () => {
-        if(!confirm("¿Estás seguro de poner a cero los votos de todas las canciones?")) return;
+        if(!confirm("¿Estás seguro de poner a cero los votos y registros de votantes de todas las canciones?")) return;
         try {
           const snap = await db.collection("submissions").get();
           const batch = db.batch();
-          snap.docs.forEach(doc => batch.update(doc.ref, { votes: 0 }));
+          snap.docs.forEach(doc => batch.update(doc.ref, { votes: 0, voters: [] }));
           await batch.commit();
+
+          const votersSnap = await db.collection("voters_log").get();
+          const batchVoters = db.batch();
+          votersSnap.docs.forEach(doc => batchVoters.delete(doc.ref));
+          await batchVoters.commit();
+
+          sessionPendingVotes = [];
           loadAllLists();
-          alert("¡Todos los votos han sido reseteados a 0!");
+          alert("¡Todos los votos y registros han sido reseteados!");
         } catch(e) {
           alert("Error al resetear los votos.");
         }
@@ -508,7 +596,7 @@
         const publicList = document.getElementById("publicSubmissionsList");
         const monthlyContainer = document.getElementById("monthlyListContainer");
         const annualContainer = document.getElementById("annualListContainer");
-        const voteTracksList = document.getElementById("voteTracksList");
+        const voteTabViewList = document.getElementById("voteTabViewList");
 
         try {
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
@@ -520,13 +608,27 @@
           if(subs.length === 0) {
             adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
             publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
-            voteTracksList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-4">No hay canciones disponibles para votar aún.</p>';
+            voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No hay canciones disponibles para votar aún.</p>';
           } else {
+            // Panel Curador con desplegable de votantes
             adminList.innerHTML = subs.map((s, i) => {
               const cleanUrl = s.url.split("?")[0];
               const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
               const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
-              return '<div class="p-2.5 bg-zinc-900 rounded flex justify-between items-center"><div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + '</p></div><div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div></div>';
+              
+              const voters = s.voters || [];
+              let votersHtml = voters.length > 0 ? voters.map(v => `<li class="text-[11px] text-zinc-300">• ${v}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin votos aún</li>';
+
+              return '<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">' +
+                '<div class="flex justify-between items-center">' +
+                  '<div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + ' | Votos: <strong>' + (s.votes || 0) + '</strong></p></div>' +
+                  '<div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div>' +
+                '</div>' +
+                '<details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5">' +
+                  '<summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (' + voters.length + ')</summary>' +
+                  '<ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">' + votersHtml + '</ul>' +
+                '</details>' +
+              '</div>';
             }).join("");
 
             publicList.innerHTML = subs.map((s, i) => {
@@ -535,12 +637,32 @@
               return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
             }).join("");
 
-            voteTracksList.innerHTML = subs.map((s, i) => {
+            // Ordenar por votos (de mayor a menor) con medallas Oro, Plata, Bronce
+            let sortedVotesSubs = [...subs].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+
+            voteTabViewList.innerHTML = sortedVotesSubs.map((s, i) => {
+              const embedUrl = toEmbed(s.url);
               const votesCount = s.votes || 0;
-              return '<div class="p-3 bg-zinc-900/90 rounded-xl flex justify-between items-center border border-white/5">' +
-                '<div><p class="font-bold text-white text-xs">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p>' +
-                '<p class="text-[10px] text-zinc-400">Votos actuales: <strong class="text-emerald-400">' + votesCount + '</strong></p></div>' +
-                '<button onclick="voteTrack(\'' + s.id + '\')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-lg text-xs transition shadow">🗳️ Votar</button>' +
+              const isSelected = sessionPendingVotes.includes(s.id);
+              const btnText = isSelected ? "✓ Seleccionado" : "🗳️ Añadir Voto";
+              const btnClass = isSelected ? "px-4 py-2 bg-emerald-700 text-white font-bold rounded-xl text-xs shadow" : "px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow";
+
+              let rankDisplay = `#${i+1}`;
+              if (i === 0) rankDisplay = "🥇";
+              else if (i === 1) rankDisplay = "🥈";
+              else if (i === 2) rankDisplay = "🥉";
+
+              if (!embedUrl) return '';
+              return '<div class="p-4 bg-zinc-900/90 rounded-2xl border border-white/10 space-y-3">' +
+                '<div class="flex justify-between items-center px-1 text-xs text-zinc-400">' +
+                  '<span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">' + rankDisplay + '</span> ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span>' +
+                  '<span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ' + votesCount + '</span>' +
+                '</div>' +
+                '<iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>' +
+                '<div class="pt-2 border-t border-white/5 flex justify-between items-center text-xs text-zinc-400">' +
+                  '<span>Seleccionados: <strong>' + sessionPendingVotes.length + '/3</strong></span>' +
+                  '<button onclick="handleVoteClick(\'' + s.id + '\')" class="' + btnClass + '">' + btnText + '</button>' +
+                '</div>' +
               '</div>';
             }).join("");
           }
@@ -580,23 +702,95 @@
         }
       }
 
-      window.voteTrack = async function(id) {
+      // Lógica estricta de 3 votos obligatorios, confirmación y validación IP/Email
+      window.handleVoteClick = async function(id) {
         if (!globalVotingActive) {
-          alert("Las votaciones están cerradas en este momento.");
+          alert(currentLang === 'es' ? "Las votaciones están desactivadas en este momento." : "Voting is currently disabled.");
           return;
         }
+
+        const emailInput = document.getElementById("globalVoterEmail");
+        const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : "";
+
+        if(!emailVal || !emailVal.includes("@")) {
+          alert(currentLang === 'es' ? "Por favor, introduce tu correo electrónico arriba para poder votar." : "Please enter your email above to vote.");
+          emailInput.focus();
+          return;
+        }
+
         try {
-          const docRef = db.collection("submissions").doc(id);
-          await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(docRef);
-            if (!doc.exists) throw "El tema no existe.";
-            let newVotes = (doc.data().votes || 0) + 1;
-            transaction.update(docRef, { votes: newVotes });
-          });
-          alert("¡Voto registrado con éxito!");
-          loadAllLists();
+          const votersRef = db.collection("voters_log");
+          const emailQuery = await votersRef.where("email", "==", emailVal).get();
+          if (!emailQuery.empty) {
+            alert("Ya has votado.");
+            return;
+          }
+          if (clientIp && clientIp !== "unknown_ip") {
+            const ipQuery = await votersRef.where("ip", "==", clientIp).get();
+            if (!ipQuery.empty) {
+              alert("Ya has votado.");
+              return;
+            }
+          }
+
+          if (sessionPendingVotes.includes(id)) {
+            alert(currentLang === 'es' ? "No puedes votar al mismo tema más de una vez." : "You cannot vote for the same track more than once.");
+            return;
+          }
+
+          if (sessionPendingVotes.length >= 3) {
+            alert(currentLang === 'es' ? "Ya has seleccionado 3 temas." : "You have already selected 3 tracks.");
+            return;
+          }
+
+          sessionPendingVotes.push(id);
+
+          // Al completar los 3 votos exactos, pedimos confirmación obligatoria
+          if (sessionPendingVotes.length === 3) {
+            const confirmacion = confirm("¿Desea confirmar sus votos?");
+            
+            if (confirmacion) {
+              for (let trackId of sessionPendingVotes) {
+                const subRef = db.collection("submissions").doc(trackId);
+                const subDoc = await subRef.get();
+                if (subDoc.exists) {
+                  let currentVotes = subDoc.data().votes || 0;
+                  let votersList = subDoc.data().voters || [];
+                  if (!votersList.includes(emailVal)) {
+                    votersList.push(emailVal);
+                  }
+                  await subRef.update({
+                    votes: currentVotes + 1,
+                    voters: votersList
+                  });
+                }
+              }
+
+              await votersRef.add({
+                email: emailVal,
+                ip: clientIp || "unknown_ip",
+                votedTracks: sessionPendingVotes,
+                timestamp: Date.now()
+              });
+
+              alert(currentLang === 'es' ? "¡Votos guardados con éxito!" : "Votes successfully saved!");
+              sessionPendingVotes = [];
+              emailInput.value = "";
+              loadAllLists();
+            } else {
+              alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled.");
+              sessionPendingVotes = [];
+              loadAllLists();
+            }
+          } else {
+            loadAllLists();
+          }
+
         } catch(e) {
-          alert("Error al registrar el voto.");
+          console.error(e);
+          alert("Ya has votado.");
+          sessionPendingVotes = [];
+          loadAllLists();
         }
       };
 
@@ -634,7 +828,7 @@
           }
 
           const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
-          await db.collection("submissions").add({ artist, title, url, email, timestamp: Date.now(), dateString: dateStr, votes: 0 });
+          await db.collection("submissions").add({ artist, title, url, email, timestamp: Date.now(), dateString: dateStr, votes: 0, voters: [] });
 
           document.getElementById("receiptArtist").textContent = artist;
           document.getElementById("receiptTitle").textContent = title;
