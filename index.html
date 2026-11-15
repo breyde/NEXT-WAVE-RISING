@@ -41,21 +41,44 @@
     <!-- TÍTULO CENTRADO -->
     <h1 class="text-3xl font-extrabold text-white tracking-wide text-center pt-2">Next Wave Rising</h1>
 
-    <!-- NAVEGACIÓN DE 6 PESTAÑAS FIJAS DEBAJO -->
-    <nav class="w-full grid grid-cols-6 gap-1 pt-2">
-      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center transition">🔥 Semanal</button>
-      <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
-      <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
-      <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP</button>
-      <button onclick="switchTab('vote')" id="tabVote" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-emerald-500/30 text-emerald-400 text-center transition">Votar</button>
-      <button onclick="switchTab('chat')" id="tabChat" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-cyan-500/30 text-cyan-400 text-center transition">💬 Chat</button>
+    <!-- NAVEGACIÓN DE 7 PESTAÑAS FIJAS DEBAJO -->
+    <nav class="w-full grid grid-cols-7 gap-1 pt-2">
+      <button onclick="switchTab('active')" id="tabActive" class="tab-btn active text-[9px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-emerald-500/40 text-center transition">📻 Activa</button>
+      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn text-[9px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">🔥 Semanal</button>
+      <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-[9px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
+      <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-[9px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
+      <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-[9px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP</button>
+      <button onclick="switchTab('vote')" id="tabVote" class="tab-btn text-[9px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-emerald-500/30 text-emerald-400 text-center transition">Votar</button>
+      <button onclick="switchTab('chat')" id="tabChat" class="tab-btn text-[9px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-cyan-500/30 text-cyan-400 text-center transition">💬 Chat</button>
     </nav>
   </header>
 
   <main class="w-full max-w-2xl space-y-6 pb-12">
 
-    <!-- ================= PESTAÑA 1: SEMANAL ================= -->
-    <div id="viewWeekly" class="space-y-6">
+    <!-- ================= PESTAÑA 0: LISTA ACTIVA (ON AIR ESTA SEMANA) ================= -->
+    <div id="viewActive" class="space-y-6">
+      <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <div>
+            <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="activeListHeader">📻 LISTA ACTIVA (ON AIR ESTA SEMANA)</h3>
+            <p class="text-[11px] text-zinc-400 mt-0.5" data-i18n="activeListSub">Estos son los temas que están sonando actualmente y compiten en la votación de esta semana.</p>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold whitespace-nowrap">Total: <strong id="publicActiveCount">0</strong></span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <a id="activePlaylistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="flex-1 text-center py-2.5 px-4 bg-[#1DB954] text-black font-bold rounded-xl text-xs shadow hover:opacity-95 transition" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
+          <button type="button" onclick="switchTab('vote')" class="py-2.5 px-4 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold rounded-xl text-xs transition" data-i18n="btnGoVote">⭐ Ir a Votar</button>
+        </div>
+
+        <div id="publicActiveList" class="space-y-3 pt-1">
+          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="activeListEmpty">Aún no hay canciones cargadas en la lista activa de esta semana.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= PESTAÑA 1: SEMANAL (PRÓXIMA EDICIÓN) ================= -->
+    <div id="viewWeekly" class="hidden space-y-6">
       <section class="glass rounded-2xl p-5 space-y-3">
         <div class="flex justify-between items-center">
           <div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p id="txtClosure" class="text-xs text-zinc-400" data-i18n="txtClosure">Cierre: Jueves 00:00h</p></div>
@@ -91,7 +114,7 @@
       </div>
 
       <form id="submissionForm" onsubmit="return false;" class="glass rounded-2xl p-6 space-y-3 opacity-50 pointer-events-none transition-opacity duration-200">
-        <h3 class="font-semibold" data-i18n="step2Title">2. Envía tu canción</h3>
+        <h3 class="font-semibold" data-i18n="step2Title">2. Envía tu canción (para la próxima semana)</h3>
         <input type="text" id="artistName" required placeholder="Nombre del Artista *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm focus:border-emerald-500 focus:outline-none" data-i18n-ph="phArtist">
         <input type="text" id="trackTitle" required placeholder="Título de la Canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm focus:border-emerald-500 focus:outline-none" data-i18n-ph="phTitle">
         <input type="url" id="trackUrl" required placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm focus:border-emerald-500 focus:outline-none" data-i18n-ph="phUrl">
@@ -122,9 +145,9 @@
           <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider" data-i18n="monthlyHeader">🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)</h3>
           <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold">Bloques: <strong id="monthlyCount">0</strong>/4</span>
         </div>
-        <p class="text-xs text-zinc-300" data-i18n="monthlyDesc">Recopilación automática de las ediciones semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.</p>
+        <p class="text-xs text-zinc-300" data-i18n="monthlyDesc">Recopilación automática de las listas activas semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.</p>
         <div id="monthlyListContainer" class="space-y-3 pt-1">
-          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="monthlyEmpty">La lista mensual se llenará al cerrar las ediciones semanales.</p>
+          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="monthlyEmpty">La lista mensual se llenará al rotar las listas activas semanales.</p>
         </div>
       </section>
     </div>
@@ -154,11 +177,11 @@
       </section>
     </div>
 
-    <!-- ================= PESTAÑA 5: VOTAR DESTACADO ================= -->
+    <!-- ================= PESTAÑA 5: VOTAR DESTACADO (SOBRE LISTA ACTIVA) ================= -->
     <div id="viewVote" class="hidden space-y-6">
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
-          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="voteTabTitle">⭐ VOTA PRÓXIMA DESTACADA</h3>
+          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="voteTabTitle">⭐ VOTA PRÓXIMA DESTACADA (LISTA ACTIVA)</h3>
           <span id="voteTabStatusBadge" class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">Activa</span>
         </div>
 
@@ -187,8 +210,8 @@
           <div id="votingRulesBox" class="mt-2 glass rounded-xl p-4 border border-emerald-500/40 bg-zinc-900/95 text-xs text-zinc-300 space-y-2">
             <h4 class="font-bold text-emerald-400 text-sm" data-i18n="rulesHeader">Reglas para emitir tu voto:</h4>
             <ul class="list-disc pl-4 space-y-1.5">
-              <li data-i18n="ruleNoteOnlyWeekly">⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.</li>
-              <li data-i18n="ruleAuto">⏱️ La votación se abre los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).</li>
+              <li data-i18n="ruleNoteOnlyWeekly">⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana (sobre la Lista Activa)</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.</li>
+              <li data-i18n="ruleAuto">⏱️ La votación se abre los jueves a las 00:00h al activarse la nueva lista y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).</li>
               <li data-i18n="rule1">Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.</li>
               <li data-i18n="rule2">Introduce tu correo electrónico en la casilla de abajo antes de empezar.</li>
               <li data-i18n="rule3"><strong>Votar no es obligatorio</strong>, pero si decides participar, debes votar exactamente a <strong>3 temas diferentes</strong>. No se puede emitir un voto para una sola canción ni repetir el mismo tema.</li>
@@ -207,7 +230,7 @@
         </div>
 
         <div id="voteTabViewList" class="space-y-3 pt-1">
-          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="loadingVotes">Cargando canciones para votar...</p>
+          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="loadingVotes">Cargando canciones activas para votar...</p>
         </div>
       </section>
     </div>
@@ -218,7 +241,6 @@
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider" data-i18n="chatHeader">💬 SALA DE CHAT PÚBLICA</h3>
           <div class="flex items-center gap-2">
-            <!-- Indicador discreto de usuarios activos con iconito de personita -->
             <div id="activeUsersBadge" class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-white/10 text-zinc-400">
               <svg id="activeUsersIcon" class="w-3.5 h-3.5 text-zinc-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
               <span id="activeUsersCount">00</span>
@@ -227,7 +249,6 @@
           </div>
         </div>
         
-        <!-- Registro de Nick / Usuario -->
         <div id="chatLoginBox" class="space-y-3 py-2">
           <p class="text-xs text-zinc-300" data-i18n="chatLoginDesc">Elige un nick/usuario para unirte a la conversación. (Máximo un usuario por dispositivo/IP).</p>
           <div class="flex gap-2">
@@ -237,15 +258,12 @@
           <p id="chatLoginError" class="text-xs text-rose-400 hidden"></p>
         </div>
 
-        <!-- Sala de Chat (Oculta hasta registrar nick) -->
         <div id="chatRoomBox" class="hidden space-y-4">
           <div class="flex justify-between items-center bg-zinc-900/90 px-3 py-2 rounded-xl border border-white/5">
             <span id="chatUserDisplay" class="text-xs text-emerald-400 font-bold"></span>
             <button type="button" onclick="leaveChatRoom()" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition" data-i18n="chatLeaveBtn">Salir del chat</button>
           </div>
-          <div id="chatMessagesContainer" class="h-80 overflow-y-auto space-y-3 p-3 bg-zinc-950/80 rounded-xl border border-white/5 text-xs">
-            <!-- Mensajes en tiempo real -->
-          </div>
+          <div id="chatMessagesContainer" class="h-80 overflow-y-auto space-y-3 p-3 bg-zinc-950/80 rounded-xl border border-white/5 text-xs"></div>
           <div class="flex gap-2">
             <input type="text" id="chatMessageInput" maxlength="250" placeholder="Escribe un mensaje..." data-i18n-ph="phChatMsg" class="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white" onkeydown="if(event.key==='Enter') sendChatMessage()">
             <button type="button" onclick="sendChatMessage()" class="px-4 py-2 neon-btn text-zinc-950 font-bold rounded-xl text-xs transition shadow" data-i18n="chatSendBtn">Enviar</button>
@@ -266,22 +284,23 @@
       </div>
       <div id="adminDashboard" class="hidden space-y-4 pb-8">
         
-        <!-- PESTAÑAS DEL PANEL DE CURADORES (PRINCIPAL / MENSAJES / CONFIGURACIÓN / BACKUPS) -->
-        <div class="flex gap-2 border-b border-white/10 pb-3 overflow-x-auto">
-          <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
-          <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
-          <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
-          <button onclick="switchAdminTab('backups')" id="adminTabBackups" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Backups (<span id="backupsCountBadge">0</span>)</button>
+        <!-- PESTAÑAS DEL PANEL DE CURADORES -->
+        <div class="flex gap-1.5 border-b border-white/10 pb-3 overflow-x-auto">
+          <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
+          <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
+          <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
+          <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
+          <button onclick="switchAdminTab('backups')" id="adminTabBackups" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Backups (<span id="backupsCountBadge">0</span>)</button>
         </div>
 
-        <!-- VISTA PRINCIPAL DEL PANEL DE CURADORES -->
+        <!-- VISTA PRINCIPAL DEL PANEL DE CURADORES (COLA SEMANAL SIGUIENTE) -->
         <div id="adminViewPrincipal" class="space-y-4">
           <div class="glass rounded-2xl p-5 space-y-4">
-            <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Votaciones</h3>
+            <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Rotación Semanal</h3>
             
             <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
               <div>
-                <p class="font-bold text-white text-xs">Estado de la Votación</p>
+                <p class="font-bold text-white text-xs">Estado de la Votación (sobre Lista Activa)</p>
                 <p id="votingIndicatorText" class="text-[10px] font-bold">Cargando...</p>
               </div>
               <button type="button" id="toggleVotingBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow">...</button>
@@ -290,23 +309,49 @@
             <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
               <div>
                 <p class="font-bold text-white text-xs">Poner a Cero Votos</p>
-                <p class="text-[10px] text-zinc-400">Reinicia los contadores de votos y registros de votantes.</p>
+                <p class="text-[10px] text-zinc-400">Reinicia los contadores de votos de la Lista Activa y registros de votantes.</p>
               </div>
               <button type="button" id="resetVotesBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Resetear Votos</button>
             </div>
 
-            <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
+            <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición (Cola Semanal)</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Playlist Spotify</label><input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify Tema Destacado</label><input type="url" id="adminTrackInput" placeholder="https://open.spotify.com/track/..." class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div class="flex flex-wrap gap-2 pt-1">
               <button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs shadow">Guardar</button>
               <button type="button" onclick="createManualBackup()" class="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded text-xs border border-cyan-500/40 transition">💾 Hacer Backup Ahora</button>
-              <button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Cerrar Semana)</button>
+              <button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Rotar Listas)</button>
             </div>
+            <p class="text-[11px] text-zinc-400 leading-relaxed bg-zinc-950/60 p-2.5 rounded-xl border border-white/5">
+              ℹ️ Al pulsar <strong>Nueva Edición (Rotar Listas)</strong>: se guarda copia de sistema, la <strong>Lista Activa</strong> pasa a la <strong>Mensual</strong>, la <strong>Semanal</strong> pasa a ser la nueva <strong>Lista Activa</strong> (con votación activada) y el campeón de la activa anterior pasa a <strong>Destacado</strong> y reingresa en Semanal.
+            </p>
           </div>
           <div class="glass rounded-2xl p-5 space-y-3 mb-8">
-            <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
+            <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">🔥 Cola Semanal Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
             <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
+          </div>
+        </div>
+
+        <!-- VISTA LISTA ACTIVA DEL PANEL DE CURADORES (AÑADIR Y EDITAR TEMAS ON AIR) -->
+        <div id="adminViewActiva" class="hidden space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
+            <h3 class="font-bold text-emerald-400 text-sm">➕ Añadir Tema Directamente a la Lista Activa (On Air)</h3>
+            <p class="text-[11px] text-zinc-400">Usa este formulario para meter canciones directamente en la lista que suena esta semana sin pasar por la cola semanal.</p>
+            <input type="text" id="adminActiveArtist" placeholder="Nombre del Artista *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+            <input type="text" id="adminActiveTitle" placeholder="Título de la Canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+            <input type="url" id="adminActiveUrl" placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+            <input type="email" id="adminActiveEmail" placeholder="Correo electrónico (opcional)" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
+            <button type="button" onclick="addTrackToActiveList()" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded-xl text-xs shadow transition">Añadir a Lista Activa</button>
+          </div>
+
+          <div class="glass rounded-2xl p-5 space-y-3 mb-8">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+              <h3 class="font-bold text-sm text-white">📻 Temas en Lista Activa (<span id="adminActiveCount">0</span>)</h3>
+              <button type="button" onclick="exportActiveList()" class="text-xs px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista Activa</button>
+            </div>
+            <div id="adminActiveListContainer" class="space-y-3 text-xs">
+              <p class="text-zinc-400">Cargando lista activa...</p>
+            </div>
           </div>
         </div>
 
@@ -361,6 +406,39 @@
     </section>
   </main>
   
+  <!-- MODAL PARA EDITAR TEMA DE LA LISTA ACTIVA -->
+  <div id="editActiveTrackModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-emerald-500/40">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="font-bold text-emerald-400 text-sm uppercase">✏️ Editar Tema en Lista Activa</h3>
+        <button onclick="closeEditActiveModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+      </div>
+      <div class="space-y-3">
+        <input type="hidden" id="editActiveId">
+        <div>
+          <label class="block text-[11px] text-zinc-400 mb-1">Artista *</label>
+          <input type="text" id="editActiveArtist" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-[11px] text-zinc-400 mb-1">Canción *</label>
+          <input type="text" id="editActiveTitle" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify *</label>
+          <input type="url" id="editActiveUrl" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-[11px] text-zinc-400 mb-1">Correo electrónico</label>
+          <input type="email" id="editActiveEmail" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeEditActiveModal()" class="flex-1 py-2.5 bg-zinc-800 text-zinc-300 font-bold rounded-xl text-xs hover:bg-zinc-700 transition">Cancelar</button>
+          <button type="button" onclick="saveActiveTrackEdit()" class="flex-1 py-2.5 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition shadow">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- VENTANA MODAL: CONTACTO -->
   <div id="contactModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-emerald-500/40 relative">
@@ -387,19 +465,18 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO (TRADUCIBLE DINÁMICAMENTE) -->
+  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO -->
   <div id="infoModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4 border border-emerald-500/40 relative max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="infoModalTitle">📜 Manifiesto &amp; Funcionamiento</h3>
         <button onclick="toggleInfoModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
       </div>
-      <div id="infoModalBody" class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify" data-i18n="infoModalBody">
-      </div>
+      <div id="infoModalBody" class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify" data-i18n="infoModalBody"></div>
     </div>
   </div>
 
-  <!-- MODAL DE CONFIRMACIÓN DE VOTOS (PERSONALIZADO) -->
+  <!-- MODAL DE CONFIRMACIÓN DE VOTOS -->
   <div id="voteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-sm w-full space-y-4 border border-emerald-500/40 text-center shadow-2xl">
       <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="confirmVoteTitle">Confirmar Votación</h3>
@@ -446,12 +523,17 @@
       es: {
         adminBtn: "Panel Curadores",
         backApp: "Volver a la App",
+        tabActive: "📻 Activa",
         tabWeekly: "🔥 Semanal",
         tabMonthly: "Mensual",
         tabAnnual: "Anual",
         tabTop: "TOP",
         tabVote: "Votar",
         tabChat: "💬 Chat",
+        activeListHeader: "📻 LISTA ACTIVA (ON AIR ESTA SEMANA)",
+        activeListSub: "Estos son los temas que están sonando actualmente y compiten en la votación de esta semana.",
+        btnGoVote: "⭐ Ir a Votar",
+        activeListEmpty: "Aún no hay canciones cargadas en la lista activa de esta semana.",
         txtClosure: "Cierre: Jueves 00:00h",
         statusOpen: "Abierta",
         statusClosed: "Cerrada",
@@ -465,7 +547,7 @@
         step1Title: "1. Guarda la playlist",
         step1Btn: "Abrir Playlist en Spotify",
         step1Check: "Confirmo que ya he guardado la playlist en mi biblioteca.",
-        step2Title: "2. Envía tu canción",
+        step2Title: "2. Envía tu canción (para la próxima semana)",
         phArtist: "Nombre del Artista *",
         phTitle: "Título de la Canción *",
         phUrl: "Enlace Spotify de la canción *",
@@ -477,18 +559,18 @@
         upcomingTitle: "🎵 PRÓXIMAS ENTRADAS A LISTA",
         loading: "Cargando propuestas...",
         monthlyHeader: "🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)",
-        monthlyDesc: "Recopilación automática de las ediciones semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.",
-        monthlyEmpty: "La lista mensual se llenará al cerrar las ediciones semanales.",
+        monthlyDesc: "Recopilación automática de las listas activas semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.",
+        monthlyEmpty: "La lista mensual se llenará al rotar las listas activas semanales.",
         annualHeader: "📀 LISTA ANUAL ACUMULADA",
         annualDesc: "Histórico de todas las canciones que han escalado desde la lista mensual durante el año.",
         annualEmpty: "Aquí se acumularán las canciones al completar los ciclos mensuales.",
         topHeader: "TOP ANUAL & VOTACIONES",
         topDesc: "Al finalizar el año (31 de diciembre), habilitaremos aquí el sistema oficial de votación para que la comunidad y los artistas elijan las mejores canciones de <strong>Next Wave Rising</strong>. ¡Mantente atento!",
-        voteTabTitle: "⭐ VOTA PRÓXIMA DESTACADA",
+        voteTabTitle: "⭐ VOTA PRÓXIMA DESTACADA (LISTA ACTIVA)",
         rulesBtnText: "📜 ¡Normas de Votación Importantes - Haz clic aquí!",
         rulesHeader: "Reglas para emitir tu voto:",
-        ruleNoteOnlyWeekly: "⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.",
-        ruleAuto: "⏱️ La votación se abre los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).",
+        ruleNoteOnlyWeekly: "⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana (sobre la Lista Activa)</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.",
+        ruleAuto: "⏱️ La votación se abre los jueves a las 00:00h al activarse la nueva lista y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).",
         rule1: "Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.",
         rule2: "Introduce tu correo electrónico en la casilla de abajo antes de empezar.",
         rule3: "<strong>Votar no es obligatorio</strong>, pero si decides participar, debes votar exactamente a <strong>3 temas diferentes</strong>. No se puede emitir un voto para una sola canción ni repetir el mismo tema.",
@@ -497,7 +579,7 @@
         rule6: "Existen controles estrictos de IP y correo. Si se detectase fraude en la votación, esta podrá ser declarada nula.",
         lblVoterEmail: "Tu correo electrónico (necesario para emitir tus votos):",
         voteSubNotice: "⚠️ Votar es opcional, pero <strong class=\"text-emerald-400\">si votas debes elegir exactamente 3 temas diferentes</strong> (no se puede votar solo 1 canción). Al dar al tercer voto, se te pedirá confirmación.",
-        loadingVotes: "Cargando canciones para votar...",
+        loadingVotes: "Cargando canciones activas para votar...",
         statVoters: "Votantes únicos",
         statTracks: "Temas votados",
         statTotal: "Suma de votos",
@@ -509,10 +591,10 @@
           <p>Esta es una plataforma abierta, diversa y profundamente tolerante. Aquí no existen vetos ni prejuicios de estilo; desde la música clásica o cinemática hasta el pop, el rock o géneros experimentales, todas las expresiones tienen su espacio legítimo. Los curadores somos nosotros mismos a través de la escucha y el voto comunitario. Ningún tema es mejor que otro; la votación sirve para dar vida y emoción a la lista.</p>
           <p><strong>Dinámica y Reglas Clave:</strong></p>
           <ul class="list-disc pl-4 space-y-1.5">
-            <li><strong>Lista Semanal y Votaciones:</strong> Abierta a propuestas sin censura mientras está activa. Se cierra los jueves a las 22:00h. El tema proclamado campeón semanal se convertirá en el destacado de la siguiente edición, obteniendo una valiosa doble inclusión al reingresar en la lista semanal y ascender simultáneamente a la mensual.</li>
+            <li><strong>Lista Activa, Semanal y Votaciones:</strong> Mientras <em>Semanal</em> está abierta, cualquier artista puede enviar su tema para la semana siguiente. Los jueves a las 00:00h esa lista pasa a ser la <strong>Lista Activa (On Air)</strong> y se abren sus votaciones hasta las 22:00h. El tema más votado será el destacado de la semana siguiente y reingresará en la semanal, mientras el resto de la lista activa pasa a la mensual.</li>
             <li><strong>Sistema de Voto:</strong> <strong>Votar no es obligatorio</strong>, pero quien decida participar debe seleccionar y votar exactamente a <strong>3 temas diferentes</strong> por edición (no se puede iniciar ni emitir un voto para una sola canción), respaldado por un riguroso control de correo e IP.</li>
             <li><strong>Listas Mensual y Anual:</strong> Procesos automatizados. Es imprescindible mantener la playlist guardada en tu biblioteca de Spotify; la revisión periódica de este compromiso garantiza el espacio activo de los artistas (con exclusión temporal de un año ante inactividad prolongada tras aviso).</li>
-            <li><strong>Colaboración y Crecimiento:</strong> Reproducir la lista semanal completa (1 o 2 veces por semana) impulsa nuestro posicionamiento frente al algoritmo y protege nuestras regalías.</li>
+            <li><strong>Colaboración y Crecimiento:</strong> Reproducir la lista activa completa (1 o 2 veces por semana) impulsa nuestro posicionamiento frente al algoritmo y protege nuestras regalías.</li>
           </ul>
           <p class="text-emerald-400 font-semibold pt-2">Sed bienvenidos, disfrutad de la música y colaborad con generosidad. Un abrazo enorme de parte de Breyde y Darko. (Puedes seguir la actividad principal de Breyde en TikTok buscando "breyde"). — Darko (David en el mundo real).</p>
         `,
@@ -537,12 +619,17 @@
       en: {
         adminBtn: "Curators Panel",
         backApp: "Back to App",
+        tabActive: "📻 Active",
         tabWeekly: "🔥 Weekly",
         tabMonthly: "Monthly",
         tabAnnual: "Annual",
         tabTop: "TOP",
         tabVote: "Vote",
         tabChat: "💬 Chat",
+        activeListHeader: "📻 ACTIVE LIST (ON AIR THIS WEEK)",
+        activeListSub: "These are the tracks currently playing and competing in this week's vote.",
+        btnGoVote: "⭐ Go to Vote",
+        activeListEmpty: "No tracks loaded in this week's active list yet.",
         txtClosure: "Closes: Thursday 00:00h",
         statusOpen: "Open",
         statusClosed: "Closed",
@@ -556,7 +643,7 @@
         step1Title: "1. Save the playlist",
         step1Btn: "Open Playlist on Spotify",
         step1Check: "I confirm I have saved the playlist to my library.",
-        step2Title: "2. Submit your track",
+        step2Title: "2. Submit your track (for next week)",
         phArtist: "Artist Name *",
         phTitle: "Track Title *",
         phUrl: "Spotify Track Link *",
@@ -568,18 +655,18 @@
         upcomingTitle: "🎵 UPCOMING ENTRIES TO LIST",
         loading: "Loading submissions...",
         monthlyHeader: "🗓️ MONTHLY LIST (ROTATES EVERY 4 WEEKS)",
-        monthlyDesc: "Automatic compilation of weekly editions. After 4 blocks, the oldest moves to the annual list.",
-        monthlyEmpty: "The monthly list will populate as weekly editions close.",
+        monthlyDesc: "Automatic compilation of weekly active lists. After 4 blocks, the oldest moves to the annual list.",
+        monthlyEmpty: "The monthly list will populate as weekly active lists rotate.",
         annualHeader: "📀 ACCUMULATED ANNUAL LIST",
         annualDesc: "Historical record of all tracks that scaled up from the monthly list during the year.",
         annualEmpty: "Tracks will accumulate here as monthly cycles complete.",
         topHeader: "TOP ANNUAL & VOTING",
         topDesc: "At the end of the year (December 31st), we will enable the official voting system here for artists and community to choose the best tracks of <strong>Next Wave Rising</strong>. Stay tuned!",
-        voteTabTitle: "⭐ VOTE NEXT FEATURED",
+        voteTabTitle: "⭐ VOTE NEXT FEATURED (ACTIVE LIST)",
         rulesBtnText: "📜 Important Voting Rules - Click here!",
         rulesHeader: "Rules to cast your vote:",
-        ruleNoteOnlyWeekly: "⚠️ <strong>Important notice:</strong> These rules and voting system apply <em>only to the weekly featured track</em>. Voting for the annual TOP will be governed by other specific rules at the end of the year.",
-        ruleAuto: "⏱️ Voting opens on Thursdays at 00:00h and closes on Thursdays at 22:00h (two hours before the list changes at midnight).",
+        ruleNoteOnlyWeekly: "⚠️ <strong>Important notice:</strong> These rules and voting system apply <em>only to the weekly featured track (on the Active List)</em>. Voting for the annual TOP will be governed by other specific rules at the end of the year.",
+        ruleAuto: "⏱️ Voting opens on Thursdays at 00:00h when the new list goes live and closes on Thursdays at 22:00h (two hours before the list changes at midnight).",
         rule1: "Anyone outside the list can vote, as long as they respect the rules and do not try to vote indiscriminately with different emails.",
         rule2: "Enter your email address in the box below before starting.",
         rule3: "<strong>Voting is not mandatory</strong>, but if you choose to participate, you must vote for exactly <strong>3 different tracks</strong>. You cannot cast a vote for a single song or repeat the same track.",
@@ -588,7 +675,7 @@
         rule6: "Strict IP and email controls exist. If fraud is detected in the voting, it can be declared null and void.",
         lblVoterEmail: "Your email address (required to cast your votes):",
         voteSubNotice: "⚠️ Voting is optional, but <strong class=\"text-emerald-400\">if you vote you must choose exactly 3 different tracks</strong> (you cannot vote for just 1 song). Upon your third vote, confirmation will be requested.",
-        loadingVotes: "Loading tracks to vote...",
+        loadingVotes: "Loading active tracks to vote...",
         statVoters: "Unique Voters",
         statTracks: "Voted Tracks",
         statTotal: "Total Votes",
@@ -600,10 +687,10 @@
           <p>This is an open, diverse, and deeply tolerant platform. There are no bans or style prejudices here; from classical or cinematic music to pop, rock, or experimental genres, every expression has its rightful place. We are our own curators through listening and community voting. No track is better than another; voting simply brings life and excitement to the playlist.</p>
           <p><strong>Dynamics &amp; Key Rules:</strong></p>
           <ul class="list-disc pl-4 space-y-1.5">
-            <li><strong>Weekly List &amp; Voting:</strong> Open to uncensored submissions while active. Closes on Thursdays at 22:00h. The weekly champion becomes the featured track of the next edition, earning a valuable double inclusion by re-entering the weekly list while simultaneously advancing to the monthly list.</li>
+            <li><strong>Active List, Weekly &amp; Voting:</strong> While <em>Weekly</em> is open, any artist can submit their track for next week. On Thursdays at 00:00h that list becomes the <strong>Active List (On Air)</strong> and voting opens until 22:00h. The most voted track becomes next week's featured track and re-enters the weekly list, while the active list moves to the monthly list.</li>
             <li><strong>Voting System:</strong> <strong>Voting is not mandatory</strong>, but anyone who chooses to vote must select and vote for exactly <strong>3 different tracks</strong> per edition (you cannot submit or register a vote for just a single song), backed by strict email and IP controls.</li>
             <li><strong>Monthly &amp; Annual Lists:</strong> Automated rotation. Keeping the playlist saved in your Spotify library is mandatory; periodic checks ensure active artist slots (with a 1-year temporary exclusion for prolonged inactivity after notice).</li>
-            <li><strong>Collaboration &amp; Growth:</strong> Streaming the full weekly list (1 or 2 times per week) boosts our algorithmic positioning and protects our royalties.</li>
+            <li><strong>Collaboration &amp; Growth:</strong> Streaming the full active list (1 or 2 times per week) boosts our algorithmic positioning and protects our royalties.</li>
           </ul>
           <p class="text-emerald-400 font-semibold pt-2">Welcome, enjoy the music, and collaborate generously. A huge hug from Breyde &amp; Darko. (You can follow Breyde's main activity on TikTok by searching "breyde"). — Darko (David in real life).</p>
         `,
@@ -642,6 +729,10 @@
       chatSessionId = 'sess_' + Math.random().toString(36).substring(2, 9);
       sessionStorage.setItem('nwr_session_id', chatSessionId);
     }
+
+    let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", votingActive: true };
+    let subs = []; // Cola semanal (próxima semana)
+    let activeSubs = []; // Lista Activa (On Air esta semana)
 
     async function fetchClientIp() {
       try {
@@ -685,39 +776,150 @@
 
     function switchAdminTab(tab) {
       const btnP = document.getElementById('adminTabPrincipal');
+      const btnA = document.getElementById('adminTabActiva');
       const btnM = document.getElementById('adminTabMensajes');
       const btnC = document.getElementById('adminTabConfig');
       const btnB = document.getElementById('adminTabBackups');
       const viewP = document.getElementById('adminViewPrincipal');
+      const viewA = document.getElementById('adminViewActiva');
       const viewM = document.getElementById('adminViewMensajes');
       const viewC = document.getElementById('adminViewConfig');
       const viewB = document.getElementById('adminViewBackups');
 
-      [btnP, btnM, btnC, btnB].forEach(b => {
-        if(b) b.className = "px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
+      [btnP, btnA, btnM, btnC, btnB].forEach(b => {
+        if(b) b.className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
       });
-      [viewP, viewM, viewC, viewB].forEach(v => { if(v) v.classList.add('hidden'); });
+      [viewP, viewA, viewM, viewC, viewB].forEach(v => { if(v) v.classList.add('hidden'); });
 
       if (tab === 'principal') {
-        btnP.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+        btnP.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewP.classList.remove('hidden');
+      } else if (tab === 'activa') {
+        btnA.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+        viewA.classList.remove('hidden');
       } else if (tab === 'mensajes') {
-        btnM.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+        btnM.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewM.classList.remove('hidden');
         loadAdminMessages();
       } else if (tab === 'config') {
-        btnC.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+        btnC.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewC.classList.remove('hidden');
         loadAdminChatUsers();
       } else if (tab === 'backups') {
-        btnB.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+        btnB.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewB.classList.remove('hidden');
         loadAdminBackups();
       }
     }
 
+    // ==================== GESTIÓN DE LISTA ACTIVA (CURADOR) ====================
+    window.addTrackToActiveList = async function() {
+      const artist = document.getElementById("adminActiveArtist").value.trim();
+      const title = document.getElementById("adminActiveTitle").value.trim();
+      const rawUrl = document.getElementById("adminActiveUrl").value.trim();
+      const email = document.getElementById("adminActiveEmail").value.trim();
+
+      if (!artist || !title || !rawUrl) {
+        alert("Rellena Artista, Canción y Enlace Spotify.");
+        return;
+      }
+      const cleanUrl = rawUrl.split("?")[0].trim();
+      if (!cleanUrl.includes("spotify.com/") || !cleanUrl.includes("/track/")) {
+        alert("Enlace Spotify no válido. Debe ser un enlace /track/...");
+        return;
+      }
+
+      try {
+        const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
+        await db.collection("active_list").add({
+          artist,
+          title,
+          url: cleanUrl,
+          email: email || "",
+          timestamp: Date.now(),
+          dateString: dateStr,
+          votes: 0,
+          voters: []
+        });
+        document.getElementById("adminActiveArtist").value = "";
+        document.getElementById("adminActiveTitle").value = "";
+        document.getElementById("adminActiveUrl").value = "";
+        document.getElementById("adminActiveEmail").value = "";
+        await loadAllLists();
+        alert("✅ Tema añadido a la Lista Activa (On Air).");
+      } catch(e) {
+        alert("Error al añadir a la Lista Activa: " + e.message);
+      }
+    };
+
+    window.openEditActiveModal = function(id) {
+      const track = activeSubs.find(t => t.id === id);
+      if (!track) return;
+      document.getElementById("editActiveId").value = track.id;
+      document.getElementById("editActiveArtist").value = track.artist || "";
+      document.getElementById("editActiveTitle").value = track.title || "";
+      document.getElementById("editActiveUrl").value = track.url || "";
+      document.getElementById("editActiveEmail").value = track.email || "";
+      document.getElementById("editActiveTrackModal").classList.remove("hidden");
+    };
+
+    window.closeEditActiveModal = function() {
+      document.getElementById("editActiveTrackModal").classList.add("hidden");
+    };
+
+    window.saveActiveTrackEdit = async function() {
+      const id = document.getElementById("editActiveId").value;
+      const artist = document.getElementById("editActiveArtist").value.trim();
+      const title = document.getElementById("editActiveTitle").value.trim();
+      const rawUrl = document.getElementById("editActiveUrl").value.trim();
+      const email = document.getElementById("editActiveEmail").value.trim();
+
+      if (!artist || !title || !rawUrl) {
+        alert("Artista, Canción y Enlace son obligatorios.");
+        return;
+      }
+      const cleanUrl = rawUrl.split("?")[0].trim();
+
+      try {
+        await db.collection("active_list").doc(id).update({
+          artist,
+          title,
+          url: cleanUrl,
+          email
+        });
+        closeEditActiveModal();
+        await loadAllLists();
+        alert("✅ Tema actualizado en la Lista Activa.");
+      } catch(e) {
+        alert("Error al guardar cambios: " + e.message);
+      }
+    };
+
+    window.deleteActiveTrack = async function(id) {
+      if (!confirm("¿Eliminar este tema de la Lista Activa (On Air)?")) return;
+      try {
+        await db.collection("active_list").doc(id).delete();
+        await loadAllLists();
+      } catch(e) {
+        alert("Error al eliminar el tema.");
+      }
+    };
+
+    window.exportActiveList = function() {
+      if (activeSubs.length === 0) {
+        alert("La Lista Activa está vacía.");
+        return;
+      }
+      navigator.clipboard.writeText(activeSubs.map((s, i) => (i+1) + ". " + s.artist + " - " + s.title + " | " + (s.email || '') + " (" + s.url.split("?")[0] + ")").join("\n"));
+      alert("Lista Activa copiada (enlaces limpios).");
+    };
+
     // ==================== SISTEMA DE BACKUPS AISLADOS (MANUAL Y AUTOMÁTICO) ====================
     async function saveBackupSnapshot(customTitle, fixedDocId) {
+      const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
+      const activeData = [];
+      snapActive.forEach(doc => activeData.push({ id: doc.id, ...doc.data() }));
+
       const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
       const weeklyData = [];
       snapSub.forEach(doc => weeklyData.push({ id: doc.id, ...doc.data() }));
@@ -739,16 +941,17 @@
         dateString: dateStr,
         dateOnly: dateOnlyStr,
         timestamp: Date.now(),
+        activeCount: activeData.length,
         weeklyCount: weeklyData.length,
         monthlyCount: monthlyData.length,
         annualCount: annualData.length,
+        activeTracks: activeData,
         weeklyTracks: weeklyData,
         monthlyTracks: monthlyData,
         annualTracks: annualData
       };
 
       if (fixedDocId) {
-        // ID determinista por semana para evitar copias duplicadas si varios usuarios tienen la web abierta a las 23:59:59
         const docRef = db.collection("backups").doc(fixedDocId);
         const existing = await docRef.get();
         if (!existing.exists) {
@@ -758,15 +961,15 @@
         await db.collection("backups").add(payload);
       }
 
-      return weeklyData.length;
+      return { active: activeData.length, weekly: weeklyData.length };
     }
 
     window.createManualBackup = async function() {
       try {
-        const count = await saveBackupSnapshot(`Backup manual (${config.edition || "Edición Semanal"})`);
+        const counts = await saveBackupSnapshot(`Backup manual (${config.edition || "Edición Semanal"})`);
         await loadAdminBackups();
         const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
-        alert(`✅ Backup creado correctamente (${dateStr}) con ${count} canciones semanales.`);
+        alert(`✅ Backup creado correctamente (${dateStr}): ${counts.active} en Activa y ${counts.weekly} en Cola Semanal.`);
       } catch(e) {
         console.error(e);
         alert("Error al crear el backup: " + e.message);
@@ -811,12 +1014,18 @@
         }
 
         container.innerHTML = list.map(b => {
-          const tracks = b.weeklyTracks || [];
+          const activeT = b.activeTracks || [];
+          const weeklyT = b.weeklyTracks || [];
           const isSystem = (b.edition || '').toLowerCase().includes('copia de sistema');
           const icon = isSystem ? '🤖' : '📦';
-          const previewList = tracks.length > 0
-            ? tracks.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-emerald-400">${t.title}</span> (${String(t.votes || 0).padStart(2, '0')} votos)</li>`).join('')
-            : '<li class="text-[11px] text-zinc-500 italic">Sin canciones en la lista semanal</li>';
+
+          const previewActive = activeT.length > 0
+            ? activeT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-emerald-400">${t.title}</span> (${String(t.votes || 0).padStart(2, '0')} votos)</li>`).join('')
+            : '<li class="text-[11px] text-zinc-500 italic">Vacía</li>';
+
+          const previewWeekly = weeklyT.length > 0
+            ? weeklyT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-cyan-400">${t.title}</span></li>`).join('')
+            : '<li class="text-[11px] text-zinc-500 italic">Vacía</li>';
 
           return `
             <div class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2.5">
@@ -824,16 +1033,22 @@
                 <div>
                   <p class="font-bold text-white text-xs">${icon} ${b.edition || 'Backup Lista'}</p>
                   <p class="text-[11px] text-cyan-400 font-mono mt-0.5">📅 ${b.dateString || ''}</p>
-                  <p class="text-[10px] text-zinc-400 mt-0.5">Semanal: <strong>${b.weeklyCount || 0}</strong> | Mensual: <strong>${b.monthlyCount || 0}</strong> | Anual: <strong>${b.annualCount || 0}</strong></p>
+                  <p class="text-[10px] text-zinc-400 mt-0.5">Activa: <strong>${b.activeCount || 0}</strong> | Semanal: <strong>${b.weeklyCount || 0}</strong> | Mensual: <strong>${b.monthlyCount || 0}</strong> | Anual: <strong>${b.annualCount || 0}</strong></p>
                 </div>
-                <div class="flex gap-1.5">
-                  <button type="button" onclick="copyBackupToClipboard('${b.id}')" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold rounded-lg text-[11px] transition border border-white/10">📋 Copiar Lista</button>
-                  <button type="button" onclick="deleteBackup('${b.id}')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">🗑️ Eliminar</button>
+                <div class="flex flex-wrap gap-1.5">
+                  <button type="button" onclick="copyBackupToClipboard('${b.id}', 'active')" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[11px] transition">📋 Copiar Activa</button>
+                  <button type="button" onclick="copyBackupToClipboard('${b.id}', 'weekly')" class="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold rounded-lg text-[11px] transition border border-white/10">📋 Copiar Semanal</button>
+                  <button type="button" onclick="deleteBackup('${b.id}')" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">🗑️</button>
                 </div>
               </div>
               <details class="text-[11px] text-zinc-400 pt-1.5 border-t border-white/5">
-                <summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver contenido guardado (${tracks.length} temas)</summary>
-                <ul class="mt-2 space-y-1 pl-2 bg-zinc-950 p-2.5 rounded-lg max-h-48 overflow-y-auto">${previewList}</ul>
+                <summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver contenido guardado (Activa: ${activeT.length} | Semanal: ${weeklyT.length})</summary>
+                <div class="mt-2 space-y-2 bg-zinc-950 p-2.5 rounded-lg max-h-56 overflow-y-auto">
+                  <p class="text-[10px] uppercase font-bold text-emerald-400">📻 Lista Activa:</p>
+                  <ul class="space-y-1 pl-2">${previewActive}</ul>
+                  <p class="text-[10px] uppercase font-bold text-cyan-400 pt-1">🔥 Cola Semanal:</p>
+                  <ul class="space-y-1 pl-2">${previewWeekly}</ul>
+                </div>
               </details>
             </div>
           `;
@@ -844,13 +1059,12 @@
       }
     }
 
-    // Copia exactamente los datos limpios de la lista igual que el botón "Copiar Lista" de Principal
-    window.copyBackupToClipboard = function(id) {
+    window.copyBackupToClipboard = function(id, type) {
       const b = backupsCache[id];
       if (!b) return;
-      const tracks = b.weeklyTracks || [];
+      const tracks = type === 'active' ? (b.activeTracks || []) : (b.weeklyTracks || []);
       if (tracks.length === 0) {
-        alert("Esta copia de seguridad no tiene canciones en la lista.");
+        alert("Esa sección de la copia de seguridad no tiene canciones.");
         return;
       }
       const cleanText = tracks.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ''} (${(s.url || '').split('?')[0]})`).join('\n');
@@ -915,7 +1129,7 @@
     };
 
     window.deleteSubmissionTrack = async function(id) {
-      if(!confirm("¿Estás seguro de eliminar esta canción de la lista?")) return;
+      if(!confirm("¿Estás seguro de eliminar esta canción de la cola semanal?")) return;
       try {
         await db.collection("submissions").doc(id).delete();
         loadAllLists();
@@ -1044,6 +1258,7 @@
       const adminView = document.getElementById("adminView");
       const isAdminVisible = adminView && !adminView.classList.contains("hidden");
       document.getElementById('txtAdminBtn').textContent = isAdminVisible ? t.backApp : t.adminBtn;
+      document.getElementById('tabActive').textContent = t.tabActive;
       document.getElementById('tabWeekly').textContent = t.tabWeekly;
       document.getElementById('tabMonthly').textContent = t.tabMonthly;
       document.getElementById('tabAnnual').textContent = t.tabAnnual;
@@ -1063,7 +1278,7 @@
     }
 
     function switchTab(tab) {
-      ['weekly', 'monthly', 'annual', 'top', 'vote', 'chat'].forEach(t => {
+      ['active', 'weekly', 'monthly', 'annual', 'top', 'vote', 'chat'].forEach(t => {
         const viewEl = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
         const tabEl = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
         if (viewEl) viewEl.classList.add('hidden');
@@ -1250,9 +1465,6 @@
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", votingActive: true };
-    let subs = [];
-
     function updateVotingUI(active) {
       const now = new Date();
       try {
@@ -1338,6 +1550,7 @@
       } catch(e){}
       document.getElementById("editionTitle").textContent = config.edition;
       document.getElementById("playlistLinkBtn").href = config.playlistUrl;
+      document.getElementById("activePlaylistLinkBtn").href = config.playlistUrl;
       document.getElementById("adminEditionInput").value = config.edition;
       document.getElementById("adminPlaylistInput").value = config.playlistUrl;
       document.getElementById("adminTrackInput").value = config.trackUrl;
@@ -1356,6 +1569,8 @@
     async function loadAllLists() {
       const adminList = document.getElementById("submissionsList");
       const publicList = document.getElementById("publicSubmissionsList");
+      const publicActiveList = document.getElementById("publicActiveList");
+      const adminActiveListContainer = document.getElementById("adminActiveListContainer");
       const monthlyContainer = document.getElementById("monthlyListContainer");
       const annualContainer = document.getElementById("annualListContainer");
       const voteTabViewList = document.getElementById("voteTabViewList");
@@ -1367,16 +1582,19 @@
         console.warn("No se pudo leer voters_log:", e.message);
       }
 
+      // 1. CARGAR LISTA ACTIVA (ON AIR ESTA SEMANA) -> Alimenta pestaña Activa, Votación y Curador Lista Activa
       try {
-        const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
-        subs = [];
-        snapSub.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
-        document.getElementById("subCount").textContent = subs.length;
-        document.getElementById("publicSubCount").textContent = subs.length;
+        const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
+        activeSubs = [];
+        snapActive.forEach(doc => activeSubs.push({ id: doc.id, ...doc.data() }));
+
+        document.getElementById("publicActiveCount").textContent = activeSubs.length;
+        document.getElementById("adminActiveCount").textContent = activeSubs.length;
+        document.getElementById("adminActiveCountBadge").textContent = activeSubs.length;
 
         let tracksWithVotes = 0;
         let totalVotesSum = 0;
-        subs.forEach(s => {
+        activeSubs.forEach(s => {
           let v = s.votes || 0;
           totalVotesSum += v;
           if (v > 0) tracksWithVotes++;
@@ -1384,24 +1602,33 @@
         document.getElementById("statTracksVotedCount").textContent = String(tracksWithVotes).padStart(2, '0');
         document.getElementById("statTotalVotesCount").textContent = String(totalVotesSum).padStart(2, '0');
 
-        if(subs.length === 0) {
-          adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
-          publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
-          voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No hay canciones disponibles para votar aún.</p>';
+        if (activeSubs.length === 0) {
+          publicActiveList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].activeListEmpty}</p>`;
+          adminActiveListContainer.innerHTML = '<p class="text-zinc-400 text-center py-4">No hay temas en la Lista Activa todavía. Puedes añadirlos arriba.</p>';
+          voteTabViewList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].activeListEmpty}</p>`;
         } else {
-          adminList.innerHTML = subs.map((s, i) => {
-            const cleanUrl = s.url.split("?")[0];
-            const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
-            const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
-            
+          // Vista pública de Lista Activa
+          publicActiveList.innerHTML = activeSubs.map((s, i) => {
+            const embedUrl = toEmbed(s.url);
+            if (!embedUrl) return '';
+            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">On Air</span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+          }).join("");
+
+          // Vista Curador de Lista Activa (con Editar y Eliminar)
+          adminActiveListContainer.innerHTML = activeSubs.map((s, i) => {
+            const cleanUrl = (s.url || '').split("?")[0];
             const votesFormatted = String(s.votes || 0).padStart(2, '0');
             const voters = s.voters || [];
             let votersHtml = voters.length > 0 ? voters.map(v => `<li class="text-[11px] text-zinc-300">• ${v}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin votos aún</li>';
 
             return '<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">' +
-              '<div class="flex justify-between items-center">' +
-                '<div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + ' | Votos: <strong>' + votesFormatted + '</strong></p></div>' +
-                '<div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '<button onclick="deleteSubmissionTrack(\'' + s.id + '\')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>' +
+              '<div class="flex flex-wrap justify-between items-center gap-2">' +
+                '<div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + (s.email || 'Sin email') + ' | Votos: <strong>' + votesFormatted + '</strong></p></div>' +
+                '<div class="flex gap-1.5">' +
+                  '<a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' +
+                  '<button type="button" onclick="openEditActiveModal(\'' + s.id + '\')" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded">Editar</button>' +
+                  '<button type="button" onclick="deleteActiveTrack(\'' + s.id + '\')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button>' +
+                '</div>' +
               '</div>' +
               '<details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5">' +
                 '<summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (' + voters.length + ')</summary>' +
@@ -1410,14 +1637,8 @@
             '</div>';
           }).join("");
 
-          publicList.innerHTML = subs.map((s, i) => {
-            const embedUrl = toEmbed(s.url);
-            if (!embedUrl) return '';
-            const compactUrl = embedUrl.replace('height=152', 'height=80');
-            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
-          }).join("");
-
-          let sortedVotesSubs = [...subs];
+          // Pestaña Votar (vota sobre activeSubs)
+          let sortedVotesSubs = [...activeSubs];
           if (totalVotesSum === 0) {
             if (!lockedRandomOrder || lockedRandomOrder.length !== sortedVotesSubs.length) {
               lockedRandomOrder = [...sortedVotesSubs].sort(() => Math.random() - 0.5).map(item => item.id);
@@ -1443,13 +1664,12 @@
             }
 
             if (!embedUrl) return '';
-            const compactUrl = embedUrl.replace('height=152', 'height=80');
             return '<div class="p-3 bg-zinc-900/90 rounded-2xl border border-white/10 space-y-2">' +
               '<div class="flex justify-between items-center px-1 text-xs text-zinc-400">' +
                 '<span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">' + rankDisplay + '</span> ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span>' +
                 '<span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ' + votesFormatted + '</span>' +
               '</div>' +
-              '<iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>' +
+              '<iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>' +
               '<div class="pt-1.5 border-t border-white/5 flex justify-between items-center text-xs text-zinc-400">' +
                 '<span>' + (currentLang === 'es' ? 'Seleccionados' : 'Selected') + ': <strong>' + sessionPendingVotes.length + '/3</strong></span>' +
                 '<button onclick="handleVoteClick(\'' + s.id + '\')" class="' + btnClass + '">' + btnText + '</button>' +
@@ -1458,12 +1678,48 @@
           }).join("");
         }
       } catch(e) {
+        console.warn("Error cargando Lista Activa:", e.message);
+        publicActiveList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].activeListEmpty}</p>`;
+      }
+
+      // 2. CARGAR COLA SEMANAL (PRÓXIMA SEMANA)
+      try {
+        const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+        subs = [];
+        snapSub.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
+        document.getElementById("subCount").textContent = subs.length;
+        document.getElementById("publicSubCount").textContent = subs.length;
+
+        if(subs.length === 0) {
+          adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas para la próxima semana.</p>';
+          publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
+        } else {
+          adminList.innerHTML = subs.map((s, i) => {
+            const cleanUrl = s.url.split("?")[0];
+            const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
+            const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
+
+            return '<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">' +
+              '<div class="flex justify-between items-center">' +
+                '<div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + '</p></div>' +
+                '<div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '<button onclick="deleteSubmissionTrack(\'' + s.id + '\')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>' +
+              '</div>' +
+            '</div>';
+          }).join("");
+
+          publicList.innerHTML = subs.map((s, i) => {
+            const embedUrl = toEmbed(s.url);
+            if (!embedUrl) return '';
+            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+          }).join("");
+        }
+      } catch(e) {
         console.error("Error cargando submissions:", e);
         adminList.innerHTML = '<p class="text-rose-400 text-xs">Error al cargar propuestas.</p>';
         publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">No se pudieron cargar las propuestas ahora mismo.</p>';
-        voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No se pudieron cargar las canciones.</p>';
       }
 
+      // 3. CARGAR MENSUAL
       try {
         const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
         let monthlyItems = [];
@@ -1476,14 +1732,14 @@
           monthlyContainer.innerHTML = monthlyItems.map((s, i) => {
             const embedUrl = toEmbed(s.url);
             if (!embedUrl) return '';
-            const compactUrl = embedUrl.replace('height=152', 'height=80');
-            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">Bloque ' + (i+1) + ': ' + s.artist + ' — <span class="text-cyan-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">Bloque ' + (i+1) + ': ' + s.artist + ' — <span class="text-cyan-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
           }).join("");
         }
       } catch(e) {
         console.warn("Error cargando mensual:", e.message);
       }
 
+      // 4. CARGAR ANUAL
       try {
         const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
         let annualItems = [];
@@ -1496,8 +1752,7 @@
           annualContainer.innerHTML = annualItems.map((s, i) => {
             const embedUrl = toEmbed(s.url);
             if (!embedUrl) return '';
-            const compactUrl = embedUrl.replace('height=152', 'height=80');
-            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-amber-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-amber-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
           }).join("");
         }
       } catch(e) {
@@ -1505,6 +1760,7 @@
       }
     }
 
+    // ==================== VOTACIONES SOBRE LISTA ACTIVA ====================
     window.handleVoteClick = async function(id) {
       if (!globalVotingActive) {
         alert(currentLang === 'es' ? "Las votaciones están desactivadas en este momento." : "Voting is currently disabled.");
@@ -1582,7 +1838,7 @@
         }
 
         for (let trackId of sessionPendingVotes) {
-          const subRef = db.collection("submissions").doc(trackId);
+          const subRef = db.collection("active_list").doc(trackId);
           const subDoc = await subRef.get();
           if (subDoc.exists) {
             let currentVotes = subDoc.data().votes || 0;
@@ -1657,7 +1913,7 @@
       document.getElementById("toggleAdminBtn").addEventListener("click", () => {
         const adminView = document.getElementById("adminView");
         const isHidden = adminView.classList.contains("hidden");
-        ['weekly', 'monthly', 'annual', 'top', 'vote', 'chat'].forEach(t => {
+        ['active', 'weekly', 'monthly', 'annual', 'top', 'vote', 'chat'].forEach(t => {
           const v = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
           if(v) v.classList.add('hidden');
         });
@@ -1675,9 +1931,9 @@
       });
 
       document.getElementById("resetVotesBtn").addEventListener("click", async () => {
-        if(!confirm("¿Estás seguro de poner a cero los votos y registros de votantes de todas las canciones?")) return;
+        if(!confirm("¿Estás seguro de poner a cero los votos de la Lista Activa y los registros de votantes?")) return;
         try {
-          const snap = await db.collection("submissions").get();
+          const snap = await db.collection("active_list").get();
           const batch = db.batch();
           snap.docs.forEach(doc => batch.update(doc.ref, { votes: 0, voters: [] }));
           await batch.commit();
@@ -1861,21 +2117,27 @@
         } catch(e){ alert("Error al guardar."); }
       });
 
+      // ROTACIÓN COMPLETA:
+      // 1) Copia de sistema automática
+      // 2) Lista Activa -> Lista Mensual (y desborde >4 -> Anual) + detecta campeón de la Activa
+      // 3) Cola Semanal (submissions) -> Lista Activa (con votación activada y votos reseteados)
+      // 4) Campeón de la Activa anterior -> Tema Destacado + reingresa en Cola Semanal
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
-        if(!confirm("¿Cerrar edición semanal actual? Se creará una copia de seguridad automática, las canciones pasarán a la mensual y el campeón volverá a entrar como destacado.")) return;
+        if(!confirm("¿Cerrar edición y rotar listas?\n\n• Se guardará una Copia de Sistema.\n• La Lista Activa pasará a la Mensual.\n• La Cola Semanal pasará a ser la nueva Lista Activa y se activará su votación.\n• El campeón más votado pasará a Tema Destacado y reingresará en Semanal.")) return;
         try {
-          const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
-          let weeklyTracks = [];
-          snapSub.forEach(doc => weeklyTracks.push({ ref: doc.ref, data: doc.data() }));
+          const dateOnly = new Date().toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
+          await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`);
 
-          if(weeklyTracks.length > 0) {
-            // Crear copia de sistema antes de mover la lista semanal a la mensual
-            const dateOnly = new Date().toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
-            await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`);
+          // A) Leer Lista Activa actual -> moverla a Mensual y detectar campeón
+          const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
+          let currentActiveTracks = [];
+          snapActive.forEach(doc => currentActiveTracks.push({ ref: doc.ref, data: doc.data() }));
 
-            let winner = weeklyTracks.reduce((prev, current) => ((current.data.votes || 0) > (prev.data.votes || 0)) ? current : prev);
+          let winner = null;
+          if (currentActiveTracks.length > 0) {
+            winner = currentActiveTracks.reduce((prev, current) => ((current.data.votes || 0) > (prev.data.votes || 0)) ? current : prev);
 
-            for(let item of weeklyTracks) {
+            for (let item of currentActiveTracks) {
               await db.collection("monthly_list").add({
                 artist: item.data.artist,
                 title: item.data.title,
@@ -1884,11 +2146,12 @@
               });
             }
 
+            // Desborde Mensual (> 4 bloques) -> Anual
             let snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
             let monthlyDocs = [];
             snapMonthly.forEach(doc => monthlyDocs.push(doc));
 
-            while(monthlyDocs.length > 4) {
+            while (monthlyDocs.length > 4) {
               let oldest = monthlyDocs[0];
               let d = oldest.data();
               await db.collection("annual_list").add({
@@ -1901,28 +2164,68 @@
               monthlyDocs.shift();
             }
 
-            const batch = db.batch();
-            snapSub.docs.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
+            // Vaciar Lista Activa anterior
+            const batchDelActive = db.batch();
+            snapActive.docs.forEach(doc => batchDelActive.delete(doc.ref));
+            await batchDelActive.commit();
+          }
 
-            if (winner) {
-              await db.collection("submissions").add({
-                artist: winner.data.artist,
-                title: winner.data.title,
-                url: winner.data.url,
-                email: winner.data.email,
+          // B) Leer Cola Semanal (submissions) -> moverla a Lista Activa
+          const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+          let nextActiveTracks = [];
+          snapSub.forEach(doc => nextActiveTracks.push({ ref: doc.ref, data: doc.data() }));
+
+          if (nextActiveTracks.length > 0) {
+            for (let item of nextActiveTracks) {
+              await db.collection("active_list").add({
+                artist: item.data.artist,
+                title: item.data.title,
+                url: item.data.url,
+                email: item.data.email || "",
                 timestamp: Date.now(),
-                dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
+                dateString: item.data.dateString || new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
                 votes: 0,
                 voters: []
               });
-
-              await db.collection("settings").doc("activeEdition").set({
-                trackUrl: winner.data.url
-              }, { merge: true });
             }
+
+            // Vaciar Cola Semanal
+            const batchDelSub = db.batch();
+            snapSub.docs.forEach(doc => batchDelSub.delete(doc.ref));
+            await batchDelSub.commit();
           }
 
+          // C) Resetear registro de votantes de la semana anterior y activar votación para la nueva Lista Activa
+          const votersSnap = await db.collection("voters_log").get();
+          if (!votersSnap.empty) {
+            const batchVoters = db.batch();
+            votersSnap.docs.forEach(doc => batchVoters.delete(doc.ref));
+            await batchVoters.commit();
+          }
+          sessionPendingVotes = [];
+          lockedRandomOrder = null;
+
+          config.votingActive = true;
+          await db.collection("settings").doc("activeEdition").set({
+            votingActive: true,
+            ...(winner ? { trackUrl: winner.data.url } : {})
+          }, { merge: true });
+
+          // D) El campeón reingresa en la Cola Semanal para la siguiente edición
+          if (winner && (winner.data.votes || 0) > 0) {
+            await db.collection("submissions").add({
+              artist: winner.data.artist,
+              title: winner.data.title,
+              url: winner.data.url,
+              email: winner.data.email || "",
+              timestamp: Date.now(),
+              dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
+              votes: 0,
+              voters: []
+            });
+          }
+
+          // Cierre de año (31 de diciembre)
           const now = new Date();
           if(now.getMonth() === 11 && now.getDate() === 31) {
             let snapMonthlyFinal = await db.collection("monthly_list").get();
@@ -1938,10 +2241,10 @@
             await batchDelete.commit();
           }
 
-          loadAllLists();
-          loadConfig();
-          loadAdminBackups();
-          alert("¡Edición semanal cerrada, copia de sistema guardada, rotación completada y campeón reingresado como destacado!");
+          await loadAllLists();
+          await loadConfig();
+          await loadAdminBackups();
+          alert("¡Rotación completada!\n• Lista Activa movida a Mensual.\n• Cola Semanal activada en Lista Activa con votación abierta.\n• Copia de sistema guardada.");
         } catch(e) {
           alert("Error en la rotación: " + e.message);
         }
@@ -1949,7 +2252,7 @@
 
       document.getElementById("exportListBtn").addEventListener("click", () => {
         navigator.clipboard.writeText(subs.map((s, i) => (i+1) + ". " + s.artist + " - " + s.title + " | " + s.email + " (" + s.url.split("?")[0] + ")").join("\n"));
-        alert("Lista copiada (enlaces limpios).");
+        alert("Lista Semanal copiada (enlaces limpios).");
       });
 
       clock(); 
