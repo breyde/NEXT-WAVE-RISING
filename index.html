@@ -191,8 +191,8 @@
               <li data-i18n="ruleAuto">⏱️ La votación se abre los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).</li>
               <li data-i18n="rule1">Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.</li>
               <li data-i18n="rule2">Introduce tu correo electrónico en la casilla de abajo antes de empezar.</li>
-              <li data-i18n="rule3">Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.</li>
-              <li data-i18n="rule4">Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan.</li>
+              <li data-i18n="rule3"><strong>Votar no es obligatorio</strong>, pero si decides participar, debes votar exactamente a <strong>3 temas diferentes</strong>. No se puede emitir un voto para una sola canción ni repetir el mismo tema.</li>
+              <li data-i18n="rule4">Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan (si no completas los 3 votos, no se registra ninguno).</li>
               <li data-i18n="rule5">🏆 El campeón de la semana será el tema destacado la semana siguiente y entrará de nuevo en la lista semanal aparte de pasar a la mensual.</li>
               <li data-i18n="rule6">Existen controles estrictos de IP y correo. Si se detectase fraude en la votación, esta podrá ser declarada nula.</li>
             </ul>
@@ -203,7 +203,7 @@
         <div class="bg-zinc-900/90 p-4 rounded-xl border border-white/10 space-y-2">
           <label class="block text-xs font-semibold text-white" data-i18n="lblVoterEmail">Tu correo electrónico (necesario para emitir tus votos):</label>
           <input type="email" id="globalVoterEmail" placeholder="tucorreo@email.com" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-          <p class="text-[11px] text-zinc-400" data-i18n="voteSubNotice">⚠️ <strong class="text-emerald-400">Obligatorio votar a exactamente 3 temas diferentes</strong>. Al dar al tercer voto, se te pedirá confirmación.</p>
+          <p class="text-[11px] text-zinc-400" data-i18n="voteSubNotice">⚠️ Votar es opcional, pero <strong class="text-emerald-400">si votas debes elegir exactamente 3 temas diferentes</strong> (no se puede votar solo 1 canción). Al dar al tercer voto, se te pedirá confirmación.</p>
         </div>
 
         <div id="voteTabViewList" class="space-y-3 pt-1">
@@ -366,7 +366,7 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO -->
+  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO (TRADUCIBLE DINÁMICAMENTE) -->
   <div id="infoModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4 border border-emerald-500/40 relative max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -406,7 +406,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // INICIALIZACIÓN INMEDIATA DE FIREBASE ANTES DE CUALQUIER LLAMADA
     const firebaseConfig = {
       apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
       authDomain: "next-wave-rising-3ab56.firebaseapp.com",
@@ -471,12 +470,12 @@
         ruleAuto: "⏱️ La votación se abre los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).",
         rule1: "Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.",
         rule2: "Introduce tu correo electrónico en la casilla de abajo antes de empezar.",
-        rule3: "Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.",
-        rule4: "Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan.",
+        rule3: "<strong>Votar no es obligatorio</strong>, pero si decides participar, debes votar exactamente a <strong>3 temas diferentes</strong>. No se puede emitir un voto para una sola canción ni repetir el mismo tema.",
+        rule4: "Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan (si no completas los 3 votos, no se registra ninguno).",
         rule5: "🏆 El campeón de la semana será el tema destacado la semana siguiente y entrará de nuevo en la lista semanal aparte de pasar a la mensual.",
         rule6: "Existen controles estrictos de IP y correo. Si se detectase fraude en la votación, esta podrá ser declarada nula.",
         lblVoterEmail: "Tu correo electrónico (necesario para emitir tus votos):",
-        voteSubNotice: "⚠️ <strong>Obligatorio votar a exactamente 3 temas diferentes</strong>. Al dar al tercer voto, se te pedirá confirmación.",
+        voteSubNotice: "⚠️ Votar es opcional, pero <strong class=\"text-emerald-400\">si votas debes elegir exactamente 3 temas diferentes</strong> (no se puede votar solo 1 canción). Al dar al tercer voto, se te pedirá confirmación.",
         loadingVotes: "Cargando canciones para votar...",
         statVoters: "Votantes únicos",
         statTracks: "Temas votados",
@@ -490,7 +489,7 @@
           <p><strong>Dinámica y Reglas Clave:</strong></p>
           <ul class="list-disc pl-4 space-y-1.5">
             <li><strong>Lista Semanal y Votaciones:</strong> Abierta a propuestas sin censura mientras está activa. Se cierra los jueves a las 22:00h. El tema proclamado campeón semanal se convertirá en el destacado de la siguiente edición, obteniendo una valiosa doble inclusión al reingresar en la lista semanal y ascender simultáneamente a la mensual.</li>
-            <li><strong>Sistema de Voto:</strong> Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong> por edición, respaldado por un riguroso control de correo e IP.</li>
+            <li><strong>Sistema de Voto:</strong> <strong>Votar no es obligatorio</strong>, pero quien decida participar debe seleccionar y votar exactamente a <strong>3 temas diferentes</strong> por edición (no se puede iniciar ni emitir un voto para una sola canción), respaldado por un riguroso control de correo e IP.</li>
             <li><strong>Listas Mensual y Anual:</strong> Procesos automatizados. Es imprescindible mantener la playlist guardada en tu biblioteca de Spotify; la revisión periódica de este compromiso garantiza el espacio activo de los artistas (con exclusión temporal de un año ante inactividad prolongada tras aviso).</li>
             <li><strong>Colaboración y Crecimiento:</strong> Reproducir la lista semanal completa (1 o 2 veces por semana) impulsa nuestro posicionamiento frente al algoritmo y protege nuestras regalías.</li>
           </ul>
@@ -562,12 +561,12 @@
         ruleAuto: "⏱️ Voting opens on Thursdays at 00:00h and closes on Thursdays at 22:00h (two hours before the list changes at midnight).",
         rule1: "Anyone outside the list can vote, as long as they respect the rules and do not try to vote indiscriminately with different emails.",
         rule2: "Enter your email address in the box below before starting.",
-        rule3: "You must select and vote for exactly <strong>3 different tracks</strong>. You cannot repeat the same track.",
-        rule4: "When clicking your third vote, a confirmation prompt will appear: if you accept they are saved, if you cancel they are cancelled.",
+        rule3: "<strong>Voting is not mandatory</strong>, but if you choose to participate, you must vote for exactly <strong>3 different tracks</strong>. You cannot cast a vote for a single song or repeat the same track.",
+        rule4: "When clicking your third vote, a confirmation prompt will appear: if you accept they are saved, if you cancel they are cancelled (if you don't complete all 3 votes, none are recorded).",
         rule5: "🏆 The weekly vote champion will be the featured track the following week and will re-enter the weekly list in addition to moving to the monthly list.",
         rule6: "Strict IP and email controls exist. If fraud is detected in the voting, it can be declared null and void.",
         lblVoterEmail: "Your email address (required to cast your votes):",
-        voteSubNotice: "⚠️ <strong>Mandatory to vote for exactly 3 different tracks</strong>. Upon your third vote, confirmation will be requested.",
+        voteSubNotice: "⚠️ Voting is optional, but <strong class=\"text-emerald-400\">if you vote you must choose exactly 3 different tracks</strong> (you cannot vote for just 1 song). Upon your third vote, confirmation will be requested.",
         loadingVotes: "Loading tracks to vote...",
         statVoters: "Unique Voters",
         statTracks: "Voted Tracks",
@@ -581,7 +580,7 @@
           <p><strong>Dynamics &amp; Key Rules:</strong></p>
           <ul class="list-disc pl-4 space-y-1.5">
             <li><strong>Weekly List &amp; Voting:</strong> Open to uncensored submissions while active. Closes on Thursdays at 22:00h. The weekly champion becomes the featured track of the next edition, earning a valuable double inclusion by re-entering the weekly list while simultaneously advancing to the monthly list.</li>
-            <li><strong>Voting System:</strong> You must select and vote for exactly <strong>3 different tracks</strong> per edition, backed by strict email and IP controls.</li>
+            <li><strong>Voting System:</strong> <strong>Voting is not mandatory</strong>, but anyone who chooses to vote must select and vote for exactly <strong>3 different tracks</strong> per edition (you cannot submit or register a vote for just a single song), backed by strict email and IP controls.</li>
             <li><strong>Monthly &amp; Annual Lists:</strong> Automated rotation. Keeping the playlist saved in your Spotify library is mandatory; periodic checks ensure active artist slots (with a 1-year temporary exclusion for prolonged inactivity after notice).</li>
             <li><strong>Collaboration &amp; Growth:</strong> Streaming the full weekly list (1 or 2 times per week) boosts our algorithmic positioning and protects our royalties.</li>
           </ul>
@@ -1180,7 +1179,6 @@
       const annualContainer = document.getElementById("annualListContainer");
       const voteTabViewList = document.getElementById("voteTabViewList");
 
-      // Cargar votantes de forma independiente para que un error de permisos aquí no bloquee las listas
       try {
         const votersSnap = await db.collection("voters_log").get();
         document.getElementById("statVotersCount").textContent = String(votersSnap.size).padStart(2, '0');
