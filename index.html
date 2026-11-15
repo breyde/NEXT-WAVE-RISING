@@ -13,9 +13,28 @@
   </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
-  <header class="w-full max-w-2xl flex justify-between items-center mb-4">
-    <div><span class="text-xs uppercase text-emerald-400 font-semibold">Breyde&amp;Darko</span><h1 class="text-3xl font-extrabold text-white">Next Wave Rising</h1></div>
-    <button id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-200">Panel Curadores</button>
+  
+  <!-- CABECERA ELEGANTE CON SELECTOR DE IDIOMA Y ON AIR -->
+  <header class="w-full max-w-2xl flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+    <div>
+      <span class="text-xs uppercase text-emerald-400 font-semibold tracking-wider">Breyde&amp;Darko</span>
+      <h1 class="text-3xl font-extrabold text-white">Next Wave Rising</h1>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap justify-end">
+      <!-- Indicador ON AIR -->
+      <div id="onAirBadge" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-400 text-xs font-bold animate-pulse shadow-lg shadow-rose-500/10">
+        <span class="w-2 h-2 rounded-full bg-rose-500"></span> ON AIR 🔴
+      </div>
+      <!-- Selector de Idioma con Banderas -->
+      <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 text-xs shadow-md">
+        <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
+        <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
+      </div>
+      <!-- Botón Panel Curadores Elegante -->
+      <button id="toggleAdminBtn" class="text-xs px-3.5 py-2 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-emerald-500/30 text-emerald-400 font-semibold shadow-lg shadow-emerald-500/5 transition flex items-center gap-1.5">
+        <span>⚙️</span> <span id="txtAdminBtn">Panel Curadores</span>
+      </button>
+    </div>
   </header>
 
   <!-- NAVEGACIÓN DE 4 PESTAÑAS -->
@@ -31,57 +50,60 @@
     <!-- ================= PESTAÑA 1: SEMANAL ================= -->
     <div id="viewWeekly" class="space-y-6">
       <section class="glass rounded-2xl p-5 space-y-3">
-        <div class="flex justify-between items-center"><div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p class="text-xs text-zinc-400">Cierre: Jueves 00:00h</p></div><div id="statusBadge" class="px-3 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-400">Abierta</div></div>
+        <div class="flex justify-between items-center">
+          <div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p id="txtClosure" class="text-xs text-zinc-400">Cierre: Jueves 00:00h</p></div>
+          <div id="statusBadge" class="px-3 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-400">Abierta</div>
+        </div>
         <div id="countdownBox" class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-white/10">
-          <div class="bg-zinc-900 p-2 rounded"><span id="cdDays" class="text-lg font-bold text-emerald-400">00</span><span class="block text-[9px] text-zinc-400">DÍAS</span></div>
-          <div class="bg-zinc-900 p-2 rounded"><span id="cdHours" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">HORAS</span></div>
-          <div class="bg-zinc-900 p-2 rounded"><span id="cdMinutes" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">MIN</span></div>
-          <div class="bg-zinc-900 p-2 rounded"><span id="cdSeconds" class="text-lg font-bold text-cyan-400">00</span><span class="block text-[9px] text-zinc-400">SEG</span></div>
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdDays" class="text-lg font-bold text-emerald-400">00</span><span class="block text-[9px] text-zinc-400" data-i18n="lblDays">DÍAS</span></div>
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdHours" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400" data-i18n="lblHours">HORAS</span></div>
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdMinutes" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400" data-i18n="lblMins">MIN</span></div>
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdSeconds" class="text-lg font-bold text-cyan-400">00</span><span class="block text-[9px] text-zinc-400" data-i18n="lblSecs">SEG</span></div>
         </div>
       </section>
 
       <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2">
-        <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">🎵 TEMA DESTACADO</h3>
+        <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider" data-i18n="txtFeatured">🎵 TEMA DESTACADO</h3>
         <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
       </section>
 
       <div class="glass rounded-2xl p-6 space-y-3 border border-emerald-500/20">
-        <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">⚡ Nuestro Manifiesto &amp; Recompensas</h3>
-        <p class="text-xs text-zinc-300 leading-relaxed"><strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes para competir fuera de la liga de las grandes discográficas.</p>
+        <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="manifestTitle">⚡ Nuestro Manifiesto &amp; Recompensas</h3>
+        <p class="text-xs text-zinc-300 leading-relaxed" data-i18n="manifestDesc"><strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes para competir fuera de la liga de las grandes discográficas.</p>
         <div class="pt-1 text-xs text-zinc-300 space-y-2 border-t border-white/5">
-          <p>🤝 <strong>Compromiso:</strong> Reproduce la lista entera 1 o 2 veces por semana para activar el algoritmo.</p>
-          <p>📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.</p>
-          <p class="text-emerald-400 font-semibold">🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.</p>
+          <p data-i18n="manifestP1">🤝 <strong>Compromiso:</strong> Reproduce la lista entera 1 o 2 veces por semana para activar el algoritmo.</p>
+          <p data-i18n="manifestP2">📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.</p>
+          <p class="text-emerald-400 font-semibold" data-i18n="manifestP3">🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.</p>
         </div>
       </div>
 
       <div class="glass rounded-2xl p-6 space-y-3">
-        <h3 class="font-semibold">1. Guarda la playlist</h3>
-        <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm">Abrir Playlist en Spotify</a>
-        <label class="flex gap-2 text-xs text-zinc-300 pt-2"><input type="checkbox" id="confirmSaveCheckbox" class="accent-emerald-500"> Confirmo que ya he guardado la playlist en mi biblioteca.</label>
+        <h3 class="font-semibold" data-i18n="step1Title">1. Guarda la playlist</h3>
+        <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
+        <label class="flex gap-2 text-xs text-zinc-300 pt-2"><input type="checkbox" id="confirmSaveCheckbox" class="accent-emerald-500"> <span data-i18n="step1Check">Confirmo que ya he guardado la playlist en mi biblioteca.</span></label>
       </div>
 
       <form id="submissionForm" onsubmit="return false;" class="glass rounded-2xl p-6 space-y-3 opacity-50 pointer-events-none">
-        <h3 class="font-semibold">2. Envía tu canción</h3>
-        <input type="text" id="artistName" required placeholder="Nombre del Artista *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
-        <input type="text" id="trackTitle" required placeholder="Título de la Canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
-        <input type="url" id="trackUrl" required placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
-        <input type="email" id="artistEmail" required placeholder="Correo electrónico *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
-        <button type="button" id="submitBtn" class="w-full py-3 neon-btn text-zinc-950 font-bold rounded-xl text-sm">Enviar Propuesta</button>
+        <h3 class="font-semibold" data-i18n="step2Title">2. Envía tu canción</h3>
+        <input type="text" id="artistName" required placeholder="Nombre del Artista *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm" data-i18n-ph="phArtist">
+        <input type="text" id="trackTitle" required placeholder="Título de la Canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm" data-i18n-ph="phTitle">
+        <input type="url" id="trackUrl" required placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm" data-i18n-ph="phUrl">
+        <input type="email" id="artistEmail" required placeholder="Correo electrónico *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm" data-i18n-ph="phEmail">
+        <button type="button" id="submitBtn" class="w-full py-3 neon-btn text-zinc-950 font-bold rounded-xl text-sm" data-i18n="submitBtn">Enviar Propuesta</button>
         <p id="feedbackMsg" class="text-xs text-center hidden"></p>
       </form>
       <div id="receiptCard" class="hidden glass rounded-2xl p-5 border border-emerald-500/40 bg-emerald-950/20 space-y-2">
-        <h3 class="font-bold text-white text-sm">✓ ¡Propuesta recibida!</h3>
-        <div class="text-xs space-y-1 text-zinc-300"><p>Artista: <strong id="receiptArtist" class="text-white"></strong></p><p>Canción: <strong id="receiptTitle" class="text-emerald-400"></strong></p><p>Correo: <span id="receiptEmail"></span></p></div>
+        <h3 class="font-bold text-white text-sm" data-i18n="receiptTitle">✓ ¡Propuesta recibida!</h3>
+        <div class="text-xs space-y-1 text-zinc-300"><p><span data-i18n="recArtist">Artista</span>: <strong id="receiptArtist" class="text-white"></strong></p><p><span data-i18n="recTrack">Canción</span>: <strong id="receiptTitle" class="text-emerald-400"></strong></p><p>Email: <span id="receiptEmail"></span></p></div>
       </div>
 
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
-          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider">🎵 PRÓXIMAS ENTRADAS A LISTA</h3>
+          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="upcomingTitle">🎵 PRÓXIMAS ENTRADAS A LISTA</h3>
           <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">Total: <strong id="publicSubCount">0</strong></span>
         </div>
         <div id="publicSubmissionsList" class="space-y-4 pt-1">
-          <p class="text-zinc-400 text-xs">Cargando propuestas...</p>
+          <p class="text-zinc-400 text-xs" data-i18n="loading">Cargando propuestas...</p>
         </div>
       </section>
     </div>
@@ -90,12 +112,12 @@
     <div id="viewMonthly" class="hidden space-y-6">
       <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
-          <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)</h3>
+          <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider" data-i18n="monthlyHeader">🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)</h3>
           <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold">Bloques: <strong id="monthlyCount">0</strong>/4</span>
         </div>
-        <p class="text-xs text-zinc-300">Recopilación automática de las ediciones semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.</p>
+        <p class="text-xs text-zinc-300" data-i18n="monthlyDesc">Recopilación automática de las ediciones semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.</p>
         <div id="monthlyListContainer" class="space-y-4 pt-1">
-          <p class="text-zinc-400 text-xs text-center py-6">Cargando lista mensual...</p>
+          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="monthlyEmpty">La lista mensual se llenará al cerrar las ediciones semanales.</p>
         </div>
       </section>
     </div>
@@ -104,12 +126,12 @@
     <div id="viewAnnual" class="hidden space-y-6">
       <section class="glass rounded-2xl p-6 space-y-4 border border-amber-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
-          <h3 class="font-extrabold text-amber-400 text-sm uppercase tracking-wider">📀 LISTA ANUAL ACUMULADA</h3>
+          <h3 class="font-extrabold text-amber-400 text-sm uppercase tracking-wider" data-i18n="annualHeader">📀 LISTA ANUAL ACUMULADA</h3>
           <span class="text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold">Total: <strong id="annualCount">0</strong></span>
         </div>
-        <p class="text-xs text-zinc-300">Histórico de todas las canciones que han escalado desde la lista mensual durante el año.</p>
+        <p class="text-xs text-zinc-300" data-i18n="annualDesc">Histórico de todas las canciones que han escalado desde la lista mensual durante el año.</p>
         <div id="annualListContainer" class="space-y-4 pt-1">
-          <p class="text-zinc-400 text-xs text-center py-6">Cargando lista anual...</p>
+          <p class="text-zinc-400 text-xs text-center py-6" data-i18n="annualEmpty">Aquí se acumularán las canciones al completar los ciclos mensuales.</p>
         </div>
       </section>
     </div>
@@ -118,8 +140,8 @@
     <div id="viewTop" class="hidden space-y-6">
       <section class="glass rounded-2xl p-6 space-y-4 border border-purple-500/30 text-center py-12 space-y-4">
         <span class="text-4xl">🏆</span>
-        <h3 class="font-extrabold text-purple-400 text-lg uppercase tracking-wider">TOP ANUAL &amp; VOTACIONES</h3>
-        <p class="text-xs text-zinc-300 max-w-md mx-auto leading-relaxed">
+        <h3 class="font-extrabold text-purple-400 text-lg uppercase tracking-wider" data-i18n="topHeader">TOP ANUAL &amp; VOTACIONES</h3>
+        <p class="text-xs text-zinc-300 max-w-md mx-auto leading-relaxed" data-i18n="topDesc">
           Al finalizar el año (31 de diciembre), habilitaremos aquí el sistema oficial de votación para que la comunidad y los artistas elijan las mejores canciones de <strong>Next Wave Rising</strong>. ¡Mantente atento!
         </p>
       </section>
@@ -128,23 +150,33 @@
     <!-- ================= PANEL CURADORES ================= -->
     <section id="adminView" class="hidden space-y-6">
       <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-3">
-        <h3 class="font-bold">Acceso Curadores (Seguro)</h3>
+        <h3 class="font-bold text-white">Acceso Curadores (Seguro)</h3>
         <div class="space-y-2">
           <input type="email" id="adminEmailInput" placeholder="Correo de administrador" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
           <input type="password" id="adminPassInput" placeholder="Contraseña" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
-          <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm">Entrar con Firebase</button>
+          <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm shadow-lg">Entrar con Firebase</button>
         </div>
       </div>
       <div id="adminDashboard" class="hidden space-y-4">
-        <div class="glass rounded-2xl p-5 space-y-3">
-          <h3 class="font-bold text-emerald-400 text-sm">Configuración</h3>
+        <div class="glass rounded-2xl p-5 space-y-4">
+          <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Estado</h3>
+          
+          <!-- Control ON AIR elegante -->
+          <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-white text-xs">Estado de Transmisión (On Air)</p>
+              <p class="text-[10px] text-zinc-400">Activa o desactiva el distintivo en la web.</p>
+            </div>
+            <button type="button" id="toggleOnAirBtn" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-zinc-800 text-zinc-300 border border-zinc-700">Apagado</button>
+          </div>
+
           <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
           <div><label class="block text-[11px] text-zinc-400 mb-1">Playlist Spotify</label><input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
           <div><label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify Tema Destacado</label><input type="url" id="adminTrackInput" placeholder="https://open.spotify.com/track/..." class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
-          <div class="flex gap-2 pt-1"><button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs">Guardar</button><button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs">Nueva Edición (Cerrar Semana)</button></div>
+          <div class="flex gap-2 pt-1"><button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs shadow">Guardar</button><button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Cerrar Semana)</button></div>
         </div>
         <div class="glass rounded-2xl p-5 space-y-3">
-          <div class="flex justify-between items-center"><h3 class="font-bold text-sm">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 rounded">Copiar Lista</button></div>
+          <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
           <div id="submissionsList" class="space-y-2 text-xs"><p class="text-zinc-400">Cargando...</p></div>
         </div>
       </div>
@@ -161,6 +193,108 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
+    // Sistema de Traducciones (ES / EN)
+    const translations = {
+      es: {
+        adminBtn: "Panel Curadores",
+        backApp: "Volver a la App",
+        tabWeekly: "Semanal",
+        tabMonthly: "Mensual",
+        tabAnnual: "Anual",
+        tabTop: "TOP Anual",
+        lblDays: "DÍAS", lblHours: "HORAS", lblMins: "MIN", lblSecs: "SEG",
+        txtFeatured: "🎵 TEMA DESTACADO",
+        manifestTitle: "⚡ Nuestro Manifiesto & Recompensas",
+        manifestDesc: "<strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes para competir fuera de la liga de las grandes discográficas.",
+        manifestP1: "🤝 <strong>Compromiso:</strong> Reproduce la lista entera 1 o 2 veces por semana para activar el algoritmo.",
+        manifestP2: "📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.",
+        manifestP3: "🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.",
+        step1Title: "1. Guarda la playlist",
+        step1Btn: "Abrir Playlist en Spotify",
+        step1Check: "Confirmo que ya he guardado la playlist en mi biblioteca.",
+        step2Title: "2. Envía tu canción",
+        phArtist: "Nombre del Artista *",
+        phTitle: "Título de la Canción *",
+        phUrl: "Enlace Spotify de la canción *",
+        phEmail: "Correo electrónico *",
+        submitBtn: "Enviar Propuesta",
+        receiptTitle: "✓ ¡Propuesta recibida!",
+        recArtist: "Artista",
+        recTrack: "Canción",
+        upcomingTitle: "🎵 PRÓXIMAS ENTRADAS A LISTA",
+        loading: "Cargando propuestas...",
+        monthlyHeader: "🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)",
+        monthlyDesc: "Recopilación automática de las ediciones semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.",
+        monthlyEmpty: "La lista mensual se llenará al cerrar las ediciones semanales.",
+        annualHeader: "📀 LISTA ANUAL ACUMULADA",
+        annualDesc: "Histórico de todas las canciones que han escalado desde la lista mensual durante el año.",
+        annualEmpty: "Aquí se acumularán las canciones al completar los ciclos mensuales.",
+        topHeader: "TOP ANUAL & VOTACIONES",
+        topDesc: "Al finalizar el año (31 de diciembre), habilitaremos aquí el sistema oficial de votación para que la comunidad y los artistas elijan las mejores canciones de <strong>Next Wave Rising</strong>. ¡Mantente atento!"
+      },
+      en: {
+        adminBtn: "Curators Panel",
+        backApp: "Back to App",
+        tabWeekly: "Weekly",
+        tabMonthly: "Monthly",
+        tabAnnual: "Annual",
+        tabTop: "TOP Annual",
+        lblDays: "DAYS", lblHours: "HOURS", lblMins: "MINS", lblSecs: "SECS",
+        txtFeatured: "🎵 FEATURED TRACK",
+        manifestTitle: "⚡ Our Manifesto & Rewards",
+        manifestDesc: "<strong>Next Wave Rising</strong> is a collaborative playlist created by <strong>Breyde & Darko</strong> for emerging artists to compete outside major label leagues.",
+        manifestP1: "🤝 <strong>Commitment:</strong> Stream the full playlist 1-2 times a week to boost the algorithm.",
+        manifestP2: "📌 <strong>Rule:</strong> Saving the playlist to your Spotify library is mandatory.",
+        manifestP3: "🏆 Rewards: Tracks automatically move to the <strong>monthly playlist</strong>, then the <strong>annual</strong>, leading to our year-end community vote!",
+        step1Title: "1. Save the playlist",
+        step1Btn: "Open Playlist on Spotify",
+        step1Check: "I confirm I have saved the playlist to my library.",
+        step2Title: "2. Submit your track",
+        phArtist: "Artist Name *",
+        phTitle: "Track Title *",
+        phUrl: "Spotify Track Link *",
+        phEmail: "Email Address *",
+        submitBtn: "Submit Proposal",
+        receiptTitle: "✓ Proposal Received!",
+        recArtist: "Artist",
+        recTrack: "Track",
+        upcomingTitle: "🎵 UPCOMING ENTRIES TO LIST",
+        loading: "Loading submissions...",
+        monthlyHeader: "🗓️ MONTHLY LIST (ROTATES EVERY 4 WEEKS)",
+        monthlyDesc: "Automatic compilation of weekly editions. After 4 blocks, the oldest moves to the annual list.",
+        monthlyEmpty: "The monthly list will populate as weekly editions close.",
+        annualHeader: "📀 ACCUMULATED ANNUAL LIST",
+        annualDesc: "Historical record of all tracks that scaled up from the monthly list during the year.",
+        annualEmpty: "Tracks will accumulate here as monthly cycles complete.",
+        topHeader: "TOP ANNUAL & VOTING",
+        topDesc: "At the end of the year (December 31st), we will enable the official voting system here for artists and community to choose the best tracks of <strong>Next Wave Rising</strong>. Stay tuned!"
+      }
+    };
+
+    let currentLang = 'es';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('langEsBtn').className = lang === 'es' ? 'px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition' : 'px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition';
+      document.getElementById('langEnBtn').className = lang === 'en' ? 'px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition' : 'px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition';
+      
+      const t = translations[lang];
+      document.getElementById('txtAdminBtn').textContent = t.adminBtn;
+      document.getElementById('tabWeekly').textContent = t.tabWeekly;
+      document.getElementById('tabMonthly').textContent = t.tabMonthly;
+      document.getElementById('tabAnnual').textContent = t.tabAnnual;
+      document.getElementById('tabTop').textContent = t.tabTop;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if(t[key]) el.innerHTML = t[key];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if(t[key]) el.placeholder = t[key];
+      });
+    }
+
     // Control de pestañas
     function switchTab(tab) {
       ['weekly', 'monthly', 'annual', 'top'].forEach(t => {
@@ -172,12 +306,7 @@
       document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
       document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active', 'text-emerald-400');
       document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('text-zinc-400');
-      document.getElementById('toggleAdminBtn').textContent = "Panel Curadores";
-    }
-
-    function togglePreview(id) {
-      const el = document.getElementById("preview-" + id);
-      if (el) el.classList.toggle("hidden");
+      document.getElementById('txtAdminBtn').textContent = translations[currentLang].adminBtn;
     }
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -194,7 +323,7 @@
       const db = firebase.firestore();
       const auth = firebase.auth();
 
-      let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "" };
+      let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", onAir: false };
       let subs = [];
 
       async function trackUniqueVisitor() {
@@ -221,8 +350,33 @@
         const isHidden = adminView.classList.contains("hidden");
         ['weekly', 'monthly', 'annual', 'top'].forEach(t => document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden'));
         adminView.classList.toggle("hidden", !isHidden);
-        document.getElementById("toggleAdminBtn").textContent = isHidden ? "Volver a la App" : "Panel Curadores";
+        document.getElementById("txtAdminBtn").textContent = isHidden ? translations[currentLang].backApp : translations[currentLang].adminBtn;
       });
+
+      // Toggle ON AIR desde el panel de curadores
+      const onAirBtn = document.getElementById("toggleOnAirBtn");
+      onAirBtn.addEventListener("click", async () => {
+        config.onAir = !config.onAir;
+        updateOnAirUI(config.onAir);
+        try {
+          await db.collection("settings").doc("activeEdition").set(config, { merge: true });
+        } catch(e) { console.error(e); }
+      });
+
+      function updateOnAirUI(status) {
+        const badge = document.getElementById("onAirBadge");
+        if(status) {
+          badge.classList.remove("hidden");
+          badge.classList.add("flex");
+          onAirBtn.textContent = "¡EN DIRECTO (ON AIR) ACTIVE!";
+          onAirBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow-lg shadow-rose-500/30 border border-rose-400";
+        } else {
+          badge.classList.add("hidden");
+          badge.classList.remove("flex");
+          onAirBtn.textContent = "Apagado (Offline)";
+          onAirBtn.className = "px-4 py-2 rounded-xl text-xs font-bold transition bg-zinc-800 text-zinc-300 border border-zinc-700";
+        }
+      }
 
       document.getElementById("adminLoginBtn").addEventListener("click", async () => {
         const email = document.getElementById("adminEmailInput").value.trim();
@@ -274,6 +428,7 @@
             config.edition = d.edition || config.edition;
             config.playlistUrl = d.playlistUrl || config.playlistUrl;
             config.trackUrl = d.trackUrl || config.trackUrl;
+            config.onAir = d.onAir || false;
           }
         } catch(e){}
         document.getElementById("editionTitle").textContent = config.edition;
@@ -281,6 +436,7 @@
         document.getElementById("adminEditionInput").value = config.edition;
         document.getElementById("adminPlaylistInput").value = config.playlistUrl;
         document.getElementById("adminTrackInput").value = config.trackUrl;
+        updateOnAirUI(config.onAir);
 
         const embed = toEmbed(config.trackUrl);
         const sec = document.getElementById("playerSection");
@@ -299,7 +455,6 @@
         const annualContainer = document.getElementById("annualListContainer");
 
         try {
-          // 1. Cargar Semanal
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
           subs = [];
           snapSub.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
@@ -308,7 +463,7 @@
 
           if(subs.length === 0) {
             adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
-            publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas enviadas para esta edición. ¡Sé el primero!</p>';
+            publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4" data-i18n="loading">Aún no hay propuestas...</p>';
           } else {
             adminList.innerHTML = subs.map((s, i) => {
               const cleanUrl = s.url.split("?")[0];
@@ -324,7 +479,6 @@
             }).join("");
           }
 
-          // 2. Cargar Mensual
           const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
           let monthlyItems = [];
           snapMonthly.forEach(doc => monthlyItems.push({ id: doc.id, ...doc.data() }));
@@ -340,7 +494,6 @@
             }).join("");
           }
 
-          // 3. Cargar Anual
           const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
           let annualItems = [];
           snapAnnual.forEach(doc => annualItems.push({ id: doc.id, ...doc.data() }));
@@ -419,23 +572,20 @@
         config.playlistUrl = document.getElementById("adminPlaylistInput").value.trim() || config.playlistUrl;
         config.trackUrl = document.getElementById("adminTrackInput").value.trim() || "";
         try {
-          await db.collection("settings").doc("activeEdition").set(config);
+          await db.collection("settings").doc("activeEdition").set(config, { merge: true });
           await loadConfig();
           alert("Configuración actualizada.");
         } catch(e){ alert("Error al guardar."); }
       });
 
-      // LÓGICA DE CIERRE DE SEMANA / ROTACIÓN MENSUAL Y ANUAL
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
-        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual (gestionando el límite de 4 y desplazando excedentes a la anual).")) return;
+        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual y gestionará el desborde a la anual.")) return;
         try {
-          // 1. Obtener canciones semanales actuales
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
           let weeklyTracks = [];
           snapSub.forEach(doc => weeklyTracks.push({ ref: doc.ref, data: doc.data() }));
 
           if(weeklyTracks.length > 0) {
-            // Añadir cada una a monthly_list
             for(let item of weeklyTracks) {
               await db.collection("monthly_list").add({
                 artist: item.data.artist,
@@ -445,13 +595,11 @@
               });
             }
 
-            // Verificar si la lista mensual supera los 4 elementos
             let snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
             let monthlyDocs = [];
             snapMonthly.forEach(doc => monthlyDocs.push(doc));
 
             while(monthlyDocs.length > 4) {
-              // El más antiguo (el primero) pasa a la anual
               let oldest = monthlyDocs[0];
               let d = oldest.data();
               await db.collection("annual_list").add({
@@ -460,18 +608,15 @@
                 url: d.url,
                 timestamp: Date.now()
               });
-              // Borrar de mensual
               await oldest.ref.delete();
               monthlyDocs.shift();
             }
 
-            // Vaciar las submissions semanales
             const batch = db.batch();
             snapSub.docs.forEach(doc => batch.delete(doc.ref));
             await batch.commit();
           }
 
-          // Comprobar si es 31 de diciembre para pasar todo lo restante de mensual a anual
           const now = new Date();
           if(now.getMonth() === 11 && now.getDate() === 31) {
             let snapMonthlyFinal = await db.collection("monthly_list").get();
