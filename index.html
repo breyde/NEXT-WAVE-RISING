@@ -175,7 +175,7 @@
             <h4 class="font-bold text-emerald-400 text-sm" data-i18n="rulesHeader">Reglas para emitir tu voto:</h4>
             <ul class="list-disc pl-4 space-y-1.5">
               <li data-i18n="ruleNoteOnlyWeekly">⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.</li>
-              <li data-i18n="ruleAuto">⏱️ La votación se activa automáticamente los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).</li>
+              <li data-i18n="ruleAuto">⏱️ La votación se abre los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).</li>
               <li data-i18n="rule1">Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.</li>
               <li data-i18n="rule2">Introduce tu correo electrónico en la casilla de abajo antes de empezar.</li>
               <li data-i18n="rule3">Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.</li>
@@ -244,6 +244,18 @@
     </section>
   </main>
   
+  <!-- MODAL DE CONFIRMACIÓN DE VOTOS (PERSONALIZADO) -->
+  <div id="voteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass rounded-2xl p-6 max-w-sm w-full space-y-4 border border-emerald-500/40 text-center shadow-2xl">
+      <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">Confirmar Votación</h3>
+      <p class="text-xs text-zinc-300 leading-relaxed">Va a emitir sus votos. No se podrán anular si acepta.</p>
+      <div class="flex gap-2 pt-2">
+        <button onclick="cancelVoteConfirmation()" class="flex-1 py-2.5 bg-zinc-800 text-zinc-300 font-bold rounded-xl text-xs hover:bg-zinc-700 transition">Cancelar</button>
+        <button onclick="acceptVoteConfirmation()" class="flex-1 py-2.5 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition shadow">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- PIE DE PÁGINA CON EL BOTÓN DE CURADORES CENTRADO ABAJO -->
   <footer class="w-full max-w-2xl text-xs text-zinc-500 mt-12 text-center space-y-4 border-t border-white/10 pt-6">
     <div>
@@ -301,7 +313,7 @@
         rulesBtnText: "📜 ¡Normas de Votación Importantes - Haz clic aquí!",
         rulesHeader: "Reglas para emitir tu voto:",
         ruleNoteOnlyWeekly: "⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.",
-        ruleAuto: "⏱️ La votación se activa automáticamente los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).",
+        ruleAuto: "⏱️ La votación se abre los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).",
         rule1: "Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.",
         rule2: "Introduce tu correo electrónico en la casilla de abajo antes de empezar.",
         rule3: "Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.",
@@ -355,7 +367,7 @@
         rulesBtnText: "📜 Important Voting Rules - Click here!",
         rulesHeader: "Rules to cast your vote:",
         ruleNoteOnlyWeekly: "⚠️ <strong>Important notice:</strong> These rules and voting system apply <em>only to the weekly featured track</em>. Voting for the annual TOP will be governed by other specific rules at the end of the year.",
-        ruleAuto: "⏱️ Voting opens automatically on Thursdays at 00:00h and closes on Thursdays at 22:00h (two hours before the list changes at midnight).",
+        ruleAuto: "⏱️ Voting opens on Thursdays at 00:00h and closes on Thursdays at 22:00h (two hours before the list changes at midnight).",
         rule1: "Anyone outside the list can vote, as long as they respect the rules and do not try to vote indiscriminately with different emails.",
         rule2: "Enter your email address in the box below before starting.",
         rule3: "You must select and vote for exactly <strong>3 different tracks</strong>. You cannot repeat the same track.",
@@ -495,9 +507,8 @@
       });
 
       function updateVotingUI(active) {
-        // Regla automática: si es jueves (day === 4) y son las 22:00h o más tarde, se cierra la votación.
+        // Horario automático de los jueves: se cierra a las 22:00h y se reactiva a las 00:00h
         const now = new Date();
-        // Vamos a calcular el día y hora actual en España con Intl
         try {
           const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false });
           const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
@@ -505,8 +516,8 @@
           const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
           const h = parseInt(p.hour, 10) || 0;
 
-          if (day === 4 && h >= 22) {
-            active = false; // Cierre automático a las 22:00h del jueves
+          if (day === 4 && (h >= 22 && h < 24)) {
+            active = false; // Desactivado de 22:00 a 00:00 los jueves
           }
         } catch(e){}
 
@@ -592,8 +603,9 @@
 
       function clock() {
         try {
+          const now = new Date();
           const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
-          const p = {}; fmt.formatToParts(new Date()).forEach(x => p[x.type] = x.value);
+          const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
           
           const retroClock = document.getElementById("retroClock");
           if (retroClock) {
@@ -601,7 +613,7 @@
           }
 
           const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-          const day = map[p.weekday] !== undefined ? map[p.weekday] : new Date().getDay();
+          const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
           const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
           
           if (day === 4) { 
@@ -792,7 +804,7 @@
         }
       }
 
-      // Lógica de 3 votos obligatorios con confirmación y validación IP/Email
+      // Validación estricta de correo y selección de 3 votos únicos
       window.handleVoteClick = async function(id) {
         if (!globalVotingActive) {
           alert(currentLang === 'es' ? "Las votaciones están desactivadas en este momento." : "Voting is currently disabled.");
@@ -802,23 +814,26 @@
         const emailInput = document.getElementById("globalVoterEmail");
         const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : "";
 
-        if(!emailVal || !emailVal.includes("@")) {
-          alert(currentLang === 'es' ? "Por favor, introduce tu correo electrónico arriba para poder votar." : "Please enter your email above to vote.");
+        if(!emailVal || !emailVal.includes("@") || emailVal.length < 5) {
+          alert(currentLang === 'es' ? "Por favor, introduce un correo electrónico válido arriba para poder votar." : "Please enter a valid email above to vote.");
           emailInput.focus();
+          emailInput.style.borderColor = "#ef4444";
           return;
+        } else {
+          emailInput.style.borderColor = "#3f3f46";
         }
 
         try {
           const votersRef = db.collection("voters_log");
           const emailQuery = await votersRef.where("email", "==", emailVal).get();
           if (!emailQuery.empty) {
-            alert("Ya has votado.");
+            alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
             return;
           }
           if (clientIp && clientIp !== "unknown_ip") {
             const ipQuery = await votersRef.where("ip", "==", clientIp).get();
             if (!ipQuery.empty) {
-              alert("Ya has votado.");
+              alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
               return;
             }
           }
@@ -835,53 +850,78 @@
 
           sessionPendingVotes.push(id);
 
-          // Al completar exactamente 3 votos, pedimos confirmación
+          // Al completar exactamente 3 votos, mostrar modal personalizado de confirmación
           if (sessionPendingVotes.length === 3) {
-            const confirmacion = confirm("¿Desea confirmar sus votos?");
-            
-            if (confirmacion) {
-              for (let trackId of sessionPendingVotes) {
-                const subRef = db.collection("submissions").doc(trackId);
-                const subDoc = await subRef.get();
-                if (subDoc.exists) {
-                  let currentVotes = subDoc.data().votes || 0;
-                  let votersList = subDoc.data().voters || [];
-                  if (!votersList.includes(emailVal)) {
-                    votersList.push(emailVal);
-                  }
-                  await subRef.update({
-                    votes: currentVotes + 1,
-                    voters: votersList
-                  });
-                }
-              }
-
-              await votersRef.add({
-                email: emailVal,
-                ip: clientIp || "unknown_ip",
-                votedTracks: sessionPendingVotes,
-                timestamp: Date.now()
-              });
-
-              alert(currentLang === 'es' ? "¡Votos guardados con éxito!" : "Votes successfully saved!");
-              sessionPendingVotes = [];
-              emailInput.value = "";
-              loadAllLists();
-            } else {
-              alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled.");
-              sessionPendingVotes = [];
-              loadAllLists();
-            }
+            document.getElementById('voteConfirmModal').classList.remove('hidden');
           } else {
             loadAllLists();
           }
 
         } catch(e) {
           console.error(e);
-          alert("Ya has votado.");
+          alert(currentLang === 'es' ? "Ya has votado o ha ocurrido un error." : "You have already voted or an error occurred.");
           sessionPendingVotes = [];
           loadAllLists();
         }
+      };
+
+      // Confirmar votación desde la ventana modal personalizada
+      window.acceptVoteConfirmation = async function() {
+        document.getElementById('voteConfirmModal').classList.add('hidden');
+        const emailInput = document.getElementById("globalVoterEmail");
+        const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : "";
+
+        try {
+          const votersRef = db.collection("voters_log");
+          const finalEmailCheck = await votersRef.where("email", "==", emailVal).get();
+          if (!finalEmailCheck.empty) {
+            alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
+            sessionPendingVotes = [];
+            loadAllLists();
+            return;
+          }
+
+          for (let trackId of sessionPendingVotes) {
+            const subRef = db.collection("submissions").doc(trackId);
+            const subDoc = await subRef.get();
+            if (subDoc.exists) {
+              let currentVotes = subDoc.data().votes || 0;
+              let votersList = subDoc.data().voters || [];
+              if (!votersList.includes(emailVal)) {
+                votersList.push(emailVal);
+              }
+              await subRef.update({
+                votes: currentVotes + 1,
+                voters: votersList
+              });
+            }
+          }
+
+          await votersRef.add({
+            email: emailVal,
+            ip: clientIp || "unknown_ip",
+            votedTracks: sessionPendingVotes,
+            timestamp: Date.now()
+          });
+
+          alert(currentLang === 'es' ? "¡Votos guardados con éxito!" : "Votes successfully saved!");
+          sessionPendingVotes = [];
+          emailInput.value = "";
+          loadAllLists();
+        } catch(e) {
+          console.error(e);
+          alert(currentLang === 'es' ? "Error al guardar los votos." : "Error saving votes.");
+          sessionPendingVotes = [];
+          loadAllLists();
+        }
+      };
+
+      // Cancelar votación desde la ventana modal personalizada
+      window.cancelVoteConfirmation = function() {
+        document.getElementById('voteConfirmModal').classList.add('hidden');
+        sessionPendingVotes = [];
+        alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled.");
+        loadAllLists();
       };
 
       document.getElementById("submitBtn").addEventListener("click", async () => {
@@ -948,9 +988,9 @@
         } catch(e){ alert("Error al guardar."); }
       });
 
-      // CERRAR SEMANA / NUEVA EDICIÓN: Transfiere a mensual y el ganador vuelve a la semanal como destacado
+      // CERRAR SEMANA / NUEVA EDICIÓN: Traslada a mensual, detecta al ganador y lo reingresa como destacado
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
-        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual (el ganador entrará de nuevo como destacado en la semanal) y gestionará el desborde a la anual.")) return;
+        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual, el campeón volverá a entrar como destacado en la semanal, y se gestionará el desborde a la anual.")) return;
         try {
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
           let weeklyTracks = [];
