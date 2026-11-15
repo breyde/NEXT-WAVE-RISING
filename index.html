@@ -266,11 +266,12 @@
       </div>
       <div id="adminDashboard" class="hidden space-y-4 pb-8">
         
-        <!-- PESTAÑAS DEL PANEL DE CURADORES (PRINCIPAL / MENSAJES / CONFIGURACIÓN) -->
+        <!-- PESTAÑAS DEL PANEL DE CURADORES (PRINCIPAL / MENSAJES / CONFIGURACIÓN / BACKUPS) -->
         <div class="flex gap-2 border-b border-white/10 pb-3 overflow-x-auto">
-          <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow">Principal</button>
-          <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800">Mensajes (<span id="msgCountBadge">0</span>)</button>
-          <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800">Configuración</button>
+          <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
+          <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
+          <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
+          <button onclick="switchAdminTab('backups')" id="adminTabBackups" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Backups (<span id="backupsCountBadge">0</span>)</button>
         </div>
 
         <!-- VISTA PRINCIPAL DEL PANEL DE CURADORES -->
@@ -297,7 +298,11 @@
             <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Playlist Spotify</label><input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify Tema Destacado</label><input type="url" id="adminTrackInput" placeholder="https://open.spotify.com/track/..." class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
-            <div class="flex gap-2 pt-1"><button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs shadow">Guardar</button><button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Cerrar Semana)</button></div>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs shadow">Guardar</button>
+              <button type="button" onclick="createManualBackup()" class="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded text-xs border border-cyan-500/40 transition">💾 Hacer Backup Ahora</button>
+              <button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Cerrar Semana)</button>
+            </div>
           </div>
           <div class="glass rounded-2xl p-5 space-y-3 mb-8">
             <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
@@ -332,6 +337,22 @@
                 <p class="text-[10px] text-zinc-400">Elimina permanentemente todos los mensajes publicados en la sala.</p>
               </div>
               <button type="button" onclick="clearAllChatMessages()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Vaciar Chat</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISTA BACKUPS AISLADOS DEL PANEL DE CURADORES -->
+        <div id="adminViewBackups" class="hidden space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-4 mb-8">
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-white/10 pb-3">
+              <div>
+                <h3 class="font-bold text-emerald-400 text-sm uppercase">💾 Copias de Seguridad (Backups)</h3>
+                <p class="text-[11px] text-zinc-400">Instantáneas aisladas (manuales y automáticas de los jueves a las 23:59:59h). No afectan a las listas activas.</p>
+              </div>
+              <button type="button" onclick="createManualBackup()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow transition">+ Crear Backup</button>
+            </div>
+            <div id="adminBackupsList" class="space-y-3 text-xs">
+              <p class="text-zinc-400 text-center py-6">Cargando backups...</p>
             </div>
           </div>
         </div>
@@ -614,6 +635,8 @@
     let chatUnsubscribe = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
     let presenceInterval = null;
+    let backupsCache = {};
+    let autoBackupTriggeredThisMinute = false;
     let chatSessionId = sessionStorage.getItem('nwr_session_id');
     if (!chatSessionId) {
       chatSessionId = 'sess_' + Math.random().toString(36).substring(2, 9);
@@ -664,28 +687,186 @@
       const btnP = document.getElementById('adminTabPrincipal');
       const btnM = document.getElementById('adminTabMensajes');
       const btnC = document.getElementById('adminTabConfig');
+      const btnB = document.getElementById('adminTabBackups');
       const viewP = document.getElementById('adminViewPrincipal');
       const viewM = document.getElementById('adminViewMensajes');
       const viewC = document.getElementById('adminViewConfig');
+      const viewB = document.getElementById('adminViewBackups');
 
-      [btnP, btnM, btnC].forEach(b => {
-        b.className = "px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800";
+      [btnP, btnM, btnC, btnB].forEach(b => {
+        if(b) b.className = "px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
       });
-      [viewP, viewM, viewC].forEach(v => v.classList.add('hidden'));
+      [viewP, viewM, viewC, viewB].forEach(v => { if(v) v.classList.add('hidden'); });
 
       if (tab === 'principal') {
-        btnP.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow";
+        btnP.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewP.classList.remove('hidden');
       } else if (tab === 'mensajes') {
-        btnM.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow";
+        btnM.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewM.classList.remove('hidden');
         loadAdminMessages();
-      } else {
-        btnC.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow";
+      } else if (tab === 'config') {
+        btnC.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewC.classList.remove('hidden');
         loadAdminChatUsers();
+      } else if (tab === 'backups') {
+        btnB.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+        viewB.classList.remove('hidden');
+        loadAdminBackups();
       }
     }
+
+    // ==================== SISTEMA DE BACKUPS AISLADOS (MANUAL Y AUTOMÁTICO) ====================
+    async function saveBackupSnapshot(customTitle, fixedDocId) {
+      const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+      const weeklyData = [];
+      snapSub.forEach(doc => weeklyData.push({ id: doc.id, ...doc.data() }));
+
+      const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
+      const monthlyData = [];
+      snapMonthly.forEach(doc => monthlyData.push({ id: doc.id, ...doc.data() }));
+
+      const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
+      const annualData = [];
+      snapAnnual.forEach(doc => annualData.push({ id: doc.id, ...doc.data() }));
+
+      const now = new Date();
+      const dateStr = now.toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
+      const dateOnlyStr = now.toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
+
+      const payload = {
+        edition: customTitle || `Backup manual (${config.edition || "Edición Semanal"})`,
+        dateString: dateStr,
+        dateOnly: dateOnlyStr,
+        timestamp: Date.now(),
+        weeklyCount: weeklyData.length,
+        monthlyCount: monthlyData.length,
+        annualCount: annualData.length,
+        weeklyTracks: weeklyData,
+        monthlyTracks: monthlyData,
+        annualTracks: annualData
+      };
+
+      if (fixedDocId) {
+        // ID determinista por semana para evitar copias duplicadas si varios usuarios tienen la web abierta a las 23:59:59
+        const docRef = db.collection("backups").doc(fixedDocId);
+        const existing = await docRef.get();
+        if (!existing.exists) {
+          await docRef.set(payload);
+        }
+      } else {
+        await db.collection("backups").add(payload);
+      }
+
+      return weeklyData.length;
+    }
+
+    window.createManualBackup = async function() {
+      try {
+        const count = await saveBackupSnapshot(`Backup manual (${config.edition || "Edición Semanal"})`);
+        await loadAdminBackups();
+        const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
+        alert(`✅ Backup creado correctamente (${dateStr}) con ${count} canciones semanales.`);
+      } catch(e) {
+        console.error(e);
+        alert("Error al crear el backup: " + e.message);
+      }
+    };
+
+    async function triggerThursdaySystemBackup() {
+      if (autoBackupTriggeredThisMinute) return;
+      autoBackupTriggeredThisMinute = true;
+      try {
+        const now = new Date();
+        const dateOnly = now.toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
+        const safeId = "sys_backup_" + dateOnly.replace(/\//g, "-");
+        await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`, safeId);
+        if (document.getElementById("adminDashboard") && !document.getElementById("adminDashboard").classList.contains("hidden")) {
+          loadAdminBackups();
+        }
+      } catch(e) {
+        console.warn("Auto-backup del sistema:", e.message);
+      }
+    }
+
+    async function loadAdminBackups() {
+      const container = document.getElementById('adminBackupsList');
+      const badge = document.getElementById('backupsCountBadge');
+      try {
+        const snap = await db.collection("backups").orderBy("timestamp", "desc").get();
+        backupsCache = {};
+        let list = [];
+        snap.forEach(doc => {
+          const data = { id: doc.id, ...doc.data() };
+          backupsCache[doc.id] = data;
+          list.push(data);
+        });
+
+        if (badge) badge.textContent = list.length;
+        if (!container) return;
+
+        if (list.length === 0) {
+          container.innerHTML = '<p class="text-zinc-400 text-center py-6">No hay copias de seguridad guardadas todavía.</p>';
+          return;
+        }
+
+        container.innerHTML = list.map(b => {
+          const tracks = b.weeklyTracks || [];
+          const isSystem = (b.edition || '').toLowerCase().includes('copia de sistema');
+          const icon = isSystem ? '🤖' : '📦';
+          const previewList = tracks.length > 0
+            ? tracks.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-emerald-400">${t.title}</span> (${String(t.votes || 0).padStart(2, '0')} votos)</li>`).join('')
+            : '<li class="text-[11px] text-zinc-500 italic">Sin canciones en la lista semanal</li>';
+
+          return `
+            <div class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2.5">
+              <div class="flex flex-wrap justify-between items-center gap-2">
+                <div>
+                  <p class="font-bold text-white text-xs">${icon} ${b.edition || 'Backup Lista'}</p>
+                  <p class="text-[11px] text-cyan-400 font-mono mt-0.5">📅 ${b.dateString || ''}</p>
+                  <p class="text-[10px] text-zinc-400 mt-0.5">Semanal: <strong>${b.weeklyCount || 0}</strong> | Mensual: <strong>${b.monthlyCount || 0}</strong> | Anual: <strong>${b.annualCount || 0}</strong></p>
+                </div>
+                <div class="flex gap-1.5">
+                  <button type="button" onclick="copyBackupToClipboard('${b.id}')" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold rounded-lg text-[11px] transition border border-white/10">📋 Copiar Lista</button>
+                  <button type="button" onclick="deleteBackup('${b.id}')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">🗑️ Eliminar</button>
+                </div>
+              </div>
+              <details class="text-[11px] text-zinc-400 pt-1.5 border-t border-white/5">
+                <summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver contenido guardado (${tracks.length} temas)</summary>
+                <ul class="mt-2 space-y-1 pl-2 bg-zinc-950 p-2.5 rounded-lg max-h-48 overflow-y-auto">${previewList}</ul>
+              </details>
+            </div>
+          `;
+        }).join('');
+      } catch(e) {
+        console.warn("Error cargando backups:", e.message);
+        if (container) container.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando backups.</p>';
+      }
+    }
+
+    // Copia exactamente los datos limpios de la lista igual que el botón "Copiar Lista" de Principal
+    window.copyBackupToClipboard = function(id) {
+      const b = backupsCache[id];
+      if (!b) return;
+      const tracks = b.weeklyTracks || [];
+      if (tracks.length === 0) {
+        alert("Esta copia de seguridad no tiene canciones en la lista.");
+        return;
+      }
+      const cleanText = tracks.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ''} (${(s.url || '').split('?')[0]})`).join('\n');
+      navigator.clipboard.writeText(cleanText);
+      alert("Lista del backup copiada (enlaces limpios).");
+    };
+
+    window.deleteBackup = async function(id) {
+      if (!confirm("¿Eliminar esta copia de seguridad? Esto no afecta a las listas activas.")) return;
+      try {
+        await db.collection("backups").doc(id).delete();
+        loadAdminBackups();
+      } catch(e) {
+        alert("Error al eliminar el backup.");
+      }
+    };
 
     async function loadAdminMessages() {
       const listContainer = document.getElementById('adminMessagesList');
@@ -1524,6 +1705,7 @@
           document.getElementById("adminLoginBox").classList.add("hidden");
           document.getElementById("adminDashboard").classList.remove("hidden");
           loadAllLists();
+          loadAdminBackups();
         } catch(e) {
           alert("Acceso denegado: Credenciales incorrectas.");
         }
@@ -1543,6 +1725,13 @@
           const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
           const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
           
+          // Jueves a las 23:59:59 -> Copia de sistema automática un segundo antes de cerrar el jueves
+          if (day === 4 && h === 23 && m === 59 && s === 59) {
+            triggerThursdaySystemBackup();
+          } else if (m !== 59) {
+            autoBackupTriggeredThisMinute = false;
+          }
+
           if (day === 4) { 
             document.getElementById("statusBadge").textContent = translations[currentLang].statusClosed; 
             document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
@@ -1673,13 +1862,17 @@
       });
 
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
-        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual, el campeón volverá a entrar como destacado en la semanal, y se gestionará el desborde a la anual.")) return;
+        if(!confirm("¿Cerrar edición semanal actual? Se creará una copia de seguridad automática, las canciones pasarán a la mensual y el campeón volverá a entrar como destacado.")) return;
         try {
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
           let weeklyTracks = [];
           snapSub.forEach(doc => weeklyTracks.push({ ref: doc.ref, data: doc.data() }));
 
           if(weeklyTracks.length > 0) {
+            // Crear copia de sistema antes de mover la lista semanal a la mensual
+            const dateOnly = new Date().toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
+            await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`);
+
             let winner = weeklyTracks.reduce((prev, current) => ((current.data.votes || 0) > (prev.data.votes || 0)) ? current : prev);
 
             for(let item of weeklyTracks) {
@@ -1747,7 +1940,8 @@
 
           loadAllLists();
           loadConfig();
-          alert("¡Edición semanal cerrada, rotación completada y campeón reingresado como destacado!");
+          loadAdminBackups();
+          alert("¡Edición semanal cerrada, copia de sistema guardada, rotación completada y campeón reingresado como destacado!");
         } catch(e) {
           alert("Error en la rotación: " + e.message);
         }
