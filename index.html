@@ -25,7 +25,7 @@
         <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
         <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
       </div>
-      <!-- Indicador de estado de votación con reloj digital retro -->
+      <!-- Indicador unificado de Votación Destacado -->
       <div id="headerVotingStatus" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold border flex flex-col items-center"></div>
     </div>
 
@@ -289,7 +289,7 @@
         manifestP2: "📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.",
         manifestP3: "🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.",
         step1Title: "1. Guarda la playlist",
-        step1Btn: "Abrir Playlist en Spotify",
+        step1Btn: "Abrir Playlist in Spotify",
         step1Check: "Confirmo que ya he guardado la playlist en mi biblioteca.",
         step2Title: "2. Envía tu canción",
         phArtist: "Nombre del Artista *",
@@ -387,6 +387,7 @@
     let globalVotingActive = true;
     let clientIp = "";
     let sessionPendingVotes = [];
+    let lockedRandomOrder = null;
 
     async function fetchClientIp() {
       try {
@@ -507,7 +508,6 @@
       });
 
       function updateVotingUI(active) {
-        // Horario automático de los jueves: se cierra a las 22:00h y se reactiva a las 00:00h
         const now = new Date();
         try {
           const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false });
@@ -517,7 +517,7 @@
           const h = parseInt(p.hour, 10) || 0;
 
           if (day === 4 && (h >= 22 && h < 24)) {
-            active = false; // Desactivado de 22:00 a 00:00 los jueves
+            active = false;
           }
         } catch(e){}
 
@@ -575,6 +575,7 @@
           await batchVoters.commit();
 
           sessionPendingVotes = [];
+          lockedRandomOrder = null;
           loadAllLists();
           alert("¡Todos los votos y registros han sido reseteados!");
         } catch(e) {
@@ -729,10 +730,13 @@
               return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
             }).join("");
 
-            // Ordenamiento: Aleatorio si totalVotesSum === 0, de mayor a menor si ya hay votos
+            // Ordenamiento estable durante la selección (no reordenar mientras vota)
             let sortedVotesSubs = [...subs];
             if (totalVotesSum === 0) {
-              sortedVotesSubs.sort(() => Math.random() - 0.5);
+              if (!lockedRandomOrder || lockedRandomOrder.length !== sortedVotesSubs.length) {
+                lockedRandomOrder = [...sortedVotesSubs].sort(() => Math.random() - 0.5).map(item => item.id);
+              }
+              sortedVotesSubs.sort((a, b) => lockedRandomOrder.indexOf(a.id) - lockedRandomOrder.indexOf(b.id));
             } else {
               sortedVotesSubs.sort((a, b) => (b.votes || 0) - (a.votes || 0));
             }
@@ -804,7 +808,7 @@
         }
       }
 
-      // Validación estricta de correo y selección de 3 votos únicos
+      // Validación estricta y control de 3 votos con anulación (toggle)
       window.handleVoteClick = async function(id) {
         if (!globalVotingActive) {
           alert(currentLang === 'es' ? "Las votaciones están desactivadas en este momento." : "Voting is currently disabled.");
@@ -838,8 +842,10 @@
             }
           }
 
+          // Permitir anular voto (desmarcar) si ya lo había seleccionado en esta sesión
           if (sessionPendingVotes.includes(id)) {
-            alert(currentLang === 'es' ? "No puedes votar al mismo tema más de una vez." : "You cannot vote for the same track more than once.");
+            sessionPendingVotes = sessionPendingVotes.filter(item => item !== id);
+            loadAllLists();
             return;
           }
 
@@ -877,6 +883,7 @@
           if (!finalEmailCheck.empty) {
             alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
             sessionPendingVotes = [];
+            lockedRandomOrder = null;
             loadAllLists();
             return;
           }
@@ -906,12 +913,14 @@
 
           alert(currentLang === 'es' ? "¡Votos guardados con éxito!" : "Votes successfully saved!");
           sessionPendingVotes = [];
+          lockedRandomOrder = null;
           emailInput.value = "";
           loadAllLists();
         } catch(e) {
           console.error(e);
           alert(currentLang === 'es' ? "Error al guardar los votos." : "Error saving votes.");
           sessionPendingVotes = [];
+          lockedRandomOrder = null;
           loadAllLists();
         }
       };
@@ -997,10 +1006,8 @@
           snapSub.forEach(doc => weeklyTracks.push({ ref: doc.ref, data: doc.data() }));
 
           if(weeklyTracks.length > 0) {
-            // Encontrar el ganador (máximo de votos)
             let winner = weeklyTracks.reduce((prev, current) => ((current.data.votes || 0) > (prev.data.votes || 0)) ? current : prev);
 
-            // Mover todas a la lista mensual
             for(let item of weeklyTracks) {
               await db.collection("monthly_list").add({
                 artist: item.data.artist,
@@ -1010,7 +1017,6 @@
               });
             }
 
-            // Gestionar desborde mensual (> 4 bloques) hacia anual
             let snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
             let monthlyDocs = [];
             snapMonthly.forEach(doc => monthlyDocs.push(doc));
@@ -1028,12 +1034,10 @@
               monthlyDocs.shift();
             }
 
-            // Vaciar submissions semanales anteriores
             const batch = db.batch();
             snapSub.docs.forEach(doc => batch.delete(doc.ref));
             await batch.commit();
 
-            // EL CAMPEÓN ENTRA DE NUEVO EN LA LISTA SEMANAL Y SE FIJA COMO TEMA DESTACADO
             if (winner) {
               await db.collection("submissions").add({
                 artist: winner.data.artist,
