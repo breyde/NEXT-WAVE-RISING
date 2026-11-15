@@ -366,7 +366,7 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO (TRADUCIBLE DINÁMICAMENTE) -->
+  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO -->
   <div id="infoModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4 border border-emerald-500/40 relative max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -374,7 +374,6 @@
         <button onclick="toggleInfoModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
       </div>
       <div id="infoModalBody" class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify" data-i18n="infoModalBody">
-        <!-- Se rellena automáticamente en Español o Inglés según el idioma seleccionado -->
       </div>
     </div>
   </div>
@@ -407,6 +406,22 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
+    // INICIALIZACIÓN INMEDIATA DE FIREBASE ANTES DE CUALQUIER LLAMADA
+    const firebaseConfig = {
+      apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
+      authDomain: "next-wave-rising-3ab56.firebaseapp.com",
+      projectId: "next-wave-rising-3ab56",
+      storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
+      messagingSenderId: "690671071183",
+      appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
     const translations = {
       es: {
         adminBtn: "Panel Curadores",
@@ -632,7 +647,6 @@
     function toggleInfoModal() {
       const modal = document.getElementById('infoModal');
       if (modal) {
-        // Asegurar que el contenido del modal esté actualizado al idioma activo al abrirlo
         const t = translations[currentLang];
         const titleEl = modal.querySelector('[data-i18n="infoModalTitle"]');
         const bodyEl = modal.querySelector('[data-i18n="infoModalBody"]');
@@ -679,7 +693,6 @@
       const badge = document.getElementById('msgCountBadge');
       const totalCount = document.getElementById('totalMsgCount');
       try {
-        const db = firebase.firestore();
         const snap = await db.collection("contact_messages").orderBy("timestamp", "desc").get();
         let msgs = [];
         snap.forEach(doc => msgs.push({ id: doc.id, ...doc.data() }));
@@ -714,7 +727,6 @@
     window.deleteContactMsg = async function(id) {
       if(!confirm("¿Eliminar este mensaje?")) return;
       try {
-        const db = firebase.firestore();
         await db.collection("contact_messages").doc(id).delete();
         loadAdminMessages();
       } catch(e) {
@@ -725,7 +737,6 @@
     window.deleteSubmissionTrack = async function(id) {
       if(!confirm("¿Estás seguro de eliminar esta canción de la lista?")) return;
       try {
-        const db = firebase.firestore();
         await db.collection("submissions").doc(id).delete();
         loadAllLists();
         alert("¡Canción eliminada correctamente!");
@@ -739,7 +750,6 @@
       if (!container) return;
       try {
         container.innerHTML = '<p class="text-zinc-400 text-center py-3">Cargando usuarios de chat...</p>';
-        const db = firebase.firestore();
         const snap = await db.collection('chat_users').get();
         let users = [];
         snap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
@@ -780,7 +790,6 @@
     window.silenceChatUser = async function(ip) {
       if(!confirm(`¿Silenciar a todos los usuarios con IP ${ip}?`)) return;
       try {
-        const db = firebase.firestore();
         const snap = await db.collection('chat_users').where('ip', '==', ip).get();
         const batch = db.batch();
         snap.docs.forEach(doc => batch.delete(doc.ref));
@@ -795,7 +804,6 @@
     window.deleteChatUser = async function(id) {
       if(!confirm("¿Eliminar este usuario de la base de datos?")) return;
       try {
-        const db = firebase.firestore();
         await db.collection('chat_users').doc(id).delete();
         loadAdminChatUsers();
         alert("Usuario eliminado.");
@@ -807,7 +815,6 @@
     window.clearAllChatMessages = async function() {
       if(!confirm("¿Estás seguro de vaciar todos los mensajes del chat público?")) return;
       try {
-        const db = firebase.firestore();
         const snap = await db.collection('chat_messages').get();
         const batch = db.batch();
         snap.docs.forEach(doc => batch.delete(doc.ref));
@@ -832,7 +839,6 @@
       }
 
       try {
-        const db = firebase.firestore();
         const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
         await db.collection("contact_messages").add({
           name, email, message, timestamp: Date.now(), dateString: dateStr, read: false
@@ -907,7 +913,6 @@
     async function updateChatPresence() {
       if (!currentChatNick || !clientIp) return;
       try {
-        const db = firebase.firestore();
         const presenceRef = db.collection('chat_presence').doc(chatSessionId);
         await presenceRef.set({
           lastSeen: Date.now(),
@@ -917,9 +922,8 @@
       } catch(e) {}
     }
 
-    async function listenActiveUsers() {
+    function listenActiveUsers() {
       try {
-        const db = firebase.firestore();
         const threshold = 45000;
         db.collection('chat_presence').onSnapshot(snapshot => {
           const now = Date.now();
@@ -943,7 +947,7 @@
               badgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-white/10 text-zinc-400";
             }
           }
-        });
+        }, err => console.warn("Presencia chat:", err.message));
       } catch(e) {}
     }
 
@@ -960,7 +964,6 @@
       err.classList.add('hidden');
 
       try {
-        const db = firebase.firestore();
         const usersRef = db.collection('chat_users');
         
         if (clientIp && clientIp !== "unknown_ip") {
@@ -994,7 +997,6 @@
       if (chatUnsubscribe) chatUnsubscribe();
       if (presenceInterval) clearInterval(presenceInterval);
       try {
-        const db = firebase.firestore();
         db.collection('chat_presence').doc(chatSessionId).delete();
       } catch(e){}
       currentChatNick = "";
@@ -1020,7 +1022,6 @@
       if (presenceInterval) clearInterval(presenceInterval);
       presenceInterval = setInterval(updateChatPresence, 15000);
 
-      const db = firebase.firestore();
       if (chatUnsubscribe) chatUnsubscribe();
 
       chatUnsubscribe = db.collection('chat_messages').orderBy('timestamp', 'asc').limit(100)
@@ -1050,7 +1051,6 @@
       if (!text || !currentChatNick) return;
 
       try {
-        const db = firebase.firestore();
         const timeStr = new Date().toLocaleTimeString("es-ES", { timeZone: "Europe/Madrid", hour: '2-digit', minute: '2-digit' });
         await db.collection('chat_messages').add({
           nick: currentChatNick,
@@ -1070,8 +1070,383 @@
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
+    let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", votingActive: true };
+    let subs = [];
+
+    function updateVotingUI(active) {
+      const now = new Date();
+      try {
+        const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false });
+        const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
+        const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+        const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
+        const h = parseInt(p.hour, 10) || 0;
+
+        if (day === 4 && (h >= 22 && h < 24)) {
+          active = false;
+        }
+      } catch(e){}
+
+      globalVotingActive = active;
+      const indicator = document.getElementById("votingIndicatorText");
+      const headerIndicator = document.getElementById("headerVotingStatus");
+      const tabVoteBtn = document.getElementById("tabVote");
+      const voteTabStatusBadge = document.getElementById("voteTabStatusBadge");
+      const toggleVotingBtn = document.getElementById("toggleVotingBtn");
+
+      if(active) {
+        if (indicator) {
+          indicator.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>";
+          indicator.className = "text-[10px] text-emerald-400 font-bold";
+        }
+        if (toggleVotingBtn) {
+          toggleVotingBtn.textContent = "Desactivar Votación";
+          toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow";
+        }
+        if (headerIndicator) {
+          headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center";
+          headerIndicator.textContent = currentLang === 'es' ? "Votación activa" : "Voting active";
+        }
+        if(voteTabStatusBadge) {
+          voteTabStatusBadge.textContent = currentLang === 'es' ? "Activa" : "Active";
+          voteTabStatusBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold";
+        }
+        if (tabVoteBtn) {
+          tabVoteBtn.style.opacity = "1";
+          tabVoteBtn.style.pointerEvents = "auto";
+        }
+      } else {
+        if (indicator) {
+          indicator.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>";
+          indicator.className = "text-[10px] text-rose-400 font-bold";
+        }
+        if (toggleVotingBtn) {
+          toggleVotingBtn.textContent = "Activar Votación";
+          toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
+        }
+        if (headerIndicator) {
+          headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center";
+          headerIndicator.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive";
+        }
+        if(voteTabStatusBadge) {
+          voteTabStatusBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled";
+          voteTabStatusBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold";
+        }
+        if (tabVoteBtn) {
+          tabVoteBtn.style.opacity = "0.6";
+        }
+      }
+    }
+
+    function toEmbed(url) {
+      if (!url || !url.includes("spotify.com/") || !url.includes("/track/")) return "";
+      const parts = url.split("?")[0].split("/");
+      const id = parts[parts.length - 1];
+      return id ? "https://open.spotify.com/embed/track/" + id + "?utm_source=generator&theme=0" : "";
+    }
+
+    async function loadConfig() {
+      try {
+        const snap = await db.collection("settings").doc("activeEdition").get();
+        if(snap.exists) {
+          const d = snap.data();
+          config.edition = d.edition || config.edition;
+          config.playlistUrl = d.playlistUrl || config.playlistUrl;
+          config.trackUrl = d.trackUrl || config.trackUrl;
+          config.votingActive = d.votingActive !== undefined ? d.votingActive : true;
+        }
+      } catch(e){}
+      document.getElementById("editionTitle").textContent = config.edition;
+      document.getElementById("playlistLinkBtn").href = config.playlistUrl;
+      document.getElementById("adminEditionInput").value = config.edition;
+      document.getElementById("adminPlaylistInput").value = config.playlistUrl;
+      document.getElementById("adminTrackInput").value = config.trackUrl;
+      updateVotingUI(config.votingActive);
+
+      const embed = toEmbed(config.trackUrl);
+      const sec = document.getElementById("playerSection");
+      if(embed) {
+        document.getElementById("spotifyIframe").src = embed;
+        sec.classList.remove("hidden");
+      } else {
+        sec.classList.add("hidden");
+      }
+    }
+
+    async function loadAllLists() {
+      const adminList = document.getElementById("submissionsList");
+      const publicList = document.getElementById("publicSubmissionsList");
+      const monthlyContainer = document.getElementById("monthlyListContainer");
+      const annualContainer = document.getElementById("annualListContainer");
+      const voteTabViewList = document.getElementById("voteTabViewList");
+
+      // Cargar votantes de forma independiente para que un error de permisos aquí no bloquee las listas
+      try {
+        const votersSnap = await db.collection("voters_log").get();
+        document.getElementById("statVotersCount").textContent = String(votersSnap.size).padStart(2, '0');
+      } catch(e) {
+        console.warn("No se pudo leer voters_log:", e.message);
+      }
+
+      try {
+        const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+        subs = [];
+        snapSub.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
+        document.getElementById("subCount").textContent = subs.length;
+        document.getElementById("publicSubCount").textContent = subs.length;
+
+        let tracksWithVotes = 0;
+        let totalVotesSum = 0;
+        subs.forEach(s => {
+          let v = s.votes || 0;
+          totalVotesSum += v;
+          if (v > 0) tracksWithVotes++;
+        });
+        document.getElementById("statTracksVotedCount").textContent = String(tracksWithVotes).padStart(2, '0');
+        document.getElementById("statTotalVotesCount").textContent = String(totalVotesSum).padStart(2, '0');
+
+        if(subs.length === 0) {
+          adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
+          publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
+          voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No hay canciones disponibles para votar aún.</p>';
+        } else {
+          adminList.innerHTML = subs.map((s, i) => {
+            const cleanUrl = s.url.split("?")[0];
+            const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
+            const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
+            
+            const votesFormatted = String(s.votes || 0).padStart(2, '0');
+            const voters = s.voters || [];
+            let votersHtml = voters.length > 0 ? voters.map(v => `<li class="text-[11px] text-zinc-300">• ${v}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin votos aún</li>';
+
+            return '<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">' +
+              '<div class="flex justify-between items-center">' +
+                '<div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + ' | Votos: <strong>' + votesFormatted + '</strong></p></div>' +
+                '<div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '<button onclick="deleteSubmissionTrack(\'' + s.id + '\')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>' +
+              '</div>' +
+              '<details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5">' +
+                '<summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (' + voters.length + ')</summary>' +
+                '<ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">' + votersHtml + '</ul>' +
+              '</details>' +
+            '</div>';
+          }).join("");
+
+          publicList.innerHTML = subs.map((s, i) => {
+            const embedUrl = toEmbed(s.url);
+            if (!embedUrl) return '';
+            const compactUrl = embedUrl.replace('height=152', 'height=80');
+            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+          }).join("");
+
+          let sortedVotesSubs = [...subs];
+          if (totalVotesSum === 0) {
+            if (!lockedRandomOrder || lockedRandomOrder.length !== sortedVotesSubs.length) {
+              lockedRandomOrder = [...sortedVotesSubs].sort(() => Math.random() - 0.5).map(item => item.id);
+            }
+            sortedVotesSubs.sort((a, b) => lockedRandomOrder.indexOf(a.id) - lockedRandomOrder.indexOf(b.id));
+          } else {
+            sortedVotesSubs.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+          }
+
+          voteTabViewList.innerHTML = sortedVotesSubs.map((s, i) => {
+            const embedUrl = toEmbed(s.url);
+            const votesFormatted = String(s.votes || 0).padStart(2, '0');
+            const isSelected = sessionPendingVotes.includes(s.id);
+            
+            const btnText = isSelected ? (currentLang === 'es' ? "❌ Anular Voto" : "❌ Cancel Vote") : (currentLang === 'es' ? "🗳️ Añadir Voto" : "🗳️ Add Vote");
+            const btnClass = isSelected ? "px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs shadow transition" : "px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow";
+
+            let rankDisplay = `#${i+1}`;
+            if (totalVotesSum > 0) {
+              if (i === 0) rankDisplay = "🥇";
+              else if (i === 1) rankDisplay = "🥈";
+              else if (i === 2) rankDisplay = "🥉";
+            }
+
+            if (!embedUrl) return '';
+            const compactUrl = embedUrl.replace('height=152', 'height=80');
+            return '<div class="p-3 bg-zinc-900/90 rounded-2xl border border-white/10 space-y-2">' +
+              '<div class="flex justify-between items-center px-1 text-xs text-zinc-400">' +
+                '<span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">' + rankDisplay + '</span> ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span>' +
+                '<span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ' + votesFormatted + '</span>' +
+              '</div>' +
+              '<iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>' +
+              '<div class="pt-1.5 border-t border-white/5 flex justify-between items-center text-xs text-zinc-400">' +
+                '<span>' + (currentLang === 'es' ? 'Seleccionados' : 'Selected') + ': <strong>' + sessionPendingVotes.length + '/3</strong></span>' +
+                '<button onclick="handleVoteClick(\'' + s.id + '\')" class="' + btnClass + '">' + btnText + '</button>' +
+              '</div>' +
+            '</div>';
+          }).join("");
+        }
+      } catch(e) {
+        console.error("Error cargando submissions:", e);
+        adminList.innerHTML = '<p class="text-rose-400 text-xs">Error al cargar propuestas.</p>';
+        publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">No se pudieron cargar las propuestas ahora mismo.</p>';
+        voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No se pudieron cargar las canciones.</p>';
+      }
+
+      try {
+        const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
+        let monthlyItems = [];
+        snapMonthly.forEach(doc => monthlyItems.push({ id: doc.id, ...doc.data() }));
+        document.getElementById("monthlyCount").textContent = monthlyItems.length;
+
+        if(monthlyItems.length === 0) {
+          monthlyContainer.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].monthlyEmpty}</p>`;
+        } else {
+          monthlyContainer.innerHTML = monthlyItems.map((s, i) => {
+            const embedUrl = toEmbed(s.url);
+            if (!embedUrl) return '';
+            const compactUrl = embedUrl.replace('height=152', 'height=80');
+            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">Bloque ' + (i+1) + ': ' + s.artist + ' — <span class="text-cyan-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+          }).join("");
+        }
+      } catch(e) {
+        console.warn("Error cargando mensual:", e.message);
+      }
+
+      try {
+        const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
+        let annualItems = [];
+        snapAnnual.forEach(doc => annualItems.push({ id: doc.id, ...doc.data() }));
+        document.getElementById("annualCount").textContent = annualItems.length;
+
+        if(annualItems.length === 0) {
+          annualContainer.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].annualEmpty}</p>`;
+        } else {
+          annualContainer.innerHTML = annualItems.map((s, i) => {
+            const embedUrl = toEmbed(s.url);
+            if (!embedUrl) return '';
+            const compactUrl = embedUrl.replace('height=152', 'height=80');
+            return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-amber-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+          }).join("");
+        }
+      } catch(e) {
+        console.warn("Error cargando anual:", e.message);
+      }
+    }
+
+    window.handleVoteClick = async function(id) {
+      if (!globalVotingActive) {
+        alert(currentLang === 'es' ? "Las votaciones están desactivadas en este momento." : "Voting is currently disabled.");
+        return;
+      }
+
+      const emailInput = document.getElementById("globalVoterEmail");
+      const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : "";
+
+      if(!emailVal || !emailVal.includes("@") || emailVal.length < 5) {
+        alert(currentLang === 'es' ? "Por favor, introduce un correo electrónico válido arriba para poder votar." : "Please enter a valid email above to vote.");
+        emailInput.focus();
+        emailInput.style.borderColor = "#ef4444";
+        return;
+      } else {
+        emailInput.style.borderColor = "#3f3f46";
+      }
+
+      try {
+        const votersRef = db.collection("voters_log");
+        const emailQuery = await votersRef.where("email", "==", emailVal).get();
+        if (!emailQuery.empty) {
+          alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
+          return;
+        }
+        if (clientIp && clientIp !== "unknown_ip") {
+          const ipQuery = await votersRef.where("ip", "==", clientIp).get();
+          if (!ipQuery.empty) {
+            alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
+            return;
+          }
+        }
+
+        if (sessionPendingVotes.includes(id)) {
+          sessionPendingVotes = sessionPendingVotes.filter(item => item !== id);
+          loadAllLists();
+          return;
+        }
+
+        if (sessionPendingVotes.length >= 3) {
+          alert(currentLang === 'es' ? "Ya has seleccionado 3 temas." : "You have already selected 3 tracks.");
+          return;
+        }
+
+        sessionPendingVotes.push(id);
+
+        if (sessionPendingVotes.length === 3) {
+          document.getElementById('voteConfirmModal').classList.remove('hidden');
+        } else {
+          loadAllLists();
+        }
+
+      } catch(e) {
+        console.error(e);
+        alert(currentLang === 'es' ? "Ya has votado o ha ocurrido un error." : "You have already voted or an error occurred.");
+        sessionPendingVotes = [];
+        loadAllLists();
+      }
+    };
+
+    window.acceptVoteConfirmation = async function() {
+      document.getElementById('voteConfirmModal').classList.add('hidden');
+      const emailInput = document.getElementById("globalVoterEmail");
+      const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : "";
+
+      try {
+        const votersRef = db.collection("voters_log");
+        const finalEmailCheck = await votersRef.where("email", "==", emailVal).get();
+        if (!finalEmailCheck.empty) {
+          alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
+          sessionPendingVotes = [];
+          lockedRandomOrder = null;
+          loadAllLists();
+          return;
+        }
+
+        for (let trackId of sessionPendingVotes) {
+          const subRef = db.collection("submissions").doc(trackId);
+          const subDoc = await subRef.get();
+          if (subDoc.exists) {
+            let currentVotes = subDoc.data().votes || 0;
+            let votersList = subDoc.data().voters || [];
+            if (!votersList.includes(emailVal)) {
+              votersList.push(emailVal);
+            }
+            await subRef.update({
+              votes: currentVotes + 1,
+              voters: votersList
+            });
+          }
+        }
+
+        await votersRef.add({
+          email: emailVal,
+          ip: clientIp || "unknown_ip",
+          votedTracks: sessionPendingVotes,
+          timestamp: Date.now()
+        });
+
+        alert(currentLang === 'es' ? "¡Votos guardados con éxito!" : "Votes successfully saved!");
+        sessionPendingVotes = [];
+        lockedRandomOrder = null;
+        emailInput.value = "";
+        loadAllLists();
+      } catch(e) {
+        console.error(e);
+        alert(currentLang === 'es' ? "Error al guardar los votos." : "Error saving votes.");
+        sessionPendingVotes = [];
+        lockedRandomOrder = null;
+        loadAllLists();
+      }
+    };
+
+    window.cancelVoteConfirmation = function() {
+      document.getElementById('voteConfirmModal').classList.add('hidden');
+      sessionPendingVotes = [];
+      alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled.");
+      loadAllLists();
+    };
+
     document.addEventListener("DOMContentLoaded", function() {
-      // Inicializar textos según el idioma por defecto ('es')
       setLanguage(currentLang);
       fetchClientIp();
       listenActiveUsers();
@@ -1080,22 +1455,6 @@
         const nickInput = document.getElementById('chatNickInput');
         if(nickInput) nickInput.value = currentChatNick;
       }
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
-        authDomain: "next-wave-rising-3ab56.firebaseapp.com",
-        projectId: "next-wave-rising-3ab56",
-        storageBucket: "next-wave-rising-3ab56.firebasestorage.app",
-        messagingSenderId: "690671071183",
-        appId: "1:690671071183:web:5e2d0db666c8c9bab86cba"
-      };
-
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const auth = firebase.auth();
-
-      let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", votingActive: true };
-      let subs = [];
 
       async function trackUniqueVisitor() {
         try {
@@ -1135,66 +1494,6 @@
           await db.collection("settings").doc("activeEdition").set(config, { merge: true });
         } catch(e) { console.error(e); }
       });
-
-      function updateVotingUI(active) {
-        const now = new Date();
-        try {
-          const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false });
-          const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
-          const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-          const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
-          const h = parseInt(p.hour, 10) || 0;
-
-          if (day === 4 && (h >= 22 && h < 24)) {
-            active = false;
-          }
-        } catch(e){}
-
-        globalVotingActive = active;
-        const indicator = document.getElementById("votingIndicatorText");
-        const headerIndicator = document.getElementById("headerVotingStatus");
-        const tabVoteBtn = document.getElementById("tabVote");
-        const voteTabStatusBadge = document.getElementById("voteTabStatusBadge");
-
-        if(active) {
-          if (indicator) {
-            indicator.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>";
-            indicator.className = "text-[10px] text-emerald-400 font-bold";
-            toggleVotingBtn.textContent = "Desactivar Votación";
-            toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow";
-          }
-          
-          if (headerIndicator) {
-            headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center";
-            headerIndicator.textContent = currentLang === 'es' ? "Votación activa" : "Voting active";
-          }
-          
-          if(voteTabStatusBadge) {
-            voteTabStatusBadge.textContent = currentLang === 'es' ? "Activa" : "Active";
-            voteTabStatusBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold";
-          }
-          tabVoteBtn.style.opacity = "1";
-          tabVoteBtn.style.pointerEvents = "auto";
-        } else {
-          if (indicator) {
-            indicator.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>";
-            indicator.className = "text-[10px] text-rose-400 font-bold";
-            toggleVotingBtn.textContent = "Activar Votación";
-            toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
-          }
-          
-          if (headerIndicator) {
-            headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center";
-            headerIndicator.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive";
-          }
-          
-          if(voteTabStatusBadge) {
-            voteTabStatusBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled";
-            voteTabStatusBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold";
-          }
-          tabVoteBtn.style.opacity = "0.6";
-        }
-      }
 
       document.getElementById("resetVotesBtn").addEventListener("click", async () => {
         if(!confirm("¿Estás seguro de poner a cero los votos y registros de votantes de todas las canciones?")) return;
@@ -1261,305 +1560,6 @@
         } catch(e){}
       }
 
-      function toEmbed(url) {
-        if (!url || !url.includes("spotify.com/") || !url.includes("/track/")) return "";
-        const parts = url.split("?")[0].split("/");
-        const id = parts[parts.length - 1];
-        return id ? "https://open.spotify.com/embed/track/" + id + "?utm_source=generator&theme=0" : "";
-      }
-
-      async function loadConfig() {
-        try {
-          const snap = await db.collection("settings").doc("activeEdition").get();
-          if(snap.exists) {
-            const d = snap.data();
-            config.edition = d.edition || config.edition;
-            config.playlistUrl = d.playlistUrl || config.playlistUrl;
-            config.trackUrl = d.trackUrl || config.trackUrl;
-            config.votingActive = d.votingActive !== undefined ? d.votingActive : true;
-          }
-        } catch(e){}
-        document.getElementById("editionTitle").textContent = config.edition;
-        document.getElementById("playlistLinkBtn").href = config.playlistUrl;
-        document.getElementById("adminEditionInput").value = config.edition;
-        document.getElementById("adminPlaylistInput").value = config.playlistUrl;
-        document.getElementById("adminTrackInput").value = config.trackUrl;
-        updateVotingUI(config.votingActive);
-
-        const embed = toEmbed(config.trackUrl);
-        const sec = document.getElementById("playerSection");
-        if(embed) {
-          document.getElementById("spotifyIframe").src = embed;
-          sec.classList.remove("hidden");
-        } else {
-          sec.classList.add("hidden");
-        }
-      }
-
-      async function loadAllLists() {
-        const adminList = document.getElementById("submissionsList");
-        const publicList = document.getElementById("publicSubmissionsList");
-        const monthlyContainer = document.getElementById("monthlyListContainer");
-        const annualContainer = document.getElementById("annualListContainer");
-        const voteTabViewList = document.getElementById("voteTabViewList");
-
-        try {
-          const votersSnap = await db.collection("voters_log").get();
-          const totalVoters = votersSnap.size;
-          document.getElementById("statVotersCount").textContent = String(totalVoters).padStart(2, '0');
-
-          const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
-          subs = [];
-          snapSub.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
-          document.getElementById("subCount").textContent = subs.length;
-          document.getElementById("publicSubCount").textContent = subs.length;
-
-          let tracksWithVotes = 0;
-          let totalVotesSum = 0;
-          subs.forEach(s => {
-            let v = s.votes || 0;
-            totalVotesSum += v;
-            if (v > 0) tracksWithVotes++;
-          });
-          document.getElementById("statTracksVotedCount").textContent = String(tracksWithVotes).padStart(2, '0');
-          document.getElementById("statTotalVotesCount").textContent = String(totalVotesSum).padStart(2, '0');
-
-          if(subs.length === 0) {
-            adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
-            publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
-            voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No hay canciones disponibles para votar aún.</p>';
-          } else {
-            // Panel Curador con botón para eliminar canción errónea y desplegable de votantes
-            adminList.innerHTML = subs.map((s, i) => {
-              const cleanUrl = s.url.split("?")[0];
-              const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
-              const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
-              
-              const votesFormatted = String(s.votes || 0).padStart(2, '0');
-              const voters = s.voters || [];
-              let votersHtml = voters.length > 0 ? voters.map(v => `<li class="text-[11px] text-zinc-300">• ${v}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin votos aún</li>';
-
-              return '<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">' +
-                '<div class="flex justify-between items-center">' +
-                  '<div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + ' | Votos: <strong>' + votesFormatted + '</strong></p></div>' +
-                  '<div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '<button onclick="deleteSubmissionTrack(\'' + s.id + '\')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>' +
-                '</div>' +
-                '<details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5">' +
-                  '<summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (' + voters.length + ')</summary>' +
-                  '<ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">' + votersHtml + '</ul>' +
-                '</details>' +
-              '</div>';
-            }).join("");
-
-            // Listas públicas con Spotify compacto (height 80)
-            publicList.innerHTML = subs.map((s, i) => {
-              const embedUrl = toEmbed(s.url);
-              if (!embedUrl) return '';
-              const compactUrl = embedUrl.replace('height=152', 'height=80');
-              return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
-            }).join("");
-
-            // Ordenamiento estable durante la selección (no reordenar mientras vota)
-            let sortedVotesSubs = [...subs];
-            if (totalVotesSum === 0) {
-              if (!lockedRandomOrder || lockedRandomOrder.length !== sortedVotesSubs.length) {
-                lockedRandomOrder = [...sortedVotesSubs].sort(() => Math.random() - 0.5).map(item => item.id);
-              }
-              sortedVotesSubs.sort((a, b) => lockedRandomOrder.indexOf(a.id) - lockedRandomOrder.indexOf(b.id));
-            } else {
-              sortedVotesSubs.sort((a, b) => (b.votes || 0) - (a.votes || 0));
-            }
-
-            voteTabViewList.innerHTML = sortedVotesSubs.map((s, i) => {
-              const embedUrl = toEmbed(s.url);
-              const votesFormatted = String(s.votes || 0).padStart(2, '0');
-              const isSelected = sessionPendingVotes.includes(s.id);
-              
-              const btnText = isSelected ? (currentLang === 'es' ? "❌ Anular Voto" : "❌ Cancel Vote") : (currentLang === 'es' ? "🗳️ Añadir Voto" : "🗳️ Add Vote");
-              const btnClass = isSelected ? "px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs shadow transition" : "px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow";
-
-              let rankDisplay = `#${i+1}`;
-              if (totalVotesSum > 0) {
-                if (i === 0) rankDisplay = "🥇";
-                else if (i === 1) rankDisplay = "🥈";
-                else if (i === 2) rankDisplay = "🥉";
-              }
-
-              if (!embedUrl) return '';
-              const compactUrl = embedUrl.replace('height=152', 'height=80');
-              return '<div class="p-3 bg-zinc-900/90 rounded-2xl border border-white/10 space-y-2">' +
-                '<div class="flex justify-between items-center px-1 text-xs text-zinc-400">' +
-                  '<span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">' + rankDisplay + '</span> ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span>' +
-                  '<span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ' + votesFormatted + '</span>' +
-                '</div>' +
-                '<iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>' +
-                '<div class="pt-1.5 border-t border-white/5 flex justify-between items-center text-xs text-zinc-400">' +
-                  '<span>' + (currentLang === 'es' ? 'Seleccionados' : 'Selected') + ': <strong>' + sessionPendingVotes.length + '/3</strong></span>' +
-                  '<button onclick="handleVoteClick(\'' + s.id + '\')" class="' + btnClass + '">' + btnText + '</button>' +
-                '</div>' +
-              '</div>';
-            }).join("");
-          }
-
-          const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
-          let monthlyItems = [];
-          snapMonthly.forEach(doc => monthlyItems.push({ id: doc.id, ...doc.data() }));
-          document.getElementById("monthlyCount").textContent = monthlyItems.length;
-
-          if(monthlyItems.length === 0) {
-            monthlyContainer.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].monthlyEmpty}</p>`;
-          } else {
-            monthlyContainer.innerHTML = monthlyItems.map((s, i) => {
-              const embedUrl = toEmbed(s.url);
-              if (!embedUrl) return '';
-              const compactUrl = embedUrl.replace('height=152', 'height=80');
-              return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">Bloque ' + (i+1) + ': ' + s.artist + ' — <span class="text-cyan-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
-            }).join("");
-          }
-
-          const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
-          let annualItems = [];
-          snapAnnual.forEach(doc => annualItems.push({ id: doc.id, ...doc.data() }));
-          document.getElementById("annualCount").textContent = annualItems.length;
-
-          if(annualItems.length === 0) {
-            annualContainer.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].annualEmpty}</p>`;
-          } else {
-            annualContainer.innerHTML = annualItems.map((s, i) => {
-              const embedUrl = toEmbed(s.url);
-              if (!embedUrl) return '';
-              const compactUrl = embedUrl.replace('height=152', 'height=80');
-              return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-amber-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
-            }).join("");
-          }
-
-        } catch(e) {
-          console.error("Error cargando listas:", e);
-        }
-      }
-
-      // Validación estricta y control de 3 votos con anulación en tiempo real
-      window.handleVoteClick = async function(id) {
-        if (!globalVotingActive) {
-          alert(currentLang === 'es' ? "Las votaciones están desactivadas en este momento." : "Voting is currently disabled.");
-          return;
-        }
-
-        const emailInput = document.getElementById("globalVoterEmail");
-        const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : "";
-
-        if(!emailVal || !emailVal.includes("@") || emailVal.length < 5) {
-          alert(currentLang === 'es' ? "Por favor, introduce un correo electrónico válido arriba para poder votar." : "Please enter a valid email above to vote.");
-          emailInput.focus();
-          emailInput.style.borderColor = "#ef4444";
-          return;
-        } else {
-          emailInput.style.borderColor = "#3f3f46";
-        }
-
-        try {
-          const votersRef = db.collection("voters_log");
-          const emailQuery = await votersRef.where("email", "==", emailVal).get();
-          if (!emailQuery.empty) {
-            alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
-            return;
-          }
-          if (clientIp && clientIp !== "unknown_ip") {
-            const ipQuery = await votersRef.where("ip", "==", clientIp).get();
-            if (!ipQuery.empty) {
-              alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
-              return;
-            }
-          }
-
-          if (sessionPendingVotes.includes(id)) {
-            sessionPendingVotes = sessionPendingVotes.filter(item => item !== id);
-            loadAllLists();
-            return;
-          }
-
-          if (sessionPendingVotes.length >= 3) {
-            alert(currentLang === 'es' ? "Ya has seleccionado 3 temas." : "You have already selected 3 tracks.");
-            return;
-          }
-
-          sessionPendingVotes.push(id);
-
-          if (sessionPendingVotes.length === 3) {
-            document.getElementById('voteConfirmModal').classList.remove('hidden');
-          } else {
-            loadAllLists();
-          }
-
-        } catch(e) {
-          console.error(e);
-          alert(currentLang === 'es' ? "Ya has votado o ha ocurrido un error." : "You have already voted or an error occurred.");
-          sessionPendingVotes = [];
-          loadAllLists();
-        }
-      };
-
-      window.acceptVoteConfirmation = async function() {
-        document.getElementById('voteConfirmModal').classList.add('hidden');
-        const emailInput = document.getElementById("globalVoterEmail");
-        const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : "";
-
-        try {
-          const votersRef = db.collection("voters_log");
-          const finalEmailCheck = await votersRef.where("email", "==", emailVal).get();
-          if (!finalEmailCheck.empty) {
-            alert(currentLang === 'es' ? "Ya has votado." : "You have already voted.");
-            sessionPendingVotes = [];
-            lockedRandomOrder = null;
-            loadAllLists();
-            return;
-          }
-
-          for (let trackId of sessionPendingVotes) {
-            const subRef = db.collection("submissions").doc(trackId);
-            const subDoc = await subRef.get();
-            if (subDoc.exists) {
-              let currentVotes = subDoc.data().votes || 0;
-              let votersList = subDoc.data().voters || [];
-              if (!votersList.includes(emailVal)) {
-                votersList.push(emailVal);
-              }
-              await subRef.update({
-                votes: currentVotes + 1,
-                voters: votersList
-              });
-            }
-          }
-
-          await votersRef.add({
-            email: emailVal,
-            ip: clientIp || "unknown_ip",
-            votedTracks: sessionPendingVotes,
-            timestamp: Date.now()
-          });
-
-          alert(currentLang === 'es' ? "¡Votos guardados con éxito!" : "Votes successfully saved!");
-          sessionPendingVotes = [];
-          lockedRandomOrder = null;
-          emailInput.value = "";
-          loadAllLists();
-        } catch(e) {
-          console.error(e);
-          alert(currentLang === 'es' ? "Error al guardar los votos." : "Error saving votes.");
-          sessionPendingVotes = [];
-          lockedRandomOrder = null;
-          loadAllLists();
-        }
-      };
-
-      window.cancelVoteConfirmation = function() {
-        document.getElementById('voteConfirmModal').classList.add('hidden');
-        sessionPendingVotes = [];
-        alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled.");
-        loadAllLists();
-      };
-
-      // Validación inteligente del formulario de envío
       document.getElementById("submitBtn").addEventListener("click", async () => {
         const artist = document.getElementById("artistName").value.trim();
         const title = document.getElementById("trackTitle").value.trim();
@@ -1591,7 +1591,6 @@
           return;
         }
 
-        // Limpieza inteligente de enlace de Spotify (quita ?si=... y verifica que sea un /track/ válido)
         const cleanUrl = rawUrl.split("?")[0].trim();
         const spotifyTrackRegex = /^https?:\/\/(open\.)?spotify\.com\/(intl-[a-z]{2}\/)?track\/[a-zA-Z0-9]{22}\/?$/;
         if (!spotifyTrackRegex.test(cleanUrl)) {
@@ -1675,7 +1674,6 @@
         } catch(e){ alert("Error al guardar."); }
       });
 
-      // CERRAR SEMANA / NUEVA EDICIÓN: Traslada a mensual, detecta al ganador y lo reingresa como destacado
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
         if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual, el campeón volverá a entrar como destacado en la semanal, y se gestionará el desborde a la anual.")) return;
         try {
