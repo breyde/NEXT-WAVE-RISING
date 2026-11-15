@@ -15,22 +15,28 @@
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
   <!-- CABECERA CON TÍTULO CENTRADO ARRIBA DEL TODO -->
-  <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-4">
-    <!-- TÍTULO CENTRADO ARRIBA -->
-    <h1 class="text-3xl font-extrabold text-white tracking-wide text-center">Next Wave Rising</h1>
-
+  <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-3">
+    
     <div class="w-full flex justify-between items-center text-xs">
       <!-- Selector de Idioma con Banderas -->
       <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md">
         <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
         <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
       </div>
-      <!-- Casilla elegante de estado de Votación Destacado (sin reloj) -->
+      <!-- Casilla elegante de estado de Votación Destacado -->
       <div id="headerVotingStatus" class="px-3 py-2 rounded-xl text-xs font-bold border shadow-sm"></div>
     </div>
 
+    <!-- BOTÓN LLAMATIVO DE NORMAS Y FUNCIONAMIENTO -->
+    <button onclick="toggleInfoModal()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500/20 via-cyan-500/25 to-emerald-500/20 hover:from-emerald-500/30 hover:to-cyan-500/35 border border-emerald-500/40 text-emerald-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition">
+      <span>🌟</span> <span data-i18n="infoBtnText">Importante: Normas y Funcionamiento</span> <span>🌟</span>
+    </button>
+
+    <!-- TÍTULO CENTRADO -->
+    <h1 class="text-3xl font-extrabold text-white tracking-wide text-center pt-2">Next Wave Rising</h1>
+
     <!-- NAVEGACIÓN DE 5 PESTAÑAS FIJAS DEBAJO -->
-    <nav class="w-full grid grid-cols-5 gap-1">
+    <nav class="w-full grid grid-cols-5 gap-1 pt-2">
       <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center transition">Semanal</button>
       <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
       <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-[11px] font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
@@ -244,6 +250,29 @@
     </section>
   </main>
   
+  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO -->
+  <div id="infoModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4 border border-emerald-500/40 relative max-h-[85vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">📜 Manifiesto & Funcionamiento</h3>
+        <button onclick="toggleInfoModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+      </div>
+      <div class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify">
+        <p><strong>Next Wave Rising</strong> nació como un refugio y un impulso para todos los artistas emergentes, especialmente aquellos que a menudo son relegados por incorporar inteligencia artificial total o parcialmente en sus procesos creativos. Entendemos la IA como una herramienta más que, en manos cuidadas, es capaz de dar vida a obras maravillosas.</p>
+        <p>Esta iniciativa surgió de forma espontánea y evoluciona cada día. Nuestro propósito fundamental es construir una comunidad sólida de creadores independientes que se apoyen mutuamente, protegiendo nuestras regalías frente a los grandes sellos discográficos y asegurando que el fruto de nuestro esfuerzo permanezca donde debe estar.</p>
+        <p>Esta es una plataforma abierta, diversa y profundamente tolerante. Aquí no existen vetos ni prejuicios de estilo; desde la música clásica o cinemática hasta el pop, el rock o géneros experimentales, todas las expresiones tienen su espacio legítimo. Los curadores somos nosotros mismos a través de la escucha y el voto comunitario. Ningún tema es mejor que otro; la votación sirve para dar vida y emoción a la lista.</p>
+        <p><strong>Dinámica y Reglas Clave:</strong></p>
+        <ul class="list-disc pl-4 space-y-1.5">
+          <li><strong>Lista Semanal y Votaciones:</strong> Abierta a propuestas sin censura mientras está activa. Se cierra los jueves a las 22:00h. El tema proclamado campeón semanal se convertirá en el destacado de la siguiente edición, obteniendo una valiosa doble inclusión al reingresar en la lista semanal y ascender simultáneamente a la mensual.</li>
+          <li><strong>Sistema de Voto:</strong> Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong> por edición, respaldado por un riguroso control de correo e IP.</li>
+          <li><strong>Listas Mensual y Anual:</strong> Procesos automatizados. Es imprescindible mantener la playlist guardada en tu biblioteca de Spotify; la revisión periódica de este compromiso garantiza el espacio activo de los artistas (con exclusión temporal de un año ante inactividad prolongada tras aviso).</li>
+          <li><strong>Colaboración y Crecimiento:</strong> Reproducir la lista semanal completa (1 o 2 veces por semana) impulsa nuestro posicionamiento frente al algoritmo y protege nuestras regalías.</li>
+        </ul>
+        <p class="text-emerald-400 font-semibold pt-2">Sed bienvenidos, disfrutad de la música y colaborad con generosidad. Un abrazo enorme de parte de Breyde y Darko. (Puedes seguir la actividad principal de Breyde en TikTok buscando "breyde"). — Darko (David en el mundo real).</p>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DE CONFIRMACIÓN DE VOTOS (PERSONALIZADO) -->
   <div id="voteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-sm w-full space-y-4 border border-emerald-500/40 text-center shadow-2xl">
@@ -325,7 +354,8 @@
         loadingVotes: "Cargando canciones para votar...",
         statVoters: "Votantes únicos",
         statTracks: "Temas votados",
-        statTotal: "Suma de votos"
+        statTotal: "Suma de votos",
+        infoBtnText: "Importante: Normas y Funcionamiento"
       },
       en: {
         adminBtn: "Curators Panel",
@@ -379,7 +409,8 @@
         loadingVotes: "Loading tracks to vote...",
         statVoters: "Unique Voters",
         statTracks: "Voted Tracks",
-        statTotal: "Total Votes"
+        statTotal: "Total Votes",
+        infoBtnText: "Important: Rules & Operation"
       }
     };
 
@@ -404,6 +435,11 @@
       if (box) box.classList.toggle('hidden');
     }
 
+    function toggleInfoModal() {
+      const modal = document.getElementById('infoModal');
+      if (modal) modal.classList.toggle('hidden');
+    }
+
     function setLanguage(lang) {
       currentLang = lang;
       document.getElementById('langEsBtn').className = lang === 'es' ? 'px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition' : 'px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition';
@@ -425,6 +461,7 @@
         const key = el.getAttribute('data-i18n-ph');
         if(t[key]) el.placeholder = t[key];
       });
+      updateVotingUI(globalVotingActive);
     }
 
     function switchTab(tab) {
