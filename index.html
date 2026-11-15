@@ -25,8 +25,8 @@
         <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
         <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
       </div>
-      <!-- Indicador de estado de votación arriba (sin parpadeos) -->
-      <div id="headerVotingStatus" class="px-2.5 py-1 rounded-lg text-[10px] font-bold border"></div>
+      <!-- Indicador de estado de votación con reloj digital retro -->
+      <div id="headerVotingStatus" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold border flex flex-col items-center"></div>
     </div>
 
     <!-- NAVEGACIÓN DE 5 PESTAÑAS FIJAS DEBAJO -->
@@ -149,18 +149,18 @@
           <span id="voteTabStatusBadge" class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">Activa</span>
         </div>
 
-        <!-- GRÁFICA / PANEL DE ESTADÍSTICAS SENCILLO EN LA CABECERA DE VOTACIÓN -->
+        <!-- GRÁFICA / PANEL DE ESTADÍSTICAS EN LA CABECERA DE VOTACIÓN -->
         <div class="grid grid-cols-3 gap-2 text-center bg-zinc-900/90 p-3.5 rounded-2xl border border-white/10 text-xs shadow-inner">
           <div>
-            <span id="statVotersCount" class="block text-base font-extrabold text-emerald-400">0</span>
+            <span id="statVotersCount" class="block text-base font-extrabold text-emerald-400">00</span>
             <span class="text-[10px] text-zinc-400 uppercase tracking-tight" data-i18n="statVoters">Votantes únicos</span>
           </div>
           <div>
-            <span id="statTracksVotedCount" class="block text-base font-extrabold text-cyan-400">0</span>
+            <span id="statTracksVotedCount" class="block text-base font-extrabold text-cyan-400">00</span>
             <span class="text-[10px] text-zinc-400 uppercase tracking-tight" data-i18n="statTracks">Temas votados</span>
           </div>
           <div>
-            <span id="statTotalVotesCount" class="block text-base font-extrabold text-amber-400">0</span>
+            <span id="statTotalVotesCount" class="block text-base font-extrabold text-amber-400">00</span>
             <span class="text-[10px] text-zinc-400 uppercase tracking-tight" data-i18n="statTotal">Suma de votos</span>
           </div>
         </div>
@@ -171,15 +171,16 @@
             <span>📜</span> <span data-i18n="rulesBtnText">¡Normas de Votación Importantes - Haz clic aquí!</span>
           </button>
           
-          <div id="votingRulesBox" class="hidden mt-2 glass rounded-xl p-4 border border-emerald-500/40 bg-zinc-900/95 text-xs text-zinc-300 space-y-2">
+          <div id="votingRulesBox" class="mt-2 glass rounded-xl p-4 border border-emerald-500/40 bg-zinc-900/95 text-xs text-zinc-300 space-y-2">
             <h4 class="font-bold text-emerald-400 text-sm" data-i18n="rulesHeader">Reglas para emitir tu voto:</h4>
             <ul class="list-disc pl-4 space-y-1.5">
-              <li data-i18n="ruleAuto">⏱️ La votación se activará automáticamente desde el momento en que se cierre la lista (jueves a las 00:00h) y se active en Spotify.</li>
+              <li data-i18n="ruleNoteOnlyWeekly">⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.</li>
+              <li data-i18n="ruleAuto">⏱️ La votación se activa automáticamente los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).</li>
               <li data-i18n="rule1">Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.</li>
               <li data-i18n="rule2">Introduce tu correo electrónico en la casilla de abajo antes de empezar.</li>
               <li data-i18n="rule3">Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.</li>
               <li data-i18n="rule4">Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan.</li>
-              <li data-i18n="rule5">🏆 El campeón de la semana será el tema destacado la semana siguiente y entrará de nuevo en lista semanal aparte de pasar a la mensual.</li>
+              <li data-i18n="rule5">🏆 El campeón de la semana será el tema destacado la semana siguiente y entrará de nuevo en la lista semanal aparte de pasar a la mensual.</li>
               <li data-i18n="rule6">Existen controles estrictos de IP y correo. Si se detectase fraude en la votación, esta podrá ser declarada nula.</li>
             </ul>
           </div>
@@ -299,12 +300,13 @@
         topDesc: "Al finalizar el año (31 de diciembre), habilitaremos aquí el sistema oficial de votación para que la comunidad y los artistas elijan las mejores canciones de <strong>Next Wave Rising</strong>. ¡Mantente atento!",
         rulesBtnText: "📜 ¡Normas de Votación Importantes - Haz clic aquí!",
         rulesHeader: "Reglas para emitir tu voto:",
-        ruleAuto: "⏱️ La votación se activará automáticamente desde el momento en que se cierre la lista (jueves a las 00:00h) y se active en Spotify.",
+        ruleNoteOnlyWeekly: "⚠️ <strong>Aviso importante:</strong> Estas normas y sistema de votación aplican <em>únicamente para el tema destacado de la semana</em>. La votación para el TOP anual se regirá por otras normas específicas a final de año.",
+        ruleAuto: "⏱️ La votación se activa automáticamente los jueves a las 00:00h y se cierra los jueves a las 22:00h (dos horas antes del cambio de lista a medianoche).",
         rule1: "Cualquier persona ajena al listado puede votar, siempre que respete las normas y no intente votar indiscriminadamente con distintos correos.",
         rule2: "Introduce tu correo electrónico en la casilla de abajo antes de empezar.",
         rule3: "Es obligatorio seleccionar y votar exactamente a <strong>3 temas diferentes</strong>. No puedes repetir el mismo tema.",
         rule4: "Al hacer clic en tu tercer voto, aparecerá un mensaje pidiendo confirmación: si aceptas se guardan, si cancelas se anulan.",
-        rule5: "🏆 El campeón de la semana será el tema destacado la semana siguiente y entrará de nuevo en lista semanal aparte de pasar a la mensual.",
+        rule5: "🏆 El campeón de la semana será el tema destacado la semana siguiente y entrará de nuevo en la lista semanal aparte de pasar a la mensual.",
         rule6: "Existen controles estrictos de IP y correo. Si se detectase fraude en la votación, esta podrá ser declarada nula.",
         lblVoterEmail: "Tu correo electrónico (necesario para emitir tus votos):",
         voteSubNotice: "⚠️ <strong>Obligatorio votar a exactamente 3 temas diferentes</strong>. Al dar al tercer voto, se te pedirá confirmación.",
@@ -352,7 +354,8 @@
         topDesc: "At the end of the year (December 31st), we will enable the official voting system here for artists and community to choose the best tracks of <strong>Next Wave Rising</strong>. Stay tuned!",
         rulesBtnText: "📜 Important Voting Rules - Click here!",
         rulesHeader: "Rules to cast your vote:",
-        ruleAuto: "⏱️ Voting will automatically open from the moment the list closes (Thursday at 00:00h) and is active on Spotify.",
+        ruleNoteOnlyWeekly: "⚠️ <strong>Important notice:</strong> These rules and voting system apply <em>only to the weekly featured track</em>. Voting for the annual TOP will be governed by other specific rules at the end of the year.",
+        ruleAuto: "⏱️ Voting opens automatically on Thursdays at 00:00h and closes on Thursdays at 22:00h (two hours before the list changes at midnight).",
         rule1: "Anyone outside the list can vote, as long as they respect the rules and do not try to vote indiscriminately with different emails.",
         rule2: "Enter your email address in the box below before starting.",
         rule3: "You must select and vote for exactly <strong>3 different tracks</strong>. You cannot repeat the same track.",
@@ -492,11 +495,28 @@
       });
 
       function updateVotingUI(active) {
+        // Regla automática: si es jueves (day === 4) y son las 22:00h o más tarde, se cierra la votación.
+        const now = new Date();
+        // Vamos a calcular el día y hora actual en España con Intl
+        try {
+          const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false });
+          const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
+          const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+          const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
+          const h = parseInt(p.hour, 10) || 0;
+
+          if (day === 4 && h >= 22) {
+            active = false; // Cierre automático a las 22:00h del jueves
+          }
+        } catch(e){}
+
         globalVotingActive = active;
         const indicator = document.getElementById("votingIndicatorText");
         const headerIndicator = document.getElementById("headerVotingStatus");
         const tabVoteBtn = document.getElementById("tabVote");
         const voteTabStatusBadge = document.getElementById("voteTabStatusBadge");
+
+        const retroClockHTML = `<div id="retroClock" class="font-mono bg-black text-amber-400 px-2 py-0.5 rounded text-[10px] tracking-widest mt-1 border border-amber-500/30 shadow-inner">00:00:00</div>`;
 
         if(active) {
           indicator.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>";
@@ -504,8 +524,8 @@
           toggleVotingBtn.textContent = "Desactivar Votación";
           toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow";
           
-          headerIndicator.textContent = "🟢 Votación Activa";
-          headerIndicator.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+          headerIndicator.className = "px-2.5 py-1.5 rounded-lg text-[10px] font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 flex flex-col items-center";
+          headerIndicator.innerHTML = `<span>🟢 Votación destacado activa</span>` + retroClockHTML;
           
           if(voteTabStatusBadge) {
             voteTabStatusBadge.textContent = currentLang === 'es' ? "Activa" : "Active";
@@ -519,8 +539,8 @@
           toggleVotingBtn.textContent = "Activar Votación";
           toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
           
-          headerIndicator.textContent = "🔴 Votación Inactiva";
-          headerIndicator.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30";
+          headerIndicator.className = "px-2.5 py-1.5 rounded-lg text-[10px] font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 flex flex-col items-center";
+          headerIndicator.innerHTML = `<span>🔴 Votación destacado inactiva</span>` + retroClockHTML;
           
           if(voteTabStatusBadge) {
             voteTabStatusBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled";
@@ -574,6 +594,12 @@
         try {
           const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
           const p = {}; fmt.formatToParts(new Date()).forEach(x => p[x.type] = x.value);
+          
+          const retroClock = document.getElementById("retroClock");
+          if (retroClock) {
+            retroClock.textContent = `${p.hour}:${p.minute}:${p.second}`;
+          }
+
           const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
           const day = map[p.weekday] !== undefined ? map[p.weekday] : new Date().getDay();
           const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
@@ -581,7 +607,7 @@
           if (day === 4) { 
             document.getElementById("statusBadge").textContent = "Cerrada"; 
             document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
-            updateVotingUI(true); // Activación automática al cerrarse la lista los jueves
+            updateVotingUI(config.votingActive); 
             return; 
           }
           
@@ -661,7 +687,7 @@
             publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
             voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No hay canciones disponibles para votar aún.</p>';
           } else {
-            // Panel Curador con desplegable de votantes y formato de votos 00
+            // Panel Curador con desplegable de votantes
             adminList.innerHTML = subs.map((s, i) => {
               const cleanUrl = s.url.split("?")[0];
               const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
@@ -691,8 +717,13 @@
               return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + compactUrl + '" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
             }).join("");
 
-            // Ordenar por votos con medallas Oro, Plata, Bronce y formato de votos 00
-            let sortedVotesSubs = [...subs].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+            // Ordenamiento: Aleatorio si totalVotesSum === 0, de mayor a menor si ya hay votos
+            let sortedVotesSubs = [...subs];
+            if (totalVotesSum === 0) {
+              sortedVotesSubs.sort(() => Math.random() - 0.5);
+            } else {
+              sortedVotesSubs.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+            }
 
             voteTabViewList.innerHTML = sortedVotesSubs.map((s, i) => {
               const embedUrl = toEmbed(s.url);
@@ -702,9 +733,11 @@
               const btnClass = isSelected ? "px-3 py-1.5 bg-emerald-700 text-white font-bold rounded-xl text-xs shadow" : "px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow";
 
               let rankDisplay = `#${i+1}`;
-              if (i === 0) rankDisplay = "🥇";
-              else if (i === 1) rankDisplay = "🥈";
-              else if (i === 2) rankDisplay = "🥉";
+              if (totalVotesSum > 0) {
+                if (i === 0) rankDisplay = "🥇";
+                else if (i === 1) rankDisplay = "🥈";
+                else if (i === 2) rankDisplay = "🥉";
+              }
 
               if (!embedUrl) return '';
               const compactUrl = embedUrl.replace('height=152', 'height=80');
@@ -915,14 +948,19 @@
         } catch(e){ alert("Error al guardar."); }
       });
 
+      // CERRAR SEMANA / NUEVA EDICIÓN: Transfiere a mensual y el ganador vuelve a la semanal como destacado
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
-        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual y gestionará el desborde a la anual.")) return;
+        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual (el ganador entrará de nuevo como destacado en la semanal) y gestionará el desborde a la anual.")) return;
         try {
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
           let weeklyTracks = [];
           snapSub.forEach(doc => weeklyTracks.push({ ref: doc.ref, data: doc.data() }));
 
           if(weeklyTracks.length > 0) {
+            // Encontrar el ganador (máximo de votos)
+            let winner = weeklyTracks.reduce((prev, current) => ((current.data.votes || 0) > (prev.data.votes || 0)) ? current : prev);
+
+            // Mover todas a la lista mensual
             for(let item of weeklyTracks) {
               await db.collection("monthly_list").add({
                 artist: item.data.artist,
@@ -932,6 +970,7 @@
               });
             }
 
+            // Gestionar desborde mensual (> 4 bloques) hacia anual
             let snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
             let monthlyDocs = [];
             snapMonthly.forEach(doc => monthlyDocs.push(doc));
@@ -949,9 +988,28 @@
               monthlyDocs.shift();
             }
 
+            // Vaciar submissions semanales anteriores
             const batch = db.batch();
             snapSub.docs.forEach(doc => batch.delete(doc.ref));
             await batch.commit();
+
+            // EL CAMPEÓN ENTRA DE NUEVO EN LA LISTA SEMANAL Y SE FIJA COMO TEMA DESTACADO
+            if (winner) {
+              await db.collection("submissions").add({
+                artist: winner.data.artist,
+                title: winner.data.title,
+                url: winner.data.url,
+                email: winner.data.email,
+                timestamp: Date.now(),
+                dateString: new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
+                votes: 0,
+                voters: []
+              });
+
+              await db.collection("settings").doc("activeEdition").set({
+                trackUrl: winner.data.url
+              }, { merge: true });
+            }
           }
 
           const now = new Date();
@@ -970,7 +1028,8 @@
           }
 
           loadAllLists();
-          alert("¡Edición semanal cerrada y rotación de listas completada con éxito!");
+          loadConfig();
+          alert("¡Edición semanal cerrada, rotación completada y campeón reingresado como destacado!");
         } catch(e) {
           alert("Error en la rotación: " + e.message);
         }
