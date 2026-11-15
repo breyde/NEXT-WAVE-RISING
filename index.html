@@ -17,20 +17,20 @@
   <!-- CABECERA CON TÍTULO CENTRADO ARRIBA DEL TODO -->
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-4">
     
-    <div class="w-full flex justify-between items-center text-xs">
+    <div class="w-full flex justify-between items-center text-xs gap-2">
       <!-- Selector de Idioma con Banderas y Botón de Contacto -->
       <div class="flex items-center gap-2">
-        <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md">
-          <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
-          <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
+        <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md h-9 items-center">
+          <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs">🇪🇸 ES</button>
+          <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition text-xs">🇬🇧 EN</button>
         </div>
-        <button onclick="toggleContactModal()" class="px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-bold text-xs transition shadow-sm flex items-center gap-1.5">
+        <button onclick="toggleContactModal()" class="px-3.5 h-9 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
           <span>✉️</span> <span data-i18n="contactBtn">Contacto</span>
         </button>
       </div>
 
-      <!-- Casilla elegante de estado de Votación Destacado -->
-      <div id="headerVotingStatus" class="px-3 py-2 rounded-xl text-xs font-bold border shadow-sm"></div>
+      <!-- Casilla de estado de Votación Destacado con altura fija -->
+      <div id="headerVotingStatus" class="px-3 h-9 rounded-xl text-xs font-bold border shadow-sm flex items-center justify-center"></div>
     </div>
 
     <!-- BOTÓN LLAMATIVO DE NORMAS Y FUNCIONAMIENTO -->
@@ -43,7 +43,7 @@
 
     <!-- NAVEGACIÓN DE 6 PESTAÑAS FIJAS DEBAJO -->
     <nav class="w-full grid grid-cols-6 gap-1 pt-2">
-      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center transition">Semanal</button>
+      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center transition">🔥 Semanal</button>
       <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
       <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
       <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-[10px] sm:text-[11px] font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP</button>
@@ -52,7 +52,7 @@
     </nav>
   </header>
 
-  <main class="w-full max-w-2xl space-y-6">
+  <main class="w-full max-w-2xl space-y-6 pb-12">
 
     <!-- ================= PESTAÑA 1: SEMANAL ================= -->
     <div id="viewWeekly" class="space-y-6">
@@ -264,7 +264,7 @@
           <button type="button" id="adminLoginBtn" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded text-sm shadow-lg">Entrar con Firebase</button>
         </div>
       </div>
-      <div id="adminDashboard" class="hidden space-y-4">
+      <div id="adminDashboard" class="hidden space-y-4 pb-8">
         
         <!-- PESTAÑAS DEL PANEL DE CURADORES (PRINCIPAL / MENSAJES / CONFIGURACIÓN) -->
         <div class="flex gap-2 border-b border-white/10 pb-3 overflow-x-auto">
@@ -299,7 +299,7 @@
             <div><label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify Tema Destacado</label><input type="url" id="adminTrackInput" placeholder="https://open.spotify.com/track/..." class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div class="flex gap-2 pt-1"><button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs shadow">Guardar</button><button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Cerrar Semana)</button></div>
           </div>
-          <div class="glass rounded-2xl p-5 space-y-3">
+          <div class="glass rounded-2xl p-5 space-y-3 mb-8">
             <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
             <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
           </div>
@@ -307,7 +307,7 @@
 
         <!-- VISTA MENSAJES DEL PANEL DE CURADORES -->
         <div id="adminViewMensajes" class="hidden space-y-4">
-          <div class="glass rounded-2xl p-5 space-y-3">
+          <div class="glass rounded-2xl p-5 space-y-3 mb-8">
             <div class="flex justify-between items-center border-b border-white/10 pb-3">
               <h3 class="font-bold text-emerald-400 text-sm uppercase">✉️ Mensajes de Contacto Recibidos</h3>
               <span class="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-0.5 rounded-full font-bold">Total: <strong id="totalMsgCount">0</strong></span>
@@ -320,7 +320,7 @@
 
         <!-- VISTA CONFIGURACIÓN DEL PANEL DE CURADORES -->
         <div id="adminViewConfig" class="hidden space-y-4">
-          <div class="glass rounded-2xl p-5 space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-4 mb-8">
             <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión del Chat Público</h3>
             <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
               <div>
@@ -417,7 +417,7 @@
       es: {
         adminBtn: "Panel Curadores",
         backApp: "Volver a la App",
-        tabWeekly: "Semanal",
+        tabWeekly: "🔥 Semanal",
         tabMonthly: "Mensual",
         tabAnnual: "Anual",
         tabTop: "TOP",
@@ -483,7 +483,7 @@
       en: {
         adminBtn: "Curators Panel",
         backApp: "Back to App",
-        tabWeekly: "Weekly",
+        tabWeekly: "🔥 Weekly",
         tabMonthly: "Monthly",
         tabAnnual: "Annual",
         tabTop: "TOP",
@@ -709,8 +709,8 @@
 
     function setLanguage(lang) {
       currentLang = lang;
-      document.getElementById('langEsBtn').className = lang === 'es' ? 'px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition' : 'px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition';
-      document.getElementById('langEnBtn').className = lang === 'en' ? 'px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition' : 'px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition';
+      document.getElementById('langEsBtn').className = lang === 'es' ? 'px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition text-xs';
+      document.getElementById('langEnBtn').className = lang === 'en' ? 'px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition text-xs';
       
       const t = translations[lang];
       document.getElementById('txtAdminBtn').textContent = t.adminBtn;
@@ -777,7 +777,7 @@
     async function listenActiveUsers() {
       try {
         const db = firebase.firestore();
-        const threshold = 45000; // 45 segundos sin latido = inactivo
+        const threshold = 45000;
         db.collection('chat_presence').onSnapshot(snapshot => {
           const now = Date.now();
           let activeCount = 0;
@@ -875,7 +875,7 @@
 
       updateChatPresence();
       if (presenceInterval) clearInterval(presenceInterval);
-      presenceInterval = setInterval(updateChatPresence, 15000); // Latido cada 15s
+      presenceInterval = setInterval(updateChatPresence, 15000);
 
       const db = firebase.firestore();
       if (chatUnsubscribe) chatUnsubscribe();
@@ -1020,7 +1020,7 @@
           }
           
           if (headerIndicator) {
-            headerIndicator.className = "px-3 py-2 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm text-center";
+            headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center";
             headerIndicator.textContent = currentLang === 'es' ? "🟢 Votación destacado activa" : "🟢 Featured voting active";
           }
           
@@ -1039,7 +1039,7 @@
           }
           
           if (headerIndicator) {
-            headerIndicator.className = "px-3 py-2 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm text-center";
+            headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center";
             headerIndicator.textContent = currentLang === 'es' ? "🔴 Votación destacado inactiva" : "🔴 Featured voting inactive";
           }
           
