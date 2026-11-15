@@ -14,7 +14,7 @@
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
-  <!-- CABECERA CON TÍTULO CENTRADO ARRIBA DEL TODO -->
+  <!-- CABECERA CON TÍTULO O LOGO PERSONALIZADO -->
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-4">
     
     <div class="w-full flex justify-between items-center text-xs gap-2">
@@ -38,8 +38,11 @@
       <span>🌟</span> <span data-i18n="infoBtnText">Importante: Normas y Funcionamiento</span> <span>🌟</span>
     </button>
 
-    <!-- TÍTULO CENTRADO -->
-    <h1 class="text-3xl font-extrabold text-white tracking-wide text-center pt-2">Next Wave Rising</h1>
+    <!-- TÍTULO O LOGO DE IMAGEN PERSONALIZADO -->
+    <div id="brandHeaderContainer" class="w-full flex justify-center items-center pt-2">
+      <h1 id="brandTextTitle" class="text-3xl font-extrabold text-white tracking-wide text-center">Next Wave Rising</h1>
+      <img id="brandLogoImg" src="" alt="Next Wave Rising" class="hidden max-h-20 sm:max-h-24 w-auto object-contain rounded-xl shadow-lg">
+    </div>
 
     <!-- NAVEGACIÓN DE 7 PESTAÑAS FIJAS DEBAJO -->
     <nav class="w-full grid grid-cols-7 gap-1 pt-2">
@@ -57,6 +60,7 @@
 
     <!-- ================= PESTAÑA 0: LISTA ACTIVA (ON AIR ESTA SEMANA) ================= -->
     <div id="viewActive" class="space-y-6">
+      <div id="noticeBanner_active" class="hidden"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <div>
@@ -79,6 +83,7 @@
 
     <!-- ================= PESTAÑA 1: COLA SEMANAL (PRÓXIMA EDICIÓN) ================= -->
     <div id="viewWeekly" class="hidden space-y-6">
+      <div id="noticeBanner_weekly" class="hidden"></div>
       <section class="glass rounded-2xl p-5 space-y-3">
         <div class="flex justify-between items-center">
           <div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p id="txtClosure" class="text-xs text-zinc-400" data-i18n="txtClosure">Cierre: Jueves 00:00h</p></div>
@@ -140,6 +145,7 @@
 
     <!-- ================= PESTAÑA 2: MENSUAL ================= -->
     <div id="viewMonthly" class="hidden space-y-6">
+      <div id="noticeBanner_monthly" class="hidden"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider" data-i18n="monthlyHeader">🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)</h3>
@@ -154,6 +160,7 @@
 
     <!-- ================= PESTAÑA 3: ANUAL ================= -->
     <div id="viewAnnual" class="hidden space-y-6">
+      <div id="noticeBanner_annual" class="hidden"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-amber-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-amber-400 text-sm uppercase tracking-wider" data-i18n="annualHeader">📀 LISTA ANUAL ACUMULADA</h3>
@@ -168,6 +175,7 @@
 
     <!-- ================= PESTAÑA 4: TOP ANUAL ================= -->
     <div id="viewTop" class="hidden space-y-6">
+      <div id="noticeBanner_top" class="hidden"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-purple-500/30 text-center py-12 space-y-4">
         <span class="text-4xl">🏆</span>
         <h3 class="font-extrabold text-purple-400 text-lg uppercase tracking-wider" data-i18n="topHeader">TOP ANUAL &amp; VOTACIONES</h3>
@@ -179,6 +187,7 @@
 
     <!-- ================= PESTAÑA 5: VOTAR DESTACADO (SOBRE LISTA ACTIVA) ================= -->
     <div id="viewVote" class="hidden space-y-6">
+      <div id="noticeBanner_vote" class="hidden"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="voteTabTitle">⭐ VOTA PRÓXIMA DESTACADA (LISTA ACTIVA)</h3>
@@ -237,6 +246,7 @@
 
     <!-- ================= PESTAÑA 6: CHAT PÚBLICO ================= -->
     <div id="viewChat" class="hidden space-y-6">
+      <div id="noticeBanner_chat" class="hidden"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider" data-i18n="chatHeader">💬 SALA DE CHAT PÚBLICA</h3>
@@ -368,9 +378,79 @@
           </div>
         </div>
 
-        <!-- VISTA CONFIGURACIÓN DEL PANEL DE CURADORES -->
-        <div id="adminViewConfig" class="hidden space-y-4">
-          <div class="glass rounded-2xl p-5 space-y-4 mb-8">
+        <!-- VISTA CONFIGURACIÓN DEL PANEL DE CURADORES (AVISOS POR PESTAÑA, LOGO Y CHAT) -->
+        <div id="adminViewConfig" class="hidden space-y-5 mb-8">
+          
+          <!-- 1. AVISOS IMPORTANTES EN CABECERA DE CADA PESTAÑA -->
+          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
+            <div>
+              <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe un mensaje destacado para que aparezca arriba con una nota de <strong>Aviso Importante</strong>.</p>
+            </div>
+
+            <div class="space-y-2.5">
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Pestaña *</label>
+                <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none">
+                  <option value="active">📻 Activa (On Air)</option>
+                  <option value="weekly">🔥 Cola Semanal</option>
+                  <option value="monthly">🗓️ Mensual</option>
+                  <option value="annual">📀 Anual</option>
+                  <option value="top">🏆 TOP</option>
+                  <option value="vote">⭐ Votar</option>
+                  <option value="chat">💬 Chat</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Mensaje de Aviso Importante *</label>
+                <textarea id="adminNoticeTextInput" rows="3" placeholder="Escribe aquí el aviso importante que verán los usuarios al entrar en esa pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="saveTabNotice()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar / Actualizar Aviso</button>
+                <button type="button" onclick="deleteTabNotice(document.getElementById('adminNoticeTabSelect').value)" class="px-3.5 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-xs border border-rose-500/40 transition">🗑️ Quitar</button>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-zinc-300 uppercase">Avisos Activos Actualmente:</p>
+              <div id="adminActiveNoticesList" class="space-y-2 text-xs">
+                <p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. CAMBIAR LOGO DE TEXTO POR IMAGEN PERSONALIZADA -->
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">🖼️ Logo de Cabecera (Imagen o Texto)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Sustituye el título de texto <strong>"Next Wave Rising"</strong> por una imagen seleccionada desde tu dispositivo o mediante enlace.</p>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Seleccionar imagen desde tu dispositivo (PNG, JPG, WEBP):</label>
+                <input type="file" id="adminLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="w-full text-xs text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30 cursor-pointer">
+              </div>
+
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">O pega una URL directa de imagen:</label>
+                <input type="url" id="adminLogoUrlInput" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              </div>
+
+              <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2">
+                <span class="text-[10px] text-zinc-400 uppercase">Vista previa del logo:</span>
+                <img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-20 w-auto object-contain rounded-lg">
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="saveBrandLogo()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Logo</button>
+                <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar Texto</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. GESTIÓN DE USUARIOS DEL CHAT -->
+          <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
             <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat. Puedes silenciar/bloquear un usuario o eliminarlo de la base de datos.</p>
             <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs">
@@ -384,6 +464,7 @@
               <button type="button" onclick="clearAllChatMessages()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Vaciar Chat</button>
             </div>
           </div>
+
         </div>
 
         <!-- VISTA BACKUPS AISLADOS DEL PANEL DE CURADORES -->
@@ -465,7 +546,7 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO -->
+  <!-- VENTANA MODAL: NORMAS Y FUNCIONAMIENTO (TRADUCIBLE DINÁMICAMENTE) -->
   <div id="infoModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4 border border-emerald-500/40 relative max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -614,7 +695,8 @@
         confirmVoteDesc: "Va a emitir sus votos. No se podrán anular si acepta.",
         btnCancel: "Cancelar",
         btnAccept: "Aceptar",
-        lblUniqueVisitors: "👤 Visitantes únicos:"
+        lblUniqueVisitors: "👤 Visitantes únicos:",
+        noticeImportantBadge: "AVISO IMPORTANTE"
       },
       en: {
         adminBtn: "Curators Panel",
@@ -710,8 +792,19 @@
         confirmVoteDesc: "You are about to cast your votes. They cannot be undone once accepted.",
         btnCancel: "Cancel",
         btnAccept: "Accept",
-        lblUniqueVisitors: "👤 Unique visitors:"
+        lblUniqueVisitors: "👤 Unique visitors:",
+        noticeImportantBadge: "IMPORTANT NOTICE"
       }
+    };
+
+    const tabLabelsEs = {
+      active: "📻 Activa",
+      weekly: "🔥 Cola Semanal",
+      monthly: "🗓️ Mensual",
+      annual: "📀 Anual",
+      top: "🏆 TOP",
+      vote: "⭐ Votar",
+      chat: "💬 Chat"
     };
 
     let currentLang = 'es';
@@ -730,7 +823,14 @@
       sessionStorage.setItem('nwr_session_id', chatSessionId);
     }
 
-    let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", votingActive: true };
+    let config = {
+      edition: "Edición Semanal #1",
+      playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF",
+      trackUrl: "",
+      votingActive: true,
+      logoUrl: "",
+      tabNotices: {}
+    };
     let subs = []; // Cola semanal (próxima semana)
     let activeSubs = []; // Lista Activa (On Air esta semana)
 
@@ -774,6 +874,210 @@
       if (modal) modal.classList.toggle('hidden');
     }
 
+    // ==================== LOGO Y AVISOS EN CABECERA DE PESTAÑAS ====================
+    function applyBrandLogo(url) {
+      const textEl = document.getElementById("brandTextTitle");
+      const imgEl = document.getElementById("brandLogoImg");
+      const previewBox = document.getElementById("adminLogoPreviewBox");
+      const previewImg = document.getElementById("adminLogoPreviewImg");
+      const urlInput = document.getElementById("adminLogoUrlInput");
+
+      if (urlInput && url && !url.startsWith("data:image")) {
+        urlInput.value = url;
+      }
+
+      if (url && url.trim() !== "") {
+        if (imgEl) {
+          imgEl.src = url;
+          imgEl.classList.remove("hidden");
+        }
+        if (textEl) textEl.classList.add("hidden");
+        if (previewBox && previewImg) {
+          previewImg.src = url;
+          previewBox.classList.remove("hidden");
+        }
+      } else {
+        if (imgEl) {
+          imgEl.src = "";
+          imgEl.classList.add("hidden");
+        }
+        if (textEl) textEl.classList.remove("hidden");
+        if (previewBox) previewBox.classList.add("hidden");
+        if (urlInput) urlInput.value = "";
+      }
+    }
+
+    window.handleLogoFileUpload = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          // Redimensionar suavemente para asegurar compatibilidad con Firestore (< 1MB) manteniendo nitidez PNG/WEBP
+          const canvas = document.createElement("canvas");
+          const maxW = 700;
+          const maxH = 240;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxW) {
+            h = Math.round((h * maxW) / w);
+            w = maxW;
+          }
+          if (h > maxH) {
+            w = Math.round((w * maxH) / h);
+            h = maxH;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL("image/png");
+          config.logoUrl = dataUrl;
+          const previewBox = document.getElementById("adminLogoPreviewBox");
+          const previewImg = document.getElementById("adminLogoPreviewImg");
+          if (previewBox && previewImg) {
+            previewImg.src = dataUrl;
+            previewBox.classList.remove("hidden");
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.saveBrandLogo = async function() {
+      const typedUrl = document.getElementById("adminLogoUrlInput").value.trim();
+      if (typedUrl) {
+        config.logoUrl = typedUrl;
+      }
+      if (!config.logoUrl) {
+        alert("Selecciona una imagen o pega una URL antes de guardar.");
+        return;
+      }
+      try {
+        await db.collection("settings").doc("activeEdition").set({ logoUrl: config.logoUrl }, { merge: true });
+        applyBrandLogo(config.logoUrl);
+        alert("✅ Logo guardado y aplicado en la cabecera.");
+      } catch(e) {
+        alert("Error al guardar el logo: " + e.message);
+      }
+    };
+
+    window.resetBrandLogoToText = async function() {
+      if (!confirm("¿Volver al título de texto 'Next Wave Rising'?")) return;
+      try {
+        config.logoUrl = "";
+        await db.collection("settings").doc("activeEdition").set({ logoUrl: "" }, { merge: true });
+        applyBrandLogo("");
+        document.getElementById("adminLogoFileInput").value = "";
+        alert("✅ Título de texto restaurado.");
+      } catch(e) {
+        alert("Error al restaurar texto.");
+      }
+    };
+
+    function renderAllTabNotices() {
+      const notices = config.tabNotices || {};
+      const badgeLabel = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
+
+      ['active', 'weekly', 'monthly', 'annual', 'top', 'vote', 'chat'].forEach(tabKey => {
+        const banner = document.getElementById(`noticeBanner_${tabKey}`);
+        if (!banner) return;
+        const msg = notices[tabKey];
+        if (msg && msg.trim() !== "") {
+          banner.className = "rounded-2xl p-4 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 shadow-lg flex items-start gap-3";
+          banner.innerHTML = `
+            <span class="text-xl leading-none mt-0.5 select-none">📢</span>
+            <div class="space-y-1 flex-1">
+              <span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badgeLabel}</span>
+              <p class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(msg)}</p>
+            </div>
+          `;
+        } else {
+          banner.className = "hidden";
+          banner.innerHTML = "";
+        }
+      });
+
+      // Actualizar también el listado de avisos dentro del panel de configuración del curador
+      const adminList = document.getElementById("adminActiveNoticesList");
+      if (adminList) {
+        const keys = Object.keys(notices).filter(k => notices[k] && notices[k].trim() !== "");
+        if (keys.length === 0) {
+          adminList.innerHTML = '<p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p>';
+        } else {
+          adminList.innerHTML = keys.map(k => `
+            <div class="p-3 bg-zinc-900 rounded-xl border border-amber-500/20 flex justify-between items-start gap-2">
+              <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${tabLabelsEs[k] || k}</span>
+                <p class="text-xs text-zinc-200 whitespace-pre-line">${escapeHtml(notices[k])}</p>
+              </div>
+              <div class="flex gap-1.5 shrink-0">
+                <button type="button" onclick="editTabNotice('${k}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] font-bold transition">Editar</button>
+                <button type="button" onclick="deleteTabNotice('${k}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] font-bold transition">Eliminar</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    window.loadSelectedTabNoticeToForm = function() {
+      const sel = document.getElementById("adminNoticeTabSelect");
+      const txt = document.getElementById("adminNoticeTextInput");
+      if (!sel || !txt) return;
+      const notices = config.tabNotices || {};
+      txt.value = notices[sel.value] || "";
+    };
+
+    window.editTabNotice = function(tabKey) {
+      const sel = document.getElementById("adminNoticeTabSelect");
+      const txt = document.getElementById("adminNoticeTextInput");
+      if (sel && txt) {
+        sel.value = tabKey;
+        txt.value = (config.tabNotices && config.tabNotices[tabKey]) || "";
+        txt.focus();
+      }
+    };
+
+    window.saveTabNotice = async function() {
+      const tabKey = document.getElementById("adminNoticeTabSelect").value;
+      const msg = document.getElementById("adminNoticeTextInput").value.trim();
+      if (!msg) {
+        alert("Escribe un mensaje de aviso o pulsa 'Quitar' para eliminarlo.");
+        return;
+      }
+      try {
+        if (!config.tabNotices) config.tabNotices = {};
+        config.tabNotices[tabKey] = msg;
+        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices }, { merge: true });
+        renderAllTabNotices();
+        alert(`✅ Aviso importante guardado para la pestaña ${tabLabelsEs[tabKey] || tabKey}.`);
+      } catch(e) {
+        alert("Error al guardar el aviso: " + e.message);
+      }
+    };
+
+    window.deleteTabNotice = async function(tabKey) {
+      if (!config.tabNotices || !config.tabNotices[tabKey]) {
+        document.getElementById("adminNoticeTextInput").value = "";
+        return;
+      }
+      if (!confirm(`¿Eliminar el aviso importante de la pestaña ${tabLabelsEs[tabKey] || tabKey}?`)) return;
+      try {
+        delete config.tabNotices[tabKey];
+        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices }, { merge: true });
+        if (document.getElementById("adminNoticeTabSelect").value === tabKey) {
+          document.getElementById("adminNoticeTextInput").value = "";
+        }
+        renderAllTabNotices();
+        alert("🗑️ Aviso eliminado.");
+      } catch(e) {
+        alert("Error al eliminar el aviso: " + e.message);
+      }
+    };
+
     function switchAdminTab(tab) {
       const btnP = document.getElementById('adminTabPrincipal');
       const btnA = document.getElementById('adminTabActiva');
@@ -804,6 +1108,8 @@
       } else if (tab === 'config') {
         btnC.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewC.classList.remove('hidden');
+        loadSelectedTabNoticeToForm();
+        renderAllTabNotices();
         loadAdminChatUsers();
       } else if (tab === 'backups') {
         btnB.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
@@ -829,7 +1135,6 @@
         return;
       }
 
-      // Sin límite de IP, ni límite de temas, ni bloqueo por artista/correo/canción repetida
       try {
         const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
         await db.collection("active_list").add({
@@ -1276,6 +1581,7 @@
         if(t[key]) el.placeholder = t[key];
       });
       updateVotingUI(globalVotingActive);
+      renderAllTabNotices();
     }
 
     function switchTab(tab) {
@@ -1547,6 +1853,8 @@
           config.playlistUrl = d.playlistUrl || config.playlistUrl;
           config.trackUrl = d.trackUrl || config.trackUrl;
           config.votingActive = d.votingActive !== undefined ? d.votingActive : true;
+          config.logoUrl = d.logoUrl || "";
+          config.tabNotices = d.tabNotices || {};
         }
       } catch(e){}
       document.getElementById("editionTitle").textContent = config.edition;
@@ -1556,6 +1864,8 @@
       document.getElementById("adminPlaylistInput").value = config.playlistUrl;
       document.getElementById("adminTrackInput").value = config.trackUrl;
       updateVotingUI(config.votingActive);
+      applyBrandLogo(config.logoUrl);
+      renderAllTabNotices();
 
       const embed = toEmbed(config.trackUrl);
       const sec = document.getElementById("playerSection");
