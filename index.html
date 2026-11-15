@@ -296,10 +296,11 @@
       </div>
       <div id="adminDashboard" class="hidden space-y-4 pb-8">
         
-        <!-- PESTAÑAS DEL PANEL DE CURADORES -->
+        <!-- PESTAÑAS DEL PANEL DE CURADORES (6 PESTAÑAS) -->
         <div class="flex gap-1.5 border-b border-white/10 pb-3 overflow-x-auto">
           <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
           <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
+          <button onclick="switchAdminTab('paises')" id="adminTabPaises" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🌍 Países (<span id="countriesCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
           <button onclick="switchAdminTab('backups')" id="adminTabBackups" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Backups (<span id="backupsCountBadge">0</span>)</button>
@@ -331,7 +332,7 @@
             <div><label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify Tema Destacado</label><input type="url" id="adminTrackInput" placeholder="https://open.spotify.com/track/..." class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div class="flex flex-wrap gap-2 pt-1">
               <button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs shadow">Guardar</button>
-              <button type="button" onclick="createManualBackup()" class="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded text-xs border border-cyan-500/40 transition">💾 Hacer Backup Ahora</button>
+              <button type="button" onclick="createManualBackup('all')" class="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded text-xs border border-cyan-500/40 transition">💾 Hacer Backup Ahora</button>
               <button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Rotar Listas)</button>
             </div>
             <p class="text-[11px] text-zinc-400 leading-relaxed bg-zinc-950/60 p-2.5 rounded-xl border border-white/5">
@@ -363,6 +364,23 @@
             </div>
             <div id="adminActiveListContainer" class="space-y-3 text-xs">
               <p class="text-zinc-400">Cargando lista activa...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISTA PAÍSES DEL PANEL DE CURADORES (USUARIOS ÚNICOS POR CORREO CON GEO IP Y CONTADOR) -->
+        <div id="adminViewPaises" class="hidden space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-4 mb-8 border border-cyan-500/30">
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-white/10 pb-3">
+              <div>
+                <h3 class="font-bold text-cyan-400 text-sm uppercase">🌍 Países &amp; Artistas Registrados</h3>
+                <p class="text-[11px] text-zinc-400 mt-0.5">Identificados por correo electrónico único. Si un artista repite en otras semanas, suma su contador sin duplicarse.</p>
+              </div>
+              <button type="button" onclick="exportCountriesList()" class="text-xs px-2.5 py-1.5 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 border border-white/10 font-bold">📋 Copiar Listado</button>
+            </div>
+
+            <div id="adminCountriesList" class="space-y-2.5 text-xs">
+              <p class="text-zinc-400 text-center py-6">Cargando artistas y países...</p>
             </div>
           </div>
         </div>
@@ -469,15 +487,25 @@
 
         </div>
 
-        <!-- VISTA BACKUPS AISLADOS DEL PANEL DE CURADORES -->
+        <!-- VISTA BACKUPS AISLADOS DEL PANEL DE CURADORES CON SELECTOR DE PESTAÑA -->
         <div id="adminViewBackups" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-4 mb-8">
-            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-white/10 pb-3">
+            <div class="border-b border-white/10 pb-3 space-y-3">
               <div>
                 <h3 class="font-bold text-emerald-400 text-sm uppercase">💾 Copias de Seguridad (Backups)</h3>
-                <p class="text-[11px] text-zinc-400">Instantáneas aisladas (manuales y automáticas de los jueves a las 23:59:59h). No afectan a las listas activas.</p>
+                <p class="text-[11px] text-zinc-400 mt-0.5">Elige en el desplegable qué sección quieres respaldar. Son copias aisladas y no afectan a las listas activas.</p>
               </div>
-              <button type="button" onclick="createManualBackup()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow transition">+ Crear Backup</button>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <select id="backupTargetSelect" class="flex-1 px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white font-semibold focus:border-emerald-500 focus:outline-none">
+                  <option value="all">📦 Copia Completa (Todas las pestañas)</option>
+                  <option value="active">📻 Lista Activa (On Air)</option>
+                  <option value="weekly">🔥 Cola Semanal</option>
+                  <option value="monthly">🗓️ Lista Mensual</option>
+                  <option value="annual">📀 Lista Anual</option>
+                  <option value="countries">🌍 Países (Artistas geolocalizados)</option>
+                </select>
+                <button type="button" onclick="createManualBackup(document.getElementById('backupTargetSelect').value)" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow transition whitespace-nowrap">+ Crear Backup</button>
+              </div>
             </div>
             <div id="adminBackupsList" class="space-y-3 text-xs">
               <p class="text-zinc-400 text-center py-6">Cargando backups...</p>
@@ -517,6 +545,51 @@
         <div class="flex gap-2 pt-2">
           <button type="button" onclick="closeEditActiveModal()" class="flex-1 py-2.5 bg-zinc-800 text-zinc-300 font-bold rounded-xl text-xs hover:bg-zinc-700 transition">Cancelar</button>
           <button type="button" onclick="saveActiveTrackEdit()" class="flex-1 py-2.5 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition shadow">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARA EDITAR ARTISTA EN PESTAÑA PAÍSES -->
+  <div id="editCountryModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-cyan-500/40">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="font-bold text-cyan-400 text-sm uppercase">✏️ Editar Artista / Ubicación</h3>
+        <button onclick="closeEditCountryModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+      </div>
+      <div class="space-y-3">
+        <input type="hidden" id="editCountryDocId">
+        <div>
+          <label class="block text-[11px] text-zinc-400 mb-1">Correo electrónico (referencia)</label>
+          <input type="text" id="editCountryEmail" disabled class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-400">
+        </div>
+        <div>
+          <label class="block text-[11px] text-zinc-400 mb-1">Nombre de Usuario / Artista *</label>
+          <input type="text" id="editCountryArtist" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[11px] text-zinc-400 mb-1">Bandera</label>
+            <input type="text" id="editCountryFlag" placeholder="🇪🇸" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white text-center">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-[11px] text-zinc-400 mb-1">País</label>
+            <input type="text" id="editCountryName" placeholder="España" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] text-zinc-400 mb-1">Ciudad</label>
+            <input type="text" id="editCountryCity" placeholder="Madrid" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[11px] text-zinc-400 mb-1">Temas Subidos</label>
+            <input type="number" min="1" id="editCountryCount" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+          </div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeEditCountryModal()" class="flex-1 py-2.5 bg-zinc-800 text-zinc-300 font-bold rounded-xl text-xs hover:bg-zinc-700 transition">Cancelar</button>
+          <button type="button" onclick="saveCountryEdit()" class="flex-1 py-2.5 bg-cyan-500 text-zinc-950 font-bold rounded-xl text-xs hover:bg-cyan-400 transition shadow">Guardar Cambios</button>
         </div>
       </div>
     </div>
@@ -809,15 +882,26 @@
       chat: "💬 Chat"
     };
 
+    const backupScopeLabels = {
+      all: "📦 Copia Completa (Todas las pestañas)",
+      active: "📻 Lista Activa (On Air)",
+      weekly: "🔥 Cola Semanal",
+      monthly: "🗓️ Lista Mensual",
+      annual: "📀 Lista Anual",
+      countries: "🌍 Países (Artistas geolocalizados)"
+    };
+
     let currentLang = 'es';
     let globalVotingActive = true;
     let clientIp = "";
+    let clientGeo = { country: "", city: "", flag: "🌐" };
     let sessionPendingVotes = [];
     let lockedRandomOrder = null;
     let chatUnsubscribe = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
     let presenceInterval = null;
     let backupsCache = {};
+    let countriesCache = [];
     let autoBackupTriggeredThisMinute = false;
     let chatSessionId = sessionStorage.getItem('nwr_session_id');
     if (!chatSessionId) {
@@ -836,23 +920,214 @@
     let subs = []; // Cola semanal (próxima semana)
     let activeSubs = []; // Lista Activa (On Air esta semana)
 
+    function countryCodeToFlag(code) {
+      if (!code || code.length !== 2) return "🌐";
+      const codePoints = code.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0));
+      return String.fromCodePoint(...codePoints);
+    }
+
     async function fetchClientIp() {
       try {
-        const res = await fetch('https://ipapi.co/json/');
+        const res = await fetch('https://ipwho.is/');
         const data = await res.json();
-        clientIp = data.ip || "unknown_ip";
-        updateChatPresence();
-      } catch (e) {
-        try {
-          const res2 = await fetch('https://api.ipify.org?format=json');
-          const data2 = await res2.json();
-          clientIp = data2.ip || "unknown_ip";
+        if (data && data.success) {
+          clientIp = data.ip || "unknown_ip";
+          clientGeo = {
+            country: data.country || "",
+            city: data.city || "",
+            flag: (data.flag && data.flag.emoji) ? data.flag.emoji : countryCodeToFlag(data.country_code)
+          };
           updateChatPresence();
-        } catch(err) {
+          return;
+        }
+      } catch (e) {}
+
+      try {
+        const res2 = await fetch('https://ipapi.co/json/');
+        const data2 = await res2.json();
+        clientIp = data2.ip || "unknown_ip";
+        clientGeo = {
+          country: data2.country_name || "",
+          city: data2.city || "",
+          flag: countryCodeToFlag(data2.country_code)
+        };
+        updateChatPresence();
+      } catch (err) {
+        try {
+          const res3 = await fetch('https://api.ipify.org?format=json');
+          const data3 = await res3.json();
+          clientIp = data3.ip || "unknown_ip";
+          updateChatPresence();
+        } catch(e3) {
           clientIp = "unknown_ip";
         }
       }
     }
+
+    // ==================== REGISTRO ÚNICO DE ARTISTA / PAÍS POR CORREO ====================
+    async function registerOrUpdateArtistCountry(artistName, email) {
+      const cleanEmail = (email || "").trim().toLowerCase();
+      if (!cleanEmail) return; // Ignorar si el correo está vacío
+
+      try {
+        const docId = cleanEmail.replace(/[.#$/[\]]/g, "_");
+        const docRef = db.collection("artist_countries").doc(docId);
+        const snap = await docRef.get();
+        const nowStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
+
+        if (snap.exists) {
+          const prev = snap.data();
+          const newCount = (prev.submissionsCount || 1) + 1;
+          const updates = {
+            submissionsCount: newCount,
+            lastSubmissionDate: nowStr
+          };
+          // Si cambió de IP/ciudad o antes no tenía datos geo, actualizar ubicación manteniendo la primera fecha
+          if (clientIp && clientIp !== "unknown_ip" && prev.ip !== clientIp) {
+            updates.ip = clientIp;
+            if (clientGeo.country) updates.country = clientGeo.country;
+            if (clientGeo.city) updates.city = clientGeo.city;
+            if (clientGeo.flag && clientGeo.flag !== "🌐") updates.flag = clientGeo.flag;
+          }
+          await docRef.update(updates);
+        } else {
+          await docRef.set({
+            email: cleanEmail,
+            artist: artistName || "Artista",
+            firstPublishedDate: nowStr,
+            lastSubmissionDate: nowStr,
+            submissionsCount: 1,
+            ip: clientIp || "unknown_ip",
+            country: clientGeo.country || "Desconocido",
+            city: clientGeo.city || "",
+            flag: clientGeo.flag || "🌐"
+          });
+        }
+      } catch(e) {
+        console.warn("Error registrando país del artista:", e.message);
+      }
+    }
+
+    async function loadAdminCountries() {
+      const container = document.getElementById("adminCountriesList");
+      const badge = document.getElementById("countriesCountBadge");
+      try {
+        const snap = await db.collection("artist_countries").get();
+        countriesCache = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.email && d.email.trim() !== "") {
+            countriesCache.push({ id: doc.id, ...d });
+          }
+        });
+
+        // Ordenar por número de subidas descendente y luego alfabéticamente
+        countriesCache.sort((a, b) => (b.submissionsCount || 1) - (a.submissionsCount || 1) || (a.artist || "").localeCompare(b.artist || ""));
+
+        if (badge) badge.textContent = countriesCache.length;
+        if (!container) return;
+
+        if (countriesCache.length === 0) {
+          container.innerHTML = '<p class="text-zinc-400 text-center py-6">Aún no hay artistas registrados con correo electrónico.</p>';
+          return;
+        }
+
+        container.innerHTML = countriesCache.map(c => {
+          const locationText = [c.city, c.country].filter(Boolean).join(", ") || "Ubicación desconocida";
+          const count = c.submissionsCount || 1;
+          return `
+            <div class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 flex flex-wrap justify-between items-center gap-2">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-base leading-none">${c.flag || '🌐'}</span>
+                  <span class="font-bold text-white text-xs">${escapeHtml(c.artist || 'Sin nombre')}</span>
+                  <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-extrabold text-[10px]">Temas: ${count}</span>
+                </div>
+                <p class="text-[11px] text-emerald-400">${escapeHtml(c.email)}</p>
+                <p class="text-[10px] text-zinc-400">📍 ${escapeHtml(locationText)} ${c.ip ? `• IP: <span class="font-mono">${escapeHtml(c.ip)}</span>` : ''}</p>
+                <p class="text-[10px] text-zinc-500">📅 Primera publicación: ${escapeHtml(c.firstPublishedDate || '-')}</p>
+              </div>
+              <div class="flex gap-1.5">
+                <button type="button" onclick="openEditCountryModal('${c.id}')" class="px-2.5 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-[11px] transition">Editar</button>
+                <button type="button" onclick="deleteCountryEntry('${c.id}')" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">Eliminar</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch(e) {
+        console.warn("Error cargando países:", e.message);
+        if (container) container.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando listado de países.</p>';
+      }
+    }
+
+    window.openEditCountryModal = function(docId) {
+      const item = countriesCache.find(c => c.id === docId);
+      if (!item) return;
+      document.getElementById("editCountryDocId").value = item.id;
+      document.getElementById("editCountryEmail").value = item.email || "";
+      document.getElementById("editCountryArtist").value = item.artist || "";
+      document.getElementById("editCountryFlag").value = item.flag || "🌐";
+      document.getElementById("editCountryName").value = item.country || "";
+      document.getElementById("editCountryCity").value = item.city || "";
+      document.getElementById("editCountryCount").value = item.submissionsCount || 1;
+      document.getElementById("editCountryModal").classList.remove("hidden");
+    };
+
+    window.closeEditCountryModal = function() {
+      document.getElementById("editCountryModal").classList.add("hidden");
+    };
+
+    window.saveCountryEdit = async function() {
+      const docId = document.getElementById("editCountryDocId").value;
+      const artist = document.getElementById("editCountryArtist").value.trim();
+      const flag = document.getElementById("editCountryFlag").value.trim() || "🌐";
+      const country = document.getElementById("editCountryName").value.trim();
+      const city = document.getElementById("editCountryCity").value.trim();
+      const count = parseInt(document.getElementById("editCountryCount").value, 10) || 1;
+
+      if (!artist) {
+        alert("El nombre de usuario/artista es obligatorio.");
+        return;
+      }
+
+      try {
+        await db.collection("artist_countries").doc(docId).update({
+          artist,
+          flag,
+          country,
+          city,
+          submissionsCount: Math.max(1, count)
+        });
+        closeEditCountryModal();
+        await loadAdminCountries();
+        alert("✅ Datos del artista actualizados.");
+      } catch(e) {
+        alert("Error al actualizar: " + e.message);
+      }
+    };
+
+    window.deleteCountryEntry = async function(docId) {
+      if (!confirm("¿Eliminar este artista del registro de países?")) return;
+      try {
+        await db.collection("artist_countries").doc(docId).delete();
+        await loadAdminCountries();
+      } catch(e) {
+        alert("Error al eliminar el registro.");
+      }
+    };
+
+    window.exportCountriesList = function() {
+      if (countriesCache.length === 0) {
+        alert("No hay datos en Países para copiar.");
+        return;
+      }
+      const text = countriesCache.map((c, i) => {
+        const loc = [c.city, c.country].filter(Boolean).join(", ") || "Desconocido";
+        return `${i + 1}. ${c.flag || '🌐'} ${c.artist} (${c.email}) | ${loc} | Temas: ${c.submissionsCount || 1} | 1ª vez: ${c.firstPublishedDate || '-'}`;
+      }).join('\n');
+      navigator.clipboard.writeText(text);
+      alert("📋 Listado de países y artistas copiado.");
+    };
 
     function toggleVotingRules() {
       const box = document.getElementById('votingRulesBox');
@@ -916,7 +1191,6 @@
       reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-          // Alta nitidez (hasta 1100px de ancho) para lucir nítido al ocupar todo el ancho
           const canvas = document.createElement("canvas");
           const maxW = 1100;
           const maxH = 380;
@@ -1082,19 +1356,21 @@
     function switchAdminTab(tab) {
       const btnP = document.getElementById('adminTabPrincipal');
       const btnA = document.getElementById('adminTabActiva');
+      const btnPa = document.getElementById('adminTabPaises');
       const btnM = document.getElementById('adminTabMensajes');
       const btnC = document.getElementById('adminTabConfig');
       const btnB = document.getElementById('adminTabBackups');
       const viewP = document.getElementById('adminViewPrincipal');
       const viewA = document.getElementById('adminViewActiva');
+      const viewPa = document.getElementById('adminViewPaises');
       const viewM = document.getElementById('adminViewMensajes');
       const viewC = document.getElementById('adminViewConfig');
       const viewB = document.getElementById('adminViewBackups');
 
-      [btnP, btnA, btnM, btnC, btnB].forEach(b => {
+      [btnP, btnA, btnPa, btnM, btnC, btnB].forEach(b => {
         if(b) b.className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
       });
-      [viewP, viewA, viewM, viewC, viewB].forEach(v => { if(v) v.classList.add('hidden'); });
+      [viewP, viewA, viewPa, viewM, viewC, viewB].forEach(v => { if(v) v.classList.add('hidden'); });
 
       if (tab === 'principal') {
         btnP.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
@@ -1102,6 +1378,10 @@
       } else if (tab === 'activa') {
         btnA.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewA.classList.remove('hidden');
+      } else if (tab === 'paises') {
+        btnPa.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+        viewPa.classList.remove('hidden');
+        loadAdminCountries();
       } else if (tab === 'mensajes') {
         btnM.className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
         viewM.classList.remove('hidden');
@@ -1148,11 +1428,15 @@
           votes: 0,
           voters: []
         });
+        if (email) {
+          await registerOrUpdateArtistCountry(artist, email);
+        }
         document.getElementById("adminActiveArtist").value = "";
         document.getElementById("adminActiveTitle").value = "";
         document.getElementById("adminActiveUrl").value = "";
         document.getElementById("adminActiveEmail").value = "";
         await loadAllLists();
+        await loadAdminCountries();
         alert("✅ Tema añadido a la Lista Activa (On Air).");
       } catch(e) {
         alert("Error al añadir a la Lista Activa: " + e.message);
@@ -1221,30 +1505,39 @@
       alert("Lista Activa copiada (enlaces limpios).");
     };
 
-    // ==================== SISTEMA DE BACKUPS AISLADOS (MANUAL Y AUTOMÁTICO) ====================
-    async function saveBackupSnapshot(customTitle, fixedDocId) {
-      const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
-      const activeData = [];
-      snapActive.forEach(doc => activeData.push({ id: doc.id, ...doc.data() }));
-
-      const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
-      const weeklyData = [];
-      snapSub.forEach(doc => weeklyData.push({ id: doc.id, ...doc.data() }));
-
-      const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
-      const monthlyData = [];
-      snapMonthly.forEach(doc => monthlyData.push({ id: doc.id, ...doc.data() }));
-
-      const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
-      const annualData = [];
-      snapAnnual.forEach(doc => annualData.push({ id: doc.id, ...doc.data() }));
-
+    // ==================== SISTEMA DE BACKUPS AISLADOS CON SELECTOR DE PESTAÑA ====================
+    async function saveBackupSnapshot(customTitle, fixedDocId, scope = 'all') {
       const now = new Date();
       const dateStr = now.toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
       const dateOnlyStr = now.toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
 
+      let activeData = [], weeklyData = [], monthlyData = [], annualData = [], countriesData = [];
+
+      if (scope === 'all' || scope === 'active') {
+        const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
+        snapActive.forEach(doc => activeData.push({ id: doc.id, ...doc.data() }));
+      }
+      if (scope === 'all' || scope === 'weekly') {
+        const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+        snapSub.forEach(doc => weeklyData.push({ id: doc.id, ...doc.data() }));
+      }
+      if (scope === 'all' || scope === 'monthly') {
+        const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
+        snapMonthly.forEach(doc => monthlyData.push({ id: doc.id, ...doc.data() }));
+      }
+      if (scope === 'all' || scope === 'annual') {
+        const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
+        snapAnnual.forEach(doc => annualData.push({ id: doc.id, ...doc.data() }));
+      }
+      if (scope === 'all' || scope === 'countries') {
+        const snapCountries = await db.collection("artist_countries").get();
+        snapCountries.forEach(doc => countriesData.push({ id: doc.id, ...doc.data() }));
+      }
+
+      const scopeTitle = backupScopeLabels[scope] || "Backup";
       const payload = {
-        edition: customTitle || `Backup manual (${config.edition || "Edición Semanal"})`,
+        scope: scope,
+        edition: customTitle || `${scopeTitle} (${config.edition || "Edición"})`,
         dateString: dateStr,
         dateOnly: dateOnlyStr,
         timestamp: Date.now(),
@@ -1252,10 +1545,12 @@
         weeklyCount: weeklyData.length,
         monthlyCount: monthlyData.length,
         annualCount: annualData.length,
+        countriesCount: countriesData.length,
         activeTracks: activeData,
         weeklyTracks: weeklyData,
         monthlyTracks: monthlyData,
-        annualTracks: annualData
+        annualTracks: annualData,
+        countriesList: countriesData
       };
 
       if (fixedDocId) {
@@ -1268,15 +1563,14 @@
         await db.collection("backups").add(payload);
       }
 
-      return { active: activeData.length, weekly: weeklyData.length };
+      return payload;
     }
 
-    window.createManualBackup = async function() {
+    window.createManualBackup = async function(scope = 'all') {
       try {
-        const counts = await saveBackupSnapshot(`Backup manual (${config.edition || "Edición Semanal"})`);
+        const res = await saveBackupSnapshot(null, null, scope);
         await loadAdminBackups();
-        const dateStr = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
-        alert(`✅ Backup creado correctamente (${dateStr}): ${counts.active} en Activa y ${counts.weekly} en Cola Semanal.`);
+        alert(`✅ Copia guardada correctamente:\n${res.edition}\n📅 ${res.dateString}`);
       } catch(e) {
         console.error(e);
         alert("Error al crear el backup: " + e.message);
@@ -1290,7 +1584,7 @@
         const now = new Date();
         const dateOnly = now.toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
         const safeId = "sys_backup_" + dateOnly.replace(/\//g, "-");
-        await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`, safeId);
+        await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`, safeId, 'all');
         if (document.getElementById("adminDashboard") && !document.getElementById("adminDashboard").classList.contains("hidden")) {
           loadAdminBackups();
         }
@@ -1321,18 +1615,56 @@
         }
 
         container.innerHTML = list.map(b => {
+          const scope = b.scope || 'all';
           const activeT = b.activeTracks || [];
           const weeklyT = b.weeklyTracks || [];
+          const monthlyT = b.monthlyTracks || [];
+          const annualT = b.annualTracks || [];
+          const countriesT = b.countriesList || [];
           const isSystem = (b.edition || '').toLowerCase().includes('copia de sistema');
-          const icon = isSystem ? '🤖' : '📦';
+          const icon = isSystem ? '🤖' : '💾';
 
-          const previewActive = activeT.length > 0
-            ? activeT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-emerald-400">${t.title}</span> (${String(t.votes || 0).padStart(2, '0')} votos)</li>`).join('')
-            : '<li class="text-[11px] text-zinc-500 italic">Vacía</li>';
+          let summaryParts = [];
+          if (scope === 'all' || scope === 'active') summaryParts.push(`Activa: <strong>${activeT.length}</strong>`);
+          if (scope === 'all' || scope === 'weekly') summaryParts.push(`Cola: <strong>${weeklyT.length}</strong>`);
+          if (scope === 'all' || scope === 'monthly') summaryParts.push(`Mensual: <strong>${monthlyT.length}</strong>`);
+          if (scope === 'all' || scope === 'annual') summaryParts.push(`Anual: <strong>${annualT.length}</strong>`);
+          if (scope === 'all' || scope === 'countries') summaryParts.push(`Países: <strong>${countriesT.length}</strong>`);
 
-          const previewWeekly = weeklyT.length > 0
-            ? weeklyT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-cyan-400">${t.title}</span></li>`).join('')
-            : '<li class="text-[11px] text-zinc-500 italic">Vacía</li>';
+          let copyButtonsHtml = '';
+          if (scope === 'all') {
+            copyButtonsHtml = `
+              <button type="button" onclick="copyBackupToClipboard('${b.id}', 'active')" class="px-2 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[10px] transition">📋 Activa</button>
+              <button type="button" onclick="copyBackupToClipboard('${b.id}', 'weekly')" class="px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold rounded-lg text-[10px] transition border border-white/10">📋 Cola</button>
+              <button type="button" onclick="copyBackupToClipboard('${b.id}', 'countries')" class="px-2 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded-lg text-[10px] transition">📋 Países</button>
+            `;
+          } else {
+            copyButtonsHtml = `
+              <button type="button" onclick="copyBackupToClipboard('${b.id}', '${scope}')" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[11px] transition">📋 Copiar Lista</button>
+            `;
+          }
+
+          let previewHtml = '';
+          if ((scope === 'all' || scope === 'active') && activeT.length > 0) {
+            previewHtml += `<p class="text-[10px] uppercase font-bold text-emerald-400">📻 Lista Activa (${activeT.length}):</p><ul class="space-y-1 pl-2 mb-2">` +
+              activeT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-emerald-400">${t.title}</span> (${String(t.votes || 0).padStart(2, '0')} votos)</li>`).join('') + `</ul>`;
+          }
+          if ((scope === 'all' || scope === 'weekly') && weeklyT.length > 0) {
+            previewHtml += `<p class="text-[10px] uppercase font-bold text-cyan-400">🔥 Cola Semanal (${weeklyT.length}):</p><ul class="space-y-1 pl-2 mb-2">` +
+              weeklyT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — <span class="text-cyan-400">${t.title}</span></li>`).join('') + `</ul>`;
+          }
+          if ((scope === 'all' || scope === 'monthly') && monthlyT.length > 0) {
+            previewHtml += `<p class="text-[10px] uppercase font-bold text-sky-400">🗓️ Lista Mensual (${monthlyT.length}):</p><ul class="space-y-1 pl-2 mb-2">` +
+              monthlyT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — ${t.title}</li>`).join('') + `</ul>`;
+          }
+          if ((scope === 'all' || scope === 'annual') && annualT.length > 0) {
+            previewHtml += `<p class="text-[10px] uppercase font-bold text-amber-400">📀 Lista Anual (${annualT.length}):</p><ul class="space-y-1 pl-2 mb-2">` +
+              annualT.map((t, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. <strong>${t.artist}</strong> — ${t.title}</li>`).join('') + `</ul>`;
+          }
+          if ((scope === 'all' || scope === 'countries') && countriesT.length > 0) {
+            previewHtml += `<p class="text-[10px] uppercase font-bold text-purple-400">🌍 Países (${countriesT.length}):</p><ul class="space-y-1 pl-2">` +
+              countriesT.map((c, idx) => `<li class="text-[11px] text-zinc-300 truncate">${idx + 1}. ${c.flag || '🌐'} <strong>${c.artist}</strong> (${c.email}) — Temas: ${c.submissionsCount || 1}</li>`).join('') + `</ul>`;
+          }
 
           return `
             <div class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2.5">
@@ -1340,21 +1672,17 @@
                 <div>
                   <p class="font-bold text-white text-xs">${icon} ${b.edition || 'Backup Lista'}</p>
                   <p class="text-[11px] text-cyan-400 font-mono mt-0.5">📅 ${b.dateString || ''}</p>
-                  <p class="text-[10px] text-zinc-400 mt-0.5">Activa: <strong>${b.activeCount || 0}</strong> | Cola Semanal: <strong>${b.weeklyCount || 0}</strong> | Mensual: <strong>${b.monthlyCount || 0}</strong> | Anual: <strong>${b.annualCount || 0}</strong></p>
+                  <p class="text-[10px] text-zinc-400 mt-0.5">${summaryParts.join(' | ')}</p>
                 </div>
                 <div class="flex flex-wrap gap-1.5">
-                  <button type="button" onclick="copyBackupToClipboard('${b.id}', 'active')" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[11px] transition">📋 Copiar Activa</button>
-                  <button type="button" onclick="copyBackupToClipboard('${b.id}', 'weekly')" class="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold rounded-lg text-[11px] transition border border-white/10">📋 Copiar Cola</button>
+                  ${copyButtonsHtml}
                   <button type="button" onclick="deleteBackup('${b.id}')" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">🗑️</button>
                 </div>
               </div>
               <details class="text-[11px] text-zinc-400 pt-1.5 border-t border-white/5">
-                <summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver contenido guardado (Activa: ${activeT.length} | Cola Semanal: ${weeklyT.length})</summary>
-                <div class="mt-2 space-y-2 bg-zinc-950 p-2.5 rounded-lg max-h-56 overflow-y-auto">
-                  <p class="text-[10px] uppercase font-bold text-emerald-400">📻 Lista Activa:</p>
-                  <ul class="space-y-1 pl-2">${previewActive}</ul>
-                  <p class="text-[10px] uppercase font-bold text-cyan-400 pt-1">🔥 Cola Semanal:</p>
-                  <ul class="space-y-1 pl-2">${previewWeekly}</ul>
+                <summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver contenido guardado</summary>
+                <div class="mt-2 bg-zinc-950 p-2.5 rounded-lg max-h-56 overflow-y-auto">
+                  ${previewHtml || '<p class="text-zinc-500 italic">Sin elementos guardados en esta copia.</p>'}
                 </div>
               </details>
             </div>
@@ -1369,12 +1697,29 @@
     window.copyBackupToClipboard = function(id, type) {
       const b = backupsCache[id];
       if (!b) return;
-      const tracks = type === 'active' ? (b.activeTracks || []) : (b.weeklyTracks || []);
+      if (type === 'countries') {
+        const list = b.countriesList || [];
+        if (list.length === 0) {
+          alert("Esta copia no tiene registros de países.");
+          return;
+        }
+        const text = list.map((c, i) => `${i + 1}. ${c.flag || '🌐'} ${c.artist} (${c.email}) | ${[c.city, c.country].filter(Boolean).join(', ')} | Temas: ${c.submissionsCount || 1}`).join('\n');
+        navigator.clipboard.writeText(text);
+        alert("Listado de países del backup copiado.");
+        return;
+      }
+
+      let tracks = [];
+      if (type === 'active') tracks = b.activeTracks || [];
+      else if (type === 'weekly') tracks = b.weeklyTracks || [];
+      else if (type === 'monthly') tracks = b.monthlyTracks || [];
+      else if (type === 'annual') tracks = b.annualTracks || [];
+
       if (tracks.length === 0) {
         alert("Esa sección de la copia de seguridad no tiene canciones.");
         return;
       }
-      const cleanText = tracks.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ''} (${(s.url || '').split('?')[0]})`).join('\n');
+      const cleanText = tracks.map((s, i) => `${i + 1}. ${s.artist} - ${s.title}${s.email ? ' | ' + s.email : ''} (${(s.url || '').split('?')[0]})`).join('\n');
       navigator.clipboard.writeText(cleanText);
       alert("Lista del backup copiada (enlaces limpios).");
     };
@@ -2270,6 +2615,7 @@
           document.getElementById("adminLoginBox").classList.add("hidden");
           document.getElementById("adminDashboard").classList.remove("hidden");
           loadAllLists();
+          loadAdminCountries();
           loadAdminBackups();
         } catch(e) {
           alert("Acceso denegado: Credenciales incorrectas.");
@@ -2290,7 +2636,6 @@
           const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
           const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
           
-          // Jueves a las 23:59:59 -> Copia de sistema automática un segundo antes de cerrar el jueves
           if (day === 4 && h === 23 && m === 59 && s === 59) {
             triggerThursdaySystemBackup();
           } else if (m !== 59) {
@@ -2398,6 +2743,9 @@
             voters: []
           });
 
+          // Registrar o sumar contador en la colección Países usando el correo electrónico
+          await registerOrUpdateArtistCountry(artist, email);
+
           document.getElementById("receiptArtist").textContent = artist;
           document.getElementById("receiptTitle").textContent = title;
           document.getElementById("receiptEmail").textContent = email;
@@ -2430,7 +2778,7 @@
         if(!confirm("¿Cerrar edición y rotar listas?\n\n• Se guardará una Copia de Sistema.\n• La Lista Activa pasará a la Mensual.\n• La Cola Semanal pasará a ser la nueva Lista Activa y se activará su votación.\n• El campeón más votado pasará a Tema Destacado y reingresará en Cola Semanal.")) return;
         try {
           const dateOnly = new Date().toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
-          await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`);
+          await saveBackupSnapshot(`Copia de sistema - ${dateOnly}`, null, 'all');
 
           const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
           let currentActiveTracks = [];
