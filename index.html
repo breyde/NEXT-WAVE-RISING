@@ -21,7 +21,7 @@
       <!-- Selector de Idioma con Banderas y Botón de Contacto -->
       <div class="flex items-center gap-2">
         <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md h-9 items-center">
-          <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs">🇪🇸 ES</button>
+          <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs">🇪🇸 ES</button>
           <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition text-xs">🇬🇧 EN</button>
         </div>
         <button onclick="toggleContactModal()" class="px-3.5 h-9 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
@@ -29,7 +29,7 @@
         </button>
       </div>
 
-      <!-- Casilla de estado de Votación Destacado con altura fija -->
+      <!-- Casilla simplificada de estado de Votación -->
       <div id="headerVotingStatus" class="px-3 h-9 rounded-xl text-xs font-bold border shadow-sm flex items-center justify-center"></div>
     </div>
 
@@ -320,12 +320,17 @@
 
         <!-- VISTA CONFIGURACIÓN DEL PANEL DE CURADORES -->
         <div id="adminViewConfig" class="hidden space-y-4">
+          <!-- Gestión de Chat y Usuarios -->
           <div class="glass rounded-2xl p-5 space-y-4 mb-8">
-            <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión del Chat Público</h3>
-            <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
+            <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
+            <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat. Puedes silenciar/bloquear un usuario o eliminarlo de la base de datos.</p>
+            <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs">
+              <p class="text-zinc-400 text-center py-4">Cargando usuarios de chat...</p>
+            </div>
+            <div class="border-t border-white/10 pt-4 flex justify-between items-center">
               <div>
                 <p class="font-bold text-white text-xs">Vaciar Todos los Chats</p>
-                <p class="text-[10px] text-zinc-400">Elimina permanentemente todos los mensajes publicados en la sala de chat.</p>
+                <p class="text-[10px] text-zinc-400">Elimina permanentemente todos los mensajes publicados en la sala.</p>
               </div>
               <button type="button" onclick="clearAllChatMessages()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Vaciar Chat</button>
             </div>
@@ -369,7 +374,7 @@
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">📜 Manifiesto & Funcionamiento</h3>
         <button onclick="toggleInfoModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
       </div>
-      <div class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify">
+      <div id="infoModalBody" class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify">
         <p><strong>Next Wave Rising</strong> nació como un refugio y un impulso para todos los artistas emergentes, especialmente aquellos que a menudo son relegados por incorporar inteligencia artificial total o parcialmente en sus procesos creativos. Entendemos la IA como una herramienta más que, en manos cuidadas, es capaz de dar vida a obras maravillosas.</p>
         <p>Esta iniciativa surgió de forma espontánea y evoluciona cada día. Nuestro propósito fundamental es construir una comunidad sólida de creadores independientes que se apoyen mutuamente, protegiendo nuestras regalías frente a los grandes sellos discográficos y asegurando que el fruto de nuestro esfuerzo permanezca donde debe estar.</p>
         <p>Esta es una plataforma abierta, diversa y profundamente tolerante. Aquí no existen vetos ni prejuicios de estilo; desde la música clásica o cinemática hasta el pop, el rock o géneros experimentales, todas las expresiones tienen su espacio legítimo. Los curadores somos nosotros mismos a través de la escucha y el voto comunitario. Ningún tema es mejor que otro; la votación sirve para dar vida y emoción a la lista.</p>
@@ -564,12 +569,19 @@
 
     async function fetchClientIp() {
       try {
-        const res = await fetch('https://api.ipify.org?format=json');
+        const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
-        clientIp = data.ip;
+        clientIp = data.ip || "unknown_ip";
         updateChatPresence();
       } catch (e) {
-        clientIp = "unknown_ip";
+        try {
+          const res2 = await fetch('https://api.ipify.org?format=json');
+          const data2 = await res2.json();
+          clientIp = data2.ip || "unknown_ip";
+          updateChatPresence();
+        } catch(err) {
+          clientIp = "unknown_ip";
+        }
       }
     }
 
@@ -611,6 +623,7 @@
       } else {
         btnC.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow";
         viewC.classList.remove('hidden');
+        loadAdminChatUsers();
       }
     }
 
@@ -659,6 +672,89 @@
         loadAdminMessages();
       } catch(e) {
         alert("Error al eliminar.");
+      }
+    };
+
+    // Función para eliminar canción errónea subida por usuario
+    window.deleteSubmissionTrack = async function(id) {
+      if(!confirm("¿Estás seguro de eliminar esta canción de la lista?")) return;
+      try {
+        const db = firebase.firestore();
+        await db.collection("submissions").doc(id).delete();
+        loadAllLists();
+        alert("¡Canción eliminada correctamente!");
+      } catch(e) {
+        alert("Error al eliminar la canción.");
+      }
+    };
+
+    async function loadAdminChatUsers() {
+      const container = document.getElementById('adminChatUsersList');
+      if (!container) return;
+      try {
+        container.innerHTML = '<p class="text-zinc-400 text-center py-3">Cargando usuarios de chat...</p>';
+        const db = firebase.firestore();
+        const snap = await db.collection('chat_users').get();
+        let users = [];
+        snap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+
+        if (users.length === 0) {
+          container.innerHTML = '<p class="text-zinc-400 text-center py-3">No hay usuarios de chat registrados.</p>';
+          return;
+        }
+
+        let html = '';
+        for (let u of users) {
+          let flagEmoji = "🌐";
+          try {
+            const res = await fetch(`https://ipwho.is/${u.ip}`);
+            const geo = await res.json();
+            if (geo.success && geo.flag && geo.flag.emoji) {
+              flagEmoji = geo.flag.emoji;
+            }
+          } catch(err){}
+
+          html += `<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center">` +
+            `<div>` +
+              `<p class="font-bold text-white text-xs">${u.nick} <span class="ml-1">${flagEmoji}</span></p>` +
+              `<p class="text-[10px] text-zinc-400 font-mono">IP: ${u.ip}</p>` +
+            `</div>` +
+            `<div class="flex gap-1.5">` +
+              `<button onclick="silenceChatUser('${u.ip}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] transition">Silenciar</button>` +
+              `<button onclick="deleteChatUser('${u.id}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Eliminar</button>` +
+            `</div>` +
+          `</div>`;
+        }
+        container.innerHTML = html;
+      } catch(e) {
+        container.innerHTML = '<p class="text-rose-400 text-center py-3">Error cargando usuarios.</p>';
+      }
+    }
+
+    window.silenceChatUser = async function(ip) {
+      if(!confirm(`¿Silenciar a todos los usuarios con IP ${ip}?`)) return;
+      try {
+        const db = firebase.firestore();
+        const snap = await db.collection('chat_users').where('ip', '==', ip).get();
+        const batch = db.batch();
+        snap.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        loadAdminChatUsers();
+        alert("Usuario silenciado (eliminado su registro de acceso).");
+      } catch(e) {
+        alert("Error al silenciar usuario.");
+      }
+    };
+
+    window.deleteChatUser = async function(id) {
+      if(!confirm("¿Eliminar este usuario de la base de datos?")) return;
+      try {
+        const db = firebase.firestore();
+        await db.collection('chat_users').doc(id).delete();
+        loadAdminChatUsers();
+        alert("Usuario eliminado.");
+      } catch(e) {
+        alert("Error al eliminar usuario.");
       }
     };
 
@@ -762,14 +858,14 @@
 
     // Funciones de Presencia y Chat Público
     async function updateChatPresence() {
-      if (!currentChatNick) return;
+      if (!currentChatNick || !clientIp) return;
       try {
         const db = firebase.firestore();
         const presenceRef = db.collection('chat_presence').doc(chatSessionId);
         await presenceRef.set({
           lastSeen: Date.now(),
           nick: currentChatNick,
-          ip: clientIp || "unknown_ip"
+          ip: clientIp
         }, { merge: true });
       } catch(e) {}
     }
@@ -1021,7 +1117,7 @@
           
           if (headerIndicator) {
             headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center";
-            headerIndicator.textContent = currentLang === 'es' ? "🟢 Votación destacado activa" : "🟢 Featured voting active";
+            headerIndicator.textContent = currentLang === 'es' ? "Votación activa" : "Voting active";
           }
           
           if(voteTabStatusBadge) {
@@ -1040,7 +1136,7 @@
           
           if (headerIndicator) {
             headerIndicator.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center";
-            headerIndicator.textContent = currentLang === 'es' ? "🔴 Votación destacado inactiva" : "🔴 Featured voting inactive";
+            headerIndicator.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive";
           }
           
           if(voteTabStatusBadge) {
@@ -1184,7 +1280,7 @@
             publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
             voteTabViewList.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">No hay canciones disponibles para votar aún.</p>';
           } else {
-            // Panel Curador con desplegable de votantes
+            // Panel Curador con botón para eliminar canción errónea y desplegable de votantes
             adminList.innerHTML = subs.map((s, i) => {
               const cleanUrl = s.url.split("?")[0];
               const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
@@ -1197,7 +1293,7 @@
               return '<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">' +
                 '<div class="flex justify-between items-center">' +
                   '<div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + ' | Votos: <strong>' + votesFormatted + '</strong></p></div>' +
-                  '<div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div>' +
+                  '<div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '<button onclick="deleteSubmissionTrack(\'' + s.id + '\')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>' +
                 '</div>' +
                 '<details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5">' +
                   '<summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (' + voters.length + ')</summary>' +
