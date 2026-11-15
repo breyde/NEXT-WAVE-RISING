@@ -221,7 +221,7 @@
             <!-- Indicador discreto de usuarios activos con iconito de personita -->
             <div id="activeUsersBadge" class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-white/10 text-zinc-400">
               <svg id="activeUsersIcon" class="w-3.5 h-3.5 text-zinc-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
-              <span id="activeUsersCount">0</span>
+              <span id="activeUsersCount">00</span>
             </div>
             <span id="chatStatusBadge" class="text-xs px-2.5 py-1 rounded-full bg-zinc-500/20 text-zinc-300 font-bold">Desconectado</span>
           </div>
@@ -239,6 +239,10 @@
 
         <!-- Sala de Chat (Oculta hasta registrar nick) -->
         <div id="chatRoomBox" class="hidden space-y-4">
+          <div class="flex justify-between items-center bg-zinc-900/90 px-3 py-2 rounded-xl border border-white/5">
+            <span id="chatUserDisplay" class="text-xs text-emerald-400 font-bold"></span>
+            <button type="button" onclick="leaveChatRoom()" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Salir del chat</button>
+          </div>
           <div id="chatMessagesContainer" class="h-80 overflow-y-auto space-y-3 p-3 bg-zinc-950/80 rounded-xl border border-white/5 text-xs">
             <!-- Mensajes en tiempo real -->
           </div>
@@ -262,10 +266,11 @@
       </div>
       <div id="adminDashboard" class="hidden space-y-4">
         
-        <!-- PESTAÑAS DEL PANEL DE CURADORES (PRINCIPAL / MENSAJES) -->
-        <div class="flex gap-2 border-b border-white/10 pb-3">
+        <!-- PESTAÑAS DEL PANEL DE CURADORES (PRINCIPAL / MENSAJES / CONFIGURACIÓN) -->
+        <div class="flex gap-2 border-b border-white/10 pb-3 overflow-x-auto">
           <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow">Principal</button>
           <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800">Mensajes (<span id="msgCountBadge">0</span>)</button>
+          <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800">Configuración</button>
         </div>
 
         <!-- VISTA PRINCIPAL DEL PANEL DE CURADORES -->
@@ -309,6 +314,20 @@
             </div>
             <div id="adminMessagesList" class="space-y-3 text-xs">
               <p class="text-zinc-400 text-center py-6">Cargando mensajes...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISTA CONFIGURACIÓN DEL PANEL DE CURADORES -->
+        <div id="adminViewConfig" class="hidden space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-4">
+            <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión del Chat Público</h3>
+            <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
+              <div>
+                <p class="font-bold text-white text-xs">Vaciar Todos los Chats</p>
+                <p class="text-[10px] text-zinc-400">Elimina permanentemente todos los mensajes publicados en la sala de chat.</p>
+              </div>
+              <button type="button" onclick="clearAllChatMessages()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Vaciar Chat</button>
             </div>
           </div>
         </div>
@@ -412,7 +431,7 @@
         manifestP2: "📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.",
         manifestP3: "🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.",
         step1Title: "1. Guarda la playlist",
-        step1Btn: "Abrir Playlist in Spotify",
+        step1Btn: "Abrir Playlist en Spotify",
         step1Check: "Confirmo que ya he guardado la playlist en mi biblioteca.",
         step2Title: "2. Envía tu canción",
         phArtist: "Nombre del Artista *",
@@ -537,6 +556,11 @@
     let chatUnsubscribe = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
     let presenceInterval = null;
+    let chatSessionId = sessionStorage.getItem('nwr_session_id');
+    if (!chatSessionId) {
+      chatSessionId = 'sess_' + Math.random().toString(36).substring(2, 9);
+      sessionStorage.setItem('nwr_session_id', chatSessionId);
+    }
 
     async function fetchClientIp() {
       try {
@@ -567,20 +591,26 @@
     function switchAdminTab(tab) {
       const btnP = document.getElementById('adminTabPrincipal');
       const btnM = document.getElementById('adminTabMensajes');
+      const btnC = document.getElementById('adminTabConfig');
       const viewP = document.getElementById('adminViewPrincipal');
       const viewM = document.getElementById('adminViewMensajes');
+      const viewC = document.getElementById('adminViewConfig');
+
+      [btnP, btnM, btnC].forEach(b => {
+        b.className = "px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800";
+      });
+      [viewP, viewM, viewC].forEach(v => v.classList.add('hidden'));
 
       if (tab === 'principal') {
         btnP.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow";
-        btnM.className = "px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800";
         viewP.classList.remove('hidden');
-        viewM.classList.add('hidden');
-      } else {
+      } else if (tab === 'mensajes') {
         btnM.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow";
-        btnP.className = "px-3.5 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800";
         viewM.classList.remove('hidden');
-        viewP.classList.add('hidden');
         loadAdminMessages();
+      } else {
+        btnC.className = "px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow";
+        viewC.classList.remove('hidden');
       }
     }
 
@@ -599,18 +629,22 @@
         if (msgs.length === 0) {
           listContainer.innerHTML = '<p class="text-zinc-400 text-center py-6">No hay mensajes recibidos todavía.</p>';
         } else {
-          listContainer.innerHTML = msgs.map(m => `
+          listContainer.innerHTML = msgs.map(m => {
+            const gmailUrl = `mailto:${m.email}?subject=` + encodeURIComponent(`Respuesta: Next Wave Rising - ${m.name}`) + `&body=` + encodeURIComponent(`Hola ${m.name},\n\nEn respuesta a tu mensaje:\n"${m.message}"\n\n---\nBreyde & Darko (Next Wave Rising)`);
+            return `
             <div class="p-3.5 bg-zinc-900 rounded-xl border border-white/5 space-y-2">
               <div class="flex justify-between items-center text-xs">
                 <span class="font-bold text-white">${m.name} (<a href="mailto:${m.email}" class="text-emerald-400 hover:underline">${m.email}</a>)</span>
                 <span class="text-[10px] text-zinc-400">${m.dateString || ''}</span>
               </div>
               <p class="text-xs text-zinc-300 whitespace-pre-line bg-zinc-950 p-2.5 rounded-lg border border-white/5">${m.message}</p>
-              <div class="flex justify-end">
-                <button onclick="deleteContactMsg('${m.id}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Eliminar mensaje</button>
+              <div class="flex justify-end gap-2">
+                <a href="${gmailUrl}" target="_blank" class="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded text-[11px] font-bold transition flex items-center gap-1">✉️ Contestar por Gmail</a>
+                <button onclick="deleteContactMsg('${m.id}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Eliminar</button>
               </div>
             </div>
-          `).join('');
+          `;
+          }).join('');
         }
       } catch(e) {
         listContainer.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando mensajes.</p>';
@@ -625,6 +659,20 @@
         loadAdminMessages();
       } catch(e) {
         alert("Error al eliminar.");
+      }
+    };
+
+    window.clearAllChatMessages = async function() {
+      if(!confirm("¿Estás seguro de vaciar todos los mensajes del chat público?")) return;
+      try {
+        const db = firebase.firestore();
+        const snap = await db.collection('chat_messages').get();
+        const batch = db.batch();
+        snap.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        alert("¡Chat vaciado con éxito!");
+      } catch(e) {
+        alert("Error al vaciar el chat.");
       }
     };
 
@@ -714,13 +762,14 @@
 
     // Funciones de Presencia y Chat Público
     async function updateChatPresence() {
-      if (!clientIp || clientIp === "unknown_ip") return;
+      if (!currentChatNick) return;
       try {
         const db = firebase.firestore();
-        const presenceRef = db.collection('chat_presence').doc(clientIp);
+        const presenceRef = db.collection('chat_presence').doc(chatSessionId);
         await presenceRef.set({
           lastSeen: Date.now(),
-          nick: currentChatNick || "Anónimo"
+          nick: currentChatNick,
+          ip: clientIp || "unknown_ip"
         }, { merge: true });
       } catch(e) {}
     }
@@ -798,17 +847,35 @@
       }
     }
 
+    function leaveChatRoom() {
+      if (chatUnsubscribe) chatUnsubscribe();
+      if (presenceInterval) clearInterval(presenceInterval);
+      try {
+        const db = firebase.firestore();
+        db.collection('chat_presence').doc(chatSessionId).delete();
+      } catch(e){}
+      currentChatNick = "";
+      localStorage.removeItem('nwr_chat_nick');
+      document.getElementById('chatRoomBox').classList.add('hidden');
+      document.getElementById('chatLoginBox').classList.remove('hidden');
+      document.getElementById('chatNickInput').value = '';
+      const badge = document.getElementById('chatStatusBadge');
+      badge.textContent = currentLang === 'es' ? "Desconectado" : "Disconnected";
+      badge.className = "text-xs px-2.5 py-1 rounded-full bg-zinc-500/20 text-zinc-300 font-bold";
+    }
+
     function initChatRealtime() {
       if (!currentChatNick) return;
       document.getElementById('chatLoginBox').classList.add('hidden');
       document.getElementById('chatRoomBox').classList.remove('hidden');
+      document.getElementById('chatUserDisplay').textContent = currentLang === 'es' ? `Usuario: ${currentChatNick}` : `User: ${currentChatNick}`;
       const badge = document.getElementById('chatStatusBadge');
-      badge.textContent = currentLang === 'es' ? `Conectado como: ${currentChatNick}` : `Connected as: ${currentChatNick}`;
+      badge.textContent = currentLang === 'es' ? "Conectado" : "Connected";
       badge.className = "text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold";
 
       updateChatPresence();
       if (presenceInterval) clearInterval(presenceInterval);
-      presenceInterval = setInterval(updateChatPresence, 20000); // Latido cada 20s
+      presenceInterval = setInterval(updateChatPresence, 15000); // Latido cada 15s
 
       const db = firebase.firestore();
       if (chatUnsubscribe) chatUnsubscribe();
