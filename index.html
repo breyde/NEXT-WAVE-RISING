@@ -14,29 +14,31 @@
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
-  <!-- CABECERA FIJA Y LIMPIA -->
-  <header class="w-full max-w-2xl flex justify-between items-center mb-4">
-    <h1 class="text-2xl font-extrabold text-white tracking-wide">Next Wave Rising</h1>
-    <div class="flex items-center gap-2">
-      <!-- Botón Vota Destacado -->
-      <button onclick="toggleVoteModal()" class="text-xs px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold transition flex items-center gap-1 shadow-md">
-        <span>⭐</span> <span id="txtVoteBtn">Vota Destacado</span>
-      </button>
+  <!-- CABECERA ESTABLE Y CENTRADA -->
+  <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-4">
+    <div class="w-full flex justify-between items-center text-xs">
       <!-- Selector de Idioma con Banderas -->
-      <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 text-xs shadow-md">
+      <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md">
         <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
         <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
       </div>
+      <!-- Botón Vota Destacado -->
+      <button id="mainVoteBtn" onclick="toggleVoteModal()" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold transition flex items-center gap-1 shadow-md">
+        <span>⭐</span> <span id="txtVoteBtn">Vota Destacado</span>
+      </button>
     </div>
-  </header>
 
-  <!-- NAVEGACIÓN DE 4 PESTAÑAS (FIJA SIN DESPLAZAMIENTOS) -->
-  <nav class="w-full max-w-2xl grid grid-cols-4 gap-1.5 mb-6">
-    <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center transition">Semanal</button>
-    <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
-    <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
-    <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP Anual</button>
-  </nav>
+    <!-- TÍTULO CENTRADO -->
+    <h1 class="text-3xl font-extrabold text-white tracking-wide text-center">Next Wave Rising</h1>
+
+    <!-- NAVEGACIÓN DE 4 PESTAÑAS (ESTRUCTURA FIJA SIN MOVIMIENTOS) -->
+    <nav class="w-full grid grid-cols-4 gap-1.5">
+      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center transition">Semanal</button>
+      <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
+      <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
+      <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP Anual</button>
+    </nav>
+  </header>
 
   <main class="w-full max-w-2xl space-y-6">
 
@@ -140,7 +142,7 @@
       </section>
     </div>
 
-    <!-- ================= PANEL CURADORES (OCULTO HASTA PULSAR ABAJO) ================= -->
+    <!-- ================= PANEL CURADORES ================= -->
     <section id="adminView" class="hidden space-y-6">
       <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-3">
         <h3 class="font-bold text-white">Acceso Curadores (Seguro)</h3>
@@ -152,7 +154,26 @@
       </div>
       <div id="adminDashboard" class="hidden space-y-4">
         <div class="glass rounded-2xl p-5 space-y-4">
-          <h3 class="font-bold text-emerald-400 text-sm">Configuración</h3>
+          <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Votaciones</h3>
+          
+          <!-- Control de Votación Activa / Inactiva -->
+          <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-white text-xs">Estado del Botón "Vota Destacado"</p>
+              <p id="votingIndicatorText" class="text-[10px] text-emerald-400 font-bold">● Votación Activa</p>
+            </div>
+            <button type="button" id="toggleVotingBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow">Desactivar Votación</button>
+          </div>
+
+          <!-- Resetear Votos -->
+          <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-white text-xs">Poner a Cero Votos</p>
+              <p class="text-[10px] text-zinc-400">Reinicia los contadores de todas las canciones.</p>
+            </div>
+            <button type="button" id="resetVotesBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Resetear Votos</button>
+          </div>
+
           <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
           <div><label class="block text-[11px] text-zinc-400 mb-1">Playlist Spotify</label><input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
           <div><label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify Tema Destacado</label><input type="url" id="adminTrackInput" placeholder="https://open.spotify.com/track/..." class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
@@ -166,16 +187,15 @@
     </section>
   </main>
   
-  <!-- MODAL / PANEL DE VOTA DESTACADO -->
+  <!-- MODAL DE VOTACIÓN -->
   <div id="voteModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-lg w-full space-y-4 border border-emerald-500/40 relative">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase">⭐ Vota Próxima Destacada</h3>
         <button onclick="toggleVoteModal()" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
       </div>
-      <p class="text-xs text-zinc-300">Selecciona tu tema favorito de la playlist activa para apoyarlo y asegurar su doble inclusión en la próxima edición.</p>
+      <p class="text-xs text-zinc-300">Selecciona tu tema favorito para apoyarlo y asegurar su doble inclusión en la próxima edición.</p>
       <div id="voteTracksList" class="space-y-3 max-h-80 overflow-y-auto pr-1">
-        <!-- Se cargará dinámicamente con las propuestas enviadas -->
         <p class="text-zinc-400 text-xs text-center py-4">Cargando canciones...</p>
       </div>
     </div>
@@ -197,7 +217,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // Sistema de Traducciones (ES / EN)
     const translations = {
       es: {
         adminBtn: "Panel Curadores",
@@ -278,6 +297,7 @@
     };
 
     let currentLang = 'es';
+    let globalVotingActive = true;
 
     function setLanguage(lang) {
       currentLang = lang;
@@ -303,6 +323,10 @@
     }
 
     function toggleVoteModal() {
+      if (!globalVotingActive) {
+        alert(currentLang === 'es' ? "Las votaciones están desactivadas temporalmente por los curadores." : "Voting is temporarily disabled by curators.");
+        return;
+      }
       const modal = document.getElementById('voteModal');
       modal.classList.toggle('hidden');
     }
@@ -334,7 +358,7 @@
       const db = firebase.firestore();
       const auth = firebase.auth();
 
-      let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "" };
+      let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", votingActive: true };
       let subs = [];
 
       async function trackUniqueVisitor() {
@@ -362,6 +386,51 @@
         ['weekly', 'monthly', 'annual', 'top'].forEach(t => document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden'));
         adminView.classList.toggle("hidden", !isHidden);
         document.getElementById("txtAdminBtn").textContent = isHidden ? translations[currentLang].backApp : translations[currentLang].adminBtn;
+      });
+
+      // Control de activación de votación en panel
+      const toggleVotingBtn = document.getElementById("toggleVotingBtn");
+      toggleVotingBtn.addEventListener("click", async () => {
+        config.votingActive = !config.votingActive;
+        updateVotingUI(config.votingActive);
+        try {
+          await db.collection("settings").doc("activeEdition").set(config, { merge: true });
+        } catch(e) { console.error(e); }
+      });
+
+      function updateVotingUI(active) {
+        globalVotingActive = active;
+        const indicator = document.getElementById("votingIndicatorText");
+        const mainVoteBtn = document.getElementById("mainVoteBtn");
+        if(active) {
+          indicator.textContent = "● Votación Activa";
+          indicator.className = "text-[10px] text-emerald-400 font-bold";
+          toggleVotingBtn.textContent = "Desactivar Votación";
+          toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow";
+          mainVoteBtn.style.opacity = "1";
+          mainVoteBtn.style.pointerEvents = "auto";
+        } else {
+          indicator.textContent = "● Votación Desactivada";
+          indicator.className = "text-[10px] text-rose-400 font-bold";
+          toggleVotingBtn.textContent = "Activar Votación";
+          toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
+          mainVoteBtn.style.opacity = "0.5";
+        }
+      }
+
+      // Resetear Votos
+      document.getElementById("resetVotesBtn").addEventListener("click", async () => {
+        if(!confirm("¿Estás seguro de poner a cero los votos de todas las canciones?")) return;
+        try {
+          const snap = await db.collection("submissions").get();
+          const batch = db.batch();
+          snap.docs.forEach(doc => batch.update(doc.ref, { votes: 0 }));
+          await batch.commit();
+          loadAllLists();
+          alert("¡Todos los votos han sido reseteados a 0!");
+        } catch(e) {
+          alert("Error al resetear los votos.");
+        }
       });
 
       document.getElementById("adminLoginBtn").addEventListener("click", async () => {
@@ -414,6 +483,7 @@
             config.edition = d.edition || config.edition;
             config.playlistUrl = d.playlistUrl || config.playlistUrl;
             config.trackUrl = d.trackUrl || config.trackUrl;
+            config.votingActive = d.votingActive !== undefined ? d.votingActive : true;
           }
         } catch(e){}
         document.getElementById("editionTitle").textContent = config.edition;
@@ -421,6 +491,7 @@
         document.getElementById("adminEditionInput").value = config.edition;
         document.getElementById("adminPlaylistInput").value = config.playlistUrl;
         document.getElementById("adminTrackInput").value = config.trackUrl;
+        updateVotingUI(config.votingActive);
 
         const embed = toEmbed(config.trackUrl);
         const sec = document.getElementById("playerSection");
@@ -464,7 +535,6 @@
               return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
             }).join("");
 
-            // Listado para el modal de Votación Destacado
             voteTracksList.innerHTML = subs.map((s, i) => {
               const votesCount = s.votes || 0;
               return '<div class="p-3 bg-zinc-900/90 rounded-xl flex justify-between items-center border border-white/5">' +
@@ -510,8 +580,11 @@
         }
       }
 
-      // Función global para votar un tema como destacado
       window.voteTrack = async function(id) {
+        if (!globalVotingActive) {
+          alert("Las votaciones están cerradas en este momento.");
+          return;
+        }
         try {
           const docRef = db.collection("submissions").doc(id);
           await db.runTransaction(async (transaction) => {
@@ -520,7 +593,7 @@
             let newVotes = (doc.data().votes || 0) + 1;
             transaction.update(docRef, { votes: newVotes });
           });
-          alert("¡Voto registrado con éxito para el tema destacado!");
+          alert("¡Voto registrado con éxito!");
           loadAllLists();
         } catch(e) {
           alert("Error al registrar el voto.");
