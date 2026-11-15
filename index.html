@@ -5,38 +5,53 @@
   <title>Next Wave Rising</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <style>body{font-family:'Outfit',sans-serif;background:#09090b;color:#f4f4f5;min-height:100vh}.glass{background:rgba(24,24,27,0.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.08)}.neon-btn{background:linear-gradient(135deg,#10b981,#06b6d4)}</style>
+  <style>
+    body{font-family:'Outfit',sans-serif;background:#09090b;color:#f4f4f5;min-height:100vh}
+    .glass{background:rgba(24,24,27,0.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.08)}
+    .neon-btn{background:linear-gradient(135deg,#10b981,#06b6d4)}
+    .tab-btn.active{background:rgba(16, 185, 129, 0.2);border-color:#10b981;color:#10b981;}
+  </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
-  <header class="w-full max-w-2xl flex justify-between items-center mb-6">
+  <header class="w-full max-w-2xl flex justify-between items-center mb-4">
     <div><span class="text-xs uppercase text-emerald-400 font-semibold">Breyde&amp;Darko</span><h1 class="text-3xl font-extrabold text-white">Next Wave Rising</h1></div>
     <button id="toggleAdminBtn" class="text-xs px-3 py-2 rounded-lg glass text-zinc-200">Panel Curadores</button>
   </header>
+
+  <!-- NAVEGACIÓN DE 4 PESTAÑAS -->
+  <nav class="w-full max-w-2xl grid grid-cols-4 gap-1.5 mb-6">
+    <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn active text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center transition">Semanal</button>
+    <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
+    <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
+    <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-xs font-bold py-2.5 px-1 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP Anual</button>
+  </nav>
+
   <main class="w-full max-w-2xl space-y-6">
-    <section class="glass rounded-2xl p-5 space-y-3">
-      <div class="flex justify-between items-center"><div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p class="text-xs text-zinc-400">Cierre: Jueves 00:00h</p></div><div id="statusBadge" class="px-3 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-400">Abierta</div></div>
-      <div id="countdownBox" class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-white/10">
-        <div class="bg-zinc-900 p-2 rounded"><span id="cdDays" class="text-lg font-bold text-emerald-400">00</span><span class="block text-[9px] text-zinc-400">DÍAS</span></div>
-        <div class="bg-zinc-900 p-2 rounded"><span id="cdHours" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">HORAS</span></div>
-        <div class="bg-zinc-900 p-2 rounded"><span id="cdMinutes" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">MIN</span></div>
-        <div class="bg-zinc-900 p-2 rounded"><span id="cdSeconds" class="text-lg font-bold text-cyan-400">00</span><span class="block text-[9px] text-zinc-400">SEG</span></div>
-      </div>
-    </section>
 
-    <!-- TEMA DESTACADO -->
-    <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2">
-      <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">🎵 TEMA DESTACADO</h3>
-      <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    </section>
+    <!-- ================= PESTAÑA 1: SEMANAL ================= -->
+    <div id="viewWeekly" class="space-y-6">
+      <section class="glass rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between items-center"><div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p class="text-xs text-zinc-400">Cierre: Jueves 00:00h</p></div><div id="statusBadge" class="px-3 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-400">Abierta</div></div>
+        <div id="countdownBox" class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-white/10">
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdDays" class="text-lg font-bold text-emerald-400">00</span><span class="block text-[9px] text-zinc-400">DÍAS</span></div>
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdHours" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">HORAS</span></div>
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdMinutes" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400">MIN</span></div>
+          <div class="bg-zinc-900 p-2 rounded"><span id="cdSeconds" class="text-lg font-bold text-cyan-400">00</span><span class="block text-[9px] text-zinc-400">SEG</span></div>
+        </div>
+      </section>
 
-    <section id="artistView" class="space-y-6">
+      <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2">
+        <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">🎵 TEMA DESTACADO</h3>
+        <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </section>
+
       <div class="glass rounded-2xl p-6 space-y-3 border border-emerald-500/20">
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider">⚡ Nuestro Manifiesto &amp; Recompensas</h3>
         <p class="text-xs text-zinc-300 leading-relaxed"><strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes para competir fuera de la liga de las grandes discográficas.</p>
         <div class="pt-1 text-xs text-zinc-300 space-y-2 border-t border-white/5">
           <p>🤝 <strong>Compromiso:</strong> Reproduce la lista entera 1 o 2 veces por semana para activar el algoritmo.</p>
           <p>📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.</p>
-          <p class="text-emerald-400 font-semibold">🏆 Recompensas: Todas las canciones pasarán a nuestra <strong>playlist mensual</strong> y a la <strong>anual</strong>. ¡A fin de año habrá votación para elegir los mejores temas!</p>
+          <p class="text-emerald-400 font-semibold">🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.</p>
         </div>
       </div>
 
@@ -60,18 +75,57 @@
         <div class="text-xs space-y-1 text-zinc-300"><p>Artista: <strong id="receiptArtist" class="text-white"></strong></p><p>Canción: <strong id="receiptTitle" class="text-emerald-400"></strong></p><p>Correo: <span id="receiptEmail"></span></p></div>
       </div>
 
-      <!-- PRÓXIMAS ENTRADAS AL FINAL -->
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
-          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider">🎵 PRÓXIMAS ENTRADAS A LISTA NEXT WAVE RISING</h3>
+          <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider">🎵 PRÓXIMAS ENTRADAS A LISTA</h3>
           <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">Total: <strong id="publicSubCount">0</strong></span>
         </div>
         <div id="publicSubmissionsList" class="space-y-4 pt-1">
           <p class="text-zinc-400 text-xs">Cargando propuestas...</p>
         </div>
       </section>
-    </section>
+    </div>
 
+    <!-- ================= PESTAÑA 2: MENSUAL ================= -->
+    <div id="viewMonthly" class="hidden space-y-6">
+      <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)</h3>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold">Bloques: <strong id="monthlyCount">0</strong>/4</span>
+        </div>
+        <p class="text-xs text-zinc-300">Recopilación automática de las ediciones semanales. Al completarse 4 bloques, el más antiguo pasa a la lista anual.</p>
+        <div id="monthlyListContainer" class="space-y-4 pt-1">
+          <p class="text-zinc-400 text-xs text-center py-6">Cargando lista mensual...</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= PESTAÑA 3: ANUAL ================= -->
+    <div id="viewAnnual" class="hidden space-y-6">
+      <section class="glass rounded-2xl p-6 space-y-4 border border-amber-500/30">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <h3 class="font-extrabold text-amber-400 text-sm uppercase tracking-wider">📀 LISTA ANUAL ACUMULADA</h3>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold">Total: <strong id="annualCount">0</strong></span>
+        </div>
+        <p class="text-xs text-zinc-300">Histórico de todas las canciones que han escalado desde la lista mensual durante el año.</p>
+        <div id="annualListContainer" class="space-y-4 pt-1">
+          <p class="text-zinc-400 text-xs text-center py-6">Cargando lista anual...</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= PESTAÑA 4: TOP ANUAL ================= -->
+    <div id="viewTop" class="hidden space-y-6">
+      <section class="glass rounded-2xl p-6 space-y-4 border border-purple-500/30 text-center py-12 space-y-4">
+        <span class="text-4xl">🏆</span>
+        <h3 class="font-extrabold text-purple-400 text-lg uppercase tracking-wider">TOP ANUAL &amp; VOTACIONES</h3>
+        <p class="text-xs text-zinc-300 max-w-md mx-auto leading-relaxed">
+          Al finalizar el año (31 de diciembre), habilitaremos aquí el sistema oficial de votación para que la comunidad y los artistas elijan las mejores canciones de <strong>Next Wave Rising</strong>. ¡Mantente atento!
+        </p>
+      </section>
+    </div>
+
+    <!-- ================= PANEL CURADORES ================= -->
     <section id="adminView" class="hidden space-y-6">
       <div id="adminLoginBox" class="glass rounded-2xl p-6 space-y-3">
         <h3 class="font-bold">Acceso Curadores (Seguro)</h3>
@@ -87,7 +141,7 @@
           <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
           <div><label class="block text-[11px] text-zinc-400 mb-1">Playlist Spotify</label><input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
           <div><label class="block text-[11px] text-zinc-400 mb-1">Enlace Spotify Tema Destacado</label><input type="url" id="adminTrackInput" placeholder="https://open.spotify.com/track/..." class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
-          <div class="flex gap-2 pt-1"><button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs">Guardar</button><button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs">Nueva Edición</button></div>
+          <div class="flex gap-2 pt-1"><button type="button" id="saveConfigBtn" class="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold rounded text-xs">Guardar</button><button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs">Nueva Edición (Cerrar Semana)</button></div>
         </div>
         <div class="glass rounded-2xl p-5 space-y-3">
           <div class="flex justify-between items-center"><h3 class="font-bold text-sm">Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 rounded">Copiar Lista</button></div>
@@ -107,6 +161,25 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
+    // Control de pestañas
+    function switchTab(tab) {
+      ['weekly', 'monthly', 'annual', 'top'].forEach(t => {
+        document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden');
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('active', 'text-emerald-400');
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('text-zinc-400');
+      });
+      document.getElementById('adminView').classList.add('hidden');
+      document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active', 'text-emerald-400');
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('text-zinc-400');
+      document.getElementById('toggleAdminBtn').textContent = "Panel Curadores";
+    }
+
+    function togglePreview(id) {
+      const el = document.getElementById("preview-" + id);
+      if (el) el.classList.toggle("hidden");
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       const firebaseConfig = {
         apiKey: "AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",
@@ -144,10 +217,11 @@
       }
 
       document.getElementById("toggleAdminBtn").addEventListener("click", () => {
-        const hid = document.getElementById("adminView").classList.contains("hidden");
-        document.getElementById("adminView").classList.toggle("hidden", !hid);
-        document.getElementById("artistView").classList.toggle("hidden", hid);
-        document.getElementById("toggleAdminBtn").textContent = hid ? "Volver" : "Panel Curadores";
+        const adminView = document.getElementById("adminView");
+        const isHidden = adminView.classList.contains("hidden");
+        ['weekly', 'monthly', 'annual', 'top'].forEach(t => document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('hidden'));
+        adminView.classList.toggle("hidden", !isHidden);
+        document.getElementById("toggleAdminBtn").textContent = isHidden ? "Volver a la App" : "Panel Curadores";
       });
 
       document.getElementById("adminLoginBtn").addEventListener("click", async () => {
@@ -158,7 +232,7 @@
           await auth.signInWithEmailAndPassword(email, pass);
           document.getElementById("adminLoginBox").classList.add("hidden");
           document.getElementById("adminDashboard").classList.remove("hidden");
-          loadSubs();
+          loadAllLists();
         } catch(e) {
           alert("Acceso denegado: Credenciales incorrectas.");
         }
@@ -218,45 +292,72 @@
         }
       }
 
-      async function loadSubs() {
+      async function loadAllLists() {
         const adminList = document.getElementById("submissionsList");
         const publicList = document.getElementById("publicSubmissionsList");
-        try {
-          const snapshot = await db.collection("submissions").orderBy("timestamp", "asc").get();
-          subs = [];
-          snapshot.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
+        const monthlyContainer = document.getElementById("monthlyListContainer");
+        const annualContainer = document.getElementById("annualListContainer");
 
+        try {
+          // 1. Cargar Semanal
+          const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+          subs = [];
+          snapSub.forEach(doc => subs.push({ id: doc.id, ...doc.data() }));
           document.getElementById("subCount").textContent = subs.length;
           document.getElementById("publicSubCount").textContent = subs.length;
 
           if(subs.length === 0) {
             adminList.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
             publicList.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas enviadas para esta edición. ¡Sé el primero!</p>';
-            return;
+          } else {
+            adminList.innerHTML = subs.map((s, i) => {
+              const cleanUrl = s.url.split("?")[0];
+              const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
+              const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
+              return '<div class="p-2.5 bg-zinc-900 rounded flex justify-between items-center"><div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + '</p></div><div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div></div>';
+            }).join("");
+
+            publicList.innerHTML = subs.map((s, i) => {
+              const embedUrl = toEmbed(s.url);
+              if (!embedUrl) return '';
+              return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span><span class="text-[10px]">Reg: ' + s.dateString + '</span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+            }).join("");
           }
 
-          adminList.innerHTML = subs.map((s, i) => {
-            const cleanUrl = s.url.split("?")[0];
-            const mailBody = encodeURIComponent("¡Hola " + s.artist + "!\nRecibimos tu canción \"" + s.title + "\" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko");
-            const mailBtn = s.email ? '<a href="mailto:' + s.email + '?subject=' + encodeURIComponent("Next Wave Rising") + '&body=' + mailBody + '" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>' : '';
-            return '<div class="p-2.5 bg-zinc-900 rounded flex justify-between items-center"><div><p class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></p><p class="text-[10px] text-zinc-400">' + s.dateString + '</p></div><div class="flex gap-1.5"><a href="' + cleanUrl + '" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>' + mailBtn + '</div></div>';
-          }).join("");
+          // 2. Cargar Mensual
+          const snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
+          let monthlyItems = [];
+          snapMonthly.forEach(doc => monthlyItems.push({ id: doc.id, ...doc.data() }));
+          document.getElementById("monthlyCount").textContent = monthlyItems.length;
 
-          publicList.innerHTML = subs.map((s, i) => {
-            const embedUrl = toEmbed(s.url);
-            if (!embedUrl) return '';
-            return '<div class="space-y-1 pt-1">' +
-              '<div class="flex justify-between items-center px-1 text-xs text-zinc-400">' +
-                '<span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-emerald-400">' + s.title + '</span></span>' +
-                '<span class="text-[10px]">Reg: ' + s.dateString + '</span>' +
-              '</div>' +
-              '<iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>' +
-            '</div>';
-          }).join("");
+          if(monthlyItems.length === 0) {
+            monthlyContainer.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">La lista mensual se llenará al cerrar las ediciones semanales.</p>';
+          } else {
+            monthlyContainer.innerHTML = monthlyItems.map((s, i) => {
+              const embedUrl = toEmbed(s.url);
+              if (!embedUrl) return '';
+              return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">Bloque ' + (i+1) + ': ' + s.artist + ' — <span class="text-cyan-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+            }).join("");
+          }
 
-        } catch(e){
-          adminList.innerHTML = '<p class="text-rose-400">Error cargando datos.</p>';
-          publicList.innerHTML = '<p class="text-rose-400 text-xs text-center">Error cargando la lista de propuestas.</p>';
+          // 3. Cargar Anual
+          const snapAnnual = await db.collection("annual_list").orderBy("timestamp", "asc").get();
+          let annualItems = [];
+          snapAnnual.forEach(doc => annualItems.push({ id: doc.id, ...doc.data() }));
+          document.getElementById("annualCount").textContent = annualItems.length;
+
+          if(annualItems.length === 0) {
+            annualContainer.innerHTML = '<p class="text-zinc-400 text-xs text-center py-6">Aquí se acumularán las canciones al completar los ciclos mensuales.</p>';
+          } else {
+            annualContainer.innerHTML = annualItems.map((s, i) => {
+              const embedUrl = toEmbed(s.url);
+              if (!embedUrl) return '';
+              return '<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">' + (i+1) + '. ' + s.artist + ' — <span class="text-amber-400">' + s.title + '</span></span></div><iframe style="border-radius:12px" src="' + embedUrl + '" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>';
+            }).join("");
+          }
+
+        } catch(e) {
+          console.error("Error cargando listas:", e);
         }
       }
 
@@ -269,10 +370,8 @@
         const receipt = document.getElementById("receiptCard");
 
         if(!artist || !title || !url || !email) { fb.textContent = "Rellena los campos."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
-        
-        // Comprobación flexible de enlace de Spotify (admite regionalismos como intl-es)
         if(!url.includes("spotify.com/") || !url.includes("/track/")) { 
-          fb.textContent = "Enlace Spotify no válido (introduce un enlace de canción)."; 
+          fb.textContent = "Enlace Spotify no válido."; 
           fb.className = "text-xs text-center text-rose-400"; 
           fb.classList.remove("hidden"); 
           return; 
@@ -306,7 +405,7 @@
           document.getElementById("submissionForm").reset();
           document.getElementById("confirmSaveCheckbox").checked = false;
           document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
-          loadSubs();
+          loadAllLists();
         } catch(e) {
           fb.textContent = "Error al enviar."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden");
         } finally {
@@ -322,20 +421,77 @@
         try {
           await db.collection("settings").doc("activeEdition").set(config);
           await loadConfig();
-          alert("Configuración y reproductor actualizados.");
+          alert("Configuración actualizada.");
         } catch(e){ alert("Error al guardar."); }
       });
 
+      // LÓGICA DE CIERRE DE SEMANA / ROTACIÓN MENSUAL Y ANUAL
       document.getElementById("newEditionBtn").addEventListener("click", async () => {
-        if(!confirm("¿Vaciar lista?")) return;
+        if(!confirm("¿Cerrar edición semanal actual? Esto moverá las canciones a la lista mensual (gestionando el límite de 4 y desplazando excedentes a la anual).")) return;
         try {
-          const snapshot = await db.collection("submissions").get();
-          const batch = db.batch();
-          snapshot.docs.forEach(doc => batch.delete(doc.ref));
-          await batch.commit();
-          loadSubs();
-          alert("Reiniciado.");
-        } catch(e){ alert("Error."); }
+          // 1. Obtener canciones semanales actuales
+          const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+          let weeklyTracks = [];
+          snapSub.forEach(doc => weeklyTracks.push({ ref: doc.ref, data: doc.data() }));
+
+          if(weeklyTracks.length > 0) {
+            // Añadir cada una a monthly_list
+            for(let item of weeklyTracks) {
+              await db.collection("monthly_list").add({
+                artist: item.data.artist,
+                title: item.data.title,
+                url: item.data.url,
+                timestamp: Date.now()
+              });
+            }
+
+            // Verificar si la lista mensual supera los 4 elementos
+            let snapMonthly = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
+            let monthlyDocs = [];
+            snapMonthly.forEach(doc => monthlyDocs.push(doc));
+
+            while(monthlyDocs.length > 4) {
+              // El más antiguo (el primero) pasa a la anual
+              let oldest = monthlyDocs[0];
+              let d = oldest.data();
+              await db.collection("annual_list").add({
+                artist: d.artist,
+                title: d.title,
+                url: d.url,
+                timestamp: Date.now()
+              });
+              // Borrar de mensual
+              await oldest.ref.delete();
+              monthlyDocs.shift();
+            }
+
+            // Vaciar las submissions semanales
+            const batch = db.batch();
+            snapSub.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+          }
+
+          // Comprobar si es 31 de diciembre para pasar todo lo restante de mensual a anual
+          const now = new Date();
+          if(now.getMonth() === 11 && now.getDate() === 31) {
+            let snapMonthlyFinal = await db.collection("monthly_list").get();
+            const batchAnnual = db.batch();
+            const batchDelete = db.batch();
+            snapMonthlyFinal.docs.forEach(doc => {
+              let d = doc.data();
+              let newRef = db.collection("annual_list").doc();
+              batchAnnual.set(newRef, { artist: d.artist, title: d.title, url: d.url, timestamp: Date.now() });
+              batchDelete.delete(doc.ref);
+            });
+            await batchAnnual.commit();
+            await batchDelete.commit();
+          }
+
+          loadAllLists();
+          alert("¡Edición semanal cerrada y rotación de listas completada con éxito!");
+        } catch(e) {
+          alert("Error en la rotación: " + e.message);
+        }
       });
 
       document.getElementById("exportListBtn").addEventListener("click", () => {
@@ -346,7 +502,7 @@
       clock(); 
       setInterval(clock, 1000); 
       loadConfig();
-      loadSubs();
+      loadAllLists();
       trackUniqueVisitor();
     });
   </script>
