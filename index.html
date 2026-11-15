@@ -376,7 +376,10 @@
                 <h3 class="font-bold text-cyan-400 text-sm uppercase">🌍 Países &amp; Artistas Registrados</h3>
                 <p class="text-[11px] text-zinc-400 mt-0.5">Identificados por correo electrónico único. Si un artista repite en otras semanas, suma su contador sin duplicarse.</p>
               </div>
-              <button type="button" onclick="exportCountriesList()" class="text-xs px-2.5 py-1.5 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 border border-white/10 font-bold">📋 Copiar Listado</button>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" id="syncCountriesBtn" onclick="syncExistingTracksToCountries()" class="text-xs px-2.5 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 rounded-lg border border-cyan-500/40 font-bold transition">🔄 Sincronizar Existentes</button>
+                <button type="button" onclick="exportCountriesList()" class="text-xs px-2.5 py-1.5 bg-zinc-800 text-zinc-200 rounded-lg hover:bg-zinc-700 border border-white/10 font-bold">📋 Copiar Listado</button>
+              </div>
             </div>
 
             <div id="adminCountriesList" class="space-y-2.5 text-xs">
@@ -982,7 +985,6 @@
             submissionsCount: newCount,
             lastSubmissionDate: nowStr
           };
-          // Si cambió de IP/ciudad o antes no tenía datos geo, actualizar ubicación manteniendo la primera fecha
           if (clientIp && clientIp !== "unknown_ip" && prev.ip !== clientIp) {
             updates.ip = clientIp;
             if (clientGeo.country) updates.country = clientGeo.country;
@@ -1008,6 +1010,103 @@
       }
     }
 
+    // Sincroniza todas las canciones ya existentes en Cola Semanal y Lista Activa con la pestaña Países
+    window.syncExistingTracksToCountries = async function() {
+      const btn = document.getElementById("syncCountriesBtn");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "⏳ Sincronizando...";
+      }
+
+      try {
+        const [snapWeekly, snapActive, snapCountries] = await Promise.all([
+          db.collection("submissions").orderBy("timestamp", "asc").get(),
+          db.collection("active_list").orderBy("timestamp", "asc").get(),
+          db.collection("artist_countries").get()
+        ]);
+
+        const existingMap = {};
+        snapCountries.forEach(doc => {
+          existingMap[doc.id] = doc.data();
+        });
+
+        // Agrupar todas las pistas existentes por email único
+        const grouped = {};
+        const processDoc = (doc) => {
+          const d = doc.data();
+          const cleanEmail = (d.email || "").trim().toLowerCase();
+          if (!cleanEmail) return; // Ignorar si el mail está vacío
+          const docId = cleanEmail.replace(/[.#$/[\]]/g, "_");
+          const trackDate = d.dateString || new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
+
+          if (!grouped[docId]) {
+            grouped[docId] = {
+              email: cleanEmail,
+              artist: d.artist || "Artista",
+              firstDate: trackDate,
+              lastDate: trackDate,
+              count: 1
+            };
+          } else {
+            grouped[docId].count += 1;
+            grouped[docId].lastDate = trackDate;
+          }
+        };
+
+        snapActive.forEach(processDoc);
+        snapWeekly.forEach(processDoc);
+
+        const entries = Object.entries(grouped);
+        if (entries.length === 0) {
+          alert("No se encontraron temas con correo electrónico en Lista Activa ni en Cola Semanal.");
+          return;
+        }
+
+        const batch = db.batch();
+        let addedCount = 0;
+        let updatedCount = 0;
+
+        for (const [docId, info] of entries) {
+          const docRef = db.collection("artist_countries").doc(docId);
+          if (existingMap[docId]) {
+            // Actualizar contador si el real es mayor, conservando ubicación y fecha original
+            const prev = existingMap[docId];
+            const finalCount = Math.max(prev.submissionsCount || 1, info.count);
+            batch.update(docRef, {
+              submissionsCount: finalCount,
+              lastSubmissionDate: info.lastDate
+            });
+            updatedCount++;
+          } else {
+            batch.set(docRef, {
+              email: info.email,
+              artist: info.artist,
+              firstPublishedDate: info.firstDate,
+              lastSubmissionDate: info.lastDate,
+              submissionsCount: info.count,
+              ip: "Histórico",
+              country: "Sin IP previa",
+              city: "",
+              flag: "🌐"
+            });
+            addedCount++;
+          }
+        }
+
+        await batch.commit();
+        await loadAdminCountries();
+        alert(`✅ Sincronización completada:\n• ${addedCount} artistas nuevos añadidos.\n• ${updatedCount} artistas existentes actualizados.`);
+      } catch(e) {
+        console.error(e);
+        alert("Error al sincronizar: " + e.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "🔄 Sincronizar Existentes";
+        }
+      }
+    };
+
     async function loadAdminCountries() {
       const container = document.getElementById("adminCountriesList");
       const badge = document.getElementById("countriesCountBadge");
@@ -1021,14 +1120,13 @@
           }
         });
 
-        // Ordenar por número de subidas descendente y luego alfabéticamente
         countriesCache.sort((a, b) => (b.submissionsCount || 1) - (a.submissionsCount || 1) || (a.artist || "").localeCompare(b.artist || ""));
 
         if (badge) badge.textContent = countriesCache.length;
         if (!container) return;
 
         if (countriesCache.length === 0) {
-          container.innerHTML = '<p class="text-zinc-400 text-center py-6">Aún no hay artistas registrados con correo electrónico.</p>';
+          container.innerHTML = '<p class="text-zinc-400 text-center py-6">Aún no hay artistas registrados. Pulsa <strong>🔄 Sincronizar Existentes</strong> arriba para importar los de las listas actuales.</p>';
           return;
         }
 
@@ -2743,7 +2841,6 @@
             voters: []
           });
 
-          // Registrar o sumar contador en la colección Países usando el correo electrónico
           await registerOrUpdateArtistCountry(artist, email);
 
           document.getElementById("receiptArtist").textContent = artist;
