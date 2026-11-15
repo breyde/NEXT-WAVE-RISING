@@ -25,8 +25,8 @@
         <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition">🇪🇸 ES</button>
         <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">🇬🇧 EN</button>
       </div>
-      <!-- Indicador unificado de Votación Destacado -->
-      <div id="headerVotingStatus" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold border flex flex-col items-center"></div>
+      <!-- Casilla elegante de estado de Votación Destacado (sin reloj) -->
+      <div id="headerVotingStatus" class="px-3 py-2 rounded-xl text-xs font-bold border shadow-sm"></div>
     </div>
 
     <!-- NAVEGACIÓN DE 5 PESTAÑAS FIJAS DEBAJO -->
@@ -289,7 +289,7 @@
         manifestP2: "📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.",
         manifestP3: "🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.",
         step1Title: "1. Guarda la playlist",
-        step1Btn: "Abrir Playlist in Spotify",
+        step1Btn: "Abrir Playlist en Spotify",
         step1Check: "Confirmo que ya he guardado la playlist en mi biblioteca.",
         step2Title: "2. Envía tu canción",
         phArtist: "Nombre del Artista *",
@@ -527,16 +527,18 @@
         const tabVoteBtn = document.getElementById("tabVote");
         const voteTabStatusBadge = document.getElementById("voteTabStatusBadge");
 
-        const retroClockHTML = `<div id="retroClock" class="font-mono bg-black text-amber-400 px-2 py-0.5 rounded text-[10px] tracking-widest mt-1 border border-amber-500/30 shadow-inner">00:00:00</div>`;
-
         if(active) {
-          indicator.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>";
-          indicator.className = "text-[10px] text-emerald-400 font-bold";
-          toggleVotingBtn.textContent = "Desactivar Votación";
-          toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow";
+          if (indicator) {
+            indicator.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>";
+            indicator.className = "text-[10px] text-emerald-400 font-bold";
+            toggleVotingBtn.textContent = "Desactivar Votación";
+            toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow";
+          }
           
-          headerIndicator.className = "px-2.5 py-1.5 rounded-lg text-[10px] font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 flex flex-col items-center";
-          headerIndicator.innerHTML = `<span>🟢 Votación destacado activa</span>` + retroClockHTML;
+          if (headerIndicator) {
+            headerIndicator.className = "px-3 py-2 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm text-center";
+            headerIndicator.textContent = currentLang === 'es' ? "🟢 Votación destacado activa" : "🟢 Featured voting active";
+          }
           
           if(voteTabStatusBadge) {
             voteTabStatusBadge.textContent = currentLang === 'es' ? "Activa" : "Active";
@@ -545,13 +547,17 @@
           tabVoteBtn.style.opacity = "1";
           tabVoteBtn.style.pointerEvents = "auto";
         } else {
-          indicator.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>";
-          indicator.className = "text-[10px] text-rose-400 font-bold";
-          toggleVotingBtn.textContent = "Activar Votación";
-          toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
+          if (indicator) {
+            indicator.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>";
+            indicator.className = "text-[10px] text-rose-400 font-bold";
+            toggleVotingBtn.textContent = "Activar Votación";
+            toggleVotingBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
+          }
           
-          headerIndicator.className = "px-2.5 py-1.5 rounded-lg text-[10px] font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 flex flex-col items-center";
-          headerIndicator.innerHTML = `<span>🔴 Votación destacado inactiva</span>` + retroClockHTML;
+          if (headerIndicator) {
+            headerIndicator.className = "px-3 py-2 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm text-center";
+            headerIndicator.textContent = currentLang === 'es' ? "🔴 Votación destacado inactiva" : "🔴 Featured voting inactive";
+          }
           
           if(voteTabStatusBadge) {
             voteTabStatusBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled";
@@ -605,15 +611,9 @@
       function clock() {
         try {
           const now = new Date();
+          const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
           const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
           const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
-          
-          const retroClock = document.getElementById("retroClock");
-          if (retroClock) {
-            retroClock.textContent = `${p.hour}:${p.minute}:${p.second}`;
-          }
-
-          const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
           const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
           const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
           
@@ -745,8 +745,10 @@
               const embedUrl = toEmbed(s.url);
               const votesFormatted = String(s.votes || 0).padStart(2, '0');
               const isSelected = sessionPendingVotes.includes(s.id);
-              const btnText = isSelected ? "✓ Seleccionado" : "🗳️ Añadir Voto";
-              const btnClass = isSelected ? "px-3 py-1.5 bg-emerald-700 text-white font-bold rounded-xl text-xs shadow" : "px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow";
+              
+              // Botón dinámico: si está seleccionado se muestra en rojo con "❌ Anular Voto", si no en verde con "🗳️ Añadir Voto"
+              const btnText = isSelected ? "❌ Anular Voto" : "🗳️ Añadir Voto";
+              const btnClass = isSelected ? "px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs shadow transition" : "px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow";
 
               let rankDisplay = `#${i+1}`;
               if (totalVotesSum > 0) {
@@ -808,7 +810,7 @@
         }
       }
 
-      // Validación estricta y control de 3 votos con anulación (toggle)
+      // Validación estricta y control de 3 votos con anulación en tiempo real
       window.handleVoteClick = async function(id) {
         if (!globalVotingActive) {
           alert(currentLang === 'es' ? "Las votaciones están desactivadas en este momento." : "Voting is currently disabled.");
@@ -842,7 +844,7 @@
             }
           }
 
-          // Permitir anular voto (desmarcar) si ya lo había seleccionado en esta sesión
+          // Anular voto (desmarcar) si ya lo había seleccionado en esta sesión
           if (sessionPendingVotes.includes(id)) {
             sessionPendingVotes = sessionPendingVotes.filter(item => item !== id);
             loadAllLists();
@@ -856,7 +858,7 @@
 
           sessionPendingVotes.push(id);
 
-          // Al completar exactamente 3 votos, mostrar modal personalizado de confirmación
+          // Al completar exactamente 3 votos, mostrar modal de confirmación
           if (sessionPendingVotes.length === 3) {
             document.getElementById('voteConfirmModal').classList.remove('hidden');
           } else {
