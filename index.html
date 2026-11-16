@@ -866,7 +866,7 @@
         rule5: "🏆 The weekly vote champion will be the featured track the following week and will re-enter the weekly queue in addition to moving to the monthly list.", rule6: "Strict IP and email controls exist. If fraud is detected in the voting, it can be declared null and void.",
         lblVoterEmail: "Your email address (required to cast your votes):", voteSubNotice: "⚠️ Voting is optional, but <strong class=\"text-emerald-400\">if you vote you must choose exactly 3 different tracks</strong> (you cannot vote for just 1 song). Upon your third vote, confirmation will be requested.",
         loadingVotes: "Loading active tracks to vote...", statVoters: "Unique Voters", statTracks: "Voted Tracks", statTotal: "Total Votes", infoBtnText: "Important: Rules & Operation", infoModalTitle: "📜 Manifesto & Operation",
-        infoModalBody: `<p><strong>Next Wave Rising</strong> was born as a refuge and boost for all emerging artists, especially those often sidelined for incorporating artificial intelligence wholly or partially into their creative processes. We see AI as just another instrument that, in careful hands, can bring wonderful works to life.</p><p>This initiative started spontaneously and evolves every day. Our fundamental purpose is to build a strong community of independent creators supporting each other, protecting our royalties from major record labels and ensuring the fruit of our effort stays where it belongs.</p><p>This is an open, diverse, and deeply tolerant platform. There are no bans or style prejudices here; from classical or cinematic music to pop, rock, or experimental genres, every expression has its rightful place. We are our own curators through listening and community voting. No track is better than another; voting simply brings life and excitement to the playlist.</p><p><strong>Dynamics &amp; Key Rules:</strong></p><ul class="list-disc pl-4 space-y-1.5"><li><strong>Active List, Weekly Queue &amp; Voting:</strong> While <em>Weekly Queue</em> is open, any artist can submit their track for next week. On Thursdays at 00:00h that queue becomes the <strong>Active List (On Air)</strong> and voting opens until 22:00h. The most voted track becomes next week's featured track and re-enters the weekly queue, while the active list moves to the monthly list.</li><li><strong>Voting System:</strong> <strong>Voting is not mandatory</strong>, but anyone who chooses to vote must select and vote for exactly <strong>3 different tracks</strong> per edition (you cannot submit or register a vote for just a single song), backed by strict email and IP controls.</li><li><strong>Monthly &amp; Annual Lists:</strong> Automated rotation. Keeping the playlist saved in your Spotify library is mandatory; periodic checks ensure active artist slots (with a 1-year temporary exclusion for prolonged inactivity after notice).</li><li><strong>Collaboration &amp; Growth:</strong> Streaming the full active list (1 or 2 times per week) boosts our algorithmic positioning and protects our royalties.</li></ul><p class="text-emerald-400 font-semibold pt-2">Welcome, enjoy the music, and collaborate generously. A huge hug from Breyde &amp; Darko. (You can follow Breyde's main activity on TikTok by searching "breyde"). — Darko (David in real life).</p>`,
+        infoModalBody: `<p><strong>Next Wave Rising</strong> was born as a refuge and boost for all emerging artists, especially those often sidelined for incorporating artificial intelligence wholly or partially into their creative processes. We see AI as just another instrument that, in careful hands, can bring wonderful works to life.</p><p>This initiative started spontaneously and evolves every day. Our fundamental purpose is to build a strong community of independent creators supporting each other, protecting our royalties from major record labels and ensuring the fruit of our effort stays where it belongs.</p><p>This is an open, diverse, and deeply tolerant platform. There are no bans or style prejudices here; from classical or cinematic music to pop, rock, or experimental genres, every expression has its rightful place. We are our own curators through listening and community voting. No track is better than another; voting simply brings life and excitement to the playlist.</p><p><strong>Dynamics &amp; Key Rules:</strong></p><ul class="list-disc pl-4 space-y-1.5"><li><strong>Active List, Weekly Queue &amp; Voting:</strong> While <em>Weekly Queue</em> is open, any artist can submit their track for next week. On Thursdays at 00:00h that queue becomes the <strong>Active List (On Air)</strong> and voting opens until 22:00h. The most voted track becomes next week's featured track and re-enters the weekly queue, while the active list moves to the monthly list.</li><li><strong>Voting System:</strong> <strong>Voting is not mandatory</strong>, but anyone who chooses to vote must select and vote for exactly <strong>3 different tracks</strong> per edition (you cannot submit or register a vote for just a single song), backed by strict email and IP controls.</li><li><strong>Monthly &amp; Annual Lists:</strong> Automated rotation. Keeping the playlist saved in your Spotify library is mandatory; periodic checks ensure active artist slots (with a 1-year temporary exclusion for prolonged inactivity after notice).</li><li><strong>Collaboration &amp; Growth:</strong> Streaming the full active list (1 or 2 times per week) boosts our algorithmic positioning and protects our royalties.</li></ul><p class="text-emerald-400 font-semibold pt-2">Welcome, enjoy the music, and collaborate generously. A huge hug from Breyde &amp; Darko. (You can follow Breyde's main activity on TikTok buscando "breyde"). — Darko (David in real life).</p>`,
         contactBtn: "Contact", contactModalTitle: "✉️ Send us a message", lblContactName: "Your Name *", lblContactEmail: "Your Email *", lblContactMsg: "Your Message *", sendContactBtn: "Send Message",
         confirmVoteTitle: "Confirm Vote", confirmVoteDesc: "You are about to cast your votes. They cannot be undone once accepted.", btnCancel: "Cancel", btnAccept: "Accept", lblUniqueVisitors: "👤 Unique visitors:", noticeImportantBadge: "IMPORTANT NOTICE"
       }
@@ -1234,7 +1234,7 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA (CLICK-TO-PLAY CON CARÁTULAS DE DEEZER) ====================
+    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA (CLICK-TO-PLAY CON CARÁTULAS DE ODESLI/DEEZER) ====================
     window.loadPlayerStyleForm = () => {
       const key = $("adminPlayerListSelect").value;
       const st = config.playerStyles?.[key] || { preset: 'ultracompact', height: 80, startSec: 0 };
@@ -1271,17 +1271,15 @@
       container.innerHTML = `<iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
     };
 
-    async function loadTrackThumbnail(artist, title, imgId) {
+    async function loadTrackThumbnail(spotifyUrl, imgId) {
       try {
-        const query = encodeURIComponent(`${artist} ${title}`);
-        const res = await fetch(`https://api.deezer.com/search?q=${query}&output=json`);
+        const cleanUrl = spotifyUrl.split("?")[0];
+        const res = await fetch(`https://api.song.link/v1-alpha.1/links?url=${encodeURIComponent(cleanUrl)}`);
         const data = await res.json();
-        if (data && data.data && data.data.length > 0) {
-          const coverUrl = data.data[0].album?.cover_medium || data.data[0].album?.cover;
-          if (coverUrl) {
-            const imgEl = document.getElementById(imgId);
-            if (imgEl) imgEl.src = coverUrl;
-          }
+        const coverUrl = data.thumbnailUrl || data.linksByPlatform?.spotify?.thumbnailUrl;
+        if (coverUrl) {
+          const imgEl = document.getElementById(imgId);
+          if (imgEl) imgEl.src = coverUrl;
         }
       } catch (e) {}
     }
@@ -1290,7 +1288,7 @@
       const em = getEmbedUrl(s.url, listKey);
       if (!em) return '';
       const imgId = 'thumb_' + Math.random().toString(36).slice(2, 9);
-      setTimeout(() => loadTrackThumbnail(s.artist, s.title, imgId), 50);
+      setTimeout(() => loadTrackThumbnail(s.url, imgId), 50);
 
       return `
         <div class="track-card-container glass p-3 rounded-2xl border border-white/10 flex items-center justify-between gap-3">
