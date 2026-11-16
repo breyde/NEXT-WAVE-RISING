@@ -79,7 +79,7 @@
       <div id="featuredSlot_weekly"></div>
       <section class="glass rounded-2xl p-5 space-y-3">
         <div class="flex justify-between items-center">
-          <div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p id="txtClosure" class="text-xs text-zinc-400" data-i18n="txtClosure">Cierre: Jueves 00:00h</p></div>
+          <div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p id="txtClosure" class="text-xs text-zinc-400" data-i18n="txtClosure">Cierre: Viernes 00:00h</p></div>
           <div id="statusBadge" class="px-3 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-400" data-i18n="statusOpen">Abierta</div>
         </div>
         <div id="countdownBox" class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-white/10">
@@ -828,7 +828,7 @@
       es: {
         adminBtn: "Panel Curadores", backApp: "Volver a la App",
         activeListHeader: "📻 LISTA ACTIVA (ON AIR ESTA SEMANA)", activeListSub: "Estos son los temas que están sonando actualmente y compiten en la votación de esta semana.", btnGoVote: "⭐ Ir a Votar", activeListEmpty: "Aún no hay canciones cargadas en la lista activa de esta semana.",
-        txtClosure: "Cierre: Jueves 00:00h", statusOpen: "Abierta", statusClosed: "Cerrada", lblDays: "DÍAS", lblHours: "HORAS", lblMins: "MIN", lblSecs: "SEG", txtFeatured: "🎵 TEMA DESTACADO",
+        txtClosure: "Cierre: Viernes 00:00h", statusOpen: "Abierta", statusClosed: "Cerrada", lblDays: "DÍAS", lblHours: "HORAS", lblMins: "MIN", lblSecs: "SEG", txtFeatured: "🎵 TEMA DESTACADO",
         manifestTitle: "⚡ Nuestro Manifiesto & Recompensas", manifestDesc: "<strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes para competir fuera de la liga de las grandes discográficas.",
         manifestP1: "🤝 <strong>Compromiso:</strong> Reproduce la lista entera 1 o 2 veces por semana para activar el algoritmo.", manifestP2: "📌 <strong>Norma:</strong> Es obligatorio guardar la playlist en tu biblioteca de Spotify.", manifestP3: "🏆 Recompensas: Las canciones pasan automáticamente a la <strong>playlist mensual</strong>, luego a la <strong>anual</strong> y al final de año votaremos los mejores temas.",
         step1Title: "1. Guarda la playlist", step1Btn: "Abrir Playlist en Spotify", step1Check: "Confirmo que ya he guardado la playlist en mi biblioteca.", step2Title: "2. Envía tu canción (a la cola semanal)",
@@ -853,7 +853,7 @@
       en: {
         adminBtn: "Curators Panel", backApp: "Back to App",
         activeListHeader: "📻 ACTIVE LIST (ON AIR THIS WEEK)", activeListSub: "These are the tracks currently playing and competing in this week's vote.", btnGoVote: "⭐ Go to Vote", activeListEmpty: "No tracks loaded in this week's active list yet.",
-        txtClosure: "Closes: Thursday 00:00h", statusOpen: "Open", statusClosed: "Closed", lblDays: "DAYS", lblHours: "HOURS", lblMins: "MINS", lblSecs: "SECS", txtFeatured: "🎵 FEATURED TRACK",
+        txtClosure: "Closes: Friday 00:00h", statusOpen: "Open", statusClosed: "Closed", lblDays: "DAYS", lblHours: "HOURS", lblMins: "MINS", lblSecs: "SECS", txtFeatured: "🎵 FEATURED TRACK",
         manifestTitle: "⚡ Our Manifesto & Rewards", manifestDesc: "<strong>Next Wave Rising</strong> is a collaborative playlist created by <strong>Breyde & Darko</strong> for emerging artists to compete outside major label leagues.",
         manifestP1: "🤝 <strong>Commitment:</strong> Stream the full playlist 1-2 times a week to boost the algorithm.", manifestP2: "📌 <strong>Rule:</strong> Saving the playlist to your Spotify library is mandatory.", manifestP3: "🏆 Rewards: Tracks automatically move to the <strong>monthly playlist</strong>, then the <strong>annual</strong>, leading to our year-end community vote!",
         step1Title: "1. Save the playlist", step1Btn: "Open Playlist on Spotify", step1Check: "I confirm I have saved the playlist to my library.", step2Title: "2. Submit your track (to weekly queue)",
@@ -1262,7 +1262,7 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== GESTOR DE PESTAÑAS (ICONO ADAPTADO AL MÁXIMO DEL RECUADRO) ====================
+    // ==================== GESTOR DE PESTAÑAS ====================
     function renderNavigationAndCustomViews() {
       const nav = $("mainNavBar");
       const customCont = $("customTabsContainer");
@@ -1628,7 +1628,7 @@
       alert("📋 Listado de países copiado.");
     };
 
-    // ==================== LOGO Y AVISOS (CON TRADUCCIÓN AUTOMÁTICA Y BOTÓN TRADUCIR) ====================
+    // ==================== LOGO Y AVISOS ====================
     function applyBrandLogo(url) {
       const clean = normalizeUrl(url);
       const textEl = $("brandTextTitle"), imgEl = $("brandLogoImg"), pBox = $("adminLogoPreviewBox"), pImg = $("adminLogoPreviewImg"), uInp = $("adminLogoUrlInput");
@@ -2402,25 +2402,41 @@
         $("submissionForm").classList.toggle("pointer-events-none", !e.target.checked);
       });
 
+      // Tareas programadas del reloj y cuenta atrás hasta el viernes 00:00h (final del jueves)
       const clock = () => {
         try {
           const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-          const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).formatToParts(new Date()).map(x => [x.type, x.value]));
-          const day = map[p.weekday] ?? new Date().getDay(), h = +p.hour || 0, m = +p.minute || 0, s = +p.second || 0;
-          if (day === 4 && h === 23 && m === 59 && s === 59) triggerThursdaySystemBackup();
-          else if (m !== 59) autoBackupDone = false;
-          if (day === 4) {
-            $("statusBadge").textContent = translations[currentLang].statusClosed;
-            $("submissionForm").classList.add("opacity-50", "pointer-events-none");
-            updateVotingUI(config.votingActive);
-            return;
+          const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+          const now = new Date();
+          const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
+          const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
+          const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
+          
+          if (day === 4 && h === 23 && m === 59 && s === 59) {
+            triggerThursdaySystemBackup();
+          } else if (m !== 59) {
+            autoBackupDone = false;
           }
-          const left = Math.max(0, (((4 - day + 7) % 7 || 7) * 86400) - (h * 3600 + m * 60 + s));
-          $("cdDays").textContent = String(Math.floor(left / 86400)).padStart(2, "0");
-          $("cdHours").textContent = String(Math.floor((left % 86400) / 3600)).padStart(2, "0");
-          $("cdMinutes").textContent = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
-          $("cdSeconds").textContent = String(left % 60).padStart(2, "0");
-        } catch (e) {}
+
+          // Cierra los viernes y sábados (o hasta la siguiente rotación)
+          if (day === 5 || day === 6) { 
+            document.getElementById("statusBadge").textContent = translations[currentLang].statusClosed; 
+            document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
+            updateVotingUI(config.votingActive);
+            document.getElementById("cdDays").textContent = "00";
+            document.getElementById("cdHours").textContent = "00";
+            document.getElementById("cdMinutes").textContent = "00";
+            document.getElementById("cdSeconds").textContent = "00";
+            return; 
+          }
+          
+          // Cuenta atrás hacia el viernes 00:00h (fin de jueves)
+          const left = Math.max(0, (((5 - day + 7) % 7 || 7) * 86400) - (h * 3600 + m * 60 + s));
+          document.getElementById("cdDays").textContent = String(Math.floor(left / 86400)).padStart(2, "0");
+          document.getElementById("cdHours").textContent = String(Math.floor((left % 86400) / 3600)).padStart(2, "0");
+          document.getElementById("cdMinutes").textContent = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
+          document.getElementById("cdSeconds").textContent = String(left % 60).padStart(2, "0");
+        } catch(e){}
       };
 
       $("submitBtn").addEventListener("click", async () => {
