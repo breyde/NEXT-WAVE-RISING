@@ -39,7 +39,7 @@
       <span class="text-emerald-400/80 shrink-0 text-[10px]">→</span>
     </button>
 
-    <!-- BARRA DE NAVEGACIÓN EQUITATIVA CON SALTO DE LÍNEA ADAPTABLE -->
+    <!-- BARRA DE NAVEGACIÓN EQUITATIVA CON ICONOS ADAPTADOS AL MÁXIMO -->
     <nav id="mainNavBar" class="w-full flex flex-wrap items-stretch justify-between gap-1 pt-1"></nav>
   </header>
 
@@ -500,7 +500,7 @@
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Pega la URL de GitHub o pulsa <strong>Examinar</strong> para subirlo directo a GitHub desde tu dispositivo.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
             </div>
             <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
 
@@ -810,7 +810,6 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Mantener sesión del curador persistente en el navegador
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
     const GH_OWNER = "breyde";
@@ -921,7 +920,6 @@
       customButtons: {}
     };
 
-    // Traducción automática gratuita (MyMemory API) para textos dinámicos del curador cuando el usuario cambia a EN
     async function translateTextToEnglish(text) {
       if (!text || !text.trim()) return "";
       const cacheKey = "nwr_tr_" + text.slice(0, 60) + "_" + text.length;
@@ -1048,7 +1046,6 @@
         }
 
         cont.innerHTML = images.map(img => {
-          // Usar directamente download_url (raw.githubusercontent.com) que es la misma URL que se ve en la galería
           const directUrl = img.download_url || `${GH_RAW_BASE}${img.name}`;
           return `
             <div class="p-2.5 bg-zinc-900 rounded-xl border border-white/10 flex flex-col items-center justify-between gap-2 text-center">
@@ -1166,7 +1163,7 @@
       const sel = $("adminDefaultTabSelect");
       if (!sel) return;
       const tabs = config.tabsConfig || defaultTabsList;
-      sel.innerHTML = tabs.map(t => `<option value="${t.id}">${escapeHtml(t.labelEs)}</option>`).join('');
+      sel.innerHTML = tabs.map(t => `<option value="${t.id}">${escapeHtml(t.labelEs || t.id.toUpperCase())}</option>`).join('');
       if (config.defaultTab && tabs.some(t => t.id === config.defaultTab)) {
         sel.value = config.defaultTab;
       }
@@ -1220,7 +1217,7 @@
         box.innerHTML = tabs.map(t => `
           <label class="flex items-center gap-1.5 bg-zinc-900 p-2 rounded-lg border border-white/5 cursor-pointer">
             <input type="checkbox" value="${t.id}" ${activeTabs.includes(t.id) ? 'checked' : ''} class="feat-tab-cb accent-emerald-500">
-            <span class="truncate">${escapeHtml(t.labelEs)}</span>
+            <span class="truncate">${escapeHtml(t.labelEs || t.id.toUpperCase())}</span>
           </label>
         `).join('');
       }
@@ -1265,7 +1262,7 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== GESTOR DE PESTAÑAS ====================
+    // ==================== GESTOR DE PESTAÑAS (ICONO ADAPTADO AL MÁXIMO DEL RECUADRO) ====================
     function renderNavigationAndCustomViews() {
       const nav = $("mainNavBar");
       const customCont = $("customTabsContainer");
@@ -1281,7 +1278,7 @@
             <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
               <div class="flex items-center gap-2">
                 ${cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-7 w-7 object-contain rounded">` : ''}
-                <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">${escapeHtml(currentLang === 'en' && t.labelEn ? t.labelEn : t.labelEs)}</h3>
+                <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">${escapeHtml(currentLang === 'en' && t.labelEn ? t.labelEn : (t.labelEs || t.id))}</h3>
               </div>
               <button type="button" onclick="translateCustomTabContent('${t.id}')" class="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-cyan-300 border border-white/10">🌐 ES / EN</button>
             </div>
@@ -1300,14 +1297,20 @@
         const label = (currentLang === 'en' && t.labelEn) ? t.labelEn : t.labelEs;
         const isActive = currentActiveTab === t.id;
         const cleanGif = normalizeUrl(t.gifUrl);
-        const gifHtml = cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-4 w-4 object-contain shrink-0 rounded-sm">` : '';
-        return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" style="flex: 1 1 ${pctWidth}; max-width: ${pctWidth};" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[9px] sm:text-[11px] leading-tight font-bold py-2 px-1 rounded-xl glass border text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 min-h-[42px] whitespace-normal break-words">${gifHtml}<span class="leading-tight">${escapeHtml(label)}</span></button>`;
+        const hasLabel = label && label.trim() !== "";
+        const gifHtml = cleanGif
+          ? `<img src="${escapeHtml(cleanGif)}" class="${hasLabel ? 'w-9 h-9 sm:w-11 sm:h-11' : 'w-full h-11 sm:h-14'} object-contain mx-auto rounded-lg">`
+          : '';
+        const textHtml = hasLabel
+          ? `<span class="leading-tight block w-full">${escapeHtml(label)}</span>`
+          : '';
+        return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" style="flex: 1 1 ${pctWidth}; max-width: ${pctWidth};" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[9px] sm:text-[11px] leading-tight font-bold ${cleanGif ? 'p-1' : 'py-2 px-1'} rounded-xl glass border text-center transition flex flex-col items-center justify-center gap-0.5 min-h-[52px] sm:min-h-[60px] whitespace-normal break-words overflow-hidden">${gifHtml}${textHtml}</button>`;
       }).join('');
 
       const noticeSel = $("adminNoticeTabSelect");
       if (noticeSel) {
         const prevVal = noticeSel.value;
-        noticeSel.innerHTML = tabs.map(t => `<option value="${t.id}">${escapeHtml(t.labelEs)}</option>`).join('');
+        noticeSel.innerHTML = tabs.map(t => `<option value="${t.id}">${escapeHtml(t.labelEs || t.id.toUpperCase())}</option>`).join('');
         if (prevVal && tabs.some(t => t.id === prevVal)) noticeSel.value = prevVal;
       }
 
@@ -1340,7 +1343,7 @@
             <div class="flex items-center gap-2">
               <input type="checkbox" ${t.visible !== false ? 'checked' : ''} onchange="updateTabProp(${idx}, 'visible', this.checked)" class="accent-emerald-500" title="Visible / Oculta">
               <span class="text-[10px] font-mono text-zinc-400">${t.custom ? 'PERSONALIZADA' : t.id.toUpperCase()}</span>
-              ${t.gifUrl ? `<img src="${escapeHtml(normalizeUrl(t.gifUrl))}" class="h-5 w-5 object-contain rounded border border-white/10">` : ''}
+              ${t.gifUrl ? `<img src="${escapeHtml(normalizeUrl(t.gifUrl))}" class="h-6 w-6 object-contain rounded border border-white/10">` : ''}
             </div>
             <div class="flex items-center gap-1">
               <button type="button" onclick="moveTabOrder(${idx}, -1)" class="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px]" ${idx === 0 ? 'disabled opacity-40' : ''}>⬆️</button>
@@ -1349,7 +1352,7 @@
             </div>
           </div>
           <div class="space-y-1.5">
-            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña" class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
+            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña (dejar vacío para solo icono)" class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
             <div class="flex gap-1.5 items-center">
               <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', normalizeUrl(this.value)); renderAdminTabsManager();" placeholder="URL imagen/GIF (ej. https://raw.githubusercontent.com/...)" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
               <label class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] cursor-pointer transition whitespace-nowrap">
@@ -1389,7 +1392,7 @@
       const label = $("newCustomTabLabel").value.trim();
       const gifUrl = normalizeUrl($("newCustomTabUrl").value);
       const content = $("newCustomTabContent").value.trim();
-      if (!label) return alert("Escribe un nombre para la nueva pestaña.");
+      if (!label && !gifUrl) return alert("Escribe un nombre o sube un icono/GIF para la nueva pestaña.");
       const id = 'custom_' + Date.now();
       config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl, content, custom: true });
       $("newCustomTabLabel").value = $("newCustomTabUrl").value = $("newCustomTabContent").value = "";
@@ -1425,7 +1428,7 @@
       }
       const cleanGif = normalizeUrl(st.gifUrl);
       if (st.text || cleanGif) {
-        const gifHtml = cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-4 w-4 object-contain inline-block rounded-sm">` : '';
+        const gifHtml = cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-5 w-5 object-contain inline-block rounded-sm">` : '';
         const currentSpan = el.querySelector("span:last-child");
         const baseTxt = st.text ? escapeHtml(st.text) : (currentSpan ? currentSpan.textContent.trim() : el.textContent.trim());
         el.innerHTML = `${gifHtml}<span>${baseTxt}</span>`;
@@ -1703,7 +1706,7 @@
         adminList.innerHTML = !keys.length ? '<p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p>' : keys.map(k => {
           const tabObj = tabs.find(x => x.id === k);
           return `<div class="p-3 bg-zinc-900 rounded-xl border border-amber-500/20 flex justify-between items-start gap-2">
-            <div class="space-y-1"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${escapeHtml(tabObj ? tabObj.labelEs : k)}</span><p class="text-xs text-zinc-200 whitespace-pre-line">${escapeHtml(notices[k])}</p></div>
+            <div class="space-y-1"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${escapeHtml(tabObj ? (tabObj.labelEs || tabObj.id) : k)}</span><p class="text-xs text-zinc-200 whitespace-pre-line">${escapeHtml(notices[k])}</p></div>
             <div class="flex gap-1.5 shrink-0"><button type="button" onclick="editTabNotice('${k}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] font-bold transition">Editar</button><button type="button" onclick="deleteTabNotice('${k}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] font-bold transition">Eliminar</button></div>
           </div>`;
         }).join('');
@@ -2331,7 +2334,6 @@
       listenActiveUsers();
       if (currentChatNick) $("chatNickInput").value = currentChatNick;
 
-      // Mantener sesión del curador abierta automáticamente al recargar o cambiar de página
       auth.onAuthStateChanged(user => {
         if (user) {
           $("adminLoginBox").classList.add("hidden");
