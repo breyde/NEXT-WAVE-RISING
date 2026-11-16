@@ -39,13 +39,13 @@
       <span class="text-emerald-400/80 shrink-0 text-[10px]">→</span>
     </button>
 
-    <!-- BARRA DE NAVEGACIÓN DINÁMICA -->
-    <nav id="mainNavBar" class="w-full flex flex-wrap sm:grid sm:grid-cols-7 gap-1 pt-1"></nav>
-  </main>
+    <!-- BARRA DE NAVEGACIÓN EQUITATIVA CON SALTO DE LÍNEA ADAPTABLE -->
+    <nav id="mainNavBar" class="w-full flex flex-wrap items-stretch justify-between gap-1 pt-1"></nav>
+  </header>
 
   <main id="mainContentContainer" class="w-full max-w-2xl space-y-6 pb-12">
 
-    <!-- REPRODUCTOR TEMA DESTACADO GLOBAL (SE UBICA DINÁMICAMENTE EN LAS PESTAÑAS ACTIVADAS) -->
+    <!-- REPRODUCTOR TEMA DESTACADO GLOBAL -->
     <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2 border border-emerald-500/30">
       <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider" data-i18n="txtFeatured">🎵 TEMA DESTACADO</h3>
       <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
@@ -445,19 +445,27 @@
             </div>
           </div>
 
-          <!-- 3. GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR NUEVAS Y GIF) -->
+          <!-- 3. GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR NUEVAS Y EXAMINAR GIF/IMAGEN) -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Reordena con las flechas, cambia nombres, oculta pestañas o añade una imagen/GIF animado junto al nombre.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual con salto de línea automático. Puedes subir un GIF o imagen desde tu dispositivo con el botón <strong>Examinar</strong>.</p>
             </div>
-            <div id="adminTabsManagerList" class="space-y-2 text-xs"></div>
+            <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
 
             <div class="pt-3 border-t border-white/10 space-y-2.5">
               <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
                 <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <input type="url" id="newCustomTabGif" placeholder="URL imagen o GIF animado (opcional)" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition">
+                  <span>📁 Examinar GIF / Imagen</span>
+                  <input type="file" id="newCustomTabFile" accept="image/*" onchange="handleNewTabFileUpload(event)" class="hidden">
+                </label>
+              </div>
+              <div id="newCustomTabPreviewBox" class="hidden flex items-center gap-2 bg-zinc-950 p-2 rounded-xl border border-white/10">
+                <img id="newCustomTabPreviewImg" src="" class="h-8 w-8 object-contain rounded">
+                <span class="text-[11px] text-emerald-400 font-semibold flex-1">Imagen/GIF cargado listo para crear</span>
+                <button type="button" onclick="clearNewTabFile()" class="text-[11px] text-rose-400 hover:underline">Quitar</button>
               </div>
               <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
               <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
@@ -465,7 +473,7 @@
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
           </div>
 
-          <!-- 4. PERSONALIZADOR DE BOTONES (TEXTO, COLOR, FONDO, TAMAÑO Y GIF) -->
+          <!-- 4. PERSONALIZADOR DE BOTONES -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
             <div>
               <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones (Texto, Color, Fondo, Tamaño y GIF)</h3>
@@ -742,7 +750,7 @@
 
     const translations = {
       es: {
-        adminBtn: "Panel Curadores", backApp: "Volver a la App", tabActive: "📻 Activa", tabWeekly: "🔥 Cola Semanal", tabMonthly: "Mensual", tabAnnual: "Anual", tabTop: "TOP", tabVote: "Votar", tabChat: "💬 Chat",
+        adminBtn: "Panel Curadores", backApp: "Volver a la App",
         activeListHeader: "📻 LISTA ACTIVA (ON AIR ESTA SEMANA)", activeListSub: "Estos son los temas que están sonando actualmente y compiten en la votación de esta semana.", btnGoVote: "⭐ Ir a Votar", activeListEmpty: "Aún no hay canciones cargadas en la lista activa de esta semana.",
         txtClosure: "Cierre: Jueves 00:00h", statusOpen: "Abierta", statusClosed: "Cerrada", lblDays: "DÍAS", lblHours: "HORAS", lblMins: "MIN", lblSecs: "SEG", txtFeatured: "🎵 TEMA DESTACADO",
         manifestTitle: "⚡ Nuestro Manifiesto & Recompensas", manifestDesc: "<strong>Next Wave Rising</strong> es una playlist colaborativa creada por <strong>Breyde & Darko</strong> para artistas emergentes para competir fuera de la liga de las grandes discográficas.",
@@ -767,7 +775,7 @@
         confirmVoteTitle: "Confirmar Votación", confirmVoteDesc: "Va a emitir sus votos. No se podrán anular si acepta.", btnCancel: "Cancelar", btnAccept: "Aceptar", lblUniqueVisitors: "👤 Visitantes únicos:", noticeImportantBadge: "AVISO IMPORTANTE"
       },
       en: {
-        adminBtn: "Curators Panel", backApp: "Back to App", tabActive: "📻 Active", tabWeekly: "🔥 Weekly Queue", tabMonthly: "Monthly", tabAnnual: "Annual", tabTop: "TOP", tabVote: "Vote", tabChat: "💬 Chat",
+        adminBtn: "Curators Panel", backApp: "Back to App",
         activeListHeader: "📻 ACTIVE LIST (ON AIR THIS WEEK)", activeListSub: "These are the tracks currently playing and competing in this week's vote.", btnGoVote: "⭐ Go to Vote", activeListEmpty: "No tracks loaded in this week's active list yet.",
         txtClosure: "Closes: Thursday 00:00h", statusOpen: "Open", statusClosed: "Closed", lblDays: "DAYS", lblHours: "HOURS", lblMins: "MINS", lblSecs: "SECS", txtFeatured: "🎵 FEATURED TRACK",
         manifestTitle: "⚡ Our Manifesto & Rewards", manifestDesc: "<strong>Next Wave Rising</strong> is a collaborative playlist created by <strong>Breyde & Darko</strong> for emerging artists to compete outside major label leagues.",
@@ -810,7 +818,7 @@
     let currentLang = 'es', currentActiveTab = 'active', globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
     let sessionPendingVotes = [], lockedRandomOrder = null, chatUnsubscribe = null, presenceInterval = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
-    let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false;
+    let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false, pendingNewTabGifData = "";
     let chatSessionId = sessionStorage.getItem('nwr_session_id') || ('sess_' + Math.random().toString(36).slice(2, 9));
     sessionStorage.setItem('nwr_session_id', chatSessionId);
 
@@ -833,6 +841,30 @@
       tabsConfig: JSON.parse(JSON.stringify(defaultTabsList)),
       customButtons: {}
     };
+
+    // Procesar archivo de imagen/GIF conservando animación GIF si es .gif y optimizando si es imagen estática
+    function processImageFileToDataUrl(file, maxW, maxH, callback) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (file.type === "image/gif") {
+          callback(ev.target.result);
+          return;
+        }
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let w = img.width, h = img.height;
+          if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
+          if (h > maxH) { w = Math.round((w * maxH) / h); h = maxH; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          callback(canvas.toDataURL("image/png"));
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
 
     function getEmbedUrl(url, listKey) {
       if (!url || !url.includes("spotify.com/") || !url.includes("/track/")) return "";
@@ -981,13 +1013,12 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR, GIF) ====================
+    // ==================== GESTOR DE PESTAÑAS (ANCHO EQUITATIVO, SALTO DE LÍNEA Y EXAMINAR GIF/IMAGEN) ====================
     function renderNavigationAndCustomViews() {
       const nav = $("mainNavBar");
       const customCont = $("customTabsContainer");
       const tabs = (config.tabsConfig && config.tabsConfig.length) ? config.tabsConfig : defaultTabsList;
 
-      // Renderizar vistas personalizadas
       customCont.innerHTML = tabs.filter(t => t.custom).map(t => `
         <div id="view_${t.id}" class="hidden space-y-6">
           <div id="noticeBanner_${t.id}" class="hidden"></div>
@@ -1004,15 +1035,19 @@
       `).join('');
 
       const visibleTabs = tabs.filter(t => t.visible !== false);
-      nav.style.gridTemplateColumns = `repeat(${Math.min(visibleTabs.length, 7)}, minmax(0, 1fr))`;
+      const count = visibleTabs.length || 1;
+      // Porcentaje equitativo exacto repartido entre todas las pestañas visibles (con margen para gap)
+      // Si hay más de 7 pestañas, se reparten en filas de máximo 5 para que sigan siendo anchas y cómodas
+      const colsPerRow = count <= 7 ? count : Math.ceil(count / 2);
+      const pctWidth = `calc(${(100 / colsPerRow).toFixed(4)}% - 4px)`;
+
       nav.innerHTML = visibleTabs.map(t => {
         const label = (currentLang === 'en' && t.labelEn) ? t.labelEn : t.labelEs;
         const isActive = currentActiveTab === t.id;
-        const gifHtml = t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-3.5 w-3.5 object-contain inline-block mr-0.5 rounded-sm">` : '';
-        return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border text-center transition flex items-center justify-center gap-0.5">${gifHtml}<span class="truncate">${escapeHtml(label)}</span></button>`;
+        const gifHtml = t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-4 w-4 object-contain shrink-0 rounded-sm">` : '';
+        return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" style="flex: 1 1 ${pctWidth}; max-width: ${pctWidth};" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[9px] sm:text-[11px] leading-tight font-bold py-2 px-1 rounded-xl glass border text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 min-h-[42px] whitespace-normal break-words">${gifHtml}<span class="leading-tight">${escapeHtml(label)}</span></button>`;
       }).join('');
 
-      // Actualizar desplegable de avisos
       const noticeSel = $("adminNoticeTabSelect");
       if (noticeSel) {
         const prevVal = noticeSel.value;
@@ -1029,11 +1064,12 @@
       if (!list) return;
       const tabs = config.tabsConfig || defaultTabsList;
       list.innerHTML = tabs.map((t, idx) => `
-        <div class="p-2.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2">
+        <div class="p-3 bg-zinc-900 rounded-xl border border-white/10 space-y-2">
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
               <input type="checkbox" ${t.visible !== false ? 'checked' : ''} onchange="updateTabProp(${idx}, 'visible', this.checked)" class="accent-emerald-500" title="Visible / Oculta">
-              <span class="text-[10px] font-mono text-zinc-500">${t.custom ? 'CUSTOM' : t.id.toUpperCase()}</span>
+              <span class="text-[10px] font-mono text-zinc-400">${t.custom ? 'PERSONALIZADA' : t.id.toUpperCase()}</span>
+              ${t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-5 w-5 object-contain rounded border border-white/10">` : ''}
             </div>
             <div class="flex items-center gap-1">
               <button type="button" onclick="moveTabOrder(${idx}, -1)" class="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px]" ${idx === 0 ? 'disabled opacity-40' : ''}>⬆️</button>
@@ -1041,13 +1077,49 @@
               ${t.custom ? `<button type="button" onclick="deleteCustomTab(${idx})" class="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded text-[11px]">🗑️</button>` : ''}
             </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre ES" class="px-2.5 py-1.5 rounded bg-zinc-950 border border-zinc-700 text-xs text-white">
-            <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', this.value)" placeholder="URL GIF / Icono (opcional)" class="px-2.5 py-1.5 rounded bg-zinc-950 border border-zinc-700 text-xs text-white">
+          <div class="flex flex-col sm:flex-row gap-1.5 items-stretch sm:items-center">
+            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
+            <div class="flex gap-1.5">
+              <label class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] cursor-pointer transition flex items-center justify-center gap-1 whitespace-nowrap">
+                <span>📁 Examinar</span>
+                <input type="file" accept="image/*" onchange="handleExistingTabFileUpload(event, ${idx})" class="hidden">
+              </label>
+              ${t.gifUrl ? `<button type="button" onclick="clearExistingTabGif(${idx})" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-[11px] font-bold">✕</button>` : ''}
+            </div>
           </div>
         </div>
       `).join('');
     }
+
+    window.handleExistingTabFileUpload = (e, idx) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      processImageFileToDataUrl(file, 96, 96, dataUrl => {
+        config.tabsConfig[idx].gifUrl = dataUrl;
+        renderAdminTabsManager();
+      });
+    };
+
+    window.clearExistingTabGif = idx => {
+      config.tabsConfig[idx].gifUrl = "";
+      renderAdminTabsManager();
+    };
+
+    window.handleNewTabFileUpload = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      processImageFileToDataUrl(file, 320, 320, dataUrl => {
+        pendingNewTabGifData = dataUrl;
+        $("newCustomTabPreviewImg").src = dataUrl;
+        $("newCustomTabPreviewBox").classList.remove("hidden");
+      });
+    };
+
+    window.clearNewTabFile = () => {
+      pendingNewTabGifData = "";
+      $("newCustomTabFile").value = "";
+      $("newCustomTabPreviewBox").classList.add("hidden");
+    };
 
     window.moveTabOrder = (idx, dir) => {
       const tabs = config.tabsConfig;
@@ -1063,12 +1135,12 @@
 
     window.createNewCustomTab = () => {
       const label = $("newCustomTabLabel").value.trim();
-      const gifUrl = $("newCustomTabGif").value.trim();
       const content = $("newCustomTabContent").value.trim();
       if (!label) return alert("Escribe un nombre para la nueva pestaña.");
       const id = 'custom_' + Date.now();
-      config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl, content, custom: true });
-      $("newCustomTabLabel").value = $("newCustomTabGif").value = $("newCustomTabContent").value = "";
+      config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl: pendingNewTabGifData, content, custom: true });
+      $("newCustomTabLabel").value = $("newCustomTabContent").value = "";
+      clearNewTabFile();
       renderAdminTabsManager();
       alert("Pestaña añadida a la lista. Pulsa 'Guardar Orden y Cambios de Pestañas' para publicarla.");
     };
@@ -1304,23 +1376,11 @@
     window.handleLogoFileUpload = e => {
       const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let w = img.width, h = img.height;
-          if (w > 1100) { h = Math.round((h * 1100) / w); w = 1100; }
-          if (h > 380) { w = Math.round((w * 380) / h); h = 380; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          config.logoUrl = canvas.toDataURL("image/png");
-          $("adminLogoPreviewImg").src = config.logoUrl;
-          $("adminLogoPreviewBox").classList.remove("hidden");
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+      processImageFileToDataUrl(file, 1100, 380, dataUrl => {
+        config.logoUrl = dataUrl;
+        $("adminLogoPreviewImg").src = dataUrl;
+        $("adminLogoPreviewBox").classList.remove("hidden");
+      });
     };
 
     window.saveBrandLogo = async () => {
