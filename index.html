@@ -25,7 +25,7 @@
           <span>✉️</span> <span data-i18n="contactBtn">Contacto</span>
         </button>
       </div>
-      <div id="headerVotingStatus" class="px-3 h-9 rounded-xl text-xs font-bold border shadow-sm flex items-center justify-center"></div>
+      <div id="headerVotingStatus" class="px-3 h-9 rounded-xl text-xs font-bold border shadow-sm flex items-center justify-center gap-1.5"></div>
     </div>
 
     <div id="brandHeaderContainer" class="w-full flex justify-center items-center pt-1">
@@ -382,6 +382,39 @@
         <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
 
+          <!-- 0. GESTOR DE ICONOS E IMÁGENES DIRECTO EN GITHUB (CARPETA img/) -->
+          <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
+            <div>
+              <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Subir Iconos / GIFs a GitHub (Carpeta <code>img/</code>)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Sube tus GIFs animados e imágenes directamente a tu repositorio <strong>breyde/NEXT-WAVE-RISING</strong> sin ocupar base de datos, míralos en la galería y copia su URL lista para pegar.</p>
+            </div>
+
+            <div class="space-y-2.5 bg-zinc-950/70 p-3.5 rounded-xl border border-white/10">
+              <label class="block text-[11px] text-zinc-300 font-semibold">🔑 GitHub Token (se guarda solo en tu navegador):</label>
+              <div class="flex gap-2">
+                <input type="password" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white font-mono">
+                <button type="button" onclick="saveGithubToken()" class="px-3.5 py-2 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow">Guardar Token</button>
+              </div>
+              <p id="ghTokenStatus" class="text-[10px] text-zinc-400">Estado: Sin token guardado.</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="flex-1 py-2.5 px-4 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs cursor-pointer transition flex items-center justify-center gap-2">
+                <span>📤 Seleccionar y Subir Archivos a GitHub (<code>img/</code>)</span>
+                <input type="file" id="ghUploadInput" accept="image/*" multiple onchange="uploadFilesToGithub(event)" class="hidden">
+              </label>
+              <button type="button" onclick="loadGithubGallery()" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs border border-white/10 transition">🔄 Actualizar Galería</button>
+            </div>
+            <p id="ghUploadStatus" class="text-xs text-center text-sky-300 hidden font-semibold"></p>
+
+            <div class="space-y-2 pt-2 border-t border-white/10">
+              <p class="text-[11px] font-bold text-zinc-300 uppercase">🖼️ Galería en GitHub (<code>img/</code>):</p>
+              <div id="ghGalleryContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                <p class="col-span-full text-zinc-500 italic text-[11px]">Pulsa "Actualizar Galería" para ver tus iconos subidos en GitHub.</p>
+              </div>
+            </div>
+          </div>
+
           <!-- 1. TEMA DESTACADO: ACTIVAR / DESACTIVAR Y PESTAÑAS -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div class="flex justify-between items-center">
@@ -445,27 +478,23 @@
             </div>
           </div>
 
-          <!-- 3. GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR NUEVAS Y EXAMINAR GIF/IMAGEN) -->
+          <!-- 3. GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR NUEVAS Y EXAMINAR / URL GITHUB) -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual con salto de línea automático. Puedes subir un GIF o imagen desde tu dispositivo con el botón <strong>Examinar</strong>.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Puedes pegar la URL de GitHub o pulsar <strong>Examinar</strong> para subirlo directo a GitHub desde tu dispositivo.</p>
             </div>
             <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
 
             <div class="pt-3 border-t border-white/10 space-y-2.5">
               <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-center">
-                <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <label class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition">
-                  <span>📁 Examinar GIF / Imagen</span>
+              <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              <div class="flex gap-1.5 items-center">
+                <input type="url" id="newCustomTabUrl" placeholder="URL imagen / GIF de GitHub (o pulsa Examinar)..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                  <span>📁 Examinar</span>
                   <input type="file" id="newCustomTabFile" accept="image/*" onchange="handleNewTabFileUpload(event)" class="hidden">
                 </label>
-              </div>
-              <div id="newCustomTabPreviewBox" class="hidden flex items-center gap-2 bg-zinc-950 p-2 rounded-xl border border-white/10">
-                <img id="newCustomTabPreviewImg" src="" class="h-8 w-8 object-contain rounded">
-                <span class="text-[11px] text-emerald-400 font-semibold flex-1">Imagen/GIF cargado listo para crear</span>
-                <button type="button" onclick="clearNewTabFile()" class="text-[11px] text-rose-400 hover:underline">Quitar</button>
               </div>
               <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
               <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
@@ -473,16 +502,18 @@
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
           </div>
 
-          <!-- 4. PERSONALIZADOR DE BOTONES -->
+          <!-- 4. PERSONALIZADOR DE BOTONES E INDICADOR DE VOTACIÓN -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
             <div>
-              <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones (Texto, Color, Fondo, Tamaño y GIF)</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón de la web para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
+              <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón o el indicador superior de <strong>Votación activa / inactiva</strong> para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
             </div>
             <div class="space-y-3">
               <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Botón:</label>
+                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Elemento:</label>
                 <select id="adminButtonSelect" onchange="loadButtonCustomForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <option value="votingBadgeActive">🟢 Indicador Votación Activa (Arriba derecha)</option>
+                  <option value="votingBadgeInactive">🔴 Indicador Votación Inactiva (Arriba derecha)</option>
                   <option value="btnContactHeader">✉️ Botón Contacto (Cabecera)</option>
                   <option value="btnInfoHeader">📜 Botón Normas y Funcionamiento (Cabecera)</option>
                   <option value="activePlaylistLinkBtn">🟢 Abrir Playlist Spotify (Lista Activa)</option>
@@ -498,10 +529,10 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label class="block text-[11px] text-zinc-400 mb-1">Texto personalizado (vacío = por defecto):</label>
-                  <input type="text" id="adminBtnText" placeholder="Texto del botón..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <input type="text" id="adminBtnText" placeholder="Texto..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
                 </div>
                 <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Tamaño del botón:</label>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Tamaño:</label>
                   <select id="adminBtnSize" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
                     <option value="">Por defecto</option>
                     <option value="sm">Pequeño (Compacto)</option>
@@ -527,11 +558,17 @@
                 </div>
               </div>
               <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">URL de imagen o GIF animado dentro del botón (opcional):</label>
-                <input type="url" id="adminBtnGifUrl" placeholder="https://.../animacion.gif" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="block text-[11px] text-zinc-400 mb-1">URL de imagen/GIF (o pulsa Examinar para subir a GitHub):</label>
+                <div class="flex gap-1.5 items-center">
+                  <input type="url" id="adminBtnGifUrl" placeholder="https://breyde.github.io/NEXT-WAVE-RISING/img/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <label class="px-3 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                    <span>📁 Examinar</span>
+                    <input type="file" accept="image/*" onchange="handleBtnGifUpload(event)" class="hidden">
+                  </label>
+                </div>
               </div>
               <div class="flex gap-2">
-                <button type="button" onclick="saveButtonCustomization()" class="flex-1 py-2.5 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Estilo de Botón</button>
+                <button type="button" onclick="saveButtonCustomization()" class="flex-1 py-2.5 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Estilo</button>
                 <button type="button" onclick="resetButtonCustomization()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar</button>
               </div>
             </div>
@@ -567,16 +604,15 @@
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">🖼️ Logo de Cabecera (Imagen, GIF o Texto)</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Sustituye el título de texto <strong>"Next Wave Rising"</strong> por una imagen o GIF animado desde tu dispositivo o URL.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Pega la URL de GitHub o pulsa <strong>Examinar</strong> para subirlo directo a GitHub desde tu dispositivo.</p>
             </div>
             <div class="space-y-3">
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Seleccionar imagen desde tu dispositivo (PNG, JPG, WEBP):</label>
-                <input type="file" id="adminLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="w-full text-xs text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30 cursor-pointer">
-              </div>
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">O pega una URL directa de imagen o GIF animado:</label>
-                <input type="url" id="adminLogoUrlInput" placeholder="https://.../logo.gif" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              <div class="flex gap-1.5 items-center">
+                <input type="url" id="adminLogoUrlInput" placeholder="https://breyde.github.io/NEXT-WAVE-RISING/img/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                  <span>📁 Examinar</span>
+                  <input type="file" id="adminLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="hidden">
+                </label>
               </div>
               <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2">
                 <span class="text-[10px] text-zinc-400 uppercase">Vista previa del logo:</span>
@@ -742,6 +778,11 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    const GH_OWNER = "breyde";
+    const GH_REPO = "NEXT-WAVE-RISING";
+    const GH_FOLDER = "img";
+    const GH_PAGES_BASE = `https://${GH_OWNER}.github.io/${GH_REPO}/${GH_FOLDER}/`;
+
     const $ = id => document.getElementById(id);
     const escapeHtml = s => String(s || "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
     const madridStr = () => new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
@@ -818,7 +859,7 @@
     let currentLang = 'es', currentActiveTab = 'active', globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
     let sessionPendingVotes = [], lockedRandomOrder = null, chatUnsubscribe = null, presenceInterval = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
-    let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false, pendingNewTabGifData = "";
+    let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false;
     let chatSessionId = sessionStorage.getItem('nwr_session_id') || ('sess_' + Math.random().toString(36).slice(2, 9));
     sessionStorage.setItem('nwr_session_id', chatSessionId);
 
@@ -842,28 +883,187 @@
       customButtons: {}
     };
 
-    // Procesar archivo de imagen/GIF conservando animación GIF si es .gif y optimizando si es imagen estática
-    function processImageFileToDataUrl(file, maxW, maxH, callback) {
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        if (file.type === "image/gif") {
-          callback(ev.target.result);
+    // ==================== GESTOR DE ARCHIVOS EN GITHUB (CARPETA img/) ====================
+    function getGithubToken() {
+      return localStorage.getItem("nwr_gh_token") || "";
+    }
+
+    window.saveGithubToken = () => {
+      const val = $("ghTokenInput").value.trim();
+      if (!val) {
+        localStorage.removeItem("nwr_gh_token");
+        updateGithubTokenStatus();
+        return alert("Token eliminado de este navegador.");
+      }
+      localStorage.setItem("nwr_gh_token", val);
+      $("ghTokenInput").value = "";
+      updateGithubTokenStatus();
+      loadGithubGallery();
+      alert("✅ Token de GitHub guardado localmente en este navegador.");
+    };
+
+    function updateGithubTokenStatus() {
+      const tok = getGithubToken();
+      const st = $("ghTokenStatus");
+      if (st) {
+        st.innerHTML = tok
+          ? `Estado: <span class="text-emerald-400 font-bold">● Token activo (${tok.slice(0, 6)}...${tok.slice(-4)})</span>`
+          : `Estado: <span class="text-amber-400">Sin token guardado (necesario para subir/borrar en GitHub).</span>`;
+      }
+    }
+
+    function fileToBase64Pure(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function pushSingleFileToGithub(file) {
+      const token = getGithubToken();
+      if (!token) throw new Error("Configura primero tu GitHub Token en el apartado 'Subir Iconos / GIFs a GitHub'.");
+
+      const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+      const path = `${GH_FOLDER}/${safeName}`;
+      const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+      const base64Content = await fileToBase64Pure(file);
+
+      // Comprobar si ya existe para obtener su SHA y sobrescribirlo limpiamente
+      let sha = undefined;
+      try {
+        const checkRes = await fetch(apiUrl, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" } });
+        if (checkRes.ok) {
+          const existing = await checkRes.json();
+          sha = existing.sha;
+        }
+      } catch (e) {}
+
+      const res = await fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `Upload ${safeName} to ${GH_FOLDER}/`,
+          content: base64Content,
+          ...(sha ? { sha } : {})
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || `Error HTTP ${res.status}`);
+      }
+
+      return `${GH_PAGES_BASE}${safeName}`;
+    }
+
+    window.uploadFilesToGithub = async e => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      const st = $("ghUploadStatus");
+      st.textContent = `⏳ Subiendo ${files.length} archivo(s) a GitHub (${GH_FOLDER}/)...`;
+      st.className = "text-xs text-center text-sky-300 font-semibold";
+      st.classList.remove("hidden");
+
+      try {
+        for (const f of files) {
+          await pushSingleFileToGithub(f);
+        }
+        st.textContent = `✅ ${files.length} archivo(s) subido(s) a GitHub. Estarán online en ~15-30 segundos.`;
+        st.className = "text-xs text-center text-emerald-400 font-semibold";
+        e.target.value = "";
+        await loadGithubGallery();
+      } catch (err) {
+        st.textContent = `❌ ${err.message}`;
+        st.className = "text-xs text-center text-rose-400 font-semibold";
+      }
+    };
+
+    window.loadGithubGallery = async () => {
+      const cont = $("ghGalleryContainer");
+      if (!cont) return;
+      cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">Cargando archivos de GitHub...</p>';
+      try {
+        const token = getGithubToken();
+        const headers = { Accept: "application/vnd.github+json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+
+        const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}?t=${Date.now()}`, { headers });
+        if (res.status === 404) {
+          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">La carpeta <code>img/</code> aún está vacía. Sube tu primer icono arriba.</p>';
           return;
         }
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let w = img.width, h = img.height;
-          if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
-          if (h > maxH) { w = Math.round((w * maxH) / h); h = maxH; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          callback(canvas.toDataURL("image/png"));
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        const items = await res.json();
+        const images = (Array.isArray(items) ? items : []).filter(x => x.type === "file" && /\.(png|jpe?g|gif|webp|svg)$/i.test(x.name));
+
+        if (!images.length) {
+          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">No hay imágenes en <code>img/</code> todavía.</p>';
+          return;
+        }
+
+        cont.innerHTML = images.map(img => {
+          const publicUrl = `${GH_PAGES_BASE}${img.name}`;
+          // Usar download_url como fallback inmediato mientras GitHub Pages termina de desplegar
+          const previewSrc = img.download_url || publicUrl;
+          return `
+            <div class="p-2.5 bg-zinc-900 rounded-xl border border-white/10 flex flex-col items-center justify-between gap-2 text-center">
+              <div class="h-14 w-full flex items-center justify-center bg-zinc-950 rounded-lg p-1 overflow-hidden">
+                <img src="${previewSrc}" alt="${escapeHtml(img.name)}" class="max-h-12 max-w-full object-contain">
+              </div>
+              <p class="text-[10px] text-zinc-300 truncate w-full font-mono" title="${escapeHtml(img.name)}">${escapeHtml(img.name)}</p>
+              <div class="flex gap-1 w-full">
+                <button type="button" onclick="copyGithubAssetUrl('${publicUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 Copiar URL</button>
+                <button type="button" onclick="deleteGithubAsset('${img.path}', '${img.sha}', '${escapeHtml(img.name)}')" class="py-1 px-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded text-[10px] transition">🗑️</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        cont.innerHTML = `<p class="col-span-full text-rose-400 text-center py-3">No se pudo leer la galería: ${escapeHtml(e.message)}</p>`;
+      }
+    };
+
+    window.copyGithubAssetUrl = url => {
+      navigator.clipboard.writeText(url);
+      alert(`📋 URL copiada:\n${url}`);
+    };
+
+    window.deleteGithubAsset = async (path, sha, name) => {
+      const token = getGithubToken();
+      if (!token) return alert("Necesitas guardar tu GitHub Token para borrar archivos.");
+      if (!confirm(`¿Eliminar "${name}" de GitHub?`)) return;
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+          body: JSON.stringify({ message: `Delete ${name}`, sha })
+        });
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        await loadGithubGallery();
+      } catch (e) { alert("Error al borrar en GitHub: " + e.message); }
+    };
+
+    // Subir desde botón "Examinar" directo a GitHub (si hay token) o lectura local si es ligero
+    async function handleExamineToGithubOrLocal(file, onUrlReady) {
+      if (!file) return;
+      if (getGithubToken()) {
+        try {
+          const url = await pushSingleFileToGithub(file);
+          onUrlReady(url);
+          loadGithubGallery();
+          alert(`✅ Subido a GitHub y URL asignada:\n${url}`);
+        } catch (err) {
+          alert("Error subiendo a GitHub: " + err.message);
+        }
+      } else {
+        alert("💡 Consejo: Configura tu GitHub Token arriba en 'Subir Iconos / GIFs a GitHub' para que el botón Examinar suba tus archivos directo a GitHub sin llenar la base de datos.");
+      }
     }
 
     function getEmbedUrl(url, listKey) {
@@ -1013,7 +1213,7 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== GESTOR DE PESTAÑAS (ANCHO EQUITATIVO, SALTO DE LÍNEA Y EXAMINAR GIF/IMAGEN) ====================
+    // ==================== GESTOR DE PESTAÑAS (ANCHO EQUITATIVO, URL GITHUB Y EXAMINAR) ====================
     function renderNavigationAndCustomViews() {
       const nav = $("mainNavBar");
       const customCont = $("customTabsContainer");
@@ -1036,8 +1236,6 @@
 
       const visibleTabs = tabs.filter(t => t.visible !== false);
       const count = visibleTabs.length || 1;
-      // Porcentaje equitativo exacto repartido entre todas las pestañas visibles (con margen para gap)
-      // Si hay más de 7 pestañas, se reparten en filas de máximo 5 para que sigan siendo anchas y cómodas
       const colsPerRow = count <= 7 ? count : Math.ceil(count / 2);
       const pctWidth = `calc(${(100 / colsPerRow).toFixed(4)}% - 4px)`;
 
@@ -1077,10 +1275,11 @@
               ${t.custom ? `<button type="button" onclick="deleteCustomTab(${idx})" class="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded text-[11px]">🗑️</button>` : ''}
             </div>
           </div>
-          <div class="flex flex-col sm:flex-row gap-1.5 items-stretch sm:items-center">
-            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
-            <div class="flex gap-1.5">
-              <label class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] cursor-pointer transition flex items-center justify-center gap-1 whitespace-nowrap">
+          <div class="space-y-1.5">
+            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña" class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
+            <div class="flex gap-1.5 items-center">
+              <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', this.value); renderAdminTabsManager();" placeholder="URL imagen/GIF (ej. https://breyde.github.io/...)" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
+              <label class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] cursor-pointer transition whitespace-nowrap">
                 <span>📁 Examinar</span>
                 <input type="file" accept="image/*" onchange="handleExistingTabFileUpload(event, ${idx})" class="hidden">
               </label>
@@ -1094,8 +1293,8 @@
     window.handleExistingTabFileUpload = (e, idx) => {
       const file = e.target.files[0];
       if (!file) return;
-      processImageFileToDataUrl(file, 96, 96, dataUrl => {
-        config.tabsConfig[idx].gifUrl = dataUrl;
+      handleExamineToGithubOrLocal(file, url => {
+        config.tabsConfig[idx].gifUrl = url;
         renderAdminTabsManager();
       });
     };
@@ -1108,17 +1307,9 @@
     window.handleNewTabFileUpload = e => {
       const file = e.target.files[0];
       if (!file) return;
-      processImageFileToDataUrl(file, 320, 320, dataUrl => {
-        pendingNewTabGifData = dataUrl;
-        $("newCustomTabPreviewImg").src = dataUrl;
-        $("newCustomTabPreviewBox").classList.remove("hidden");
+      handleExamineToGithubOrLocal(file, url => {
+        $("newCustomTabUrl").value = url;
       });
-    };
-
-    window.clearNewTabFile = () => {
-      pendingNewTabGifData = "";
-      $("newCustomTabFile").value = "";
-      $("newCustomTabPreviewBox").classList.add("hidden");
     };
 
     window.moveTabOrder = (idx, dir) => {
@@ -1135,12 +1326,12 @@
 
     window.createNewCustomTab = () => {
       const label = $("newCustomTabLabel").value.trim();
+      const gifUrl = $("newCustomTabUrl").value.trim();
       const content = $("newCustomTabContent").value.trim();
       if (!label) return alert("Escribe un nombre para la nueva pestaña.");
       const id = 'custom_' + Date.now();
-      config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl: pendingNewTabGifData, content, custom: true });
-      $("newCustomTabLabel").value = $("newCustomTabContent").value = "";
-      clearNewTabFile();
+      config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl, content, custom: true });
+      $("newCustomTabLabel").value = $("newCustomTabUrl").value = $("newCustomTabContent").value = "";
       renderAdminTabsManager();
       alert("Pestaña añadida a la lista. Pulsa 'Guardar Orden y Cambios de Pestañas' para publicarla.");
     };
@@ -1160,27 +1351,38 @@
       } catch (e) { alert("Error al guardar pestañas: " + e.message); }
     };
 
-    // ==================== PERSONALIZADOR DE BOTONES ====================
+    // ==================== PERSONALIZADOR DE BOTONES E INDICADOR DE VOTACIÓN ====================
+    function applyButtonStyleToElement(el, st) {
+      if (!el || !st) return;
+      const sizeClasses = { sm: ['text-[10px]', 'py-1', 'px-2.5'], md: ['text-xs', 'py-2.5', 'px-4'], lg: ['text-sm', 'py-3.5', 'px-5'] };
+      if (st.bgColor) { el.style.background = st.bgColor; el.style.backgroundColor = st.bgColor; }
+      if (st.textColor) el.style.color = st.textColor;
+      if (st.size && sizeClasses[st.size]) {
+        el.classList.remove('text-[10px]', 'text-xs', 'text-sm', 'py-1', 'py-2', 'py-2.5', 'py-3', 'py-3.5', 'px-2.5', 'px-3', 'px-3.5', 'px-4', 'px-5', 'h-9');
+        el.classList.add(...sizeClasses[st.size]);
+      }
+      if (st.text || st.gifUrl) {
+        const gifHtml = st.gifUrl ? `<img src="${escapeHtml(st.gifUrl)}" class="h-4 w-4 object-contain inline-block rounded-sm">` : '';
+        const txt = st.text ? escapeHtml(st.text) : el.textContent.trim();
+        el.innerHTML = `${gifHtml}<span>${txt}</span>`;
+      }
+    }
+
     function applyAllCustomButtons() {
       const btns = config.customButtons || {};
-      const sizeClasses = { sm: ['text-[10px]', 'py-1', 'px-2.5'], md: ['text-xs', 'py-2.5', 'px-4'], lg: ['text-sm', 'py-3.5', 'px-5'] };
-
       Object.entries(btns).forEach(([btnId, st]) => {
-        const el = $(btnId);
-        if (!el || !st) return;
-        if (st.bgColor) { el.style.background = st.bgColor; el.style.backgroundColor = st.bgColor; }
-        if (st.textColor) el.style.color = st.textColor;
-        if (st.size && sizeClasses[st.size]) {
-          el.classList.remove('text-[10px]', 'text-xs', 'text-sm', 'py-1', 'py-2', 'py-2.5', 'py-3', 'py-3.5', 'px-2.5', 'px-3', 'px-3.5', 'px-4', 'px-5', 'h-9');
-          el.classList.add(...sizeClasses[st.size]);
-        }
-        if (st.text || st.gifUrl) {
-          const gifHtml = st.gifUrl ? `<img src="${escapeHtml(st.gifUrl)}" class="h-4 w-4 object-contain inline-block rounded-sm">` : '';
-          const txt = st.text ? escapeHtml(st.text) : el.textContent.trim();
-          el.innerHTML = `${gifHtml}<span>${txt}</span>`;
-        }
+        if (btnId === 'votingBadgeActive' || btnId === 'votingBadgeInactive') return;
+        applyButtonStyleToElement($(btnId), st);
       });
     }
+
+    window.handleBtnGifUpload = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      handleExamineToGithubOrLocal(file, url => {
+        $("adminBtnGifUrl").value = url;
+      });
+    };
 
     window.loadButtonCustomForm = () => {
       const id = $("adminButtonSelect").value;
@@ -1207,8 +1409,9 @@
       try {
         await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
         applyAllCustomButtons();
-        alert("✅ Estilo del botón guardado.");
-      } catch (e) { alert("Error al guardar botón: " + e.message); }
+        updateVotingUI(globalVotingActive);
+        alert("✅ Estilo guardado.");
+      } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
     window.resetButtonCustomization = async () => {
@@ -1216,7 +1419,7 @@
       if (config.customButtons?.[id]) delete config.customButtons[id];
       try {
         await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
-        alert("✅ Botón restaurado (recarga la página para ver su estilo original por defecto).");
+        alert("✅ Restaurado (recarga la página para ver su estilo original por defecto).");
       } catch (e) {}
     };
 
@@ -1376,9 +1579,10 @@
     window.handleLogoFileUpload = e => {
       const file = e.target.files[0];
       if (!file) return;
-      processImageFileToDataUrl(file, 1100, 380, dataUrl => {
-        config.logoUrl = dataUrl;
-        $("adminLogoPreviewImg").src = dataUrl;
+      handleExamineToGithubOrLocal(file, url => {
+        config.logoUrl = url;
+        $("adminLogoUrlInput").value = url;
+        $("adminLogoPreviewImg").src = url;
         $("adminLogoPreviewBox").classList.remove("hidden");
       });
     };
@@ -1386,7 +1590,7 @@
     window.saveBrandLogo = async () => {
       const typed = $("adminLogoUrlInput").value.trim();
       if (typed) config.logoUrl = typed;
-      if (!config.logoUrl) return alert("Selecciona una imagen o pega una URL antes de guardar.");
+      if (!config.logoUrl) return alert("Pega una URL de GitHub o pulsa Examinar antes de guardar.");
       try {
         await db.collection("settings").doc("activeEdition").set({ logoUrl: config.logoUrl }, { merge: true });
         applyBrandLogo(config.logoUrl);
@@ -1500,6 +1704,8 @@
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
       else if (tab === 'config') {
+        updateGithubTokenStatus();
+        loadGithubGallery();
         updateFeaturedAdminUI();
         loadPlayerStyleForm();
         renderAdminTabsManager();
@@ -1816,13 +2022,23 @@
       if (active) {
         if (ind) { ind.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>"; ind.className = "text-[10px] text-emerald-400 font-bold"; }
         if (tBtn) { tBtn.textContent = "Desactivar Votación"; tBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow"; }
-        if (hInd) { hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center"; hInd.textContent = currentLang === 'es' ? "Votación activa" : "Voting active"; }
+        if (hInd) {
+          hInd.style = "";
+          hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center gap-1.5";
+          hInd.textContent = currentLang === 'es' ? "Votación activa" : "Voting active";
+          applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeActive);
+        }
         if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Activa" : "Active"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold"; }
         if (tVote) { tVote.style.opacity = "1"; tVote.style.pointerEvents = "auto"; }
       } else {
         if (ind) { ind.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>"; ind.className = "text-[10px] text-rose-400 font-bold"; }
         if (tBtn) { tBtn.textContent = "Activar Votación"; tBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow"; }
-        if (hInd) { hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center"; hInd.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive"; }
+        if (hInd) {
+          hInd.style = "";
+          hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center gap-1.5";
+          hInd.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive";
+          applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeInactive);
+        }
         if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold"; }
         if (tVote) tVote.style.opacity = "0.6";
       }
