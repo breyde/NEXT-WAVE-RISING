@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <filter id="neon-chrome" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" result="blur1"/>
+      <feGaussianBlur stdDeviation="7" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="chrome-bevel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#80ffce"/>
+      <stop offset="50%" stop-color="#0a291d"/>
+      <stop offset="75%" stop-color="#d4fff0"/>
+      <stop offset="100%" stop-color="#00b36b"/>
+    </linearGradient>
+    <linearGradient id="dark-chrome-body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#143326"/>
+      <stop offset="45%" stop-color="#040d09"/>
+      <stop offset="100%" stop-color="#002617"/>
+    </linearGradient>
+    <linearGradient id="emerald-core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b8ffe5"/>
+      <stop offset="40%" stop-color="#00ff9d"/>
+      <stop offset="100%" stop-color="#00663d"/>
+    </linearGradient>
+    <radialGradient id="orb-3d" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#34ffb8"/>
+      <stop offset="80%" stop-color="#004d2e"/>
+      <stop offset="100%" stop-color="#001a0f"/>
+    </radialGradient>
+  </defs>
+  <style>
+    .swirl-main { stroke-dasharray: 220 140; animation: orbitSwirl 2.8s linear infinite; }
+    .bubble-back-3d { animation: float3D1 3s ease-in-out infinite alternate; }
+    .bubble-front-3d { animation: float3D2 2.6s ease-in-out infinite alternate; }
+    .orb-float { animation: pulseOrb 2.2s ease-in-out infinite alternate; }
+    .dot-glow-1 { animation: dotPulse 1.5s ease-in-out infinite; }
+    .dot-glow-2 { animation: dotPulse 1.5s ease-in-out 0.25s infinite; }
+    .dot-glow-3 { animation: dotPulse 1.5s ease-in-out 0.5s infinite; }
+    @keyframes orbitSwirl { 0% { stroke-dashoffset: 360; } 100% { stroke-dashoffset: 0; } }
+    @keyframes float3D1 { 0% { transform: translate(0, 2px); } 100% { transform: translate(2px, -3px); } }
+    @keyframes float3D2 { 0% { transform: translate(0, -2px); } 100% { transform: translate(-2px, 3px); } }
+    @keyframes pulseOrb { 0% { transform: scale(0.92); opacity: 0.85; } 100% { transform: scale(1.08); opacity: 1; } }
+    @keyframes dotPulse { 0%, 100% { opacity: 0.4; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.2); } }
+  </style>
+  <ellipse cx="100" cy="105" rx="68" ry="52" fill="#00ff9d" opacity="0.14" filter="url(#neon-chrome)"/>
+  <circle class="orb-float" cx="38" cy="64" r="6" fill="url(#orb-3d)" filter="url(#neon-chrome)"/>
+  <circle class="orb-float" cx="162" cy="54" r="5" fill="url(#orb-3d)" filter="url(#neon-chrome)"/>
+  <circle class="orb-float" cx="156" cy="146" r="7" fill="url(#orb-3d)" filter="url(#neon-chrome)"/>
+  <circle cx="44" cy="142" r="3.5" fill="url(#orb-3d)"/>
+  <g class="bubble-back-3d" filter="url(#neon-chrome)">
+    <path d="M88 46 H142 C153 46 161 54 161 65 V92 C161 103 153 111 142 111 H134 L146 126 L118 111 H88 C77 111 69 103 69 92 V65 C69 54 77 46 88 46 Z" fill="url(#dark-chrome-body)" stroke="url(#chrome-bevel)" stroke-width="4.5" stroke-linejoin="round"/>
+    <path d="M90 51 H140 C148 51 155 57 155 65" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+  </g>
+  <g class="bubble-front-3d" filter="url(#neon-chrome)">
+    <path d="M54 78 H112 C123 78 131 86 131 97 V124 C131 135 123 143 112 143 H78 L54 158 L63 143 H54 C43 143 35 135 35 124 V97 C35 86 43 78 54 78 Z" fill="url(#emerald-core)" stroke="url(#chrome-bevel)" stroke-width="4.5" stroke-linejoin="round"/>
+    <rect x="44" y="87" width="78" height="47" rx="12" fill="url(#dark-chrome-body)" opacity="0.88"/>
+    <circle class="dot-glow-1" cx="65" cy="110" r="5" fill="#7affc6" filter="url(#neon-chrome)"/>
+    <circle class="dot-glow-2" cx="83" cy="110" r="5" fill="#ffffff" filter="url(#neon-chrome)"/>
+    <circle class="dot-glow-3" cx="101" cy="110" r="5" fill="#7affc6" filter="url(#neon-chrome)"/>
+  </g>
+  <path class="swirl-main" d="M26 122 C18 148, 78 164, 138 134 C178 114, 182 82, 162 72" fill="none" stroke="#00ff9d" stroke-width="4.5" stroke-linecap="round" filter="url(#neon-chrome)"/>
+  <path class="swirl-main" d="M28 122 C20 147, 78 162, 138 133" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+</svg>
