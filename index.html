@@ -658,9 +658,12 @@
         <div id="adminViewBackups" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-4 mb-8">
             <div class="border-b border-white/10 pb-3 space-y-3">
-              <div>
-                <h3 class="font-bold text-emerald-400 text-sm uppercase">💾 Copias de Seguridad (Backups)</h3>
-                <p class="text-[11px] text-zinc-400 mt-0.5">Elige en el desplegable qué sección quieres respaldar. Son copias aisladas y no afectan a las listas activas.</p>
+              <div class="flex flex-wrap justify-between items-center gap-2">
+                <div>
+                  <h3 class="font-bold text-emerald-400 text-sm uppercase">💾 Copias de Seguridad (Backups)</h3>
+                  <p class="text-[11px] text-zinc-400 mt-0.5">Elige en el desplegable qué sección quieres respaldar. Son copias aisladas.</p>
+                </div>
+                <button type="button" onclick="inspectDatabaseLive()" class="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs border border-purple-500/40 transition">🔍 Ver Registros en Vivo</button>
               </div>
               <div class="flex flex-col sm:flex-row gap-2">
                 <select id="backupTargetSelect" class="flex-1 px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white font-semibold focus:border-emerald-500 focus:outline-none">
@@ -674,6 +677,8 @@
                 <button type="button" onclick="createManualBackup(document.getElementById('backupTargetSelect').value)" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow transition whitespace-nowrap">+ Crear Backup</button>
               </div>
             </div>
+            <!-- Contenedor para ver los registros actuales en vivo de la BD -->
+            <div id="liveDbInspectorContainer" class="hidden"></div>
             <div id="adminBackupsList" class="space-y-3 text-xs"><p class="text-zinc-400 text-center py-6">Cargando backups...</p></div>
           </div>
         </div>
@@ -1144,9 +1149,15 @@
     }
 
     async function initClientIp() {
+      const cachedIp = localStorage.getItem('nwr_client_ip');
+      if (cachedIp) clientIp = cachedIp;
+
       const info = await fetchGeoByIp("");
-      clientIp = info.ip;
-      clientGeo = { country: info.country, city: info.city, flag: info.flag };
+      if (info && info.ip && info.ip !== "unknown_ip") {
+        clientIp = info.ip;
+        clientGeo = { country: info.country || "", city: info.city || "", flag: info.flag || "🌐" };
+        localStorage.setItem('nwr_client_ip', clientIp);
+      }
       updateChatPresence();
     }
 
@@ -1480,7 +1491,7 @@
       } catch (e) {}
     };
 
-    // ==================== PAÍSES ====================
+    // ==================== PAÍSES (BLINDADO CONTRA SOBRESCRITURA) ====================
     async function registerOrUpdateArtistCountry(artistName, email) {
       const cleanEmail = (email || "").trim().toLowerCase();
       if (!cleanEmail) return;
@@ -1543,11 +1554,35 @@
         let added = 0, updated = 0;
         for (const [id, info] of entries) {
           const ref = db.collection("artist_countries").doc(id);
-          if (existingMap[id]) {
-            batch.update(ref, { submissionsCount: Math.max(existingMap[id].submissionsCount || 1, info.count), lastSubmissionDate: info.lastDate });
+          const existingDoc = existingMap[id];
+          if (existingDoc) {
+            const updateData = {
+              submissionsCount: Math.max(existingDoc.submissionsCount || 1, info.count),
+              lastSubmissionDate: info.lastDate
+            };
+            // NUNCA sobreescribir IP real si ya existe y es válida
+            if (!existingDoc.ip || existingDoc.ip === "Histórico" || existingDoc.ip === "Sin IP previa" || existingDoc.ip === "unknown_ip") {
+              if (clientIp && clientIp !== "unknown_ip") {
+                updateData.ip = clientIp;
+                updateData.country = clientGeo.country;
+                updateData.city = clientGeo.city;
+                updateData.flag = clientGeo.flag;
+              }
+            }
+            batch.update(ref, updateData);
             updated++;
           } else {
-            batch.set(ref, { email: info.email, artist: info.artist, firstPublishedDate: info.firstDate, lastSubmissionDate: info.lastDate, submissionsCount: info.count, ip: "Histórico", country: "Sin IP previa", city: "", flag: "🌐" });
+            batch.set(ref, {
+              email: info.email,
+              artist: info.artist,
+              firstPublishedDate: info.firstDate,
+              lastSubmissionDate: info.lastDate,
+              submissionsCount: info.count,
+              ip: clientIp && clientIp !== "unknown_ip" ? clientIp : "Histórico",
+              country: clientGeo.country || "Desconocido",
+              city: clientGeo.city || "",
+              flag: clientGeo.flag || "🌐"
+            });
             added++;
           }
         }
@@ -1625,6 +1660,50 @@
       if (!countriesCache.length) return alert("No hay datos en Países para copiar.");
       navigator.clipboard.writeText(countriesCache.map((c, i) => `${i + 1}. ${c.flag || '🌐'} ${c.artist} (${c.email}) | ${[c.city, c.country].filter(Boolean).join(", ") || "Desconocido"} | Temas: ${c.submissionsCount || 1} | 1ª vez: ${c.firstPublishedDate || '-'}`).join('\n'));
       alert("📋 Listado de países copiado.");
+    };
+
+    // ==================== INSPECTOR DE BASE DE DATOS EN VIVO ====================
+    window.inspectDatabaseLive = async () => {
+      const container = $("liveDbInspectorContainer");
+      if (!container) return;
+      container.classList.remove("hidden");
+      container.innerHTML = '<p class="text-xs text-zinc-400 text-center py-4">⏳ Consultando colecciones en vivo en Firebase...</p>';
+      try {
+        const [actSnap, subSnap, monSnap, annSnap, couSnap] = await Promise.all([
+          db.collection("active_list").get(),
+          db.collection("submissions").get(),
+          db.collection("monthly_list").get(),
+          db.collection("annual_list").get(),
+          db.collection("artist_countries").get()
+        ]);
+
+        const renderList = (snap, title) => {
+          if (snap.empty) return `<div class="p-3 bg-zinc-950 rounded-lg"><p class="font-bold text-emerald-400 text-xs">${title} (0 registros)</p></div>`;
+          let html = `<div class="p-3 bg-zinc-950 rounded-lg space-y-1.5 border border-white/5"><p class="font-bold text-emerald-400 text-xs">📂 ${title} (${snap.size} registros)</p><div class="max-h-40 overflow-y-auto space-y-1 text-[11px] text-zinc-300">`;
+          snap.forEach(doc => {
+            const d = doc.data();
+            html += `<div class="bg-zinc-900 p-1.5 rounded truncate">• <strong>${escapeHtml(d.artist || d.name || 'Sin nombre')}</strong> — ${escapeHtml(d.title || d.email || d.message || d.country || '')}</div>`;
+          });
+          html += `</div></div>`;
+          return html;
+        };
+
+        container.innerHTML = `
+          <div class="space-y-3 bg-zinc-900 p-4 rounded-xl border border-purple-500/30">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-purple-300 text-xs">📊 Estado Actual en Firebase (En Vivo)</span>
+              <button type="button" onclick="$('liveDbInspectorContainer').classList.add('hidden')" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded">✕ Cerrar</button>
+            </div>
+            ${renderList(actSnap, "Lista Activa (active_list)")}
+            ${renderList(subSnap, "Cola Semanal (submissions)")}
+            ${renderList(monSnap, "Lista Mensual (monthly_list)")}
+            ${renderList(annSnap, "Lista Anual (annual_list)")}
+            ${renderList(couSnap, "Países / Artistas (artist_countries)")}
+          </div>
+        `;
+      } catch (e) {
+        container.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Error consultando la base de datos: ${e.message}</p>`;
+      }
     };
 
     // ==================== LOGO Y AVISOS ====================
@@ -1892,14 +1971,12 @@
 
       try {
         const clearAndReplace = async (tracks, colName) => {
-          // 1. Borrar registros actuales de esa colección
           const snap = await db.collection(colName).get();
           if (!snap.empty) {
             const delBatch = db.batch();
             snap.docs.forEach(doc => delBatch.delete(doc.ref));
             await delBatch.commit();
           }
-          // 2. Insertar registros del backup
           if (tracks && tracks.length) {
             const addBatch = db.batch();
             tracks.forEach(t => {
