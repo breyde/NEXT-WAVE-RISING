@@ -677,7 +677,6 @@
                 <button type="button" onclick="createManualBackup(document.getElementById('backupTargetSelect').value)" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs shadow transition whitespace-nowrap">+ Crear Backup</button>
               </div>
             </div>
-            <!-- Contenedor para ver los registros actuales en vivo de la BD -->
             <div id="liveDbInspectorContainer" class="hidden"></div>
             <div id="adminBackupsList" class="space-y-3 text-xs"><p class="text-zinc-400 text-center py-6">Cargando backups...</p></div>
           </div>
@@ -1236,7 +1235,7 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA ====================
+    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA (CLICK-TO-PLAY) ====================
     window.loadPlayerStyleForm = () => {
       const key = $("adminPlayerListSelect").value;
       const st = config.playerStyles?.[key] || { preset: 'ultracompact', height: 80, startSec: 0 };
@@ -1264,6 +1263,35 @@
         alert("✅ Diseño de reproductor guardado y aplicado.");
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
+
+    window.playTrackCard = (btn, url, listKey) => {
+      const container = btn.closest('.track-card-container');
+      const embedUrl = getEmbedUrl(url, listKey);
+      const h = getPlayerHeight(listKey);
+      if (!embedUrl) return alert("Enlace de Spotify no válido.");
+      container.innerHTML = `<iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+    };
+
+    function renderPlayableTrackHtml(s, i, listKey, extraBadge = "") {
+      const em = getEmbedUrl(s.url, listKey);
+      if (!em) return '';
+      return `
+        <div class="track-card-container glass p-3.5 rounded-2xl border border-white/10 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 truncate">
+            <div class="w-10 h-10 bg-zinc-900 rounded-xl flex items-center justify-center text-emerald-400 font-bold shrink-0 border border-emerald-500/25 text-sm">
+              🎵
+            </div>
+            <div class="truncate">
+              <p class="font-bold text-white text-xs truncate">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p>
+              <p class="text-[10px] text-zinc-400">${extraBadge || 'Spotify Track'}</p>
+            </div>
+          </div>
+          <button type="button" onclick="playTrackCard(this, '${s.url}', '${listKey}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow shrink-0 flex items-center gap-1.5 cursor-pointer">
+            <span>▶</span> Play
+          </button>
+        </div>
+      `;
+    }
 
     // ==================== GESTOR DE PESTAÑAS ====================
     function renderNavigationAndCustomViews() {
@@ -1560,7 +1588,6 @@
               submissionsCount: Math.max(existingDoc.submissionsCount || 1, info.count),
               lastSubmissionDate: info.lastDate
             };
-            // NUNCA sobreescribir IP real si ya existe y es válida
             if (!existingDoc.ip || existingDoc.ip === "Histórico" || existingDoc.ip === "Sin IP previa" || existingDoc.ip === "unknown_ip") {
               if (clientIp && clientIp !== "unknown_ip") {
                 updateData.ip = clientIp;
@@ -2436,7 +2463,7 @@
 
       if (votersRes.status === "fulfilled") $("statVotersCount").textContent = String(votersRes.value.size).padStart(2, '0');
 
-      // 1. LISTA ACTIVA
+      // 1. LISTA ACTIVA (CON CLICK-TO-PLAY)
       const pAct = $("publicActiveList"), aAct = $("adminActiveListContainer"), vList = $("voteTabViewList");
       const hAct = getPlayerHeight('active');
       if (activeRes.status === "fulfilled") {
@@ -2451,10 +2478,7 @@
           pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].activeListEmpty}</p>`;
           aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">No hay temas en la Lista Activa todavía.</p>';
         } else {
-          pAct.innerHTML = activeSubs.map((s, i) => {
-            const em = getEmbedUrl(s.url, 'active');
-            return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-[10px]">On Air</span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="${hAct}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
-          }).join("");
+          pAct.innerHTML = activeSubs.map((s, i) => renderPlayableTrackHtml(s, i, 'active', 'On Air')).join("");
 
           aAct.innerHTML = activeSubs.map((s, i) => {
             const voters = s.voters || [];
@@ -2479,17 +2503,28 @@
             if (!em) return '';
             const sel = sessionPendingVotes.includes(s.id);
             const rank = totalVotes > 0 ? (["🥇", "🥈", "🥉"][i] || `#${i + 1}`) : `#${i + 1}`;
-            return `<div class="p-3 bg-zinc-900/90 rounded-2xl border border-white/10 space-y-2">
-              <div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">${rank}</span> ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ${String(s.votes || 0).padStart(2, '0')}</span></div>
-              <iframe style="border-radius:12px" src="${em}" width="100%" height="${hAct}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-              <div class="pt-1.5 border-t border-white/5 flex justify-between items-center text-xs text-zinc-400"><span>${currentLang === 'es' ? 'Seleccionados' : 'Selected'}: <strong>${sessionPendingVotes.length}/3</strong></span><button onclick="handleVoteClick('${s.id}')" class="${sel ? 'px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white' : 'px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950'} font-bold rounded-xl text-xs shadow transition">${sel ? (currentLang === 'es' ? '❌ Anular Voto' : '❌ Cancel Vote') : (currentLang === 'es' ? '🗳️ Añadir Voto' : '🗳️ Add Vote')}</button></div>
+            return `<div class="track-card-container glass rounded-2xl p-4 border border-white/10 space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">${rank}</span> ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span>
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ${String(s.votes || 0).padStart(2, '0')}</span>
+              </div>
+              <div class="flex items-center justify-between gap-3 bg-zinc-950 p-2.5 rounded-xl border border-white/5">
+                <span class="text-[11px] text-zinc-400">Reproducir muestra de Spotify:</span>
+                <button type="button" onclick="playTrackCard(this, '${s.url}', 'active')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow flex items-center gap-1 cursor-pointer">
+                  <span>▶</span> Play
+                </button>
+              </div>
+              <div class="flex justify-between items-center text-xs text-zinc-400 pt-1">
+                <span>${currentLang === 'es' ? 'Seleccionados' : 'Selected'}: <strong>${sessionPendingVotes.length}/3</strong></span>
+                <button onclick="handleVoteClick('${s.id}')" class="${sel ? 'px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white' : 'px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950'} font-bold rounded-xl text-xs shadow transition cursor-pointer">${sel ? (currentLang === 'es' ? '❌ Anular Voto' : '❌ Cancel Vote') : (currentLang === 'es' ? '🗳️ Añadir Voto' : '🗳️ Add Vote')}</button>
+              </div>
             </div>`;
           }).join("");
         }
       }
 
       // 2. COLA SEMANAL
-      const aSub = $("submissionsList"), pSub = $("publicSubmissionsList"), hWeek = getPlayerHeight('weekly');
+      const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
         subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
@@ -2501,25 +2536,19 @@
             const mailBtn = s.email ? `<a href="mailto:${encodeURIComponent(s.email)}?subject=${encodeURIComponent('Next Wave Rising')}&body=${encodeURIComponent(`¡Hola ${s.artist}!\nRecibimos tu canción "${s.title}" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko`)}" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>` : '';
             return `<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center"><div><p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p><p class="text-[10px] text-zinc-400">${s.dateString || ''}</p></div><div class="flex gap-1.5"><a href="${s.url.split('?')[0]}" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>${mailBtn}<button onclick="deleteSubmissionTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div></div>`;
           }).join("");
-          pSub.innerHTML = subs.map((s, i) => {
-            const em = getEmbedUrl(s.url, 'weekly');
-            return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-[10px]">Reg: ${s.dateString || ''}</span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="${hWeek}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
-          }).join("");
+          pSub.innerHTML = subs.map((s, i) => renderPlayableTrackHtml(s, i, 'weekly', 'Reg: ' + (s.dateString || ''))).join("");
         }
       }
 
       // 3. MENSUAL & 4. ANUAL
       const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, colorClass) => {
         if (res.status !== "fulfilled") return;
-        const items = res.value.docs.map(d => d.data()), h = getPlayerHeight(listKey);
+        const items = res.value.docs.map(d => d.data());
         $(countId).textContent = items.length;
-        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang][emptyKey]}</p>` : items.map((s, i) => {
-          const em = getEmbedUrl(s.url, listKey);
-          return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${prefixFn(i)} ${escapeHtml(s.artist)} — <span class="${colorClass}">${escapeHtml(s.title)}</span></span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
-        }).join("");
+        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang][emptyKey]}</p>` : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
       };
-      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}:`, "text-cyan-400");
-      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `${i + 1}.`, "text-amber-400");
+      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "text-cyan-400");
+      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
     }
 
     // ==================== VOTACIONES ====================
