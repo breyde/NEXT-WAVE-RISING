@@ -1492,6 +1492,13 @@
     async function registerOrUpdateArtistCountry(artistName, email) {
       const cleanEmail = (email || "").trim().toLowerCase();
       if (!cleanEmail) return;
+      let ipToUse = clientIp, geoToUse = clientGeo;
+      if (!ipToUse || ipToUse === "unknown_ip") {
+        try {
+          const freshGeo = await fetchGeoByIp("");
+          ipToUse = freshGeo.ip; geoToUse = { country: freshGeo.country, city: freshGeo.city, flag: freshGeo.flag };
+        } catch (e) {}
+      }
       try {
         const docId = cleanEmail.replace(/[.#$/[\]]/g, "_");
         const docRef = db.collection("artist_countries").doc(docId);
@@ -1500,17 +1507,17 @@
         if (snap.exists) {
           const prev = snap.data();
           const updates = { submissionsCount: (prev.submissionsCount || 1) + 1, lastSubmissionDate: nowStr };
-          if (clientIp && clientIp !== "unknown_ip" && prev.ip !== clientIp) {
-            updates.ip = clientIp;
-            if (clientGeo.country) updates.country = clientGeo.country;
-            if (clientGeo.city) updates.city = clientGeo.city;
-            if (clientGeo.flag && clientGeo.flag !== "🌐") updates.flag = clientGeo.flag;
+          if (ipToUse && ipToUse !== "unknown_ip" && (!prev.ip || prev.ip === "unknown_ip" || prev.ip === "Histórico" || prev.ip === "Sin IP previa")) {
+            updates.ip = ipToUse;
+            if (geoToUse.country) updates.country = geoToUse.country;
+            if (geoToUse.city) updates.city = geoToUse.city;
+            if (geoToUse.flag && geoToUse.flag !== "🌐") updates.flag = geoToUse.flag;
           }
           await docRef.update(updates);
         } else {
           await docRef.set({
             email: cleanEmail, artist: artistName || "Artista", firstPublishedDate: nowStr, lastSubmissionDate: nowStr,
-            submissionsCount: 1, ip: clientIp || "unknown_ip", country: clientGeo.country || "Desconocido", city: clientGeo.city || "", flag: clientGeo.flag || "🌐"
+            submissionsCount: 1, ip: ipToUse || "unknown_ip", country: geoToUse.country || "Desconocido", city: geoToUse.city || "", flag: geoToUse.flag || "🌐"
           });
         }
       } catch (e) {}
@@ -2402,7 +2409,6 @@
         $("submissionForm").classList.toggle("pointer-events-none", !e.target.checked);
       });
 
-      // Tareas programadas del reloj y cuenta atrás hasta el viernes 00:00h (final del jueves)
       const clock = () => {
         try {
           const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
@@ -2418,7 +2424,6 @@
             autoBackupDone = false;
           }
 
-          // Cierra los viernes y sábados (o hasta la siguiente rotación)
           if (day === 5 || day === 6) { 
             document.getElementById("statusBadge").textContent = translations[currentLang].statusClosed; 
             document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
@@ -2430,7 +2435,6 @@
             return; 
           }
           
-          // Cuenta atrás hacia el viernes 00:00h (fin de jueves)
           const left = Math.max(0, (((5 - day + 7) % 7 || 7) * 86400) - (h * 3600 + m * 60 + s));
           document.getElementById("cdDays").textContent = String(Math.floor(left / 86400)).padStart(2, "0");
           document.getElementById("cdHours").textContent = String(Math.floor((left % 86400) / 3600)).padStart(2, "0");
