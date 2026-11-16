@@ -31,16 +31,9 @@
       </div>
     </div>
 
-    <!-- CABECERA MULTIMEDIA (TEXTO / IMAGEN / VÍDEO) -->
-    <div id="brandHeaderContainer" class="w-full flex justify-center items-center pt-1 overflow-hidden rounded-2xl">
+    <div id="brandHeaderContainer" class="w-full flex justify-center items-center pt-1">
       <h1 id="brandTextTitle" class="text-3xl font-extrabold text-white tracking-wide text-center py-2">Next Wave Rising</h1>
       <img id="brandLogoImg" src="" alt="Next Wave Rising" class="hidden w-full max-w-full max-h-40 sm:max-h-52 object-contain mx-auto select-none">
-      <video id="brandLogoVideo" src="" autoplay muted loop playsinline class="hidden w-full max-h-52 object-cover mx-auto rounded-2xl"></video>
-    </div>
-
-    <!-- CONTENEDOR VÍDEO DE YOUTUBE PERSONALIZADO -->
-    <div id="publicYoutubeContainer" class="w-full hidden overflow-hidden rounded-xl shadow-lg border border-white/10">
-      <div id="publicYoutubeInner" class="w-full h-full"></div>
     </div>
 
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
@@ -302,7 +295,6 @@
         <div class="flex gap-1.5 border-b border-white/10 pb-3 overflow-x-auto">
           <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
           <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
-          <button onclick="switchAdminTab('cabecera')" id="adminTabCabecera" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📺 Cabecera</button>
           <button onclick="switchAdminTab('paises')" id="adminTabPaises" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🌍 Países (<span id="countriesCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
@@ -335,6 +327,9 @@
               <button type="button" onclick="createManualBackup('all')" class="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded text-xs border border-cyan-500/40 transition">💾 Hacer Backup Ahora</button>
               <button type="button" id="newEditionBtn" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded text-xs border border-rose-500/30">Nueva Edición (Rotar Listas)</button>
             </div>
+            <p class="text-[11px] text-zinc-400 leading-relaxed bg-zinc-950/60 p-2.5 rounded-xl border border-white/5">
+              ℹ️ Al pulsar <strong>Nueva Edición (Rotar Listas)</strong>: se guarda copia de sistema, la <strong>Lista Activa</strong> pasa a la <strong>Mensual</strong>, la <strong>Cola Semanal</strong> pasa a ser la nueva <strong>Lista Activa</strong> (con votación activada) y el campeón de la activa anterior pasa a <strong>Destacado</strong> y reingresa en Cola Semanal.
+            </p>
           </div>
           <div class="glass rounded-2xl p-5 space-y-3 mb-8">
             <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">🔥 Cola Semanal Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
@@ -346,6 +341,7 @@
         <div id="adminViewActiva" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
             <h3 class="font-bold text-emerald-400 text-sm">➕ Añadir Tema Directamente a la Lista Activa (On Air)</h3>
+            <p class="text-[11px] text-zinc-400">Modo curador sin restricciones: puedes añadir ilimitados temas, repetir artistas/correos o saltar bloqueos de IP.</p>
             <input type="text" id="adminActiveArtist" placeholder="Nombre del Artista *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
             <input type="text" id="adminActiveTitle" placeholder="Título de la Canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
             <input type="url" id="adminActiveUrl" placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm">
@@ -361,81 +357,13 @@
           </div>
         </div>
 
-        <!-- NUEVA PESTAÑA: CABECERA (LOGO, VÍDEO Y YOUTUBE CONTAINER) -->
-        <div id="adminViewCabecera" class="hidden space-y-5 mb-8">
-          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
-            <h3 class="font-bold text-emerald-400 text-sm uppercase">📺 Configuración de la Cabecera</h3>
-            <p class="text-[11px] text-zinc-400">Elige si deseas mostrar el título de texto, una imagen/GIF o un vídeo en bucle como portada de la web.</p>
-            
-            <div class="space-y-3">
-              <div>
-                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Tipo de Portada Superior:</label>
-                <select id="adminHeaderMediaType" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-                  <option value="text">Solo Título de Texto</option>
-                  <option value="image">Imagen / GIF</option>
-                  <option value="video">Vídeo en Bucle</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">URL de Imagen o Vídeo (o sube a GitHub con Examinar):</label>
-                <div class="flex gap-1.5 items-center">
-                  <input type="url" id="adminHeaderMediaUrl" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-                  <label class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                    <span>📁 Examinar</span>
-                    <input type="file" accept="image/*,video/*" onchange="handleHeaderMediaUpload(event)" class="hidden">
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
-            <h3 class="font-bold text-purple-400 text-sm uppercase">🎥 Contenedor de Vídeo de YouTube</h3>
-            <p class="text-[11px] text-zinc-400">Añade un reproductor flotante o fijo de tu canal de YouTube debajo de la portada.</p>
-            
-            <div class="space-y-3">
-              <label class="flex items-center gap-2 text-xs text-white cursor-pointer">
-                <input type="checkbox" id="adminYtEnabled" class="accent-purple-500"> <strong>Activar Contenedor de YouTube</strong>
-              </label>
-
-              <div>
-                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Enlace o ID de YouTube:</label>
-                <input type="text" id="adminYtUrl" placeholder="https://www.youtube.com/watch?v=XXXX o ID" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-              </div>
-
-              <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Ancho (ej. 100%):</label>
-                  <input type="text" id="adminYtWidth" value="100%" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Alto (ej. 140px):</label>
-                  <input type="text" id="adminYtHeight" value="140px" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2.5">
-                <label class="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer bg-zinc-900 p-2.5 rounded-xl border border-white/5">
-                  <input type="checkbox" id="adminYtAutoplay" class="accent-purple-500"> Reproducción Automática
-                </label>
-                <label class="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer bg-zinc-900 p-2.5 rounded-xl border border-white/5">
-                  <input type="checkbox" id="adminYtMuted" class="accent-purple-500"> Reproducir en Silencio (Muted)
-                </label>
-              </div>
-            </div>
-
-            <button type="button" onclick="saveHeaderAndYoutubeConfig()" class="w-full py-2.5 bg-purple-500 hover:bg-purple-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Configuración de Cabecera</button>
-          </div>
-        </div>
-
         <!-- PAÍSES -->
         <div id="adminViewPaises" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-4 mb-8 border border-cyan-500/30">
             <div class="flex flex-wrap justify-between items-center gap-2 border-b border-white/10 pb-3">
               <div>
                 <h3 class="font-bold text-cyan-400 text-sm uppercase">🌍 Países &amp; Artistas Registrados</h3>
-                <p class="text-[11px] text-zinc-400 mt-0.5">Identificados por correo electrónico único.</p>
+                <p class="text-[11px] text-zinc-400 mt-0.5">Identificados por correo electrónico único. Si un artista repite en otras semanas, suma su contador sin duplicarse.</p>
               </div>
               <div class="flex flex-wrap gap-1.5">
                 <button type="button" id="syncCountriesBtn" onclick="syncExistingTracksToCountries()" class="text-xs px-2.5 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 rounded-lg border border-cyan-500/40 font-bold transition">🔄 Sincronizar Existentes</button>
@@ -461,8 +389,8 @@
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
-              <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Subir Archivos a GitHub (Carpeta <code>img/</code>)</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Sube imágenes, GIFs y vídeos cortos directamente a tu repositorio.</p>
+              <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Subir Iconos / GIFs a GitHub (Carpeta <code>img/</code>)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Sube tus GIFs animados e imágenes directamente a tu repositorio <strong>breyde/NEXT-WAVE-RISING</strong> sin ocupar base de datos, míralos en la galería y copia su URL directa.</p>
             </div>
 
             <div class="space-y-2.5 bg-zinc-950/70 p-3.5 rounded-xl border border-white/10">
@@ -476,17 +404,17 @@
 
             <div class="flex flex-wrap items-center gap-2">
               <label class="flex-1 py-2.5 px-4 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs cursor-pointer transition flex items-center justify-center gap-2">
-                <span>📤 Seleccionar y Subir Archivos (Imágenes o Vídeos)</span>
-                <input type="file" id="ghUploadInput" accept="image/*,video/*" multiple onchange="uploadFilesToGithub(event)" class="hidden">
+                <span>📤 Seleccionar y Subir Archivos a GitHub (<code>img/</code>)</span>
+                <input type="file" id="ghUploadInput" accept="image/*" multiple onchange="uploadFilesToGithub(event)" class="hidden">
               </label>
               <button type="button" onclick="loadGithubGallery()" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs border border-white/10 transition">🔄 Actualizar Galería</button>
             </div>
             <p id="ghUploadStatus" class="text-xs text-center text-sky-300 hidden font-semibold"></p>
 
             <div class="space-y-2 pt-2 border-t border-white/10">
-              <p class="text-[11px] font-bold text-zinc-300 uppercase">🖼️ Galería en GitHub:</p>
+              <p class="text-[11px] font-bold text-zinc-300 uppercase">🖼️ Galería en GitHub (<code>img/</code>):</p>
               <div id="ghGalleryContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-                <p class="col-span-full text-zinc-500 italic text-[11px]">Pulsa "Actualizar Galería" para ver tus archivos subidos.</p>
+                <p class="col-span-full text-zinc-500 italic text-[11px]">Pulsa "Actualizar Galería" para ver tus iconos subidos en GitHub.</p>
               </div>
             </div>
           </div>
@@ -494,7 +422,7 @@
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web y configura la visibilidad del tema destacado.</p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end bg-zinc-900/80 p-3.5 rounded-xl border border-white/10">
@@ -522,6 +450,7 @@
           <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
             <div>
               <h3 class="font-bold text-purple-400 text-sm uppercase">🎵 Diseño y Reproducción Spotify por Lista</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige una lista para configurar el estilo visual del reproductor, su altura en píxeles y el segundo de inicio de la muestra.</p>
             </div>
             <div class="space-y-3">
               <div>
@@ -567,9 +496,161 @@
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
             </div>
             <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
+
+            <div class="pt-3 border-t border-white/10 space-y-2.5">
+              <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
+              <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              <div class="flex gap-1.5 items-center">
+                <input type="url" id="newCustomTabUrl" placeholder="URL imagen / GIF de GitHub (o pulsa Examinar)..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                  <span>📁 Examinar</span>
+                  <input type="file" id="newCustomTabFile" accept="image/*" onchange="handleNewTabFileUpload(event)" class="hidden">
+                </label>
+              </div>
+              <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
+              <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
+            </div>
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
+          </div>
+
+          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
+            <div>
+              <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón o el indicador superior de <strong>Votación activa / inactiva</strong> para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Elemento:</label>
+                <select id="adminButtonSelect" onchange="loadButtonCustomForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <option value="votingBadgeActive">🟢 Indicador Votación Activa (Arriba derecha)</option>
+                  <option value="votingBadgeInactive">🔴 Indicador Votación Inactiva (Arriba derecha)</option>
+                  <option value="btnContactHeader">✉️ Botón Contacto (Cabecera)</option>
+                  <option value="btnInfoHeader">📜 Botón Normas y Funcionamiento (Cabecera)</option>
+                  <option value="activePlaylistLinkBtn">🟢 Abrir Playlist Spotify (Lista Activa)</option>
+                  <option value="btnGoVoteActive">⭐ Ir a Votar (Lista Activa)</option>
+                  <option value="playlistLinkBtn">🟢 Abrir Playlist Spotify (Cola Semanal)</option>
+                  <option value="submitBtn">🚀 Enviar Propuesta (Formulario)</option>
+                  <option value="btnVotingRules">📜 Normas de Votación (Pestaña Votar)</option>
+                  <option value="btnChatJoin">💬 Entrar al Chat</option>
+                  <option value="btnChatSend">📨 Enviar Mensaje Chat</option>
+                  <option value="toggleAdminBtn">⚙️ Panel Curadores (Pie de página)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Texto personalizado (vacío = por defecto):</label>
+                  <input type="text" id="adminBtnText" placeholder="Texto..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Tamaño:</label>
+                  <select id="adminBtnSize" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                    <option value="">Por defecto</option>
+                    <option value="sm">Pequeño (Compacto)</option>
+                    <option value="md">Mediano (Estándar)</option>
+                    <option value="lg">Grande (Destacado)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Fondo:</label>
+                  <div class="flex gap-1.5 items-center">
+                    <input type="color" id="adminBtnBgColor" value="#10b981" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
+                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseBg" class="accent-pink-500"> Aplicar</label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Texto:</label>
+                  <div class="flex gap-1.5 items-center">
+                    <input type="color" id="adminBtnTextColor" value="#ffffff" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
+                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseText" class="accent-pink-500"> Aplicar</label>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">URL de imagen/GIF (o pulsa Examinar para subir a GitHub):</label>
+                <div class="flex gap-1.5 items-center">
+                  <input type="url" id="adminBtnGifUrl" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <label class="px-3 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                    <span>📁 Examinar</span>
+                    <input type="file" accept="image/*" onchange="handleBtnGifUpload(event)" class="hidden">
+                  </label>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="saveButtonCustomization()" class="flex-1 py-2.5 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Estilo</button>
+                <button type="button" onclick="resetButtonCustomization()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
+            <div>
+              <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, la web lo traducirá automáticamente cuando el usuario pulse 🇬🇧 EN o el botón Traducir.</p>
+            </div>
+            <div class="space-y-2.5">
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Pestaña *</label>
+                <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none"></select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Mensaje en Español 🇪🇸 *</label>
+                <textarea id="adminNoticeTextInput" rows="3" placeholder="Escribe aquí el aviso importante en español..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
+              </div>
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Traducción al Inglés 🇬🇧 (opcional - se traduce solo si se deja vacío):</label>
+                <textarea id="adminNoticeTextEnInput" rows="2" placeholder="Optional English version..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="saveTabNotice()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar / Actualizar Aviso</button>
+                <button type="button" onclick="deleteTabNotice(document.getElementById('adminNoticeTabSelect').value)" class="px-3.5 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-xs border border-rose-500/40 transition">🗑️ Quitar</button>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-zinc-300 uppercase">Avisos Activos Actualmente:</p>
+              <div id="adminActiveNoticesList" class="space-y-2 text-xs"><p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p></div>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">🖼️ Logo de Cabecera (Imagen, GIF o Texto)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Pega la URL de GitHub o pulsa <strong>Examinar</strong> para subirlo directo a GitHub desde tu dispositivo.</p>
+            </div>
+            <div class="space-y-3">
+              <div class="flex gap-1.5 items-center">
+                <input type="url" id="adminLogoUrlInput" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                  <span>📁 Examinar</span>
+                  <input type="file" id="adminLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="hidden">
+                </label>
+              </div>
+              <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2">
+                <span class="text-[10px] text-zinc-400 uppercase">Vista previa del logo:</span>
+                <img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg">
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="saveBrandLogo()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Logo</button>
+                <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar Texto</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-5 space-y-4">
+            <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
+            <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat.</p>
+            <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs"><p class="text-zinc-400 text-center py-4">Cargando usuarios de chat...</p></div>
+            <div class="border-t border-white/10 pt-4 flex justify-between items-center">
+              <div>
+                <p class="font-bold text-white text-xs">Vaciar Todos los Chats</p>
+                <p class="text-[10px] text-zinc-400">Elimina permanentemente todos los mensajes publicados en la sala.</p>
+              </div>
+              <button type="button" onclick="clearAllChatMessages()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Vaciar Chat</button>
+            </div>
           </div>
         </div>
 
@@ -580,7 +661,7 @@
               <div class="flex flex-wrap justify-between items-center gap-2">
                 <div>
                   <h3 class="font-bold text-emerald-400 text-sm uppercase">💾 Copias de Seguridad (Backups)</h3>
-                  <p class="text-[11px] text-zinc-400 mt-0.5">Elige en el desplegable qué sección quieres respaldar.</p>
+                  <p class="text-[11px] text-zinc-400 mt-0.5">Elige en el desplegable qué sección quieres respaldar. Son copias aisladas.</p>
                 </div>
                 <button type="button" onclick="inspectDatabaseLive()" class="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs border border-purple-500/40 transition">🔍 Ver Registros en Vivo</button>
               </div>
@@ -625,11 +706,40 @@
     </div>
   </div>
 
+  <div id="editCountryModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-cyan-500/40">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="font-bold text-cyan-400 text-sm uppercase">✏️ Editar Artista / Ubicación</h3>
+        <button onclick="toggleModal('editCountryModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+      </div>
+      <div class="space-y-3">
+        <input type="hidden" id="editCountryDocId">
+        <div><label class="block text-[11px] text-zinc-400 mb-1">Correo electrónico (referencia)</label><input type="text" id="editCountryEmail" disabled class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-400"></div>
+        <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre de Usuario / Artista *</label><input type="text" id="editCountryArtist" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
+        <div class="grid grid-cols-3 gap-2">
+          <div><label class="block text-[11px] text-zinc-400 mb-1">Bandera</label><input type="text" id="editCountryFlag" placeholder="🇪🇸" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white text-center"></div>
+          <div class="col-span-2"><label class="block text-[11px] text-zinc-400 mb-1">País</label><input type="text" id="editCountryName" placeholder="España" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-[11px] text-zinc-400 mb-1">Ciudad</label><input type="text" id="editCountryCity" placeholder="Madrid" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
+          <div><label class="block text-[11px] text-zinc-400 mb-1">Temas Subidos</label><input type="number" min="1" id="editCountryCount" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="toggleModal('editCountryModal', false)" class="flex-1 py-2.5 bg-zinc-800 text-zinc-300 font-bold rounded-xl text-xs hover:bg-zinc-700 transition">Cancelar</button>
+          <button type="button" onclick="saveCountryEdit()" class="flex-1 py-2.5 bg-cyan-500 text-zinc-950 font-bold rounded-xl text-xs hover:bg-cyan-400 transition shadow">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="contactModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-emerald-500/40 relative">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase" data-i18n="contactModalTitle">✉️ Envíanos un mensaje</h3>
-        <button onclick="toggleModal('contactModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es')" class="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-emerald-300 border border-white/10">🌐 ES / EN</button>
+          <button onclick="toggleModal('contactModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        </div>
       </div>
       <form id="contactForm" onsubmit="return false;" class="space-y-3">
         <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactName">Tu Nombre *</label><input type="text" id="contactName" required placeholder="Nombre Artístico / Tu Nombre" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
@@ -645,7 +755,10 @@
     <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4 border border-emerald-500/40 relative max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="infoModalTitle">📜 Manifiesto &amp; Funcionamiento</h3>
-        <button onclick="toggleModal('infoModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es'); openInfoModal();" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-[11px] font-bold text-emerald-300 border border-emerald-500/40">🌐 ES / EN</button>
+          <button onclick="toggleModal('infoModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        </div>
       </div>
       <div id="infoModalBody" class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify" data-i18n="infoModalBody"></div>
     </div>
@@ -653,6 +766,10 @@
 
   <div id="voteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-sm w-full space-y-4 border border-emerald-500/40 text-center shadow-2xl">
+      <div class="flex justify-between items-center">
+        <span class="text-[10px] text-zinc-500 uppercase font-bold">Next Wave Rising</span>
+        <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es')" class="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-emerald-300">🌐 ES / EN</button>
+      </div>
       <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="confirmVoteTitle">Confirmar Votación</h3>
       <p class="text-xs text-zinc-300 leading-relaxed" data-i18n="confirmVoteDesc">Va a emitir sus votos. No se podrán anular si acepta.</p>
       <div class="flex gap-2 pt-2">
@@ -766,7 +883,7 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const ADMIN_TABS = ['principal', 'activa', 'cabecera', 'paises', 'mensajes', 'config', 'backups'];
+    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
     let currentLang = 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
@@ -782,16 +899,6 @@
       trackUrl: "",
       votingActive: true,
       logoUrl: "",
-      headerMediaType: "text",
-      headerMediaUrl: "",
-      youtubeContainer: {
-        enabled: false,
-        url: "",
-        width: "100%",
-        height: "140px",
-        autoplay: false,
-        muted: false
-      },
       defaultTab: "active",
       tabNotices: {},
       tabNoticesEn: {},
@@ -847,7 +954,7 @@
       if (st) {
         st.innerHTML = tok
           ? `Estado: <span class="text-emerald-400 font-bold">● Token activo (${tok.slice(0, 6)}...${tok.slice(-4)})</span>`
-          : `Estado: <span class="text-amber-400">Sin token guardado.</span>`;
+          : `Estado: <span class="text-amber-400">Sin token guardado (necesario para subir/borrar en GitHub).</span>`;
       }
     }
 
@@ -862,7 +969,7 @@
 
     async function pushSingleFileToGithub(file) {
       const token = getGithubToken();
-      if (!token) throw new Error("Configura primero tu GitHub Token.");
+      if (!token) throw new Error("Configura primero tu GitHub Token en el apartado 'Subir Iconos / GIFs a GitHub'.");
 
       const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
       const path = `${GH_FOLDER}/${safeName}`;
@@ -900,7 +1007,7 @@
 
       try {
         for (const f of files) await pushSingleFileToGithub(f);
-        st.textContent = `✅ ${files.length} archivo(s) subido(s) a GitHub correctamente.`;
+        st.textContent = `✅ ${files.length} archivo(s) subido(s) a GitHub y listos para usar al instante.`;
         st.className = "text-xs text-center text-emerald-400 font-semibold";
         e.target.value = "";
         await loadGithubGallery();
@@ -913,7 +1020,7 @@
     window.loadGithubGallery = async () => {
       const cont = $("ghGalleryContainer");
       if (!cont) return;
-      cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">Cargando archivos...</p>';
+      cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">Cargando archivos de GitHub...</p>';
       try {
         const token = getGithubToken();
         const headers = { Accept: "application/vnd.github+json" };
@@ -921,48 +1028,47 @@
 
         const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}?t=${Date.now()}`, { headers });
         if (res.status === 404) {
-          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">Carpeta <code>img/</code> vacía.</p>';
+          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">La carpeta <code>img/</code> aún está vacía. Sube tu primer icono arriba.</p>';
           return;
         }
         if (!res.ok) throw new Error(`Error ${res.status}`);
         const items = await res.json();
-        const files = (Array.isArray(items) ? items : []).filter(x => x.type === "file" && /\.(png|jpe?g|gif|webp|svg|mp4|webm|mov)$/i.test(x.name));
+        const images = (Array.isArray(items) ? items : []).filter(x => x.type === "file" && /\.(png|jpe?g|gif|webp|svg)$/i.test(x.name));
 
-        if (!files.length) {
-          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">No hay archivos multimedia.</p>';
+        if (!images.length) {
+          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">No hay imágenes en <code>img/</code> todavía.</p>';
           return;
         }
 
-        cont.innerHTML = files.map(file => {
-          const directUrl = file.download_url || `${GH_RAW_BASE}${file.name}`;
-          const isVid = /\.(mp4|webm|mov)$/i.test(file.name);
+        cont.innerHTML = images.map(img => {
+          const directUrl = img.download_url || `${GH_RAW_BASE}${img.name}`;
           return `
             <div class="p-2.5 bg-zinc-900 rounded-xl border border-white/10 flex flex-col items-center justify-between gap-2 text-center">
               <div class="h-14 w-full flex items-center justify-center bg-zinc-950 rounded-lg p-1 overflow-hidden">
-                ${isVid ? `<video src="${directUrl}" class="max-h-12 max-w-full object-contain"></video>` : `<img src="${directUrl}" alt="${escapeHtml(file.name)}" class="max-h-12 max-w-full object-contain">`}
+                <img src="${directUrl}" alt="${escapeHtml(img.name)}" class="max-h-12 max-w-full object-contain">
               </div>
-              <p class="text-[10px] text-zinc-300 truncate w-full font-mono" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</p>
+              <p class="text-[10px] text-zinc-300 truncate w-full font-mono" title="${escapeHtml(img.name)}">${escapeHtml(img.name)}</p>
               <div class="flex gap-1 w-full">
-                <button type="button" onclick="copyGithubAssetUrl('${directUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 URL</button>
-                <button type="button" onclick="deleteGithubAsset('${file.path}', '${file.sha}', '${escapeHtml(file.name)}')" class="py-1 px-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded text-[10px] transition">🗑️</button>
+                <button type="button" onclick="copyGithubAssetUrl('${directUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 Copiar URL</button>
+                <button type="button" onclick="deleteGithubAsset('${img.path}', '${img.sha}', '${escapeHtml(img.name)}')" class="py-1 px-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded text-[10px] transition">🗑️</button>
               </div>
             </div>
           `;
         }).join('');
       } catch (e) {
-        cont.innerHTML = `<p class="col-span-full text-rose-400 text-center py-3">Error: ${escapeHtml(e.message)}</p>`;
+        cont.innerHTML = `<p class="col-span-full text-rose-400 text-center py-3">No se pudo leer la galería: ${escapeHtml(e.message)}</p>`;
       }
     };
 
     window.copyGithubAssetUrl = url => {
       navigator.clipboard.writeText(url);
-      alert(`📋 URL copiada:\n${url}`);
+      alert(`📋 URL directa copiada:\n${url}`);
     };
 
     window.deleteGithubAsset = async (path, sha, name) => {
       const token = getGithubToken();
-      if (!token) return alert("Guarda tu GitHub Token para borrar archivos.");
-      if (!confirm(`¿Eliminar "${name}"?`)) return;
+      if (!token) return alert("Necesitas guardar tu GitHub Token para borrar archivos.");
+      if (!confirm(`¿Eliminar "${name}" de GitHub?`)) return;
       try {
         const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, {
           method: "DELETE",
@@ -971,7 +1077,7 @@
         });
         if (!res.ok) throw new Error(`Error ${res.status}`);
         await loadGithubGallery();
-      } catch (e) { alert("Error: " + e.message); }
+      } catch (e) { alert("Error al borrar en GitHub: " + e.message); }
     };
 
     async function handleExamineToGithubOrLocal(file, onUrlReady) {
@@ -981,10 +1087,10 @@
           const url = await pushSingleFileToGithub(file);
           onUrlReady(url);
           loadGithubGallery();
-          alert(`✅ Subido a GitHub:\n${url}`);
-        } catch (err) { alert("Error: " + err.message); }
+          alert(`✅ Subido a GitHub y URL asignada:\n${url}`);
+        } catch (err) { alert("Error subiendo a GitHub: " + err.message); }
       } else {
-        alert("💡 Configura tu GitHub Token en Configuración para subir archivos.");
+        alert("💡 Configura tu GitHub Token arriba en 'Subir Iconos / GIFs a GitHub' para subir archivos directo a GitHub desde Examinar.");
       }
     }
 
@@ -1028,6 +1134,15 @@
           return info;
         }
       } catch (e) {}
+      if (!ip) {
+        try {
+          const r2 = await fetch('https://ipapi.co/json/');
+          const d2 = await r2.json();
+          const info = { ip: d2.ip || "unknown_ip", country: d2.country_name || "", city: d2.city || "", flag: flagFromCode(d2.country_code) };
+          sessionStorage.setItem(cacheKey, JSON.stringify(info));
+          return info;
+        } catch (e2) {}
+      }
       return { ip: ip || "unknown_ip", country: "", city: "", flag: "🌐" };
     }
 
@@ -1061,7 +1176,7 @@
       try {
         await db.collection("settings").doc("activeEdition").set({ defaultTab: val }, { merge: true });
         alert("✅ Pestaña inicial guardada.");
-      } catch (e) { alert("Error: " + e.message); }
+      } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
     function renderFeaturedPlayer() {
@@ -1115,117 +1230,11 @@
       try {
         await db.collection("settings").doc("activeEdition").set({ featuredEnabled: config.featuredEnabled, featuredTabs: config.featuredTabs }, { merge: true });
         renderFeaturedPlayer();
-        alert("✅ Visibilidad guardada.");
-      } catch (e) { alert("Error: " + e.message); }
-    };
-
-    // ==================== GESTIÓN DE CABECERA (LOGO / VÍDEO Y YOUTUBE) ====================
-    window.loadHeaderConfigForm = () => {
-      if ($("adminHeaderMediaType")) $("adminHeaderMediaType").value = config.headerMediaType || "text";
-      if ($("adminHeaderMediaUrl")) $("adminHeaderMediaUrl").value = config.headerMediaUrl || "";
-      
-      const yt = config.youtubeContainer || {};
-      if ($("adminYtEnabled")) $("adminYtEnabled").checked = Boolean(yt.enabled);
-      if ($("adminYtUrl")) $("adminYtUrl").value = yt.url || "";
-      if ($("adminYtWidth")) $("adminYtWidth").value = yt.width || "100%";
-      if ($("adminYtHeight")) $("adminYtHeight").value = yt.height || "140px";
-      if ($("adminYtAutoplay")) $("adminYtAutoplay").checked = Boolean(yt.autoplay);
-      if ($("adminYtMuted")) $("adminYtMuted").checked = Boolean(yt.muted);
-    };
-
-    window.handleHeaderMediaUpload = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      handleExamineToGithubOrLocal(file, url => {
-        $("adminHeaderMediaUrl").value = url;
-        if (file.type.startsWith("video/")) {
-          $("adminHeaderMediaType").value = "video";
-        } else {
-          $("adminHeaderMediaType").value = "image";
-        }
-      });
-    };
-
-    window.saveHeaderAndYoutubeConfig = async () => {
-      config.headerMediaType = $("adminHeaderMediaType").value;
-      config.headerMediaUrl = normalizeUrl($("adminHeaderMediaUrl").value);
-      config.youtubeContainer = {
-        enabled: $("adminYtEnabled").checked,
-        url: $("adminYtUrl").value.trim(),
-        width: $("adminYtWidth").value.trim() || "100%",
-        height: $("adminYtHeight").value.trim() || "140px",
-        autoplay: $("adminYtAutoplay").checked,
-        muted: $("adminYtMuted").checked
-      };
-
-      try {
-        await db.collection("settings").doc("activeEdition").set({
-          headerMediaType: config.headerMediaType,
-          headerMediaUrl: config.headerMediaUrl,
-          youtubeContainer: config.youtubeContainer
-        }, { merge: true });
-        applyHeaderMediaAndYoutube();
-        alert("✅ Configuración de cabecera guardada con éxito.");
+        alert("✅ Visibilidad del Tema Destacado guardada.");
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    function applyHeaderMediaAndYoutube() {
-      const textEl = $("brandTextTitle"), imgEl = $("brandLogoImg"), vidEl = $("brandLogoVideo");
-      const ytCont = $("publicYoutubeContainer"), ytInner = $("publicYoutubeInner");
-
-      if (config.headerMediaType === 'video' && config.headerMediaUrl) {
-        textEl.classList.add("hidden");
-        imgEl.classList.add("hidden");
-        vidEl.src = config.headerMediaUrl;
-        vidEl.classList.remove("hidden");
-      } else if (config.headerMediaType === 'image' && config.headerMediaUrl) {
-        textEl.classList.add("hidden");
-        vidEl.classList.add("hidden");
-        vidEl.src = "";
-        imgEl.src = config.headerMediaUrl;
-        imgEl.classList.remove("hidden");
-      } else {
-        vidEl.classList.add("hidden");
-        vidEl.src = "";
-        imgEl.classList.add("hidden");
-        textEl.classList.remove("hidden");
-      }
-
-      const yt = config.youtubeContainer;
-      if (yt && yt.enabled && yt.url) {
-        let ytEmbed = "";
-        const raw = yt.url.trim();
-        let videoId = "";
-        if (raw.includes("youtube.com/watch?v=")) {
-          videoId = raw.split("v=")[1]?.split("&")[0];
-        } else if (raw.includes("youtu.be/")) {
-          videoId = raw.split("youtu.be/")[1]?.split("?")[0];
-        } else {
-          videoId = raw;
-        }
-
-        if (videoId) {
-          const auto = yt.autoplay ? "1" : "0";
-          const mute = yt.muted ? "1" : "0";
-          ytEmbed = `https://www.youtube.com/embed/${videoId}?autoplay=${auto}&mute=${mute}&enablejsapi=1`;
-        }
-
-        if (ytEmbed) {
-          ytCont.style.width = yt.width || "100%";
-          ytCont.style.height = yt.height || "140px";
-          ytCont.classList.remove("hidden");
-          ytInner.innerHTML = `<iframe src="${ytEmbed}" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px;"></iframe>`;
-        } else {
-          ytCont.classList.add("hidden");
-          ytInner.innerHTML = "";
-        }
-      } else {
-        ytCont.classList.add("hidden");
-        ytInner.innerHTML = "";
-      }
-    }
-
-    // ==================== DISEÑO REPRODUCTOR SPOTIFY (CARÁTULAS DE SPOTIFY OEMBED) ====================
+    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA (CLICK-TO-PLAY CON CARÁTULAS DE SPOTIFY OEMBED) ====================
     window.loadPlayerStyleForm = () => {
       const key = $("adminPlayerListSelect").value;
       const st = config.playerStyles?.[key] || { preset: 'ultracompact', height: 80, startSec: 0 };
@@ -1250,15 +1259,15 @@
         await db.collection("settings").doc("activeEdition").set({ playerStyles: config.playerStyles }, { merge: true });
         renderFeaturedPlayer();
         await loadAllLists();
-        alert("✅ Diseño guardado.");
-      } catch (e) { alert("Error: " + e.message); }
+        alert("✅ Diseño de reproductor guardado y aplicado.");
+      } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
     window.playTrackCard = (btn, url, listKey) => {
       const container = btn.closest('.track-card-container');
       const embedUrl = getEmbedUrl(url, listKey);
       const h = getPlayerHeight(listKey);
-      if (!embedUrl) return alert("Enlace no válido.");
+      if (!embedUrl) return alert("Enlace de Spotify no válido.");
       container.innerHTML = `<iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
     };
 
@@ -1288,18 +1297,18 @@
 
       return `
         <div class="track-card-container glass p-3 rounded-2xl border border-white/10 flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3 truncate flex-1">
-            <div class="w-11 h-11 bg-zinc-900 rounded-xl overflow-hidden shrink-0 border border-white/10 flex items-center justify-center text-emerald-400 font-bold relative">
+          <div class="flex items-center gap-3 truncate">
+            <div class="w-12 h-12 bg-zinc-900 rounded-xl overflow-hidden shrink-0 border border-white/10 flex items-center justify-center text-emerald-400 font-bold relative">
               <img id="${imgId}" src="" alt="Carátula" class="w-full h-full object-cover" style="display:none;" />
-              <span class="absolute inset-0 flex items-center justify-center text-xs">🎵</span>
+              <span class="absolute inset-0 flex items-center justify-center text-sm">🎵</span>
             </div>
-            <div class="truncate flex-1 min-w-0">
+            <div class="truncate">
               <p class="font-bold text-white text-xs truncate">${i + 1}. ${escapeHtml(s.artist)}</p>
               <p class="text-[11px] text-emerald-400 truncate">${escapeHtml(s.title)}</p>
-              <p class="text-[9px] text-zinc-400 truncate">${extraBadge || 'Spotify Track'}</p>
+              <p class="text-[9px] text-zinc-400">${extraBadge || 'Spotify Track'}</p>
             </div>
           </div>
-          <button type="button" onclick="playTrackCard(this, '${s.url}', '${listKey}')" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-[11px] transition shadow shrink-0 flex items-center gap-1 cursor-pointer whitespace-nowrap">
+          <button type="button" onclick="playTrackCard(this, '${s.url}', '${listKey}')" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow shrink-0 flex items-center gap-1 cursor-pointer">
             <span>▶</span> Play
           </button>
         </div>
@@ -1396,12 +1405,12 @@
             </div>
           </div>
           <div class="space-y-1.5">
-            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña" class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
+            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña (dejar vacío para solo icono)" class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
             <div class="flex gap-1.5 items-center">
-              <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', normalizeUrl(this.value)); renderAdminTabsManager();" placeholder="URL archivo" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
+              <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', normalizeUrl(this.value)); renderAdminTabsManager();" placeholder="URL imagen/GIF (ej. https://raw.githubusercontent.com/...)" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
               <label class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] cursor-pointer transition whitespace-nowrap">
                 <span>📁 Examinar</span>
-                <input type="file" accept="image/*,video/*" onchange="handleExistingTabFileUpload(event, ${idx})" class="hidden">
+                <input type="file" accept="image/*" onchange="handleExistingTabFileUpload(event, ${idx})" class="hidden">
               </label>
               ${t.gifUrl ? `<button type="button" onclick="clearExistingTabGif(${idx})" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-[11px] font-bold">✕</button>` : ''}
             </div>
@@ -1436,16 +1445,16 @@
       const label = $("newCustomTabLabel").value.trim();
       const gifUrl = normalizeUrl($("newCustomTabUrl").value);
       const content = $("newCustomTabContent").value.trim();
-      if (!label && !gifUrl) return alert("Escribe un nombre o sube un archivo.");
+      if (!label && !gifUrl) return alert("Escribe un nombre o sube un icono/GIF para la nueva pestaña.");
       const id = 'custom_' + Date.now();
       config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl, content, custom: true });
       $("newCustomTabLabel").value = $("newCustomTabUrl").value = $("newCustomTabContent").value = "";
       renderAdminTabsManager();
-      alert("Pestaña añadida.");
+      alert("Pestaña añadida a la lista. Pulsa 'Guardar Orden y Cambios de Pestañas' para publicarla.");
     };
 
     window.deleteCustomTab = idx => {
-      if (!confirm("¿Eliminar esta pestaña?")) return;
+      if (!confirm("¿Eliminar esta pestaña personalizada?")) return;
       config.tabsConfig.splice(idx, 1);
       renderAdminTabsManager();
     };
@@ -1456,11 +1465,437 @@
         await db.collection("settings").doc("activeEdition").set({ tabsConfig: config.tabsConfig }, { merge: true });
         renderNavigationAndCustomViews();
         updateFeaturedAdminUI();
-        alert("✅ Pestañas guardadas.");
+        alert("✅ Pestañas guardadas y actualizadas.");
+      } catch (e) { alert("Error al guardar pestañas: " + e.message); }
+    };
+
+    // ==================== PERSONALIZADOR DE BOTONES E INDICADOR DE VOTACIÓN ====================
+    function applyButtonStyleToElement(el, st) {
+      if (!el || !st) return;
+      const sizeClasses = { sm: ['text-[10px]', 'py-1', 'px-2.5'], md: ['text-xs', 'py-2.5', 'px-4'], lg: ['text-sm', 'py-3.5', 'px-5'] };
+      if (st.bgColor) { el.style.background = st.bgColor; el.style.backgroundColor = st.bgColor; }
+      if (st.textColor) el.style.color = st.textColor;
+      if (st.size && sizeClasses[st.size]) {
+        el.classList.remove('text-[10px]', 'text-xs', 'text-sm', 'py-1', 'py-2', 'py-2.5', 'py-3', 'py-3.5', 'px-2.5', 'px-3', 'px-3.5', 'px-4', 'px-5', 'h-9');
+        el.classList.add(...sizeClasses[st.size]);
+      }
+      const cleanGif = normalizeUrl(st.gifUrl);
+      if (st.text || cleanGif) {
+        const gifHtml = cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-5 w-5 object-contain inline-block rounded-sm">` : '';
+        const currentSpan = el.querySelector("span:last-child");
+        const baseTxt = st.text ? escapeHtml(st.text) : (currentSpan ? currentSpan.textContent.trim() : el.textContent.trim());
+        el.innerHTML = `${gifHtml}<span>${baseTxt}</span>`;
+      }
+    }
+
+    function applyAllCustomButtons() {
+      const btns = config.customButtons || {};
+      Object.entries(btns).forEach(([btnId, st]) => {
+        if (btnId === 'votingBadgeActive' || btnId === 'votingBadgeInactive') return;
+        applyButtonStyleToElement($(btnId), st);
+      });
+    }
+
+    window.handleBtnGifUpload = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      handleExamineToGithubOrLocal(file, url => { $("adminBtnGifUrl").value = url; });
+    };
+
+    window.loadButtonCustomForm = () => {
+      const id = $("adminButtonSelect").value;
+      const st = config.customButtons?.[id] || {};
+      $("adminBtnText").value = st.text || "";
+      $("adminBtnSize").value = st.size || "";
+      $("adminBtnGifUrl").value = st.gifUrl || "";
+      $("adminBtnUseBg").checked = Boolean(st.bgColor);
+      if (st.bgColor) $("adminBtnBgColor").value = st.bgColor;
+      $("adminBtnUseText").checked = Boolean(st.textColor);
+      if (st.textColor) $("adminBtnTextColor").value = st.textColor;
+    };
+
+    window.saveButtonCustomization = async () => {
+      const id = $("adminButtonSelect").value;
+      if (!config.customButtons) config.customButtons = {};
+      config.customButtons[id] = {
+        text: $("adminBtnText").value.trim(),
+        size: $("adminBtnSize").value,
+        bgColor: $("adminBtnUseBg").checked ? $("adminBtnBgColor").value : "",
+        textColor: $("adminBtnUseText").checked ? $("adminBtnTextColor").value : "",
+        gifUrl: normalizeUrl($("adminBtnGifUrl").value)
+      };
+      try {
+        await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
+        applyAllCustomButtons();
+        updateVotingUI(globalVotingActive);
+        alert("✅ Estilo guardado.");
+      } catch (e) { alert("Error al guardar: " + e.message); }
+    };
+
+    window.resetButtonCustomization = async () => {
+      const id = $("adminButtonSelect").value;
+      if (config.customButtons?.[id]) delete config.customButtons[id];
+      try {
+        await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
+        alert("✅ Restaurado (recarga la página para ver su estilo original por defecto).");
+      } catch (e) {}
+    };
+
+    // ==================== PAÍSES (BLINDADO CONTRA SOBRESCRITURA) ====================
+    async function registerOrUpdateArtistCountry(artistName, email) {
+      const cleanEmail = (email || "").trim().toLowerCase();
+      if (!cleanEmail) return;
+      let ipToUse = clientIp, geoToUse = clientGeo;
+      if (!ipToUse || ipToUse === "unknown_ip") {
+        try {
+          const freshGeo = await fetchGeoByIp("");
+          ipToUse = freshGeo.ip; geoToUse = { country: freshGeo.country, city: freshGeo.city, flag: freshGeo.flag };
+        } catch (e) {}
+      }
+      try {
+        const docId = cleanEmail.replace(/[.#$/[\]]/g, "_");
+        const docRef = db.collection("artist_countries").doc(docId);
+        const snap = await docRef.get();
+        const nowStr = madridStr();
+        if (snap.exists) {
+          const prev = snap.data();
+          const updates = { submissionsCount: (prev.submissionsCount || 1) + 1, lastSubmissionDate: nowStr };
+          if (ipToUse && ipToUse !== "unknown_ip" && (!prev.ip || prev.ip === "unknown_ip" || prev.ip === "Histórico" || prev.ip === "Sin IP previa")) {
+            updates.ip = ipToUse;
+            if (geoToUse.country) updates.country = geoToUse.country;
+            if (geoToUse.city) updates.city = geoToUse.city;
+            if (geoToUse.flag && geoToUse.flag !== "🌐") updates.flag = geoToUse.flag;
+          }
+          await docRef.update(updates);
+        } else {
+          await docRef.set({
+            email: cleanEmail, artist: artistName || "Artista", firstPublishedDate: nowStr, lastSubmissionDate: nowStr,
+            submissionsCount: 1, ip: ipToUse || "unknown_ip", country: geoToUse.country || "Desconocido", city: geoToUse.city || "", flag: geoToUse.flag || "🌐"
+          });
+        }
+      } catch (e) {}
+    }
+
+    window.syncExistingTracksToCountries = async function() {
+      const btn = $("syncCountriesBtn");
+      if (btn) { btn.disabled = true; btn.textContent = "⏳ Sincronizando..."; }
+      try {
+        const [snapW, snapA, snapC] = await Promise.all([
+          db.collection("submissions").orderBy("timestamp", "asc").get(),
+          db.collection("active_list").orderBy("timestamp", "asc").get(),
+          db.collection("artist_countries").get()
+        ]);
+        const existingMap = {};
+        snapC.forEach(d => existingMap[d.id] = d.data());
+        const grouped = {};
+        const addDoc = doc => {
+          const d = doc.data(), em = (d.email || "").trim().toLowerCase();
+          if (!em) return;
+          const id = em.replace(/[.#$/[\]]/g, "_"), dt = d.dateString || madridStr();
+          if (!grouped[id]) grouped[id] = { email: em, artist: d.artist || "Artista", firstDate: dt, lastDate: dt, count: 1 };
+          else { grouped[id].count++; grouped[id].lastDate = dt; }
+        };
+        snapA.forEach(addDoc);
+        snapW.forEach(addDoc);
+
+        const entries = Object.entries(grouped);
+        if (!entries.length) return alert("No se encontraron temas con correo electrónico.");
+        const batch = db.batch();
+        let added = 0, updated = 0;
+        for (const [id, info] of entries) {
+          const ref = db.collection("artist_countries").doc(id);
+          const existingDoc = existingMap[id];
+          if (existingDoc) {
+            const updateData = {
+              submissionsCount: Math.max(existingDoc.submissionsCount || 1, info.count),
+              lastSubmissionDate: info.lastDate
+            };
+            if (!existingDoc.ip || existingDoc.ip === "Histórico" || existingDoc.ip === "Sin IP previa" || existingDoc.ip === "unknown_ip") {
+              if (clientIp && clientIp !== "unknown_ip") {
+                updateData.ip = clientIp;
+                updateData.country = clientGeo.country;
+                updateData.city = clientGeo.city;
+                updateData.flag = clientGeo.flag;
+              }
+            }
+            batch.update(ref, updateData);
+            updated++;
+          } else {
+            batch.set(ref, {
+              email: info.email,
+              artist: info.artist,
+              firstPublishedDate: info.firstDate,
+              lastSubmissionDate: info.lastDate,
+              submissionsCount: info.count,
+              ip: clientIp && clientIp !== "unknown_ip" ? clientIp : "Histórico",
+              country: clientGeo.country || "Desconocido",
+              city: clientGeo.city || "",
+              flag: clientGeo.flag || "🌐"
+            });
+            added++;
+          }
+        }
+        await batch.commit();
+        await loadAdminCountries();
+        alert(`✅ Sincronización completada:\n• ${added} artistas nuevos añadidos.\n• ${updated} artistas existentes actualizados.`);
+      } catch (e) { alert("Error al sincronizar: " + e.message); }
+      finally { if (btn) { btn.disabled = false; btn.textContent = "🔄 Sincronizar Existentes"; } }
+    };
+
+    async function loadAdminCountries() {
+      const container = $("adminCountriesList"), badge = $("countriesCountBadge");
+      try {
+        const snap = await db.collection("artist_countries").get();
+        countriesCache = [];
+        snap.forEach(d => { const data = d.data(); if (data.email?.trim()) countriesCache.push({ id: d.id, ...data }); });
+        countriesCache.sort((a, b) => (b.submissionsCount || 1) - (a.submissionsCount || 1) || (a.artist || "").localeCompare(b.artist || ""));
+        if (badge) badge.textContent = countriesCache.length;
+        if (!container) return;
+        if (!countriesCache.length) {
+          container.innerHTML = '<p class="text-zinc-400 text-center py-6">Aún no hay artistas registrados. Pulsa <strong>🔄 Sincronizar Existentes</strong> arriba.</p>';
+          return;
+        }
+        container.innerHTML = countriesCache.map(c => {
+          const loc = [c.city, c.country].filter(Boolean).join(", ") || "Ubicación desconocida";
+          return `<div class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 flex flex-wrap justify-between items-center gap-2">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-base leading-none">${c.flag || '🌐'}</span>
+                <span class="font-bold text-white text-xs">${escapeHtml(c.artist || 'Sin nombre')}</span>
+                <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-extrabold text-[10px]">Temas: ${c.submissionsCount || 1}</span>
+              </div>
+              <p class="text-[11px] text-emerald-400">${escapeHtml(c.email)}</p>
+              <p class="text-[10px] text-zinc-400">📍 ${escapeHtml(loc)} ${c.ip ? `• IP: <span class="font-mono">${escapeHtml(c.ip)}</span>` : ''}</p>
+              <p class="text-[10px] text-zinc-500">📅 Primera publicación: ${escapeHtml(c.firstPublishedDate || '-')}</p>
+            </div>
+            <div class="flex gap-1.5">
+              <button type="button" onclick="openEditCountryModal('${c.id}')" class="px-2.5 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-[11px] transition">Editar</button>
+              <button type="button" onclick="deleteCountryEntry('${c.id}')" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">Eliminar</button>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (e) { if (container) container.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando países.</p>'; }
+    }
+
+    window.openEditCountryModal = id => {
+      const c = countriesCache.find(x => x.id === id);
+      if (!c) return;
+      $("editCountryDocId").value = c.id; $("editCountryEmail").value = c.email || ""; $("editCountryArtist").value = c.artist || "";
+      $("editCountryFlag").value = c.flag || "🌐"; $("editCountryName").value = c.country || ""; $("editCountryCity").value = c.city || "";
+      $("editCountryCount").value = c.submissionsCount || 1;
+      toggleModal('editCountryModal', true);
+    };
+
+    window.saveCountryEdit = async () => {
+      const id = $("editCountryDocId").value, artist = $("editCountryArtist").value.trim();
+      if (!artist) return alert("El nombre de usuario/artista es obligatorio.");
+      try {
+        await db.collection("artist_countries").doc(id).update({
+          artist, flag: $("editCountryFlag").value.trim() || "🌐", country: $("editCountryName").value.trim(),
+          city: $("editCountryCity").value.trim(), submissionsCount: Math.max(1, parseInt($("editCountryCount").value, 10) || 1)
+        });
+        toggleModal('editCountryModal', false);
+        await loadAdminCountries();
+        alert("✅ Datos actualizados.");
       } catch (e) { alert("Error: " + e.message); }
     };
 
-    // ==================== NAVEGACIÓN Y ADMIN ====================
+    window.deleteCountryEntry = async id => {
+      if (!confirm("¿Eliminar este artista del registro de países?")) return;
+      try { await db.collection("artist_countries").doc(id).delete(); await loadAdminCountries(); } catch (e) { alert("Error al eliminar."); }
+    };
+
+    window.exportCountriesList = () => {
+      if (!countriesCache.length) return alert("No hay datos en Países para copiar.");
+      navigator.clipboard.writeText(countriesCache.map((c, i) => `${i + 1}. ${c.flag || '🌐'} ${c.artist} (${c.email}) | ${[c.city, c.country].filter(Boolean).join(", ") || "Desconocido"} | Temas: ${c.submissionsCount || 1} | 1ª vez: ${c.firstPublishedDate || '-'}`).join('\n'));
+      alert("📋 Listado de países copiado.");
+    };
+
+    // ==================== INSPECTOR DE BASE DE DATOS EN VIVO ====================
+    window.inspectDatabaseLive = async () => {
+      const container = $("liveDbInspectorContainer");
+      if (!container) return;
+      container.classList.remove("hidden");
+      container.innerHTML = '<p class="text-xs text-zinc-400 text-center py-4">⏳ Consultando colecciones en vivo en Firebase...</p>';
+      try {
+        const [actSnap, subSnap, monSnap, annSnap, couSnap] = await Promise.all([
+          db.collection("active_list").get(),
+          db.collection("submissions").get(),
+          db.collection("monthly_list").get(),
+          db.collection("annual_list").get(),
+          db.collection("artist_countries").get()
+        ]);
+
+        const renderList = (snap, title) => {
+          if (snap.empty) return `<div class="p-3 bg-zinc-950 rounded-lg"><p class="font-bold text-emerald-400 text-xs">${title} (0 registros)</p></div>`;
+          let html = `<div class="p-3 bg-zinc-950 rounded-lg space-y-1.5 border border-white/5"><p class="font-bold text-emerald-400 text-xs">📂 ${title} (${snap.size} registros)</p><div class="max-h-40 overflow-y-auto space-y-1 text-[11px] text-zinc-300">`;
+          snap.forEach(doc => {
+            const d = doc.data();
+            html += `<div class="bg-zinc-900 p-1.5 rounded truncate">• <strong>${escapeHtml(d.artist || d.name || 'Sin nombre')}</strong> — ${escapeHtml(d.title || d.email || d.message || d.country || '')}</div>`;
+          });
+          html += `</div></div>`;
+          return html;
+        };
+
+        container.innerHTML = `
+          <div class="space-y-3 bg-zinc-900 p-4 rounded-xl border border-purple-500/30">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-purple-300 text-xs">📊 Estado Actual en Firebase (En Vivo)</span>
+              <button type="button" onclick="$('liveDbInspectorContainer').classList.add('hidden')" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded">✕ Cerrar</button>
+            </div>
+            ${renderList(actSnap, "Lista Activa (active_list)")}
+            ${renderList(subSnap, "Cola Semanal (submissions)")}
+            ${renderList(monSnap, "Lista Mensual (monthly_list)")}
+            ${renderList(annSnap, "Lista Anual (annual_list)")}
+            ${renderList(couSnap, "Países / Artistas (artist_countries)")}
+          </div>
+        `;
+      } catch (e) {
+        container.innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Error consultando la base de datos: ${e.message}</p>`;
+      }
+    };
+
+    // ==================== LOGO Y AVISOS ====================
+    function applyBrandLogo(url) {
+      const clean = normalizeUrl(url);
+      const textEl = $("brandTextTitle"), imgEl = $("brandLogoImg"), pBox = $("adminLogoPreviewBox"), pImg = $("adminLogoPreviewImg"), uInp = $("adminLogoUrlInput");
+      if (uInp && clean && !clean.startsWith("data:image")) uInp.value = clean;
+      if (clean) {
+        imgEl.src = clean; imgEl.classList.remove("hidden"); textEl.classList.add("hidden");
+        if (pBox && pImg) { pImg.src = clean; pBox.classList.remove("hidden"); }
+      } else {
+        imgEl.src = ""; imgEl.classList.add("hidden"); textEl.classList.remove("hidden");
+        if (pBox) pBox.classList.add("hidden"); if (uInp) uInp.value = "";
+      }
+    }
+
+    window.handleLogoFileUpload = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      handleExamineToGithubOrLocal(file, url => {
+        config.logoUrl = url;
+        $("adminLogoUrlInput").value = url;
+        $("adminLogoPreviewImg").src = url;
+        $("adminLogoPreviewBox").classList.remove("hidden");
+      });
+    };
+
+    window.saveBrandLogo = async () => {
+      const typed = normalizeUrl($("adminLogoUrlInput").value);
+      if (typed) config.logoUrl = typed;
+      if (!config.logoUrl) return alert("Pega una URL de GitHub o pulsa Examinar antes de guardar.");
+      try {
+        await db.collection("settings").doc("activeEdition").set({ logoUrl: config.logoUrl }, { merge: true });
+        applyBrandLogo(config.logoUrl);
+        alert("✅ Logo guardado.");
+      } catch (e) { alert("Error: " + e.message); }
+    };
+
+    window.resetBrandLogoToText = async () => {
+      if (!confirm("¿Volver al título de texto 'Next Wave Rising'?")) return;
+      try {
+        config.logoUrl = "";
+        await db.collection("settings").doc("activeEdition").set({ logoUrl: "" }, { merge: true });
+        applyBrandLogo("");
+        $("adminLogoFileInput").value = "";
+        alert("✅ Título de texto restaurado.");
+      } catch (e) { alert("Error al restaurar."); }
+    };
+
+    async function renderAllTabNotices() {
+      const notices = config.tabNotices || {};
+      const noticesEn = config.tabNoticesEn || {};
+      const badge = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
+      const tabs = config.tabsConfig || defaultTabsList;
+
+      for (const t of tabs) {
+        const k = t.id, b = $(`noticeBanner_${k}`);
+        if (!b) continue;
+        const msgEs = notices[k];
+        if (msgEs?.trim()) {
+          let displayMsg = msgEs;
+          if (currentLang === 'en') {
+            if (noticesEn[k]?.trim()) displayMsg = noticesEn[k];
+            else if (autoTranslatedNotices[k]) displayMsg = autoTranslatedNotices[k];
+            else {
+              displayMsg = await translateTextToEnglish(msgEs);
+              autoTranslatedNotices[k] = displayMsg;
+            }
+          }
+          b.className = "rounded-2xl p-4 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 shadow-lg flex items-start gap-3";
+          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1.5 flex-1"><div class="flex justify-between items-center gap-2"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span><button type="button" onclick="toggleNoticeLanguage('${k}')" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-amber-300 font-bold text-[10px] border border-amber-400/30 transition">🌐 ES / EN</button></div><p id="noticeText_${k}" class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(displayMsg)}</p></div>`;
+        } else { b.className = "hidden"; b.innerHTML = ""; }
+      }
+
+      const adminList = $("adminActiveNoticesList");
+      if (adminList) {
+        const keys = Object.keys(notices).filter(k => notices[k]?.trim());
+        adminList.innerHTML = !keys.length ? '<p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p>' : keys.map(k => {
+          const tabObj = tabs.find(x => x.id === k);
+          return `<div class="p-3 bg-zinc-900 rounded-xl border border-amber-500/20 flex justify-between items-start gap-2">
+            <div class="space-y-1"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${escapeHtml(tabObj ? (tabObj.labelEs || tabObj.id) : k)}</span><p class="text-xs text-zinc-200 whitespace-pre-line">${escapeHtml(notices[k])}</p></div>
+            <div class="flex gap-1.5 shrink-0"><button type="button" onclick="editTabNotice('${k}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] font-bold transition">Editar</button><button type="button" onclick="deleteTabNotice('${k}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] font-bold transition">Eliminar</button></div>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    window.toggleNoticeLanguage = async k => {
+      const pEl = $(`noticeText_${k}`);
+      const msgEs = (config.tabNotices || {})[k];
+      if (!pEl || !msgEs) return;
+      if (pEl.dataset.langMode === "en") {
+        pEl.textContent = msgEs;
+        pEl.dataset.langMode = "es";
+      } else {
+        pEl.textContent = "⏳ Translating...";
+        const enText = (config.tabNoticesEn || {})[k]?.trim() || autoTranslatedNotices[k] || await translateTextToEnglish(msgEs);
+        autoTranslatedNotices[k] = enText;
+        pEl.textContent = enText;
+        pEl.dataset.langMode = "en";
+      }
+    };
+
+    window.loadSelectedTabNoticeToForm = () => {
+      const k = $("adminNoticeTabSelect").value;
+      $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
+      $("adminNoticeTextEnInput").value = (config.tabNoticesEn || {})[k] || "";
+    };
+    window.editTabNotice = k => {
+      $("adminNoticeTabSelect").value = k;
+      $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
+      $("adminNoticeTextEnInput").value = (config.tabNoticesEn || {})[k] || "";
+      $("adminNoticeTextInput").focus();
+    };
+    window.saveTabNotice = async () => {
+      const k = $("adminNoticeTabSelect").value, msg = $("adminNoticeTextInput").value.trim(), msgEn = $("adminNoticeTextEnInput").value.trim();
+      if (!msg) return alert("Escribe un aviso o pulsa 'Quitar'.");
+      try {
+        if (!config.tabNotices) config.tabNotices = {};
+        if (!config.tabNoticesEn) config.tabNoticesEn = {};
+        config.tabNotices[k] = msg;
+        config.tabNoticesEn[k] = msgEn;
+        delete autoTranslatedNotices[k];
+        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices, tabNoticesEn: config.tabNoticesEn }, { merge: true });
+        await renderAllTabNotices();
+        alert("✅ Aviso guardado.");
+      } catch (e) { alert("Error: " + e.message); }
+    };
+    window.deleteTabNotice = async k => {
+      if (!config.tabNotices?.[k]) { $("adminNoticeTextInput").value = $("adminNoticeTextEnInput").value = ""; return; }
+      if (!confirm("¿Eliminar este aviso?")) return;
+      try {
+        delete config.tabNotices[k];
+        if (config.tabNoticesEn) delete config.tabNoticesEn[k];
+        delete autoTranslatedNotices[k];
+        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices, tabNoticesEn: config.tabNoticesEn || {} }, { merge: true });
+        if ($("adminNoticeTabSelect").value === k) $("adminNoticeTextInput").value = $("adminNoticeTextEnInput").value = "";
+        await renderAllTabNotices();
+        alert("🗑️ Aviso eliminado.");
+      } catch (e) { alert("Error: " + e.message); }
+    };
+
+    // ==================== NAVEGACIÓN ====================
     function setLanguage(lang) {
       currentLang = lang;
       $("langEsBtn").className = lang === 'es' ? 'px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs';
@@ -1471,6 +1906,7 @@
       document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); if (t[k]) el.placeholder = t[k]; });
       renderNavigationAndCustomViews();
       updateVotingUI(globalVotingActive);
+      applyAllCustomButtons();
     }
 
     function switchTab(tab) {
@@ -1494,25 +1930,15 @@
     }
 
     function switchAdminTab(tab) {
-      const map = { 
-        principal: ['adminTabPrincipal', 'adminViewPrincipal'], 
-        activa: ['adminTabActiva', 'adminViewActiva'], 
-        cabecera: ['adminTabCabecera', 'adminViewCabecera'],
-        paises: ['adminTabPaises', 'adminViewPaises'], 
-        mensajes: ['adminTabMensajes', 'adminViewMensajes'], 
-        config: ['adminTabConfig', 'adminViewConfig'], 
-        backups: ['adminTabBackups', 'adminViewBackups'] 
-      };
+      const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], config: ['adminTabConfig', 'adminViewConfig'], backups: ['adminTabBackups', 'adminViewBackups'] };
       ADMIN_TABS.forEach(k => {
-        if ($(map[k][0])) $(map[k][0]).className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
-        if ($(map[k][1])) $(map[k][1]).classList.add('hidden');
+        $(map[k][0]).className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
+        $(map[k][1]).classList.add('hidden');
       });
-      if ($(map[tab][0])) $(map[tab][0]).className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
-      if ($(map[tab][1])) $(map[tab][1]).classList.remove('hidden');
-      
+      $(map[tab][0]).className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
+      $(map[tab][1]).classList.remove('hidden');
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
-      else if (tab === 'cabecera') loadHeaderConfigForm();
       else if (tab === 'config') {
         updateGithubTokenStatus();
         loadGithubGallery();
@@ -1520,6 +1946,8 @@
         updateFeaturedAdminUI();
         loadPlayerStyleForm();
         renderAdminTabsManager();
+        loadButtonCustomForm();
+        loadSelectedTabNoticeToForm();
         renderAllTabNotices();
         loadAdminChatUsers();
       }
@@ -1532,11 +1960,11 @@
         adminView.classList.remove("hidden");
         $("txtAdminBtn").textContent = translations[currentLang].backApp;
       }
-      switchAdminTab('cabecera');
+      switchAdminTab('config');
       window.scrollTo({ top: adminView.offsetTop, behavior: 'smooth' });
     };
 
-    // ==================== RESTAURACIÓN Y GESTIÓN ====================
+    // ==================== RESTAURACIÓN DESDE BACKUPS CON SELECCIÓN DE LISTAS ====================
     window.toggleBackupRestoreView = id => {
       const el = $(`backupRestorePanel_${id}`);
       if (el) el.classList.toggle('hidden');
@@ -1548,27 +1976,47 @@
       const tracks = ({ active: b.activeTracks, weekly: b.weeklyTracks, monthly: b.monthlyTracks, annual: b.annualTracks }[sectionKey]) || [];
       const item = tracks[index];
       if (!item) return;
+
       const targetCol = { active: 'active_list', weekly: 'submissions', monthly: 'monthly_list', annual: 'annual_list' }[sectionKey];
-      if (!confirm(`¿Restaurar ${item.artist} - ${item.title}?`)) return;
+      const colNameEs = { active: 'Lista Activa', weekly: 'Cola Semanal', monthly: 'Lista Mensual', annual: 'Lista Anual' }[sectionKey];
+
+      if (!confirm(`⚠️ ATENCIÓN:\nSe va a restaurar (añadir) el siguiente registro:\n• Artista: ${item.artist}\n• Canción: ${item.title}\n\nDestino: Colección '${colNameEs}' en Firebase.\n¿Deseas confirmar esta restauración individual?`)) return;
+
       try {
         const cleanItem = { ...item };
         delete cleanItem.id;
-        await db.collection(targetCol).add({ ...cleanItem, timestamp: Date.now(), dateString: cleanItem.dateString || madridStr() });
+        await db.collection(targetCol).add({
+          ...cleanItem,
+          timestamp: Date.now(),
+          dateString: cleanItem.dateString || madridStr()
+        });
         await loadAllLists();
-        alert("✅ Restaurado.");
-      } catch (e) { alert("Error: " + e.message); }
+        alert(`✅ Registro restaurado con éxito en ${colNameEs}.`);
+      } catch (e) {
+        alert("Error al restaurar: " + e.message);
+      }
     };
 
     window.restoreSelectedRecordsFromBackup = async backupId => {
       const b = backupsCache[backupId];
       if (!b) return;
+
       const doActive = document.getElementById(`rest_active_${backupId}`)?.checked || false;
       const doWeekly = document.getElementById(`rest_weekly_${backupId}`)?.checked || false;
       const doMonthly = document.getElementById(`rest_monthly_${backupId}`)?.checked || false;
       const doAnnual = document.getElementById(`rest_annual_${backupId}`)?.checked || false;
 
-      if (!doActive && !doWeekly && !doMonthly && !doAnnual) return alert("Selecciona al menos una lista.");
-      if (!confirm("⚠️ ¿Sustituir las listas seleccionadas con esta copia?")) return;
+      if (!doActive && !doWeekly && !doMonthly && !doAnnual) {
+        return alert("⚠️ Selecciona al menos una lista marcada para restaurar.");
+      }
+
+      let summary = [];
+      if (doActive) summary.push("• Lista Activa");
+      if (doWeekly) summary.push("• Cola Semanal");
+      if (doMonthly) summary.push("• Lista Mensual");
+      if (doAnnual) summary.push("• Lista Anual");
+
+      if (!confirm(`⚠️ ATENCIÓN CRÍTICA:\nSe van a SUSTITUIR por completo las siguientes listas actuales con los datos de esta copia de seguridad:\n\n${summary.join('\n')}\n\nLas listas NO marcadas permanecerán intactas.\n¿Deseas confirmar la sustitución?`)) return;
 
       try {
         const clearAndReplace = async (tracks, colName) => {
@@ -1583,7 +2031,8 @@
             tracks.forEach(t => {
               const cleanT = { ...t };
               delete cleanT.id;
-              addBatch.set(db.collection(colName).doc(), { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
+              const newRef = db.collection(colName).doc();
+              addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
             });
             await addBatch.commit();
           }
@@ -1595,29 +2044,38 @@
         if (doAnnual) await clearAndReplace(b.annualTracks, 'annual_list');
 
         await loadAllLists();
-        alert("✅ Restauración completada.");
-      } catch (e) { alert("Error: " + e.message); }
+        alert("✅ Restauración y sustitución completada con éxito en las listas seleccionadas.");
+      } catch (e) {
+        alert("Error en la restauración: " + e.message);
+      }
     };
 
     window.exportBackupToSpotify = backupId => {
       const b = backupsCache[backupId];
       if (!b) return;
       const allTracks = [...(b.activeTracks || []), ...(b.weeklyTracks || []), ...(b.monthlyTracks || []), ...(b.annualTracks || [])];
-      if (!allTracks.length) return alert("Sin canciones.");
-      navigator.clipboard.writeText(allTracks.map(t => t.url).filter(Boolean).join('\n'));
-      if (confirm("Enlaces copiados. ¿Abrir Spotify?")) window.open(config.playlistUrl, "_blank");
+      if (!allTracks.length) return alert("Esta copia no contiene canciones para exportar.");
+
+      const urlsText = allTracks.map(t => t.url).filter(Boolean).join('\n');
+      navigator.clipboard.writeText(urlsText);
+
+      if (confirm(`✅ Se han copiado al portapapeles ${allTracks.length} enlaces de Spotify de esta copia de seguridad.\n\n¿Deseas abrir tu playlist de Spotify en una pestaña nueva para pegarlos y actualizar tu lista?`)) {
+        window.open(config.playlistUrl || "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", "_blank");
+      }
     };
 
+    // ==================== LISTA ACTIVA CURADOR ====================
     window.addTrackToActiveList = async () => {
       const artist = $("adminActiveArtist").value.trim(), title = $("adminActiveTitle").value.trim(), rawUrl = $("adminActiveUrl").value.trim(), email = $("adminActiveEmail").value.trim();
-      if (!artist || !title || !rawUrl) return alert("Rellena los campos obligatorios.");
+      if (!artist || !title || !rawUrl) return alert("Rellena Artista, Canción y Enlace Spotify.");
       const cleanUrl = rawUrl.split("?")[0].trim();
+      if (!cleanUrl.includes("spotify.com/") || !cleanUrl.includes("/track/")) return alert("Enlace Spotify no válido.");
       try {
         await db.collection("active_list").add({ artist, title, url: cleanUrl, email: email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
         if (email) await registerOrUpdateArtistCountry(artist, email);
         $("adminActiveArtist").value = $("adminActiveTitle").value = $("adminActiveUrl").value = $("adminActiveEmail").value = "";
         await Promise.all([loadAllLists(), loadAdminCountries()]);
-        alert("✅ Añadido a Lista Activa.");
+        alert("✅ Tema añadido a la Lista Activa.");
       } catch (e) { alert("Error: " + e.message); }
     };
 
@@ -1629,29 +2087,25 @@
     };
 
     window.saveActiveTrackEdit = async () => {
-      const id = $("editActiveId").value, artist = $("adminActiveArtist")?.value || $("editActiveArtist").value;
+      const id = $("editActiveId").value, artist = $("editActiveArtist").value.trim(), title = $("editActiveTitle").value.trim(), rawUrl = $("editActiveUrl").value.trim(), email = $("editActiveEmail").value.trim();
+      if (!artist || !title || !rawUrl) return alert("Artista, Canción y Enlace son obligatorios.");
       try {
-        await db.collection("active_list").doc(id).update({
-          artist: $("editActiveArtist").value.trim(),
-          title: $("editActiveTitle").value.trim(),
-          url: $("editActiveUrl").value.split("?")[0].trim(),
-          email: $("editActiveEmail").value.trim()
-        });
+        await db.collection("active_list").doc(id).update({ artist, title, url: rawUrl.split("?")[0].trim(), email });
         toggleModal('editActiveTrackModal', false);
         await loadAllLists();
-        alert("✅ Actualizado.");
+        alert("✅ Tema actualizado.");
       } catch (e) { alert("Error: " + e.message); }
     };
 
     window.deleteActiveTrack = async id => {
-      if (!confirm("¿Eliminar?")) return;
-      try { await db.collection("active_list").doc(id).delete(); await loadAllLists(); } catch (e) {}
+      if (!confirm("¿Eliminar este tema de la Lista Activa?")) return;
+      try { await db.collection("active_list").doc(id).delete(); await loadAllLists(); } catch (e) { alert("Error al eliminar."); }
     };
 
     window.exportActiveList = () => {
-      if (!activeSubs.length) return alert("Vacía.");
-      navigator.clipboard.writeText(activeSubs.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} (${s.url})`).join("\n"));
-      alert("Copiado.");
+      if (!activeSubs.length) return alert("La Lista Activa está vacía.");
+      navigator.clipboard.writeText(activeSubs.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ''} (${s.url.split("?")[0]})`).join("\n"));
+      alert("Lista Activa copiada.");
     };
 
     // ==================== BACKUPS ====================
@@ -1672,6 +2126,7 @@
       const payload = {
         scope, edition: customTitle || `${backupScopeLabels[scope] || "Backup"} (${config.edition || "Edición"})`,
         dateString: madridStr(), dateOnly: madridDateOnly(), timestamp: Date.now(),
+        activeCount: activeData.length, weeklyCount: weeklyData.length, monthlyCount: monthlyData.length, annualCount: annualData.length, countriesCount: countriesData.length,
         activeTracks: activeData, weeklyTracks: weeklyData, monthlyTracks: monthlyData, annualTracks: annualData, countriesList: countriesData
       };
 
@@ -1684,11 +2139,21 @@
 
     window.createManualBackup = async (scope = 'all') => {
       try {
-        await saveBackupSnapshot(null, null, scope);
+        const res = await saveBackupSnapshot(null, null, scope);
         await loadAdminBackups();
-        alert("✅ Backup creado.");
-      } catch (e) { alert("Error: " + e.message); }
+        alert(`✅ Copia guardada:\n${res.edition}\n📅 ${res.dateString}`);
+      } catch (e) { alert("Error al crear backup: " + e.message); }
     };
+
+    async function triggerThursdaySystemBackup() {
+      if (autoBackupDone) return;
+      autoBackupDone = true;
+      try {
+        const dOnly = madridDateOnly();
+        await saveBackupSnapshot(`Copia de sistema - ${dOnly}`, "sys_backup_" + dOnly.replace(/\//g, "-"), 'all');
+        if (!$("adminDashboard").classList.contains("hidden")) loadAdminBackups();
+      } catch (e) {}
+    }
 
     async function loadAdminBackups() {
       const container = $("adminBackupsList"), badge = $("backupsCountBadge");
@@ -1698,114 +2163,168 @@
         const list = snap.docs.map(d => { const item = { id: d.id, ...d.data() }; backupsCache[d.id] = item; return item; });
         if (badge) badge.textContent = list.length;
         if (!container) return;
-        if (!list.length) { container.innerHTML = '<p class="text-zinc-400 text-center py-6">No hay backups.</p>'; return; }
+        if (!list.length) { container.innerHTML = '<p class="text-zinc-400 text-center py-6">No hay copias de seguridad guardadas todavía.</p>'; return; }
 
         container.innerHTML = list.map(b => {
-          const sc = b.scope || 'all', aT = b.activeTracks || [], wT = b.weeklyTracks || [], mT = b.monthlyTracks || [], anT = b.annualTracks || [];
-          let restoreRecordsHtml = `
-            <div class="mt-3 pt-3 border-t border-purple-500/30 space-y-3 bg-purple-950/20 p-3 rounded-xl border">
-              <span class="font-bold text-purple-300 text-xs">🛠️ Restauración Masiva</span>
-              <div class="grid grid-cols-2 gap-1.5 py-1 text-[11px] text-zinc-200">
-                <label class="cursor-pointer"><input type="checkbox" id="rest_active_${b.id}" checked class="accent-purple-500"> Activa (${aT.length})</label>
-                <label class="cursor-pointer"><input type="checkbox" id="rest_weekly_${b.id}" checked class="accent-purple-500"> Cola (${wT.length})</label>
-                <label class="cursor-pointer"><input type="checkbox" id="rest_monthly_${b.id}" checked class="accent-purple-500"> Mensual (${mT.length})</label>
-                <label class="cursor-pointer"><input type="checkbox" id="rest_annual_${b.id}" checked class="accent-purple-500"> Anual (${anT.length})</label>
+          const sc = b.scope || 'all', aT = b.activeTracks || [], wT = b.weeklyTracks || [], mT = b.monthlyTracks || [], anT = b.annualTracks || [], cT = b.countriesList || [];
+          const icon = (b.edition || '').toLowerCase().includes('copia de sistema') ? '🤖' : '💾';
+          const parts = [];
+          if (sc === 'all' || sc === 'active') parts.push(`Activa: <strong>${aT.length}</strong>`);
+          if (sc === 'all' || sc === 'weekly') parts.push(`Cola: <strong>${wT.length}</strong>`);
+          if (sc === 'all' || sc === 'monthly') parts.push(`Mensual: <strong>${mT.length}</strong>`);
+          if (sc === 'all' || sc === 'annual') parts.push(`Anual: <strong>${anT.length}</strong>`);
+          if (sc === 'all' || sc === 'countries') parts.push(`Países: <strong>${cT.length}</strong>`);
+
+          const btns = sc === 'all'
+            ? `<button type="button" onclick="copyBackupToClipboard('${b.id}','active')" class="px-2 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[10px] transition">📋 Activa</button>
+               <button type="button" onclick="copyBackupToClipboard('${b.id}','weekly')" class="px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold rounded-lg text-[10px] transition border border-white/10">📋 Cola</button>
+               <button type="button" onclick="copyBackupToClipboard('${b.id}','countries')" class="px-2 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded-lg text-[10px] transition">📋 Países</button>`
+            : `<button type="button" onclick="copyBackupToClipboard('${b.id}','${sc}')" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[11px] transition">📋 Copiar Lista</button>`;
+
+          let prev = '';
+          if ((sc === 'all' || sc === 'active') && aT.length) prev += `<p class="text-[10px] uppercase font-bold text-emerald-400">📻 Lista Activa (${aT.length}):</p><ul class="space-y-1 pl-2 mb-2">${aT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — <span class="text-emerald-400">${escapeHtml(t.title)}</span> (${String(t.votes || 0).padStart(2, '0')} votos)</li>`).join('')}</ul>`;
+          if ((sc === 'all' || sc === 'weekly') && wT.length) prev += `<p class="text-[10px] uppercase font-bold text-cyan-400">🔥 Cola Semanal (${wT.length}):</p><ul class="space-y-1 pl-2 mb-2">${wT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — <span class="text-cyan-400">${escapeHtml(t.title)}</span></li>`).join('')}</ul>`;
+          if ((sc === 'all' || sc === 'monthly') && mT.length) prev += `<p class="text-[10px] uppercase font-bold text-sky-400">🗓️ Lista Mensual (${mT.length}):</p><ul class="space-y-1 pl-2 mb-2">${mT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — ${escapeHtml(t.title)}</li>`).join('')}</ul>`;
+          if ((sc === 'all' || sc === 'annual') && anT.length) prev += `<p class="text-[10px] uppercase font-bold text-amber-400">📀 Lista Anual (${anT.length}):</p><ul class="space-y-1 pl-2 mb-2">${anT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — ${escapeHtml(t.title)}</li>`).join('')}</ul>`;
+          if ((sc === 'all' || sc === 'countries') && cT.length) prev += `<p class="text-[10px] uppercase font-bold text-purple-400">🌍 Países (${cT.length}):</p><ul class="space-y-1 pl-2">${cT.map((c, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. ${c.flag || '🌐'} <strong>${escapeHtml(c.artist)}</strong> (${escapeHtml(c.email)}) — Temas: ${c.submissionsCount || 1}</li>`).join('')}</ul>`;
+
+          let restoreRecordsHtml = '';
+          const renderSectionRestoreItems = (arr, keyName, titleLbl, colColor) => {
+            if (!arr || !arr.length) return '';
+            return `<div class="space-y-1.5"><p class="text-[10px] uppercase font-bold ${colColor}">${titleLbl} (${arr.length}):</p>` +
+              arr.map((t, i) => `
+                <div class="flex items-center justify-between bg-zinc-950 p-2 rounded-lg border border-white/5 gap-2">
+                  <span class="text-[11px] text-zinc-200 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — ${escapeHtml(t.title)}</span>
+                  <button type="button" onclick="restoreSingleRecordFromBackup('${b.id}', '${keyName}', ${i})" class="px-2 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold rounded text-[10px] whitespace-nowrap transition">Restaurar individual</button>
+                </div>
+              `).join('') + `</div>`;
+          };
+
+          if (aT.length || wT.length || mT.length || anT.length) {
+            restoreRecordsHtml = `
+              <div class="mt-3 pt-3 border-t border-purple-500/30 space-y-3 bg-purple-950/20 p-3 rounded-xl border">
+                <div class="flex flex-col gap-2">
+                  <span class="font-bold text-purple-300 text-xs">🛠️ Centro de Restauración Masiva</span>
+                  <p class="text-[10px] text-zinc-400">Marca las listas que deseas sustituir con esta copia (las desmarcadas no se tocarán):</p>
+                  <div class="grid grid-cols-2 gap-1.5 py-1">
+                    ${aT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_active_${b.id}" checked class="accent-purple-500"> Lista Activa (${aT.length})</label>` : ''}
+                    ${wT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_weekly_${b.id}" checked class="accent-purple-500"> Cola Semanal (${wT.length})</label>` : ''}
+                    ${mT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_monthly_${b.id}" checked class="accent-purple-500"> Lista Mensual (${mT.length})</label>` : ''}
+                    ${anT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_annual_${b.id}" checked class="accent-purple-500"> Lista Anual (${anT.length})</label>` : ''}
+                  </div>
+                  <button type="button" onclick="restoreSelectedRecordsFromBackup('${b.id}')" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow transition">⚡ Restaurar Listas Marcadas (Sustituir)</button>
+                </div>
+                ${renderSectionRestoreItems(aT, 'active', 'Lista Activa', 'text-emerald-400')}
+                ${renderSectionRestoreItems(wT, 'weekly', 'Cola Semanal', 'text-cyan-400')}
+                ${renderSectionRestoreItems(mT, 'monthly', 'Lista Mensual', 'text-sky-400')}
+                ${renderSectionRestoreItems(anT, 'annual', 'Lista Anual', 'text-amber-400')}
               </div>
-              <button type="button" onclick="restoreSelectedRecordsFromBackup('${b.id}')" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow transition">⚡ Restaurar Marcadas</button>
-            </div>
-          `;
+            `;
+          }
 
           return `<div class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2.5">
             <div class="flex flex-wrap justify-between items-center gap-2">
-              <div><p class="font-bold text-white text-xs">💾 ${escapeHtml(b.edition || 'Backup')}</p><p class="text-[11px] text-cyan-400 font-mono">📅 ${b.dateString || ''}</p></div>
-              <div class="flex gap-1.5">
-                <button type="button" onclick="toggleBackupRestoreView('${b.id}')" class="px-2.5 py-1.5 bg-purple-500/20 text-purple-300 font-bold rounded-lg text-[11px]">♻️ Restaurar</button>
-                <button type="button" onclick="deleteBackup('${b.id}')" class="px-2.5 py-1.5 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[11px]">🗑️</button>
+              <div><p class="font-bold text-white text-xs">${icon} ${escapeHtml(b.edition || 'Backup')}</p><p class="text-[11px] text-cyan-400 font-mono mt-0.5">📅 ${b.dateString || ''}</p><p class="text-[10px] text-zinc-400 mt-0.5">${parts.join(' | ')}</p></div>
+              <div class="flex flex-wrap gap-1.5">
+                ${btns}
+                <button type="button" onclick="toggleBackupRestoreView('${b.id}')" class="px-2.5 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold rounded-lg text-[11px] transition">♻️ Restaurar</button>
+                <button type="button" onclick="exportBackupToSpotify('${b.id}')" class="px-2.5 py-1.5 bg-[#1DB954]/20 hover:bg-[#1DB954]/30 text-[#1DB954] font-bold rounded-lg text-[11px] transition">🟢 Exportar a Spotify</button>
+                <button type="button" onclick="deleteBackup('${b.id}')" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">🗑️</button>
               </div>
             </div>
+            <details class="text-[11px] text-zinc-400 pt-1.5 border-t border-white/5"><summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver contenido guardado</summary><div class="mt-2 bg-zinc-950 p-2.5 rounded-lg max-h-56 overflow-y-auto">${prev || '<p class="text-zinc-500 italic">Vacío.</p>'}</div></details>
             <div id="backupRestorePanel_${b.id}" class="hidden">${restoreRecordsHtml}</div>
           </div>`;
         }).join('');
-      } catch (e) {}
+      } catch (e) { if (container) container.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando backups.</p>'; }
     }
 
+    window.copyBackupToClipboard = (id, type) => {
+      const b = backupsCache[id];
+      if (!b) return;
+      if (type === 'countries') {
+        const list = b.countriesList || [];
+        if (!list.length) return alert("Sin registros de países en esta copia.");
+        navigator.clipboard.writeText(list.map((c, i) => `${i + 1}. ${c.flag || '🌐'} ${c.artist} (${c.email}) | ${[c.city, c.country].filter(Boolean).join(', ')} | Temas: ${c.submissionsCount || 1}`).join('\n'));
+        return alert("Listado de países copiado.");
+      }
+      const tracks = ({ active: b.activeTracks, weekly: b.weeklyTracks, monthly: b.monthlyTracks, annual: b.annualTracks }[type]) || [];
+      if (!tracks.length) return alert("Esa sección no tiene canciones.");
+      navigator.clipboard.writeText(tracks.map((s, i) => `${i + 1}. ${s.artist} - ${s.title}${s.email ? ' | ' + s.email : ''} (${(s.url || '').split('?')[0]})`).join('\n'));
+      alert("Lista del backup copiada.");
+    };
+
     window.deleteBackup = async id => {
-      if (!confirm("¿Eliminar?")) return;
-      try { await db.collection("backups").doc(id).delete(); loadAdminBackups(); } catch (e) {}
+      if (!confirm("¿Eliminar esta copia de seguridad?")) return;
+      try { await db.collection("backups").doc(id).delete(); loadAdminBackups(); } catch (e) { alert("Error al eliminar."); }
     };
 
-    window.inspectDatabaseLive = async () => {
-      const container = $("liveDbInspectorContainer");
-      if (!container) return;
-      container.classList.remove("hidden");
-      container.innerHTML = '<p class="text-xs text-zinc-400 text-center py-4">⏳ Consultando...</p>';
-      try {
-        const [actSnap, subSnap, monSnap, annSnap, couSnap] = await Promise.all([
-          db.collection("active_list").get(),
-          db.collection("submissions").get(),
-          db.collection("monthly_list").get(),
-          db.collection("annual_list").get(),
-          db.collection("artist_countries").get()
-        ]);
-        const renderList = (snap, title) => `<div class="p-3 bg-zinc-950 rounded-lg"><p class="font-bold text-emerald-400 text-xs">📂 ${title} (${snap.size})</p></div>`;
-        container.innerHTML = `<div class="space-y-3 bg-zinc-900 p-4 rounded-xl border border-purple-500/30">
-          <div class="flex justify-between items-center"><span class="font-bold text-purple-300 text-xs">📊 En Vivo</span><button type="button" onclick="$('liveDbInspectorContainer').classList.add('hidden')" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded">✕</button></div>
-          ${renderList(actSnap, "Lista Activa")} ${renderList(subSnap, "Cola Semanal")} ${renderList(monSnap, "Mensual")} ${renderList(annSnap, "Anual")} ${renderList(couSnap, "Países")}
-        </div>`;
-      } catch (e) {}
-    };
-
+    // ==================== MENSAJES Y CHAT ADMIN ====================
     async function loadAdminMessages() {
       const container = $("adminMessagesList"), badge = $("msgCountBadge"), total = $("totalMsgCount");
       try {
         const snap = await db.collection("contact_messages").orderBy("timestamp", "desc").get();
         const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         badge.textContent = total.textContent = msgs.length;
-        container.innerHTML = !msgs.length ? '<p class="text-zinc-400 text-center py-6">Sin mensajes.</p>' : msgs.map(m => `
-          <div class="p-3.5 bg-zinc-900 rounded-xl border border-white/5 space-y-2">
-            <div class="flex justify-between items-center text-xs"><span class="font-bold text-white">${escapeHtml(m.name)} (${escapeHtml(m.email)})</span><span class="text-[10px] text-zinc-400">${m.dateString || ''}</span></div>
-            <p class="text-xs text-zinc-300 bg-zinc-950 p-2.5 rounded-lg">${escapeHtml(m.message)}</p>
-          </div>
-        `).join('');
-      } catch (e) {}
+        container.innerHTML = !msgs.length ? '<p class="text-zinc-400 text-center py-6">No hay mensajes recibidos todavía.</p>' : msgs.map(m => {
+          const gmail = `mailto:${m.email}?subject=${encodeURIComponent(`Respuesta: Next Wave Rising - ${m.name}`)}&body=${encodeURIComponent(`Hola ${m.name},\n\nEn respuesta a tu mensaje:\n"${m.message}"\n\n---\nBreyde & Darko (Next Wave Rising)`)}`;
+          return `<div class="p-3.5 bg-zinc-900 rounded-xl border border-white/5 space-y-2">
+            <div class="flex justify-between items-center text-xs"><span class="font-bold text-white">${escapeHtml(m.name)} (<a href="mailto:${escapeHtml(m.email)}" class="text-emerald-400 hover:underline">${escapeHtml(m.email)}</a>)</span><span class="text-[10px] text-zinc-400">${m.dateString || ''}</span></div>
+            <p class="text-xs text-zinc-300 whitespace-pre-line bg-zinc-950 p-2.5 rounded-lg border border-white/5">${escapeHtml(m.message)}</p>
+            <div class="flex justify-end gap-2"><a href="${gmail}" target="_blank" class="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded text-[11px] font-bold transition">✉️ Contestar por Gmail</a><button onclick="deleteContactMsg('${m.id}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Eliminar</button></div>
+          </div>`;
+        }).join('');
+      } catch (e) { container.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando mensajes.</p>'; }
     }
 
-    window.deleteContactMsg = async id => { if (confirm("¿Eliminar?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
-    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar?")) { await db.collection("submissions").doc(id).delete(); loadAllLists(); } };
+    window.deleteContactMsg = async id => { if (confirm("¿Eliminar este mensaje?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
+    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { await db.collection("submissions").doc(id).delete(); loadAllLists(); } };
 
     async function loadAdminChatUsers() {
       const container = $("adminChatUsersList");
       if (!container) return;
       try {
+        container.innerHTML = '<p class="text-zinc-400 text-center py-3">Cargando usuarios...</p>';
         const snap = await db.collection('chat_users').get();
         const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        container.innerHTML = !users.length ? '<p class="text-zinc-400 text-center">Sin usuarios.</p>' : users.map(u => `
-          <div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center">
-            <div><p class="font-bold text-white text-xs">${escapeHtml(u.nick)}</p><p class="text-[10px] text-zinc-400 font-mono">${escapeHtml(u.ip)}</p></div>
-            <button onclick="db.collection('chat_users').doc('${u.id}').delete();loadAdminChatUsers();" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 rounded text-[11px]">Eliminar</button>
-          </div>
-        `).join('');
-      } catch (e) {}
+        if (!users.length) { container.innerHTML = '<p class="text-zinc-400 text-center py-3">No hay usuarios de chat registrados.</p>'; return; }
+        const rows = await Promise.all(users.map(async u => {
+          const geo = await fetchGeoByIp(u.ip);
+          return `<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center">
+            <div><p class="font-bold text-white text-xs">${escapeHtml(u.nick)} <span class="ml-1">${geo.flag}</span></p><p class="text-[10px] text-zinc-400 font-mono">IP: ${escapeHtml(u.ip)}</p></div>
+            <div class="flex gap-1.5"><button onclick="silenceChatUser('${u.ip}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] transition">Silenciar</button><button onclick="deleteChatUser('${u.id}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Eliminar</button></div>
+          </div>`;
+        }));
+        container.innerHTML = rows.join('');
+      } catch (e) { container.innerHTML = '<p class="text-rose-400 text-center py-3">Error cargando usuarios.</p>'; }
     }
 
+    window.silenceChatUser = async ip => {
+      if (!confirm(`¿Silenciar IP ${ip}?`)) return;
+      const snap = await db.collection('chat_users').where('ip', '==', ip).get();
+      const b = db.batch(); snap.docs.forEach(d => b.delete(d.ref)); await b.commit();
+      loadAdminChatUsers();
+    };
+    window.deleteChatUser = async id => { if (confirm("¿Eliminar usuario?")) { await db.collection('chat_users').doc(id).delete(); loadAdminChatUsers(); } };
     window.clearAllChatMessages = async () => {
-      if (!confirm("¿Vaciar chat?")) return;
+      if (!confirm("¿Vaciar todos los mensajes del chat?")) return;
       const snap = await db.collection('chat_messages').get();
       const b = db.batch(); snap.docs.forEach(d => b.delete(d.ref)); await b.commit();
-      alert("Chat vaciado.");
+      alert("¡Chat vaciado!");
     };
 
     async function submitContactMessage() {
       const name = $("contactName").value.trim(), email = $("contactEmail").value.trim(), message = $("contactMsgText").value.trim(), fb = $("contactFeedback");
-      if (!name || !email || !message) return;
+      if (!name || !email || !message) { fb.textContent = currentLang === 'es' ? "Rellena todos los campos." : "Fill in all fields."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
       try {
         await db.collection("contact_messages").add({ name, email, message, timestamp: Date.now(), dateString: madridStr(), read: false });
-        fb.textContent = "✓ ¡Enviado!"; fb.className = "text-xs text-center text-emerald-400"; fb.classList.remove("hidden");
+        fb.textContent = currentLang === 'es' ? "✓ ¡Mensaje enviado con éxito!" : "✓ Message sent!"; fb.className = "text-xs text-center text-emerald-400"; fb.classList.remove("hidden");
         $("contactForm").reset();
-        setTimeout(() => toggleModal('contactModal', false), 1500);
-      } catch (e) {}
+        setTimeout(() => { toggleModal('contactModal', false); fb.classList.add("hidden"); }, 1800);
+      } catch (e) { fb.textContent = "Error al enviar."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); }
     }
 
+    // ==================== CHAT PÚBLICO ====================
     async function updateChatPresence() {
       if (!currentChatNick || !clientIp) return;
       try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick, ip: clientIp }, { merge: true }); } catch (e) {}
@@ -1817,30 +2336,59 @@
         let active = 0;
         snap.forEach(d => { if (d.data().lastSeen && (now - d.data().lastSeen < 45000)) active++; });
         const countStr = String(active).padStart(2, '0');
-        if ($("activeUsersCount")) $("activeUsersCount").textContent = countStr;
-        if ($("adminActiveUsersCount")) $("adminActiveUsersCount").textContent = countStr;
+        
+        const countEl = $("activeUsersCount");
+        const adminCountEl = $("adminActiveUsersCount");
+        const iconEl = $("activeUsersIcon");
+        const badgeEl = $("activeUsersBadge");
+
+        if (countEl) countEl.textContent = countStr;
+        if (adminCountEl) adminCountEl.textContent = countStr;
+
+        if (iconEl && badgeEl) {
+          if (active > 0) {
+            iconEl.className = "w-3.5 h-3.5 text-emerald-400";
+            badgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-bold";
+          } else {
+            iconEl.className = "w-3.5 h-3.5 text-zinc-600";
+            badgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-white/10 text-zinc-400";
+          }
+        }
       }, () => {});
     }
 
     async function joinChatRoom() {
-      const nick = $("chatNickInput").value.trim();
-      if (nick.length < 2) return alert("Mínimo 2 caracteres.");
+      const nick = $("chatNickInput").value.trim(), err = $("chatLoginError");
+      if (nick.length < 2) { err.textContent = currentLang === 'es' ? "Mínimo 2 caracteres." : "Min 2 chars."; err.classList.remove('hidden'); return; }
+      err.classList.add('hidden');
       try {
+        const usersRef = db.collection('chat_users');
+        if (clientIp && clientIp !== "unknown_ip") {
+          const q = await usersRef.where('ip', '==', clientIp).get();
+          if (!q.empty) { currentChatNick = q.docs[0].data().nick; localStorage.setItem('nwr_chat_nick', currentChatNick); return initChatRealtime(); }
+        }
+        await usersRef.add({ nick, ip: clientIp || "unknown_ip", timestamp: Date.now() });
         currentChatNick = nick; localStorage.setItem('nwr_chat_nick', currentChatNick);
         initChatRealtime();
-      } catch (e) {}
+      } catch (e) { err.textContent = "Error al entrar."; err.classList.add('hidden'); }
     }
 
     function leaveChatRoom() {
       if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
+      if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
+      db.collection('chat_presence').doc(chatSessionId).delete().catch(() => {});
       currentChatNick = ""; localStorage.removeItem('nwr_chat_nick');
-      $("chatRoomBox").classList.add('hidden'); $("chatLoginBox").classList.remove('hidden');
+      $("chatRoomBox").classList.add('hidden'); $("chatLoginBox").classList.remove('hidden'); $("chatNickInput").value = '';
+      $("chatStatusBadge").textContent = currentLang === 'es' ? "Desconectado" : "Disconnected";
+      $("chatStatusBadge").className = "text-xs px-2.5 py-1 rounded-full bg-zinc-500/20 text-zinc-300 font-bold";
     }
 
     function initChatRealtime() {
       if (!currentChatNick) return;
       $("chatLoginBox").classList.add('hidden'); $("chatRoomBox").classList.remove('hidden');
-      $("chatUserDisplay").textContent = "Usuario: " + currentChatNick;
+      $("chatUserDisplay").textContent = (currentLang === 'es' ? "Usuario: " : "User: ") + currentChatNick;
+      $("chatStatusBadge").textContent = currentLang === 'es' ? "Conectado" : "Connected";
+      $("chatStatusBadge").className = "text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold";
       updateChatPresence();
       if (presenceInterval) clearInterval(presenceInterval);
       presenceInterval = setInterval(updateChatPresence, 15000);
@@ -1850,9 +2398,9 @@
         let html = '';
         snap.forEach(d => {
           const m = d.data(), me = m.nick === currentChatNick;
-          html += `<div class="${me ? 'text-right' : 'text-left'} space-y-0.5"><span class="text-[10px] font-bold ${me ? 'text-emerald-400' : 'text-cyan-400'}">${escapeHtml(m.nick)}</span><div class="inline-block max-w-full text-left p-2 rounded-xl border ${me ? 'bg-emerald-950/40 border-emerald-500/30' : 'bg-zinc-900 border-white/5'} text-white text-xs">${escapeHtml(m.text)}</div></div>`;
+          html += `<div class="${me ? 'text-right' : 'text-left'} space-y-0.5"><span class="text-[10px] font-bold ${me ? 'text-emerald-400' : 'text-cyan-400'}">${escapeHtml(m.nick)}</span><div class="inline-block max-w-full text-left p-2.5 rounded-xl border ${me ? 'bg-emerald-950/40 border-emerald-500/30' : 'bg-zinc-900 border-white/5'} text-white text-xs break-words">${escapeHtml(m.text)}</div><span class="block text-[9px] text-zinc-500">${m.timeString || ''}</span></div>`;
         });
-        c.innerHTML = html || '<p class="text-zinc-500 text-center italic py-4">Sin mensajes.</p>';
+        c.innerHTML = html || '<p class="text-zinc-500 text-center italic py-4">No hay mensajes todavía. ¡Saluda!</p>';
         c.scrollTop = c.scrollHeight;
       });
     }
@@ -1866,17 +2414,36 @@
       } catch (e) {}
     }
 
+    // ==================== CONFIGURACIÓN Y CARGA PARALELA ====================
     function updateVotingUI(active) {
+      try {
+        const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", hour12: false }).formatToParts(new Date()).map(x => [x.type, x.value]));
+        if (parts.weekday === 'Thu' && parseInt(parts.hour, 10) >= 22) active = false;
+      } catch (e) {}
       globalVotingActive = active;
       const ind = $("votingIndicatorText"), hInd = $("headerVotingStatus"), tVote = $("tab_vote"), vBadge = $("voteTabStatusBadge"), tBtn = $("toggleVotingBtn");
       if (active) {
-        if (ind) ind.innerHTML = "● Votación Activa";
-        if (hInd) { hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 flex items-center justify-center gap-1.5"; hInd.textContent = "Votación activa"; }
-        if (vBadge) { vBadge.textContent = "Activa"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold"; }
+        if (ind) { ind.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>"; ind.className = "text-[10px] text-emerald-400 font-bold"; }
+        if (tBtn) { tBtn.textContent = "Desactivar Votación"; tBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow"; }
+        if (hInd) {
+          hInd.style = "";
+          hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center gap-1.5";
+          hInd.textContent = currentLang === 'es' ? "Votación activa" : "Voting active";
+          applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeActive);
+        }
+        if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Activa" : "Active"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold"; }
+        if (tVote) { tVote.style.opacity = "1"; tVote.style.pointerEvents = "auto"; }
       } else {
-        if (ind) ind.innerHTML = "● Votación Inactiva";
-        if (hInd) { hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 flex items-center justify-center gap-1.5"; hInd.textContent = "Votación inactiva"; }
-        if (vBadge) { vBadge.textContent = "Desactivada"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold"; }
+        if (ind) { ind.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>"; ind.className = "text-[10px] text-rose-400 font-bold"; }
+        if (tBtn) { tBtn.textContent = "Activar Votación"; tBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow"; }
+        if (hInd) {
+          hInd.style = "";
+          hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center gap-1.5";
+          hInd.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive";
+          applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeInactive);
+        }
+        if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold"; }
+        if (tVote) tVote.style.opacity = "0.6";
       }
     }
 
@@ -1894,9 +2461,7 @@
       $("adminEditionInput").value = config.edition;
       $("adminPlaylistInput").value = config.playlistUrl;
       $("adminTrackInput").value = config.trackUrl || "";
-      
-      applyHeaderMediaAndYoutube();
-      loadHeaderConfigForm();
+      applyBrandLogo(config.logoUrl);
 
       if (!initialTabApplied && config.defaultTab) {
         initialTabApplied = true;
@@ -1920,53 +2485,146 @@
 
       if (votersRes.status === "fulfilled") $("statVotersCount").textContent = String(votersRes.value.size).padStart(2, '0');
 
+      // 1. LISTA ACTIVA (CON CLICK-TO-PLAY Y CARÁTULAS)
       const pAct = $("publicActiveList"), aAct = $("adminActiveListContainer"), vList = $("voteTabViewList");
       const hAct = getPlayerHeight('active');
       if (activeRes.status === "fulfilled") {
         activeSubs = activeRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $("publicActiveCount").textContent = $("adminActiveCount").textContent = $("adminActiveCountBadge").textContent = activeSubs.length;
+        let votedTracks = 0, totalVotes = 0;
+        activeSubs.forEach(s => { const v = s.votes || 0; totalVotes += v; if (v > 0) votedTracks++; });
+        $("statTracksVotedCount").textContent = String(votedTracks).padStart(2, '0');
+        $("statTotalVotesCount").textContent = String(totalVotes).padStart(2, '0');
+
         if (!activeSubs.length) {
-          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">Sin canciones.</p>`;
-          aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">Vacío.</p>';
+          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].activeListEmpty}</p>`;
+          aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">No hay temas en la Lista Activa todavía.</p>';
         } else {
           pAct.innerHTML = activeSubs.map((s, i) => renderPlayableTrackHtml(s, i, 'active', 'On Air')).join("");
-          aAct.innerHTML = activeSubs.map((s, i) => `
-            <div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">
-              <div class="flex justify-between items-center">
-                <p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p>
-                <button type="button" onclick="deleteActiveTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">Eliminar</button>
-              </div>
-            </div>
-          `).join("");
 
-          vList.innerHTML = activeSubs.map((s, i) => `
-            <div class="track-card-container glass rounded-2xl p-4 border border-white/10 space-y-3">
-              <p class="font-bold text-white text-xs">${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p>
-              <button onclick="handleVoteClick('${s.id}')" class="w-full py-2 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs">Votar</button>
-            </div>
-          `).join("");
+          aAct.innerHTML = activeSubs.map((s, i) => {
+            const voters = s.voters || [];
+            const vHtml = voters.length ? voters.map(v => `<li class="text-[11px] text-zinc-300">• ${escapeHtml(v)}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin votos aún</li>';
+            return `<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">
+              <div class="flex flex-wrap justify-between items-center gap-2">
+                <div><p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p><p class="text-[10px] text-zinc-400">${escapeHtml(s.email || 'Sin email')} | Votos: <strong>${String(s.votes || 0).padStart(2, '0')}</strong></p></div>
+                <div class="flex gap-1.5"><a href="${(s.url || '').split('?')[0]}" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a><button type="button" onclick="openEditActiveModal('${s.id}')" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded">Editar</button><button type="button" onclick="deleteActiveTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>
+              </div>
+              <details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5"><summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (${voters.length})</summary><ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">${vHtml}</ul></details>
+            </div>`;
+          }).join("");
+
+          const sorted = [...activeSubs];
+          if (totalVotes === 0) {
+            if (!lockedRandomOrder || lockedRandomOrder.length !== sorted.length) lockedRandomOrder = sorted.map(x => x.id).sort(() => Math.random() - 0.5);
+            sorted.sort((a, b) => lockedRandomOrder.indexOf(a.id) - lockedRandomOrder.indexOf(b.id));
+          } else sorted.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+
+          vList.innerHTML = sorted.map((s, i) => {
+            const em = getEmbedUrl(s.url, 'active');
+            if (!em) return '';
+            const sel = sessionPendingVotes.includes(s.id);
+            const rank = totalVotes > 0 ? (["🥇", "🥈", "🥉"][i] || `#${i + 1}`) : `#${i + 1}`;
+            return `<div class="track-card-container glass rounded-2xl p-4 border border-white/10 space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">${rank}</span> ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span>
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ${String(s.votes || 0).padStart(2, '0')}</span>
+              </div>
+              <div class="flex items-center justify-between gap-3 bg-zinc-950 p-2.5 rounded-xl border border-white/5">
+                <span class="text-[11px] text-zinc-400">Reproducir muestra de Spotify:</span>
+                <button type="button" onclick="playTrackCard(this, '${s.url}', 'active')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition flex items-center gap-1 cursor-pointer">
+                  <span>▶</span> Play
+                </button>
+              </div>
+              <div class="flex justify-between items-center text-xs text-zinc-400 pt-1">
+                <span>${currentLang === 'es' ? 'Seleccionados' : 'Selected'}: <strong>${sessionPendingVotes.length}/3</strong></span>
+                <button onclick="handleVoteClick('${s.id}')" class="${sel ? 'px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white' : 'px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950'} font-bold rounded-xl text-xs shadow transition cursor-pointer">${sel ? (currentLang === 'es' ? '❌ Anular Voto' : '❌ Cancel Vote') : (currentLang === 'es' ? '🗳️ Añadir Voto' : '🗳️ Add Vote')}</button>
+              </div>
+            </div>`;
+          }).join("");
         }
       }
 
+      // 2. COLA SEMANAL
       const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
         subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
         if (!subs.length) {
-          aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
+          aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas en la cola semanal.</p>';
           pSub.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
         } else {
-          aSub.innerHTML = subs.map((s, i) => `
-            <div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center">
-              <p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — ${escapeHtml(s.title)}</p>
-              <button onclick="deleteSubmissionTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">Eliminar</button>
-            </div>
-          `).join("");
+          aSub.innerHTML = subs.map((s, i) => {
+            const mailBtn = s.email ? `<a href="mailto:${encodeURIComponent(s.email)}?subject=${encodeURIComponent('Next Wave Rising')}&body=${encodeURIComponent(`¡Hola ${s.artist}!\nRecibimos tu canción "${s.title}" para Next Wave Rising.\n\n¡Mucha suerte!\nBreyde & Darko`)}" class="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded">Email</a>` : '';
+            return `<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center"><div><p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p><p class="text-[10px] text-zinc-400">${s.dateString || ''}</p></div><div class="flex gap-1.5"><a href="${s.url.split('?')[0]}" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>${mailBtn}<button onclick="deleteSubmissionTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div></div>`;
+          }).join("");
           pSub.innerHTML = subs.map((s, i) => renderPlayableTrackHtml(s, i, 'weekly', 'Reg: ' + (s.dateString || ''))).join("");
         }
       }
+
+      // 3. MENSUAL & 4. ANUAL
+      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, colorClass) => {
+        if (res.status !== "fulfilled") return;
+        const items = res.value.docs.map(d => d.data());
+        $(countId).textContent = items.length;
+        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang][emptyKey]}</p>` : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
+      };
+      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "text-cyan-400");
+      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
     }
 
+    // ==================== VOTACIONES ====================
+    window.handleVoteClick = async id => {
+      if (!globalVotingActive) return alert(currentLang === 'es' ? "Las votaciones están desactivadas." : "Voting is disabled.");
+      const inp = $("globalVoterEmail"), em = inp.value.trim().toLowerCase();
+      if (!em || !em.includes("@") || em.length < 5) { inp.focus(); inp.style.borderColor = "#ef4444"; return alert(currentLang === 'es' ? "Introduce un correo válido." : "Enter a valid email."); }
+      inp.style.borderColor = "#3f3f46";
+      try {
+        const vRef = db.collection("voters_log");
+        if (!(await vRef.where("email", "==", em).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
+        if (clientIp && clientIp !== "unknown_ip" && !(await vRef.where("ip", "==", clientIp).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
+        if (sessionPendingVotes.includes(id)) { sessionPendingVotes = sessionPendingVotes.filter(x => x !== id); return loadAllLists(); }
+        if (sessionPendingVotes.length >= 3) return alert(currentLang === 'es' ? "Ya seleccionaste 3 temas." : "Already selected 3 tracks.");
+        sessionPendingVotes.push(id);
+        if (sessionPendingVotes.length === 3) toggleModal('voteConfirmModal', true);
+        else loadAllLists();
+      } catch (e) { sessionPendingVotes = []; loadAllLists(); }
+    };
+
+    window.acceptVoteConfirmation = async () => {
+      toggleModal('voteConfirmModal', false);
+      const inp = $("globalVoterEmail"), em = inp.value.trim().toLowerCase();
+      try {
+        const vRef = db.collection("voters_log");
+        if (!(await vRef.where("email", "==", em).get()).empty) { sessionPendingVotes = []; lockedRandomOrder = null; loadAllLists(); return alert("Ya has votado."); }
+        for (const tid of sessionPendingVotes) {
+          const ref = db.collection("active_list").doc(tid), doc = await ref.get();
+          if (doc.exists) {
+            const vList = doc.data().voters || [];
+            if (!vList.includes(em)) vList.push(em);
+            await ref.update({ votes: (doc.data().votes || 0) + 1, voters: vList });
+          }
+        }
+        await vRef.add({ email: em, ip: clientIp || "unknown_ip", votedTracks: sessionPendingVotes, timestamp: Date.now() });
+        alert(currentLang === 'es' ? "¡Votos guardados!" : "Votes saved!");
+        sessionPendingVotes = []; lockedRandomOrder = null; inp.value = "";
+        loadAllLists();
+      } catch (e) { alert("Error al guardar votos."); sessionPendingVotes = []; loadAllLists(); }
+    };
+
+    window.cancelVoteConfirmation = () => { toggleModal('voteConfirmModal', false); sessionPendingVotes = []; alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled."); loadAllLists(); };
+
+    window.logoutCurator = async () => {
+      try {
+        await auth.signOut();
+        $("adminDashboard").classList.add("hidden");
+        $("adminLoginBox").classList.remove("hidden");
+        $("topConfigBtn").classList.add("hidden");
+        $("topConfigBtn").classList.remove("flex");
+      } catch (e) {}
+    };
+
+    // ==================== INICIO ====================
     document.addEventListener("DOMContentLoaded", () => {
       setLanguage(currentLang);
       initClientIp();
@@ -1991,8 +2649,24 @@
         }
       });
 
+      (async () => {
+        try {
+          const ref = db.collection("stats").doc("visitors");
+          if (!localStorage.getItem("nwr_visited_unique")) {
+            localStorage.setItem("nwr_visited_unique", "true");
+            await db.runTransaction(async tx => { const d = await tx.get(ref); tx.set(ref, { total: (d.exists ? (d.data().total || 0) : 0) + 1 }, { merge: true }); });
+          }
+          const s = await ref.get();
+          $("uniqueVisitorCount").textContent = s.exists ? (s.data().total || 1) : "1";
+        } catch (e) { $("uniqueVisitorCount").textContent = "-"; }
+      })();
+
       $("toggleAdminBtn").addEventListener("click", () => {
         const av = $("adminView"), hid = av.classList.contains("hidden");
+        (config.tabsConfig || defaultTabsList).forEach(t => {
+          const vId = t.custom ? `view_${t.id}` : 'view' + t.id[0].toUpperCase() + t.id.slice(1);
+          $(vId)?.classList.add('hidden');
+        });
         av.classList.toggle("hidden", !hid);
         $("txtAdminBtn").textContent = hid ? translations[currentLang].backApp : translations[currentLang].adminBtn;
       });
@@ -2004,20 +2678,24 @@
       });
 
       $("resetVotesBtn").addEventListener("click", async () => {
-        if (!confirm("¿Poner a cero los votos?")) return;
+        if (!confirm("¿Poner a cero los votos de la Lista Activa y los registros de votantes?")) return;
         try {
-          const sAct = await db.collection("active_list").get();
+          const [sAct, sVot] = await Promise.all([db.collection("active_list").get(), db.collection("voters_log").get()]);
           const b1 = db.batch(); sAct.docs.forEach(d => b1.update(d.ref, { votes: 0, voters: [] }));
-          await b1.commit();
+          const b2 = db.batch(); sVot.docs.forEach(d => b2.delete(d.ref));
+          await Promise.all([b1.commit(), b2.commit()]);
+          sessionPendingVotes = []; lockedRandomOrder = null;
           loadAllLists();
           alert("¡Votos reseteados!");
-        } catch (e) {}
+        } catch (e) { alert("Error al resetear."); }
       });
 
       $("adminLoginBtn").addEventListener("click", async () => {
         const em = $("adminEmailInput").value.trim(), pw = $("adminPassInput").value.trim();
-        if (!em || !pw) return alert("Introduce credenciales.");
-        try { await auth.signInWithEmailAndPassword(em, pw); } catch (e) { alert("Error al entrar."); }
+        if (!em || !pw) return alert("Introduce correo y contraseña.");
+        try {
+          await auth.signInWithEmailAndPassword(em, pw);
+        } catch (e) { alert("Credenciales incorrectas."); }
       });
 
       $("confirmSaveCheckbox").addEventListener("change", e => {
@@ -2025,19 +2703,143 @@
         $("submissionForm").classList.toggle("pointer-events-none", !e.target.checked);
       });
 
+      const clock = () => {
+        try {
+          const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+          const fmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+          const now = new Date();
+          const p = {}; fmt.formatToParts(now).forEach(x => p[x.type] = x.value);
+          const day = map[p.weekday] !== undefined ? map[p.weekday] : now.getDay();
+          const h = parseInt(p.hour, 10)||0, m = parseInt(p.minute, 10)||0, s = parseInt(p.second, 10)||0;
+          
+          if (day === 4 && h === 23 && m === 59 && s === 59) {
+            triggerThursdaySystemBackup();
+          } else if (m !== 59) {
+            autoBackupDone = false;
+          }
+
+          if (day === 5 || day === 6) { 
+            document.getElementById("statusBadge").textContent = translations[currentLang].statusClosed; 
+            document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
+            updateVotingUI(config.votingActive);
+            document.getElementById("cdDays").textContent = "00";
+            document.getElementById("cdHours").textContent = "00";
+            document.getElementById("cdMinutes").textContent = "00";
+            document.getElementById("cdSeconds").textContent = "00";
+            return; 
+          }
+          
+          const left = Math.max(0, (((5 - day + 7) % 7 || 7) * 86400) - (h * 3600 + m * 60 + s));
+          document.getElementById("cdDays").textContent = String(Math.floor(left / 86400)).padStart(2, "0");
+          document.getElementById("cdHours").textContent = String(Math.floor((left % 86400) / 3600)).padStart(2, "0");
+          document.getElementById("cdMinutes").textContent = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
+          document.getElementById("cdSeconds").textContent = String(left % 60).padStart(2, "0");
+        } catch(e){}
+      };
+
       $("submitBtn").addEventListener("click", async () => {
         const artist = $("artistName").value.trim(), title = $("trackTitle").value.trim(), rawUrl = $("trackUrl").value.trim(), email = $("artistEmail").value.trim();
         const fb = $("feedbackMsg"), receipt = $("receiptCard"), btn = $("submitBtn");
-        if (!artist || !title || !rawUrl || !email) return alert("Rellena todos los campos.");
+        const err = (es, en) => { fb.textContent = currentLang === 'es' ? es : en; fb.className = "text-xs text-center text-rose-400 font-medium"; fb.classList.remove("hidden"); };
+
+        if (!$("confirmSaveCheckbox").checked) return err("Confirma que has guardado la playlist primero.", "Please confirm you saved the playlist first.");
+        if (!artist || !title || !rawUrl || !email) return err("Rellena todos los campos (*).", "Fill in all required fields (*).");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("Correo electrónico no válido.", "Please enter a valid email address.");
         const cleanUrl = rawUrl.split("?")[0].trim();
+        if (!/^https?:\/\/(open\.)?spotify\.com\/(intl-[a-z]{2}\/)?track\/[a-zA-Z0-9]{22}\/?$/.test(cleanUrl)) return err("Enlace no válido. Pega el enlace directo de la CANCIÓN en Spotify.", "Invalid link. Paste the direct Spotify TRACK link.");
+
+        btn.disabled = true; btn.textContent = currentLang === 'es' ? "Verificando..." : "Verifying...";
+        receipt.classList.add("hidden"); fb.classList.add("hidden");
+
         try {
+          const snap = await db.collection("submissions").get();
+          let dupUser = false, dupTrack = false;
+          snap.forEach(d => {
+            const data = d.data();
+            if (data.artist.toLowerCase() === artist.toLowerCase() || data.email.toLowerCase() === email.toLowerCase()) dupUser = true;
+            if (data.url?.split("?")[0] === cleanUrl) dupTrack = true;
+          });
+          if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
+          if (dupTrack) { fb.textContent = currentLang === 'es' ? "⚠️ Esta canción ya está en la cola." : "⚠️ Track already in queue."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
+
           await db.collection("submissions").add({ artist, title, url: cleanUrl, email, timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
           await registerOrUpdateArtistCountry(artist, email);
-          receipt.classList.remove("hidden"); $("submissionForm").reset();
+
+          $("receiptArtist").textContent = artist; $("receiptTitle").textContent = title; $("receiptEmail").textContent = email;
+          receipt.classList.remove("hidden"); $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
+          $("submissionForm").classList.add("opacity-50", "pointer-events-none");
           loadAllLists();
-        } catch (e) {}
+        } catch (e) { err("Error de conexión.", "Connection error."); }
+        finally { btn.disabled = false; btn.textContent = translations[currentLang].submitBtn; }
       });
 
+      $("saveConfigBtn").addEventListener("click", async () => {
+        config.edition = $("adminEditionInput").value.trim() || config.edition;
+        config.playlistUrl = $("adminPlaylistInput").value.trim() || config.playlistUrl;
+        config.trackUrl = $("adminTrackInput").value.trim() || "";
+        try { await db.collection("settings").doc("activeEdition").set(config, { merge: true }); await loadConfig(); alert("Configuración actualizada."); } catch (e) { alert("Error al guardar."); }
+      });
+
+      $("newEditionBtn").addEventListener("click", async () => {
+        if (!confirm("¿Cerrar edición y rotar listas?\n\n• Copia de Sistema automática.\n• Lista Activa -> Mensual.\n• Cola Semanal -> Lista Activa (con votación abierta).\n• Campeón -> Destacado y reingresa en Cola Semanal.")) return;
+        try {
+          await saveBackupSnapshot(`Copia de sistema - ${madridDateOnly()}`, null, 'all');
+          const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
+          const curActive = snapActive.docs.map(d => ({ ref: d.ref, data: d.data() }));
+          let winner = null;
+
+          if (curActive.length) {
+            winner = curActive.reduce((p, c) => ((c.data.votes || 0) > (p.data.votes || 0)) ? c : p);
+            for (const item of curActive) await db.collection("monthly_list").add({ artist: item.data.artist, title: item.data.title, url: item.data.url, timestamp: Date.now() });
+            const snapM = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
+            const mDocs = [...snapM.docs];
+            while (mDocs.length > 4) {
+              const old = mDocs.shift(), d = old.data();
+              await db.collection("annual_list").add({ artist: d.artist, title: d.title, url: d.url, timestamp: Date.now() });
+              await old.ref.delete();
+            }
+            const bDelA = db.batch(); snapActive.docs.forEach(d => bDelA.delete(d.ref)); await bDelA.commit();
+          }
+
+          const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
+          if (!snapSub.empty) {
+            for (const doc of snapSub.docs) {
+              const d = doc.data();
+              await db.collection("active_list").add({ artist: d.artist, title: d.title, url: d.url, email: d.email || "", timestamp: Date.now(), dateString: d.dateString || madridStr(), votes: 0, voters: [] });
+            }
+            const bDelS = db.batch(); snapSub.docs.forEach(d => bDelS.delete(d.ref)); await bDelS.commit();
+          }
+
+          const sVot = await db.collection("voters_log").get();
+          if (!sVot.empty) { const bV = db.batch(); sVot.docs.forEach(d => bV.delete(d.ref)); await bV.commit(); }
+          sessionPendingVotes = []; lockedRandomOrder = null;
+          config.votingActive = true;
+          await db.collection("settings").doc("activeEdition").set({ votingActive: true, ...(winner ? { trackUrl: winner.data.url } : {}) }, { merge: true });
+
+          if (winner && (winner.data.votes || 0) > 0) {
+            await db.collection("submissions").add({ artist: winner.data.artist, title: winner.data.title, url: winner.data.url, email: winner.data.email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
+          }
+
+          const now = new Date();
+          if (now.getMonth() === 11 && now.getDate() === 31) {
+            const sMF = await db.collection("monthly_list").get();
+            const bA = db.batch(), bD = db.batch();
+            sMF.docs.forEach(doc => { const d = doc.data(); bA.set(db.collection("annual_list").doc(), { artist: d.artist, title: d.title, url: d.url, timestamp: Date.now() }); bD.delete(doc.ref); });
+            await Promise.all([bA.commit(), bD.commit()]);
+          }
+
+          await Promise.all([loadAllLists(), loadConfig(), loadAdminBackups()]);
+          alert("¡Rotación completada con éxito!");
+        } catch (e) { alert("Error en la rotación: " + e.message); }
+      });
+
+      $("exportListBtn").addEventListener("click", () => {
+        navigator.clipboard.writeText(subs.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email} (${s.url.split("?")[0]})`).join("\n"));
+        alert("Cola Semanal copiada.");
+      });
+
+      clock();
+      setInterval(clock, 1000);
       loadConfig().then(() => loadAllLists());
     });
   </script>
