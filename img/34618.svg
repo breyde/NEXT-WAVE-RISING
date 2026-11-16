@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <filter id="neon-live-3d" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" result="blur1"/>
+      <feGaussianBlur stdDeviation="7.5" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="chrome-tower" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#7affc6"/>
+      <stop offset="60%" stop-color="#071f15"/>
+      <stop offset="100%" stop-color="#00e68a"/>
+    </linearGradient>
+    <radialGradient id="core-3d" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#7affc6"/>
+      <stop offset="75%" stop-color="#00cc7a"/>
+      <stop offset="100%" stop-color="#004d2e"/>
+    </radialGradient>
+    <radialGradient id="orb-live" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#00ff9d"/>
+      <stop offset="100%" stop-color="#002617"/>
+    </radialGradient>
+  </defs>
+  <style>
+    .radio-wave-1 { animation: expandWave 2.2s ease-out infinite; }
+    .radio-wave-2 { animation: expandWave 2.2s ease-out 0.7s infinite; }
+    .radio-wave-3 { animation: expandWave 2.2s ease-out 1.4s infinite; }
+    .core-energy { transform-origin: 100px 76px; animation: coreThrob 1.4s ease-in-out infinite alternate; }
+    .orbit-ring-live { stroke-dasharray: 180 160; animation: spinLive 3s linear infinite; }
+    @keyframes expandWave { 0% { opacity: 0.2; transform: scale(0.88); transform-origin: 100px 76px; } 45% { opacity: 1; } 100% { opacity: 0; transform: scale(1.14); transform-origin: 100px 76px; } }
+    @keyframes coreThrob { 0% { transform: scale(0.92); } 100% { transform: scale(1.12); } }
+    @keyframes spinLive { 0% { stroke-dashoffset: 340; } 100% { stroke-dashoffset: 0; } }
+  </style>
+  <circle cx="100" cy="96" r="64" fill="#00ff9d" opacity="0.14" filter="url(#neon-live-3d)"/>
+  <circle cx="42" cy="48" r="5.5" fill="url(#orb-live)" filter="url(#neon-live-3d)"/>
+  <circle cx="158" cy="52" r="6.5" fill="url(#orb-live)" filter="url(#neon-live-3d)"/>
+  <circle cx="36" cy="138" r="4.5" fill="url(#orb-live)"/>
+  <circle cx="164" cy="134" r="5" fill="url(#orb-live)" filter="url(#neon-live-3d)"/>
+  <g class="radio-wave-1" filter="url(#neon-live-3d)">
+    <path d="M76 98 A 32 32 0 0 1 76 54" fill="none" stroke="#7affc6" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M124 54 A 32 32 0 0 1 124 98" fill="none" stroke="#7affc6" stroke-width="4.5" stroke-linecap="round"/>
+  </g>
+  <g class="radio-wave-2" filter="url(#neon-live-3d)">
+    <path d="M60 112 A 50 50 0 0 1 60 40" fill="none" stroke="#00ff9d" stroke-width="4" stroke-linecap="round"/>
+    <path d="M140 40 A 50 50 0 0 1 140 112" fill="none" stroke="#00ff9d" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g class="radio-wave-3" filter="url(#neon-live-3d)">
+    <path d="M44 124 A 68 68 0 0 1 44 28" fill="none" stroke="#00b36b" stroke-width="3" stroke-linecap="round"/>
+    <path d="M156 28 A 68 68 0 0 1 156 124" fill="none" stroke="#00b36b" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#neon-live-3d)">
+    <path d="M100 84 L74 162 H86 L100 114 L114 162 H126 L100 84 Z" fill="#061a11" stroke="url(#chrome-tower)" stroke-width="3.5" stroke-linejoin="round"/>
+    <line x1="84" y1="138" x2="116" y2="138" stroke="url(#chrome-tower)" stroke-width="4" stroke-linecap="round"/>
+    <line x1="90" y1="118" x2="110" y2="118" stroke="url(#chrome-tower)" stroke-width="3.5" stroke-linecap="round"/>
+    <rect x="64" y="160" width="72" height="8" rx="4" fill="url(#chrome-tower)"/>
+  </g>
+  <ellipse class="orbit-ring-live" cx="100" cy="144" rx="64" ry="16" transform="rotate(-10 100 144)" fill="none" stroke="#00ff9d" stroke-width="4" stroke-linecap="round" filter="url(#neon-live-3d)"/>
+  <g class="core-energy" filter="url(#neon-live-3d)">
+    <circle cx="100" cy="76" r="14" fill="url(#core-3d)" stroke="#ffffff" stroke-width="2"/>
+    <circle cx="100" cy="76" r="6" fill="#ffffff"/>
+  </g>
+</svg>
