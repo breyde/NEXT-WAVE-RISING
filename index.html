@@ -39,13 +39,11 @@
       <span class="text-emerald-400/80 shrink-0 text-[10px]">→</span>
     </button>
 
-    <!-- BARRA DE NAVEGACIÓN EQUITATIVA CON ICONOS ADAPTADOS AL MÁXIMO -->
     <nav id="mainNavBar" class="w-full flex flex-wrap items-stretch justify-between gap-1 pt-1"></nav>
   </header>
 
   <main id="mainContentContainer" class="w-full max-w-2xl space-y-6 pb-12">
 
-    <!-- REPRODUCTOR TEMA DESTACADO GLOBAL -->
     <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2 border border-emerald-500/30">
       <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider" data-i18n="txtFeatured">🎵 TEMA DESTACADO</h3>
       <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
@@ -271,7 +269,6 @@
       </section>
     </div>
 
-    <!-- CONTENEDOR DINÁMICO PARA PESTAÑAS PERSONALIZADAS -->
     <div id="customTabsContainer"></div>
 
     <!-- PANEL CURADORES -->
@@ -286,8 +283,9 @@
       </div>
 
       <div id="adminDashboard" class="hidden space-y-4 pb-8">
-        <div class="flex justify-between items-center bg-zinc-900/90 px-3.5 py-2 rounded-xl border border-white/10 text-xs">
+        <div class="flex flex-wrap justify-between items-center bg-zinc-900/90 px-3.5 py-2 rounded-xl border border-white/10 text-xs gap-2">
           <span class="text-emerald-400 font-bold truncate" id="adminLoggedUserLabel">● Sesión activa</span>
+          <span class="text-cyan-400 font-bold whitespace-nowrap">👥 Online: <strong id="adminActiveUsersCount">00</strong></span>
           <button type="button" onclick="logoutCurator()" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-[11px] font-bold transition">Cerrar Sesión</button>
         </div>
 
@@ -386,8 +384,6 @@
 
         <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
-
-          <!-- 0. GESTOR DE ICONOS E IMÁGENES DIRECTO EN GITHUB (CARPETA img/) -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Subir Iconos / GIFs a GitHub (Carpeta <code>img/</code>)</h3>
@@ -420,7 +416,6 @@
             </div>
           </div>
 
-          <!-- 1. PESTAÑA INICIAL POR DEFECTO Y TEMA DESTACADO -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
@@ -449,7 +444,6 @@
             </div>
           </div>
 
-          <!-- 2. DISEÑO DEL REPRODUCTOR SPOTIFY POR LISTA -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
             <div>
               <h3 class="font-bold text-purple-400 text-sm uppercase">🎵 Diseño y Reproducción Spotify por Lista</h3>
@@ -496,7 +490,6 @@
             </div>
           </div>
 
-          <!-- 3. GESTOR DE PESTAÑAS -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
@@ -520,7 +513,6 @@
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
           </div>
 
-          <!-- 4. PERSONALIZADOR DE BOTONES E INDICADOR DE VOTACIÓN -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
             <div>
               <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
@@ -592,7 +584,6 @@
             </div>
           </div>
 
-          <!-- 5. AVISOS IMPORTANTES EN CABECERA DE CADA PESTAÑA (CON VERSIÓN ES Y EN) -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
             <div>
               <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
@@ -622,7 +613,6 @@
             </div>
           </div>
 
-          <!-- 6. LOGO DE CABECERA -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">🖼️ Logo de Cabecera (Imagen, GIF o Texto)</h3>
@@ -647,7 +637,6 @@
             </div>
           </div>
 
-          <!-- 7. GESTIÓN DE USUARIOS DEL CHAT -->
           <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
             <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat.</p>
@@ -689,7 +678,7 @@
     </section>
   </main>
 
-  <!-- MODALES (CON BOTÓN DE IDIOMA ES / EN INTEGRADO) -->
+  <!-- MODALES -->
   <div id="editActiveTrackModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-emerald-500/40">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -2065,9 +2054,25 @@
         const now = Date.now();
         let active = 0;
         snap.forEach(d => { if (d.data().lastSeen && (now - d.data().lastSeen < 45000)) active++; });
-        $("activeUsersCount").textContent = String(active).padStart(2, '0');
-        $("activeUsersIcon").className = active > 0 ? "w-3.5 h-3.5 text-emerald-400" : "w-3.5 h-3.5 text-zinc-600";
-        $("activeUsersBadge").className = active > 0 ? "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-bold" : "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-white/10 text-zinc-400";
+        const countStr = String(active).padStart(2, '0');
+        
+        const countEl = $("activeUsersCount");
+        const adminCountEl = $("adminActiveUsersCount");
+        const iconEl = $("activeUsersIcon");
+        const badgeEl = $("activeUsersBadge");
+
+        if (countEl) countEl.textContent = countStr;
+        if (adminCountEl) adminCountEl.textContent = countStr;
+
+        if (iconEl && badgeEl) {
+          if (active > 0) {
+            iconEl.className = "w-3.5 h-3.5 text-emerald-400";
+            badgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-bold";
+          } else {
+            iconEl.className = "w-3.5 h-3.5 text-zinc-600";
+            badgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-white/10 text-zinc-400";
+          }
+        }
       }, () => {});
     }
 
@@ -2450,7 +2455,7 @@
 
         if (!$("confirmSaveCheckbox").checked) return err("Confirma que has guardado la playlist primero.", "Please confirm you saved the playlist first.");
         if (!artist || !title || !rawUrl || !email) return err("Rellena todos los campos (*).", "Fill in all required fields (*).");
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("Correo electrónico no válido.", "Invalid email address.");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("Correo electrónico no válido.", "Please enter a valid email address.");
         const cleanUrl = rawUrl.split("?")[0].trim();
         if (!/^https?:\/\/(open\.)?spotify\.com\/(intl-[a-z]{2}\/)?track\/[a-zA-Z0-9]{22}\/?$/.test(cleanUrl)) return err("Enlace no válido. Pega el enlace directo de la CANCIÓN en Spotify.", "Invalid link. Paste the direct Spotify TRACK link.");
 
