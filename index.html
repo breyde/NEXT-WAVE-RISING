@@ -286,6 +286,11 @@
       </div>
 
       <div id="adminDashboard" class="hidden space-y-4 pb-8">
+        <div class="flex justify-between items-center bg-zinc-900/90 px-3.5 py-2 rounded-xl border border-white/10 text-xs">
+          <span class="text-emerald-400 font-bold truncate" id="adminLoggedUserLabel">● Sesión activa</span>
+          <button type="button" onclick="logoutCurator()" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-[11px] font-bold transition">Cerrar Sesión</button>
+        </div>
+
         <div class="flex gap-1.5 border-b border-white/10 pb-3 overflow-x-auto">
           <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
           <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
@@ -386,7 +391,7 @@
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Subir Iconos / GIFs a GitHub (Carpeta <code>img/</code>)</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Sube tus GIFs animados e imágenes directamente a tu repositorio <strong>breyde/NEXT-WAVE-RISING</strong> sin ocupar base de datos, míralos en la galería y copia su URL lista para pegar.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Sube tus GIFs animados e imágenes directamente a tu repositorio <strong>breyde/NEXT-WAVE-RISING</strong> sin ocupar base de datos, míralos en la galería y copia su URL directa.</p>
             </div>
 
             <div class="space-y-2.5 bg-zinc-950/70 p-3.5 rounded-xl border border-white/10">
@@ -415,16 +420,29 @@
             </div>
           </div>
 
-          <!-- 1. TEMA DESTACADO: ACTIVAR / DESACTIVAR Y PESTAÑAS -->
+          <!-- 1. PESTAÑA INICIAL POR DEFECTO Y TEMA DESTACADO -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
-            <div class="flex justify-between items-center">
+            <div>
+              <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web y configura la visibilidad del tema destacado.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end bg-zinc-900/80 p-3.5 rounded-xl border border-white/10">
+              <div class="flex-1">
+                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Pestaña activa al abrir la página:</label>
+                <select id="adminDefaultTabSelect" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></select>
+              </div>
+              <button type="button" onclick="saveDefaultTabSetting()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Inicio</button>
+            </div>
+
+            <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
               <div>
-                <h3 class="font-bold text-emerald-400 text-sm uppercase">🌟 Visibilidad del Tema Destacado</h3>
-                <p class="text-[11px] text-zinc-400 mt-0.5">Activa o desactiva el reproductor del tema destacado y elige en qué pestañas aparece.</p>
+                <p class="font-bold text-white text-xs">Reproductor Tema Destacado</p>
+                <p class="text-[10px] text-zinc-400">Activa o desactiva su aparición en las pestañas seleccionadas.</p>
               </div>
               <button type="button" id="toggleFeaturedBtn" onclick="toggleFeaturedEnabled()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow">...</button>
             </div>
-            <div class="space-y-2 pt-2 border-t border-white/10">
+            <div class="space-y-2 pt-1">
               <p class="text-[11px] text-zinc-300 font-semibold">Mostrar Tema Destacado en:</p>
               <div id="featuredTabsCheckboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div>
               <button type="button" onclick="saveFeaturedSettings()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition mt-2">💾 Guardar Visibilidad Destacado</button>
@@ -478,11 +496,11 @@
             </div>
           </div>
 
-          <!-- 3. GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR NUEVAS Y EXAMINAR / URL GITHUB) -->
+          <!-- 3. GESTOR DE PESTAÑAS -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Puedes pegar la URL de GitHub o pulsar <strong>Examinar</strong> para subirlo directo a GitHub desde tu dispositivo.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Pega la URL de GitHub o pulsa <strong>Examinar</strong> para subirlo directo a GitHub desde tu dispositivo.</p>
             </div>
             <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
 
@@ -560,7 +578,7 @@
               <div>
                 <label class="block text-[11px] text-zinc-400 mb-1">URL de imagen/GIF (o pulsa Examinar para subir a GitHub):</label>
                 <div class="flex gap-1.5 items-center">
-                  <input type="url" id="adminBtnGifUrl" placeholder="https://breyde.github.io/NEXT-WAVE-RISING/img/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <input type="url" id="adminBtnGifUrl" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
                   <label class="px-3 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
                     <span>📁 Examinar</span>
                     <input type="file" accept="image/*" onchange="handleBtnGifUpload(event)" class="hidden">
@@ -574,11 +592,11 @@
             </div>
           </div>
 
-          <!-- 5. AVISOS IMPORTANTES EN CABECERA DE CADA PESTAÑA -->
+          <!-- 5. AVISOS IMPORTANTES EN CABECERA DE CADA PESTAÑA (CON VERSIÓN ES Y EN) -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
             <div>
               <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe un mensaje destacado para que aparezca arriba con una nota de <strong>Aviso Importante</strong>.</p>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, la web lo traducirá automáticamente cuando el usuario pulse 🇬🇧 EN o el botón Traducir.</p>
             </div>
             <div class="space-y-2.5">
               <div>
@@ -586,8 +604,12 @@
                 <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none"></select>
               </div>
               <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Mensaje de Aviso Importante *</label>
-                <textarea id="adminNoticeTextInput" rows="3" placeholder="Escribe aquí el aviso importante..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
+                <label class="block text-[11px] text-zinc-400 mb-1">Mensaje en Español 🇪🇸 *</label>
+                <textarea id="adminNoticeTextInput" rows="3" placeholder="Escribe aquí el aviso importante en español..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
+              </div>
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Traducción al Inglés 🇬🇧 (opcional - se traduce solo si se deja vacío):</label>
+                <textarea id="adminNoticeTextEnInput" rows="2" placeholder="Optional English version..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
               </div>
               <div class="flex gap-2">
                 <button type="button" onclick="saveTabNotice()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar / Actualizar Aviso</button>
@@ -608,7 +630,7 @@
             </div>
             <div class="space-y-3">
               <div class="flex gap-1.5 items-center">
-                <input type="url" id="adminLogoUrlInput" placeholder="https://breyde.github.io/NEXT-WAVE-RISING/img/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <input type="url" id="adminLogoUrlInput" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
                 <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
                   <span>📁 Examinar</span>
                   <input type="file" id="adminLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="hidden">
@@ -667,7 +689,7 @@
     </section>
   </main>
 
-  <!-- MODALES -->
+  <!-- MODALES (CON BOTÓN DE IDIOMA ES / EN INTEGRADO) -->
   <div id="editActiveTrackModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-emerald-500/40">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -718,7 +740,10 @@
     <div class="glass rounded-2xl p-6 max-w-md w-full space-y-4 border border-emerald-500/40 relative">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase" data-i18n="contactModalTitle">✉️ Envíanos un mensaje</h3>
-        <button onclick="toggleModal('contactModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es')" class="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-emerald-300 border border-white/10">🌐 ES / EN</button>
+          <button onclick="toggleModal('contactModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        </div>
       </div>
       <form id="contactForm" onsubmit="return false;" class="space-y-3">
         <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactName">Tu Nombre *</label><input type="text" id="contactName" required placeholder="Nombre Artístico / Tu Nombre" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
@@ -734,7 +759,10 @@
     <div class="glass rounded-2xl p-6 max-w-xl w-full space-y-4 border border-emerald-500/40 relative max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="infoModalTitle">📜 Manifiesto &amp; Funcionamiento</h3>
-        <button onclick="toggleModal('infoModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es'); openInfoModal();" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-[11px] font-bold text-emerald-300 border border-emerald-500/40">🌐 ES / EN</button>
+          <button onclick="toggleModal('infoModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
+        </div>
       </div>
       <div id="infoModalBody" class="text-xs text-zinc-300 space-y-3 leading-relaxed text-justify" data-i18n="infoModalBody"></div>
     </div>
@@ -742,6 +770,10 @@
 
   <div id="voteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="glass rounded-2xl p-6 max-w-sm w-full space-y-4 border border-emerald-500/40 text-center shadow-2xl">
+      <div class="flex justify-between items-center">
+        <span class="text-[10px] text-zinc-500 uppercase font-bold">Next Wave Rising</span>
+        <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es')" class="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-emerald-300">🌐 ES / EN</button>
+      </div>
       <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="confirmVoteTitle">Confirmar Votación</h3>
       <p class="text-xs text-zinc-300 leading-relaxed" data-i18n="confirmVoteDesc">Va a emitir sus votos. No se podrán anular si acepta.</p>
       <div class="flex gap-2 pt-2">
@@ -778,13 +810,17 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    // Mantener sesión del curador persistente en el navegador
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+
     const GH_OWNER = "breyde";
     const GH_REPO = "NEXT-WAVE-RISING";
     const GH_FOLDER = "img";
-    const GH_PAGES_BASE = `https://${GH_OWNER}.github.io/${GH_REPO}/${GH_FOLDER}/`;
+    const GH_RAW_BASE = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${GH_FOLDER}/`;
 
     const $ = id => document.getElementById(id);
     const escapeHtml = s => String(s || "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const normalizeUrl = u => String(u || "").trim().replace(/^https?:\/\//i, "https://");
     const madridStr = () => new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
     const madridDateOnly = () => new Date().toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
     const flagFromCode = c => (!c || c.length !== 2) ? "🌐" : String.fromCodePoint(...c.toUpperCase().split("").map(x => 127397 + x.charCodeAt(0)));
@@ -856,10 +892,10 @@
     const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
-    let currentLang = 'es', currentActiveTab = 'active', globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
+    let currentLang = 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
     let sessionPendingVotes = [], lockedRandomOrder = null, chatUnsubscribe = null, presenceInterval = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
-    let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false;
+    let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false, autoTranslatedNotices = {};
     let chatSessionId = sessionStorage.getItem('nwr_session_id') || ('sess_' + Math.random().toString(36).slice(2, 9));
     sessionStorage.setItem('nwr_session_id', chatSessionId);
 
@@ -869,7 +905,9 @@
       trackUrl: "",
       votingActive: true,
       logoUrl: "",
+      defaultTab: "active",
       tabNotices: {},
+      tabNoticesEn: {},
       featuredEnabled: true,
       featuredTabs: ['weekly'],
       playerStyles: {
@@ -883,10 +921,26 @@
       customButtons: {}
     };
 
-    // ==================== GESTOR DE ARCHIVOS EN GITHUB (CARPETA img/) ====================
-    function getGithubToken() {
-      return localStorage.getItem("nwr_gh_token") || "";
+    // Traducción automática gratuita (MyMemory API) para textos dinámicos del curador cuando el usuario cambia a EN
+    async function translateTextToEnglish(text) {
+      if (!text || !text.trim()) return "";
+      const cacheKey = "nwr_tr_" + text.slice(0, 60) + "_" + text.length;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) return cached;
+      try {
+        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 490))}&langpair=es|en`);
+        const data = await res.json();
+        const translated = data?.responseData?.translatedText;
+        if (translated && !translated.includes("MYMEMORY WARNING")) {
+          sessionStorage.setItem(cacheKey, translated);
+          return translated;
+        }
+      } catch (e) {}
+      return text;
     }
+
+    // ==================== GESTOR DE ARCHIVOS EN GITHUB (CARPETA img/) ====================
+    function getGithubToken() { return localStorage.getItem("nwr_gh_token") || ""; }
 
     window.saveGithubToken = () => {
       const val = $("ghTokenInput").value.trim();
@@ -899,12 +953,11 @@
       $("ghTokenInput").value = "";
       updateGithubTokenStatus();
       loadGithubGallery();
-      alert("✅ Token de GitHub guardado localmente en este navegador.");
+      alert("✅ Token de GitHub guardado localmente.");
     };
 
     function updateGithubTokenStatus() {
-      const tok = getGithubToken();
-      const st = $("ghTokenStatus");
+      const tok = getGithubToken(), st = $("ghTokenStatus");
       if (st) {
         st.innerHTML = tok
           ? `Estado: <span class="text-emerald-400 font-bold">● Token activo (${tok.slice(0, 6)}...${tok.slice(-4)})</span>`
@@ -930,28 +983,16 @@
       const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
       const base64Content = await fileToBase64Pure(file);
 
-      // Comprobar si ya existe para obtener su SHA y sobrescribirlo limpiamente
       let sha = undefined;
       try {
         const checkRes = await fetch(apiUrl, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" } });
-        if (checkRes.ok) {
-          const existing = await checkRes.json();
-          sha = existing.sha;
-        }
+        if (checkRes.ok) sha = (await checkRes.json()).sha;
       } catch (e) {}
 
       const res = await fetch(apiUrl, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: `Upload ${safeName} to ${GH_FOLDER}/`,
-          content: base64Content,
-          ...(sha ? { sha } : {})
-        })
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+        body: JSON.stringify({ message: `Upload ${safeName} to ${GH_FOLDER}/`, content: base64Content, ...(sha ? { sha } : {}) })
       });
 
       if (!res.ok) {
@@ -959,7 +1000,8 @@
         throw new Error(errData.message || `Error HTTP ${res.status}`);
       }
 
-      return `${GH_PAGES_BASE}${safeName}`;
+      const resData = await res.json();
+      return resData.content?.download_url || `${GH_RAW_BASE}${safeName}`;
     }
 
     window.uploadFilesToGithub = async e => {
@@ -971,10 +1013,8 @@
       st.classList.remove("hidden");
 
       try {
-        for (const f of files) {
-          await pushSingleFileToGithub(f);
-        }
-        st.textContent = `✅ ${files.length} archivo(s) subido(s) a GitHub. Estarán online en ~15-30 segundos.`;
+        for (const f of files) await pushSingleFileToGithub(f);
+        st.textContent = `✅ ${files.length} archivo(s) subido(s) a GitHub y listos para usar al instante.`;
         st.className = "text-xs text-center text-emerald-400 font-semibold";
         e.target.value = "";
         await loadGithubGallery();
@@ -1008,17 +1048,16 @@
         }
 
         cont.innerHTML = images.map(img => {
-          const publicUrl = `${GH_PAGES_BASE}${img.name}`;
-          // Usar download_url como fallback inmediato mientras GitHub Pages termina de desplegar
-          const previewSrc = img.download_url || publicUrl;
+          // Usar directamente download_url (raw.githubusercontent.com) que es la misma URL que se ve en la galería
+          const directUrl = img.download_url || `${GH_RAW_BASE}${img.name}`;
           return `
             <div class="p-2.5 bg-zinc-900 rounded-xl border border-white/10 flex flex-col items-center justify-between gap-2 text-center">
               <div class="h-14 w-full flex items-center justify-center bg-zinc-950 rounded-lg p-1 overflow-hidden">
-                <img src="${previewSrc}" alt="${escapeHtml(img.name)}" class="max-h-12 max-w-full object-contain">
+                <img src="${directUrl}" alt="${escapeHtml(img.name)}" class="max-h-12 max-w-full object-contain">
               </div>
               <p class="text-[10px] text-zinc-300 truncate w-full font-mono" title="${escapeHtml(img.name)}">${escapeHtml(img.name)}</p>
               <div class="flex gap-1 w-full">
-                <button type="button" onclick="copyGithubAssetUrl('${publicUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 Copiar URL</button>
+                <button type="button" onclick="copyGithubAssetUrl('${directUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 Copiar URL</button>
                 <button type="button" onclick="deleteGithubAsset('${img.path}', '${img.sha}', '${escapeHtml(img.name)}')" class="py-1 px-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded text-[10px] transition">🗑️</button>
               </div>
             </div>
@@ -1031,7 +1070,7 @@
 
     window.copyGithubAssetUrl = url => {
       navigator.clipboard.writeText(url);
-      alert(`📋 URL copiada:\n${url}`);
+      alert(`📋 URL directa copiada:\n${url}`);
     };
 
     window.deleteGithubAsset = async (path, sha, name) => {
@@ -1049,7 +1088,6 @@
       } catch (e) { alert("Error al borrar en GitHub: " + e.message); }
     };
 
-    // Subir desde botón "Examinar" directo a GitHub (si hay token) o lectura local si es ligero
     async function handleExamineToGithubOrLocal(file, onUrlReady) {
       if (!file) return;
       if (getGithubToken()) {
@@ -1058,11 +1096,9 @@
           onUrlReady(url);
           loadGithubGallery();
           alert(`✅ Subido a GitHub y URL asignada:\n${url}`);
-        } catch (err) {
-          alert("Error subiendo a GitHub: " + err.message);
-        }
+        } catch (err) { alert("Error subiendo a GitHub: " + err.message); }
       } else {
-        alert("💡 Consejo: Configura tu GitHub Token arriba en 'Subir Iconos / GIFs a GitHub' para que el botón Examinar suba tus archivos directo a GitHub sin llenar la base de datos.");
+        alert("💡 Configura tu GitHub Token arriba en 'Subir Iconos / GIFs a GitHub' para subir archivos directo a GitHub desde Examinar.");
       }
     }
 
@@ -1125,7 +1161,26 @@
       updateChatPresence();
     }
 
-    // ==================== TEMA DESTACADO VISIBILIDAD ====================
+    // ==================== PESTAÑA INICIAL Y TEMA DESTACADO ====================
+    function updateDefaultTabSelectUI() {
+      const sel = $("adminDefaultTabSelect");
+      if (!sel) return;
+      const tabs = config.tabsConfig || defaultTabsList;
+      sel.innerHTML = tabs.map(t => `<option value="${t.id}">${escapeHtml(t.labelEs)}</option>`).join('');
+      if (config.defaultTab && tabs.some(t => t.id === config.defaultTab)) {
+        sel.value = config.defaultTab;
+      }
+    }
+
+    window.saveDefaultTabSetting = async () => {
+      const val = $("adminDefaultTabSelect").value;
+      config.defaultTab = val;
+      try {
+        await db.collection("settings").doc("activeEdition").set({ defaultTab: val }, { merge: true });
+        alert("✅ Pestaña inicial guardada.");
+      } catch (e) { alert("Error al guardar: " + e.message); }
+    };
+
     function renderFeaturedPlayer() {
       const sec = $("playerSection");
       const embed = getEmbedUrl(config.trackUrl, 'featured');
@@ -1143,11 +1198,8 @@
       const allowedTabs = config.featuredTabs || ['weekly'];
       const targetTab = allowedTabs.includes(currentActiveTab) ? currentActiveTab : allowedTabs[0];
       const slot = targetTab ? $(`featuredSlot_${targetTab}`) : null;
-      if (slot) {
-        slot.appendChild(sec);
-      } else {
-        sec.classList.add("hidden");
-      }
+      if (slot) slot.appendChild(sec);
+      else sec.classList.add("hidden");
     }
 
     window.toggleFeaturedEnabled = () => {
@@ -1213,26 +1265,31 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== GESTOR DE PESTAÑAS (ANCHO EQUITATIVO, URL GITHUB Y EXAMINAR) ====================
+    // ==================== GESTOR DE PESTAÑAS ====================
     function renderNavigationAndCustomViews() {
       const nav = $("mainNavBar");
       const customCont = $("customTabsContainer");
       const tabs = (config.tabsConfig && config.tabsConfig.length) ? config.tabsConfig : defaultTabsList;
 
-      customCont.innerHTML = tabs.filter(t => t.custom).map(t => `
+      customCont.innerHTML = tabs.filter(t => t.custom).map(t => {
+        const cleanGif = normalizeUrl(t.gifUrl);
+        return `
         <div id="view_${t.id}" class="hidden space-y-6">
           <div id="noticeBanner_${t.id}" class="hidden"></div>
           <div id="featuredSlot_${t.id}"></div>
           <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
-            <div class="flex items-center gap-2 border-b border-white/10 pb-3">
-              ${t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-7 w-7 object-contain rounded">` : ''}
-              <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">${escapeHtml(currentLang === 'en' && t.labelEn ? t.labelEn : t.labelEs)}</h3>
+            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div class="flex items-center gap-2">
+                ${cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-7 w-7 object-contain rounded">` : ''}
+                <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">${escapeHtml(currentLang === 'en' && t.labelEn ? t.labelEn : t.labelEs)}</h3>
+              </div>
+              <button type="button" onclick="translateCustomTabContent('${t.id}')" class="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-cyan-300 border border-white/10">🌐 ES / EN</button>
             </div>
-            ${t.gifUrl ? `<div class="flex justify-center"><img src="${escapeHtml(t.gifUrl)}" class="max-h-48 rounded-xl object-contain"></div>` : ''}
-            <div class="text-xs text-zinc-200 leading-relaxed whitespace-pre-line">${escapeHtml(t.content || '')}</div>
+            ${cleanGif ? `<div class="flex justify-center"><img src="${escapeHtml(cleanGif)}" class="max-h-48 rounded-xl object-contain"></div>` : ''}
+            <div id="customTabBody_${t.id}" class="text-xs text-zinc-200 leading-relaxed whitespace-pre-line">${escapeHtml(t.content || '')}</div>
           </section>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
 
       const visibleTabs = tabs.filter(t => t.visible !== false);
       const count = visibleTabs.length || 1;
@@ -1242,7 +1299,8 @@
       nav.innerHTML = visibleTabs.map(t => {
         const label = (currentLang === 'en' && t.labelEn) ? t.labelEn : t.labelEs;
         const isActive = currentActiveTab === t.id;
-        const gifHtml = t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-4 w-4 object-contain shrink-0 rounded-sm">` : '';
+        const cleanGif = normalizeUrl(t.gifUrl);
+        const gifHtml = cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-4 w-4 object-contain shrink-0 rounded-sm">` : '';
         return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" style="flex: 1 1 ${pctWidth}; max-width: ${pctWidth};" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[9px] sm:text-[11px] leading-tight font-bold py-2 px-1 rounded-xl glass border text-center transition flex flex-col sm:flex-row items-center justify-center gap-1 min-h-[42px] whitespace-normal break-words">${gifHtml}<span class="leading-tight">${escapeHtml(label)}</span></button>`;
       }).join('');
 
@@ -1253,9 +1311,24 @@
         if (prevVal && tabs.some(t => t.id === prevVal)) noticeSel.value = prevVal;
       }
 
+      updateDefaultTabSelectUI();
       renderAllTabNotices();
       renderFeaturedPlayer();
     }
+
+    window.translateCustomTabContent = async id => {
+      const tab = (config.tabsConfig || []).find(x => x.id === id);
+      const bodyEl = $(`customTabBody_${id}`);
+      if (!tab || !bodyEl) return;
+      if (bodyEl.dataset.translated === "1") {
+        bodyEl.textContent = tab.content || "";
+        bodyEl.dataset.translated = "0";
+      } else {
+        bodyEl.textContent = "⏳ Translating...";
+        bodyEl.textContent = await translateTextToEnglish(tab.content || "");
+        bodyEl.dataset.translated = "1";
+      }
+    };
 
     function renderAdminTabsManager() {
       const list = $("adminTabsManagerList");
@@ -1267,7 +1340,7 @@
             <div class="flex items-center gap-2">
               <input type="checkbox" ${t.visible !== false ? 'checked' : ''} onchange="updateTabProp(${idx}, 'visible', this.checked)" class="accent-emerald-500" title="Visible / Oculta">
               <span class="text-[10px] font-mono text-zinc-400">${t.custom ? 'PERSONALIZADA' : t.id.toUpperCase()}</span>
-              ${t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-5 w-5 object-contain rounded border border-white/10">` : ''}
+              ${t.gifUrl ? `<img src="${escapeHtml(normalizeUrl(t.gifUrl))}" class="h-5 w-5 object-contain rounded border border-white/10">` : ''}
             </div>
             <div class="flex items-center gap-1">
               <button type="button" onclick="moveTabOrder(${idx}, -1)" class="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px]" ${idx === 0 ? 'disabled opacity-40' : ''}>⬆️</button>
@@ -1278,7 +1351,7 @@
           <div class="space-y-1.5">
             <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre de pestaña" class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
             <div class="flex gap-1.5 items-center">
-              <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', this.value); renderAdminTabsManager();" placeholder="URL imagen/GIF (ej. https://breyde.github.io/...)" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
+              <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', normalizeUrl(this.value)); renderAdminTabsManager();" placeholder="URL imagen/GIF (ej. https://raw.githubusercontent.com/...)" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
               <label class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] cursor-pointer transition whitespace-nowrap">
                 <span>📁 Examinar</span>
                 <input type="file" accept="image/*" onchange="handleExistingTabFileUpload(event, ${idx})" class="hidden">
@@ -1293,40 +1366,28 @@
     window.handleExistingTabFileUpload = (e, idx) => {
       const file = e.target.files[0];
       if (!file) return;
-      handleExamineToGithubOrLocal(file, url => {
-        config.tabsConfig[idx].gifUrl = url;
-        renderAdminTabsManager();
-      });
+      handleExamineToGithubOrLocal(file, url => { config.tabsConfig[idx].gifUrl = url; renderAdminTabsManager(); });
     };
 
-    window.clearExistingTabGif = idx => {
-      config.tabsConfig[idx].gifUrl = "";
-      renderAdminTabsManager();
-    };
-
+    window.clearExistingTabGif = idx => { config.tabsConfig[idx].gifUrl = ""; renderAdminTabsManager(); };
     window.handleNewTabFileUpload = e => {
       const file = e.target.files[0];
       if (!file) return;
-      handleExamineToGithubOrLocal(file, url => {
-        $("newCustomTabUrl").value = url;
-      });
+      handleExamineToGithubOrLocal(file, url => { $("newCustomTabUrl").value = url; });
     };
 
     window.moveTabOrder = (idx, dir) => {
-      const tabs = config.tabsConfig;
-      const target = idx + dir;
+      const tabs = config.tabsConfig, target = idx + dir;
       if (target < 0 || target >= tabs.length) return;
       [tabs[idx], tabs[target]] = [tabs[target], tabs[idx]];
       renderAdminTabsManager();
     };
 
-    window.updateTabProp = (idx, prop, val) => {
-      config.tabsConfig[idx][prop] = val;
-    };
+    window.updateTabProp = (idx, prop, val) => { config.tabsConfig[idx][prop] = val; };
 
     window.createNewCustomTab = () => {
       const label = $("newCustomTabLabel").value.trim();
-      const gifUrl = $("newCustomTabUrl").value.trim();
+      const gifUrl = normalizeUrl($("newCustomTabUrl").value);
       const content = $("newCustomTabContent").value.trim();
       if (!label) return alert("Escribe un nombre para la nueva pestaña.");
       const id = 'custom_' + Date.now();
@@ -1344,6 +1405,7 @@
 
     window.saveTabsConfiguration = async () => {
       try {
+        config.tabsConfig.forEach(t => { if (t.gifUrl) t.gifUrl = normalizeUrl(t.gifUrl); });
         await db.collection("settings").doc("activeEdition").set({ tabsConfig: config.tabsConfig }, { merge: true });
         renderNavigationAndCustomViews();
         updateFeaturedAdminUI();
@@ -1361,10 +1423,12 @@
         el.classList.remove('text-[10px]', 'text-xs', 'text-sm', 'py-1', 'py-2', 'py-2.5', 'py-3', 'py-3.5', 'px-2.5', 'px-3', 'px-3.5', 'px-4', 'px-5', 'h-9');
         el.classList.add(...sizeClasses[st.size]);
       }
-      if (st.text || st.gifUrl) {
-        const gifHtml = st.gifUrl ? `<img src="${escapeHtml(st.gifUrl)}" class="h-4 w-4 object-contain inline-block rounded-sm">` : '';
-        const txt = st.text ? escapeHtml(st.text) : el.textContent.trim();
-        el.innerHTML = `${gifHtml}<span>${txt}</span>`;
+      const cleanGif = normalizeUrl(st.gifUrl);
+      if (st.text || cleanGif) {
+        const gifHtml = cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-4 w-4 object-contain inline-block rounded-sm">` : '';
+        const currentSpan = el.querySelector("span:last-child");
+        const baseTxt = st.text ? escapeHtml(st.text) : (currentSpan ? currentSpan.textContent.trim() : el.textContent.trim());
+        el.innerHTML = `${gifHtml}<span>${baseTxt}</span>`;
       }
     }
 
@@ -1379,9 +1443,7 @@
     window.handleBtnGifUpload = e => {
       const file = e.target.files[0];
       if (!file) return;
-      handleExamineToGithubOrLocal(file, url => {
-        $("adminBtnGifUrl").value = url;
-      });
+      handleExamineToGithubOrLocal(file, url => { $("adminBtnGifUrl").value = url; });
     };
 
     window.loadButtonCustomForm = () => {
@@ -1404,7 +1466,7 @@
         size: $("adminBtnSize").value,
         bgColor: $("adminBtnUseBg").checked ? $("adminBtnBgColor").value : "",
         textColor: $("adminBtnUseText").checked ? $("adminBtnTextColor").value : "",
-        gifUrl: $("adminBtnGifUrl").value.trim()
+        gifUrl: normalizeUrl($("adminBtnGifUrl").value)
       };
       try {
         await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
@@ -1563,13 +1625,14 @@
       alert("📋 Listado de países copiado.");
     };
 
-    // ==================== LOGO Y AVISOS ====================
+    // ==================== LOGO Y AVISOS (CON TRADUCCIÓN AUTOMÁTICA Y BOTÓN TRADUCIR) ====================
     function applyBrandLogo(url) {
+      const clean = normalizeUrl(url);
       const textEl = $("brandTextTitle"), imgEl = $("brandLogoImg"), pBox = $("adminLogoPreviewBox"), pImg = $("adminLogoPreviewImg"), uInp = $("adminLogoUrlInput");
-      if (uInp && url && !url.startsWith("data:image")) uInp.value = url;
-      if (url?.trim()) {
-        imgEl.src = url; imgEl.classList.remove("hidden"); textEl.classList.add("hidden");
-        if (pBox && pImg) { pImg.src = url; pBox.classList.remove("hidden"); }
+      if (uInp && clean && !clean.startsWith("data:image")) uInp.value = clean;
+      if (clean) {
+        imgEl.src = clean; imgEl.classList.remove("hidden"); textEl.classList.add("hidden");
+        if (pBox && pImg) { pImg.src = clean; pBox.classList.remove("hidden"); }
       } else {
         imgEl.src = ""; imgEl.classList.add("hidden"); textEl.classList.remove("hidden");
         if (pBox) pBox.classList.add("hidden"); if (uInp) uInp.value = "";
@@ -1588,7 +1651,7 @@
     };
 
     window.saveBrandLogo = async () => {
-      const typed = $("adminLogoUrlInput").value.trim();
+      const typed = normalizeUrl($("adminLogoUrlInput").value);
       if (typed) config.logoUrl = typed;
       if (!config.logoUrl) return alert("Pega una URL de GitHub o pulsa Examinar antes de guardar.");
       try {
@@ -1609,18 +1672,31 @@
       } catch (e) { alert("Error al restaurar."); }
     };
 
-    function renderAllTabNotices() {
-      const notices = config.tabNotices || {}, badge = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
+    async function renderAllTabNotices() {
+      const notices = config.tabNotices || {};
+      const noticesEn = config.tabNoticesEn || {};
+      const badge = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
       const tabs = config.tabsConfig || defaultTabsList;
-      tabs.forEach(t => {
+
+      for (const t of tabs) {
         const k = t.id, b = $(`noticeBanner_${k}`);
-        if (!b) return;
-        const msg = notices[k];
-        if (msg?.trim()) {
+        if (!b) continue;
+        const msgEs = notices[k];
+        if (msgEs?.trim()) {
+          let displayMsg = msgEs;
+          if (currentLang === 'en') {
+            if (noticesEn[k]?.trim()) displayMsg = noticesEn[k];
+            else if (autoTranslatedNotices[k]) displayMsg = autoTranslatedNotices[k];
+            else {
+              displayMsg = await translateTextToEnglish(msgEs);
+              autoTranslatedNotices[k] = displayMsg;
+            }
+          }
           b.className = "rounded-2xl p-4 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 shadow-lg flex items-start gap-3";
-          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1 flex-1"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span><p class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(msg)}</p></div>`;
+          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1.5 flex-1"><div class="flex justify-between items-center gap-2"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span><button type="button" onclick="toggleNoticeLanguage('${k}')" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-amber-300 font-bold text-[10px] border border-amber-400/30 transition">🌐 ES / EN</button></div><p id="noticeText_${k}" class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(displayMsg)}</p></div>`;
         } else { b.className = "hidden"; b.innerHTML = ""; }
-      });
+      }
+
       const adminList = $("adminActiveNoticesList");
       if (adminList) {
         const keys = Object.keys(notices).filter(k => notices[k]?.trim());
@@ -1634,27 +1710,57 @@
       }
     }
 
-    window.loadSelectedTabNoticeToForm = () => { $("adminNoticeTextInput").value = (config.tabNotices || {})[$("adminNoticeTabSelect").value] || ""; };
-    window.editTabNotice = k => { $("adminNoticeTabSelect").value = k; $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || ""; $("adminNoticeTextInput").focus(); };
+    window.toggleNoticeLanguage = async k => {
+      const pEl = $(`noticeText_${k}`);
+      const msgEs = (config.tabNotices || {})[k];
+      if (!pEl || !msgEs) return;
+      if (pEl.dataset.langMode === "en") {
+        pEl.textContent = msgEs;
+        pEl.dataset.langMode = "es";
+      } else {
+        pEl.textContent = "⏳ Translating...";
+        const enText = (config.tabNoticesEn || {})[k]?.trim() || autoTranslatedNotices[k] || await translateTextToEnglish(msgEs);
+        autoTranslatedNotices[k] = enText;
+        pEl.textContent = enText;
+        pEl.dataset.langMode = "en";
+      }
+    };
+
+    window.loadSelectedTabNoticeToForm = () => {
+      const k = $("adminNoticeTabSelect").value;
+      $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
+      $("adminNoticeTextEnInput").value = (config.tabNoticesEn || {})[k] || "";
+    };
+    window.editTabNotice = k => {
+      $("adminNoticeTabSelect").value = k;
+      $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
+      $("adminNoticeTextEnInput").value = (config.tabNoticesEn || {})[k] || "";
+      $("adminNoticeTextInput").focus();
+    };
     window.saveTabNotice = async () => {
-      const k = $("adminNoticeTabSelect").value, msg = $("adminNoticeTextInput").value.trim();
+      const k = $("adminNoticeTabSelect").value, msg = $("adminNoticeTextInput").value.trim(), msgEn = $("adminNoticeTextEnInput").value.trim();
       if (!msg) return alert("Escribe un mensaje de aviso o pulsa 'Quitar'.");
       try {
         if (!config.tabNotices) config.tabNotices = {};
+        if (!config.tabNoticesEn) config.tabNoticesEn = {};
         config.tabNotices[k] = msg;
-        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices }, { merge: true });
-        renderAllTabNotices();
+        config.tabNoticesEn[k] = msgEn;
+        delete autoTranslatedNotices[k];
+        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices, tabNoticesEn: config.tabNoticesEn }, { merge: true });
+        await renderAllTabNotices();
         alert("✅ Aviso guardado.");
       } catch (e) { alert("Error: " + e.message); }
     };
     window.deleteTabNotice = async k => {
-      if (!config.tabNotices?.[k]) { $("adminNoticeTextInput").value = ""; return; }
+      if (!config.tabNotices?.[k]) { $("adminNoticeTextInput").value = $("adminNoticeTextEnInput").value = ""; return; }
       if (!confirm("¿Eliminar este aviso?")) return;
       try {
         delete config.tabNotices[k];
-        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices }, { merge: true });
-        if ($("adminNoticeTabSelect").value === k) $("adminNoticeTextInput").value = "";
-        renderAllTabNotices();
+        if (config.tabNoticesEn) delete config.tabNoticesEn[k];
+        delete autoTranslatedNotices[k];
+        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices, tabNoticesEn: config.tabNoticesEn || {} }, { merge: true });
+        if ($("adminNoticeTabSelect").value === k) $("adminNoticeTextInput").value = $("adminNoticeTextEnInput").value = "";
+        await renderAllTabNotices();
         alert("🗑️ Aviso eliminado.");
       } catch (e) { alert("Error: " + e.message); }
     };
@@ -1706,6 +1812,7 @@
       else if (tab === 'config') {
         updateGithubTokenStatus();
         loadGithubGallery();
+        updateDefaultTabSelectUI();
         updateFeaturedAdminUI();
         loadPlayerStyleForm();
         renderAdminTabsManager();
@@ -2059,7 +2166,14 @@
       $("adminPlaylistInput").value = config.playlistUrl;
       $("adminTrackInput").value = config.trackUrl || "";
       applyBrandLogo(config.logoUrl);
+
+      if (!initialTabApplied && config.defaultTab) {
+        initialTabApplied = true;
+        currentActiveTab = config.defaultTab;
+      }
+
       renderNavigationAndCustomViews();
+      switchTab(currentActiveTab);
       updateVotingUI(config.votingActive !== false);
       applyAllCustomButtons();
     }
@@ -2202,12 +2316,35 @@
 
     window.cancelVoteConfirmation = () => { toggleModal('voteConfirmModal', false); sessionPendingVotes = []; alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled."); loadAllLists(); };
 
+    window.logoutCurator = async () => {
+      try {
+        await auth.signOut();
+        $("adminDashboard").classList.add("hidden");
+        $("adminLoginBox").classList.remove("hidden");
+      } catch (e) {}
+    };
+
     // ==================== INICIO ====================
     document.addEventListener("DOMContentLoaded", () => {
       setLanguage(currentLang);
       initClientIp();
       listenActiveUsers();
       if (currentChatNick) $("chatNickInput").value = currentChatNick;
+
+      // Mantener sesión del curador abierta automáticamente al recargar o cambiar de página
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          $("adminLoginBox").classList.add("hidden");
+          $("adminDashboard").classList.remove("hidden");
+          $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
+          loadAllLists();
+          loadAdminCountries();
+          loadAdminBackups();
+        } else {
+          $("adminDashboard").classList.add("hidden");
+          $("adminLoginBox").classList.remove("hidden");
+        }
+      });
 
       (async () => {
         try {
@@ -2255,9 +2392,6 @@
         if (!em || !pw) return alert("Introduce correo y contraseña.");
         try {
           await auth.signInWithEmailAndPassword(em, pw);
-          $("adminLoginBox").classList.add("hidden");
-          $("adminDashboard").classList.remove("hidden");
-          loadAllLists(); loadAdminCountries(); loadAdminBackups();
         } catch (e) { alert("Credenciales incorrectas."); }
       });
 
