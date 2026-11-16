@@ -1234,7 +1234,7 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA (CLICK-TO-PLAY CON CARÁTULAS DE iTUNES) ====================
+    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA (CLICK-TO-PLAY CON CARÁTULAS DE SPOTIFY OEMBED) ====================
     window.loadPlayerStyleForm = () => {
       const key = $("adminPlayerListSelect").value;
       const st = config.playerStyles?.[key] || { preset: 'ultracompact', height: 80, startSec: 0 };
@@ -1271,17 +1271,19 @@
       container.innerHTML = `<iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
     };
 
-    async function loadTrackThumbnail(artist, title, imgId) {
+    async function loadTrackThumbnail(spotifyUrl, imgId) {
       try {
-        const query = encodeURIComponent(`${artist} ${title}`);
-        const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=1`);
+        if (!spotifyUrl) return;
+        const cleanUrl = spotifyUrl.split("?")[0];
+        const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(cleanUrl)}`);
         const data = await res.json();
-        if (data && data.results && data.results.length > 0) {
-          const artwork = data.results[0].artworkUrl100;
-          if (artwork) {
-            const highRes = artwork.replace('100x100bb.jpg', '600x600bb.jpg').replace('100x100bb', '600x600bb');
-            const imgEl = document.getElementById(imgId);
-            if (imgEl) imgEl.src = highRes;
+        if (data && data.thumbnail_url) {
+          const imgEl = document.getElementById(imgId);
+          if (imgEl) {
+            imgEl.src = data.thumbnail_url;
+            imgEl.style.display = "block";
+            const fallback = imgEl.nextElementSibling;
+            if (fallback) fallback.style.display = "none";
           }
         }
       } catch (e) {}
@@ -1291,13 +1293,14 @@
       const em = getEmbedUrl(s.url, listKey);
       if (!em) return '';
       const imgId = 'thumb_' + Math.random().toString(36).slice(2, 9);
-      setTimeout(() => loadTrackThumbnail(s.artist, s.title, imgId), 50);
+      setTimeout(() => loadTrackThumbnail(s.url, imgId), 50);
 
       return `
         <div class="track-card-container glass p-3 rounded-2xl border border-white/10 flex items-center justify-between gap-3">
           <div class="flex items-center gap-3 truncate">
-            <div class="w-12 h-12 bg-zinc-900 rounded-xl overflow-hidden shrink-0 border border-white/10 flex items-center justify-center">
-              <img id="${imgId}" src="" alt="Carátula" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='🎵'">
+            <div class="w-12 h-12 bg-zinc-900 rounded-xl overflow-hidden shrink-0 border border-white/10 flex items-center justify-center text-emerald-400 font-bold relative">
+              <img id="${imgId}" src="" alt="Carátula" class="w-full h-full object-cover" style="display:none;" />
+              <span class="absolute inset-0 flex items-center justify-center text-sm">🎵</span>
             </div>
             <div class="truncate">
               <p class="font-bold text-white text-xs truncate">${i + 1}. ${escapeHtml(s.artist)}</p>
@@ -2367,7 +2370,7 @@
         await usersRef.add({ nick, ip: clientIp || "unknown_ip", timestamp: Date.now() });
         currentChatNick = nick; localStorage.setItem('nwr_chat_nick', currentChatNick);
         initChatRealtime();
-      } catch (e) { err.textContent = "Error al entrar."; err.classList.remove('hidden'); }
+      } catch (e) { err.textContent = "Error al entrar."; err.classList.add('hidden'); }
     }
 
     function leaveChatRoom() {
@@ -2679,8 +2682,7 @@
         try {
           const [sAct, sVot] = await Promise.all([db.collection("active_list").get(), db.collection("voters_log").get()]);
           const b1 = db.batch(); sAct.docs.forEach(d => b1.update(d.ref, { votes: 0, voters: [] }));
-          const b2 = db.batch(); sVot.docs.forEach(d => bVots => d.delete(d.ref)); // Wait, sVot.docs.forEach(d => b2.delete(d.ref))
-          sVot.docs.forEach(d => b2.delete(d.ref));
+          const b2 = db.batch(); sVot.docs.forEach(d => b2.delete(d.ref));
           await Promise.all([b1.commit(), b2.commit()]);
           sessionPendingVotes = []; lockedRandomOrder = null;
           loadAllLists();
