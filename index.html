@@ -1741,7 +1741,7 @@
     };
     window.saveTabNotice = async () => {
       const k = $("adminNoticeTabSelect").value, msg = $("adminNoticeTextInput").value.trim(), msgEn = $("adminNoticeTextEnInput").value.trim();
-      if (!msg) return alert("Escribe un mensaje de aviso o pulsa 'Quitar'.");
+      if (!msg) return alert("Escribe un aviso o pulsa 'Quitar'.");
       try {
         if (!config.tabNotices) config.tabNotices = {};
         if (!config.tabNoticesEn) config.tabNoticesEn = {};
@@ -1836,7 +1836,7 @@
       window.scrollTo({ top: adminView.offsetTop, behavior: 'smooth' });
     };
 
-    // ==================== RESTAURACIÓN DESDE BACKUPS (SUSTITUCIÓN MASIVA vs ADICIÓN INDIVIDUAL) ====================
+    // ==================== RESTAURACIÓN DESDE BACKUPS CON SELECCIÓN DE LISTAS ====================
     window.toggleBackupRestoreView = id => {
       const el = $(`backupRestorePanel_${id}`);
       if (el) el.classList.toggle('hidden');
@@ -1869,44 +1869,58 @@
       }
     };
 
-    window.restoreAllRecordsFromBackup = async backupId => {
+    window.restoreSelectedRecordsFromBackup = async backupId => {
       const b = backupsCache[backupId];
       if (!b) return;
 
-      if (!confirm(`⚠️ ATENCIÓN CRÍTICA:\nSe van a SUSTITUIR por completo las listas actuales con los registros de esta copia de seguridad.\n\n• Se borrarán los datos actuales de: Lista Activa, Cola Semanal, Mensual y Anual.\n• Se colocarán exclusivamente los datos del backup '${b.edition}'.\n\n¿Deseas confirmar la sustitución masiva?`)) return;
+      const doActive = document.getElementById(`rest_active_${backupId}`)?.checked || false;
+      const doWeekly = document.getElementById(`rest_weekly_${backupId}`)?.checked || false;
+      const doMonthly = document.getElementById(`rest_monthly_${backupId}`)?.checked || false;
+      const doAnnual = document.getElementById(`rest_annual_${backupId}`)?.checked || false;
+
+      if (!doActive && !doWeekly && !doMonthly && !doAnnual) {
+        return alert("⚠️ Selecciona al menos una lista marcada para restaurar.");
+      }
+
+      let summary = [];
+      if (doActive) summary.push("• Lista Activa");
+      if (doWeekly) summary.push("• Cola Semanal");
+      if (doMonthly) summary.push("• Lista Mensual");
+      if (doAnnual) summary.push("• Lista Anual");
+
+      if (!confirm(`⚠️ ATENCIÓN CRÍTICA:\nSe van a SUSTITUIR por completo las siguientes listas actuales con los datos de esta copia de seguridad:\n\n${summary.join('\n')}\n\nLas listas NO marcadas permanecerán intactas.\n¿Deseas confirmar la sustitución?`)) return;
 
       try {
-        const collectionsToClear = ['active_list', 'submissions', 'monthly_list', 'annual_list'];
-        for (const colName of collectionsToClear) {
-          const snapshot = await db.collection(colName).get();
-          if (!snapshot.empty) {
-            const deleteBatch = db.batch();
-            snapshot.docs.forEach(doc => deleteBatch.delete(doc.ref));
-            await deleteBatch.commit();
+        const clearAndReplace = async (tracks, colName) => {
+          // 1. Borrar registros actuales de esa colección
+          const snap = await db.collection(colName).get();
+          if (!snap.empty) {
+            const delBatch = db.batch();
+            snap.docs.forEach(doc => delBatch.delete(doc.ref));
+            await delBatch.commit();
           }
-        }
-
-        const batch = db.batch();
-        const addBatchForTracks = (tracks, col) => {
-          if (!tracks || !tracks.length) return;
-          tracks.forEach(t => {
-            const cleanT = { ...t };
-            delete cleanT.id;
-            const newRef = db.collection(col).doc();
-            batch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
-          });
+          // 2. Insertar registros del backup
+          if (tracks && tracks.length) {
+            const addBatch = db.batch();
+            tracks.forEach(t => {
+              const cleanT = { ...t };
+              delete cleanT.id;
+              const newRef = db.collection(colName).doc();
+              addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
+            });
+            await addBatch.commit();
+          }
         };
 
-        addBatchForTracks(b.activeTracks, 'active_list');
-        addBatchForTracks(b.weeklyTracks, 'submissions');
-        addBatchForTracks(b.monthlyTracks, 'monthly_list');
-        addBatchForTracks(b.annualTracks, 'annual_list');
+        if (doActive) await clearAndReplace(b.activeTracks, 'active_list');
+        if (doWeekly) await clearAndReplace(b.weeklyTracks, 'submissions');
+        if (doMonthly) await clearAndReplace(b.monthlyTracks, 'monthly_list');
+        if (doAnnual) await clearAndReplace(b.annualTracks, 'annual_list');
 
-        await batch.commit();
         await loadAllLists();
-        alert("✅ Sustitución completada: Las listas actuales han sido reemplazadas exactamente por el contenido de la copia de seguridad.");
+        alert("✅ Restauración y sustitución completada con éxito en las listas seleccionadas.");
       } catch (e) {
-        alert("Error en la restauración masiva: " + e.message);
+        alert("Error en la restauración: " + e.message);
       }
     };
 
@@ -2063,7 +2077,17 @@
           if (aT.length || wT.length || mT.length || anT.length) {
             restoreRecordsHtml = `
               <div class="mt-3 pt-3 border-t border-purple-500/30 space-y-3 bg-purple-950/20 p-3 rounded-xl border">
-                <div class="flex justify-between items-center"><span class="font-bold text-purple-300 text-xs">🛠️ Centro de Restauración de Registros</span><button type="button" onclick="restoreAllRecordsFromBackup('${b.id}')" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-[11px] shadow transition">⚡ Restaurar TODOS (Sustituir listas)</button></div>
+                <div class="flex flex-col gap-2">
+                  <span class="font-bold text-purple-300 text-xs">🛠️ Centro de Restauración Masiva</span>
+                  <p class="text-[10px] text-zinc-400">Marca las listas que deseas sustituir con esta copia (las desmarcadas no se tocarán):</p>
+                  <div class="grid grid-cols-2 gap-1.5 py-1">
+                    ${aT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_active_${b.id}" checked class="accent-purple-500"> Lista Activa (${aT.length})</label>` : ''}
+                    ${wT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_weekly_${b.id}" checked class="accent-purple-500"> Cola Semanal (${wT.length})</label>` : ''}
+                    ${mT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_monthly_${b.id}" checked class="accent-purple-500"> Lista Mensual (${mT.length})</label>` : ''}
+                    ${anT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_annual_${b.id}" checked class="accent-purple-500"> Lista Anual (${anT.length})</label>` : ''}
+                  </div>
+                  <button type="button" onclick="restoreSelectedRecordsFromBackup('${b.id}')" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow transition">⚡ Restaurar Listas Marcadas (Sustituir)</button>
+                </div>
                 ${renderSectionRestoreItems(aT, 'active', 'Lista Activa', 'text-emerald-400')}
                 ${renderSectionRestoreItems(wT, 'weekly', 'Cola Semanal', 'text-cyan-400')}
                 ${renderSectionRestoreItems(mT, 'monthly', 'Lista Mensual', 'text-sky-400')}
