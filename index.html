@@ -21,7 +21,7 @@
           <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs">🇪🇸 ES</button>
           <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs">🇬🇧 EN</button>
         </div>
-        <button onclick="toggleModal('contactModal')" class="px-3.5 h-9 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+        <button id="btnContactHeader" onclick="toggleModal('contactModal')" class="px-3.5 h-9 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
           <span>✉️</span> <span data-i18n="contactBtn">Contacto</span>
         </button>
       </div>
@@ -33,28 +33,28 @@
       <img id="brandLogoImg" src="" alt="Next Wave Rising" class="hidden w-full max-w-full max-h-40 sm:max-h-52 object-contain mx-auto select-none">
     </div>
 
-    <button onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
+    <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
       <span class="shrink-0">📜</span>
       <span data-i18n="infoBtnText" class="truncate">Importante: Normas y Funcionamiento</span>
       <span class="text-emerald-400/80 shrink-0 text-[10px]">→</span>
     </button>
 
-    <nav class="w-full grid grid-cols-7 gap-1 pt-1">
-      <button onclick="switchTab('active')" id="tabActive" class="tab-btn active text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border border-emerald-500/40 text-center transition">📻 Activa</button>
-      <button onclick="switchTab('weekly')" id="tabWeekly" class="tab-btn text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">🔥 Cola Semanal</button>
-      <button onclick="switchTab('monthly')" id="tabMonthly" class="tab-btn text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Mensual</button>
-      <button onclick="switchTab('annual')" id="tabAnnual" class="tab-btn text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">Anual</button>
-      <button onclick="switchTab('top')" id="tabTop" class="tab-btn text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border border-white/10 text-center text-zinc-400 transition">TOP</button>
-      <button onclick="switchTab('vote')" id="tabVote" class="tab-btn text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border border-emerald-500/30 text-emerald-400 text-center transition">Votar</button>
-      <button onclick="switchTab('chat')" id="tabChat" class="tab-btn text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border border-cyan-500/30 text-cyan-400 text-center transition">💬 Chat</button>
-    </nav>
-  </header>
+    <!-- BARRA DE NAVEGACIÓN DINÁMICA -->
+    <nav id="mainNavBar" class="w-full flex flex-wrap sm:grid sm:grid-cols-7 gap-1 pt-1"></nav>
+  </main>
 
-  <main class="w-full max-w-2xl space-y-6 pb-12">
+  <main id="mainContentContainer" class="w-full max-w-2xl space-y-6 pb-12">
+
+    <!-- REPRODUCTOR TEMA DESTACADO GLOBAL (SE UBICA DINÁMICAMENTE EN LAS PESTAÑAS ACTIVADAS) -->
+    <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2 border border-emerald-500/30">
+      <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider" data-i18n="txtFeatured">🎵 TEMA DESTACADO</h3>
+      <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </section>
 
     <!-- PESTAÑA 0: LISTA ACTIVA -->
     <div id="viewActive" class="space-y-6">
       <div id="noticeBanner_active" class="hidden"></div>
+      <div id="featuredSlot_active"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <div>
@@ -64,8 +64,8 @@
           <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold whitespace-nowrap">Total: <strong id="publicActiveCount">0</strong></span>
         </div>
         <div class="flex flex-wrap gap-2">
-          <a id="activePlaylistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="flex-1 text-center py-2.5 px-4 bg-[#1DB954] text-black font-bold rounded-xl text-xs shadow hover:opacity-95 transition" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
-          <button type="button" onclick="switchTab('vote')" class="py-2.5 px-4 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold rounded-xl text-xs transition" data-i18n="btnGoVote">⭐ Ir a Votar</button>
+          <a id="activePlaylistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="flex-1 text-center py-2.5 px-4 bg-[#1DB954] text-black font-bold rounded-xl text-xs shadow hover:opacity-95 transition flex items-center justify-center gap-1.5" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
+          <button id="btnGoVoteActive" type="button" onclick="switchTab('vote')" class="py-2.5 px-4 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-i18n="btnGoVote">⭐ Ir a Votar</button>
         </div>
         <div id="publicActiveList" class="space-y-3 pt-1">
           <p class="text-zinc-400 text-xs text-center py-6" data-i18n="activeListEmpty">Aún no hay canciones cargadas en la lista activa de esta semana.</p>
@@ -76,6 +76,7 @@
     <!-- PESTAÑA 1: COLA SEMANAL -->
     <div id="viewWeekly" class="hidden space-y-6">
       <div id="noticeBanner_weekly" class="hidden"></div>
+      <div id="featuredSlot_weekly"></div>
       <section class="glass rounded-2xl p-5 space-y-3">
         <div class="flex justify-between items-center">
           <div><h2 id="editionTitle" class="font-bold text-white">Edición Semanal #1</h2><p id="txtClosure" class="text-xs text-zinc-400" data-i18n="txtClosure">Cierre: Jueves 00:00h</p></div>
@@ -87,11 +88,6 @@
           <div class="bg-zinc-900 p-2 rounded"><span id="cdMinutes" class="text-lg font-bold text-white">00</span><span class="block text-[9px] text-zinc-400" data-i18n="lblMins">MIN</span></div>
           <div class="bg-zinc-900 p-2 rounded"><span id="cdSeconds" class="text-lg font-bold text-cyan-400">00</span><span class="block text-[9px] text-zinc-400" data-i18n="lblSecs">SEG</span></div>
         </div>
-      </section>
-
-      <section id="playerSection" class="glass rounded-2xl p-4 hidden space-y-2">
-        <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider" data-i18n="txtFeatured">🎵 TEMA DESTACADO</h3>
-        <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
       </section>
 
       <div class="glass rounded-2xl p-6 space-y-3 border border-emerald-500/20">
@@ -106,7 +102,7 @@
 
       <div class="glass rounded-2xl p-6 space-y-3">
         <h3 class="font-semibold" data-i18n="step1Title">1. Guarda la playlist</h3>
-        <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
+        <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm flex items-center justify-center gap-1.5" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
         <label class="flex gap-2 text-xs text-zinc-300 pt-2 cursor-pointer"><input type="checkbox" id="confirmSaveCheckbox" class="accent-emerald-500"> <span data-i18n="step1Check">Confirmo que ya he guardado la playlist en mi biblioteca.</span></label>
       </div>
 
@@ -116,7 +112,7 @@
         <input type="text" id="trackTitle" required placeholder="Título de la Canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm focus:border-emerald-500 focus:outline-none" data-i18n-ph="phTitle">
         <input type="url" id="trackUrl" required placeholder="Enlace Spotify de la canción *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm focus:border-emerald-500 focus:outline-none" data-i18n-ph="phUrl">
         <input type="email" id="artistEmail" required placeholder="Correo electrónico *" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm focus:border-emerald-500 focus:outline-none" data-i18n-ph="phEmail">
-        <button type="button" id="submitBtn" class="w-full py-3 neon-btn text-zinc-950 font-bold rounded-xl text-sm shadow-lg hover:opacity-95 transition" data-i18n="submitBtn">Enviar Propuesta</button>
+        <button type="button" id="submitBtn" class="w-full py-3 neon-btn text-zinc-950 font-bold rounded-xl text-sm shadow-lg hover:opacity-95 transition flex items-center justify-center gap-1.5" data-i18n="submitBtn">Enviar Propuesta</button>
         <p id="feedbackMsg" class="text-xs text-center hidden font-medium"></p>
       </form>
       <div id="receiptCard" class="hidden glass rounded-2xl p-5 border border-emerald-500/40 bg-emerald-950/20 space-y-2">
@@ -138,6 +134,7 @@
     <!-- PESTAÑA 2: MENSUAL -->
     <div id="viewMonthly" class="hidden space-y-6">
       <div id="noticeBanner_monthly" class="hidden"></div>
+      <div id="featuredSlot_monthly"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider" data-i18n="monthlyHeader">🗓️ LISTA MENSUAL (ROTA CADA 4 SEMANAS)</h3>
@@ -153,6 +150,7 @@
     <!-- PESTAÑA 3: ANUAL -->
     <div id="viewAnnual" class="hidden space-y-6">
       <div id="noticeBanner_annual" class="hidden"></div>
+      <div id="featuredSlot_annual"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-amber-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-amber-400 text-sm uppercase tracking-wider" data-i18n="annualHeader">📀 LISTA ANUAL ACUMULADA</h3>
@@ -168,6 +166,7 @@
     <!-- PESTAÑA 4: TOP ANUAL -->
     <div id="viewTop" class="hidden space-y-6">
       <div id="noticeBanner_top" class="hidden"></div>
+      <div id="featuredSlot_top"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-purple-500/30 text-center py-12">
         <span class="text-4xl">🏆</span>
         <h3 class="font-extrabold text-purple-400 text-lg uppercase tracking-wider" data-i18n="topHeader">TOP ANUAL &amp; VOTACIONES</h3>
@@ -180,6 +179,7 @@
     <!-- PESTAÑA 5: VOTAR -->
     <div id="viewVote" class="hidden space-y-6">
       <div id="noticeBanner_vote" class="hidden"></div>
+      <div id="featuredSlot_vote"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-emerald-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="voteTabTitle">⭐ VOTA PRÓXIMA DESTACADA (LISTA ACTIVA)</h3>
@@ -202,7 +202,7 @@
         </div>
 
         <div>
-          <button onclick="toggleModal('votingRulesBox')" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-zinc-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:opacity-90 transition">
+          <button id="btnVotingRules" onclick="toggleModal('votingRulesBox')" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-zinc-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:opacity-90 transition">
             <span>📜</span> <span data-i18n="rulesBtnText">¡Normas de Votación Importantes - Haz clic aquí!</span>
           </button>
           <div id="votingRulesBox" class="mt-2 glass rounded-xl p-4 border border-emerald-500/40 bg-zinc-900/95 text-xs text-zinc-300 space-y-2">
@@ -235,6 +235,7 @@
     <!-- PESTAÑA 6: CHAT PÚBLICO -->
     <div id="viewChat" class="hidden space-y-6">
       <div id="noticeBanner_chat" class="hidden"></div>
+      <div id="featuredSlot_chat"></div>
       <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
         <div class="flex justify-between items-center border-b border-white/10 pb-3">
           <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider" data-i18n="chatHeader">💬 SALA DE CHAT PÚBLICA</h3>
@@ -251,7 +252,7 @@
           <p class="text-xs text-zinc-300" data-i18n="chatLoginDesc">Elige un nick/usuario para unirte a la conversación. (Máximo un usuario por dispositivo/IP).</p>
           <div class="flex gap-2">
             <input type="text" id="chatNickInput" maxlength="20" placeholder="Tu nick (ej. BreydeFan) *" class="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
-            <button type="button" onclick="joinChatRoom()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow" data-i18n="chatJoinBtn">Entrar al Chat</button>
+            <button id="btnChatJoin" type="button" onclick="joinChatRoom()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5" data-i18n="chatJoinBtn">Entrar al Chat</button>
           </div>
           <p id="chatLoginError" class="text-xs text-rose-400 hidden"></p>
         </div>
@@ -264,11 +265,14 @@
           <div id="chatMessagesContainer" class="h-80 overflow-y-auto space-y-3 p-3 bg-zinc-950/80 rounded-xl border border-white/5 text-xs"></div>
           <div class="flex gap-2">
             <input type="text" id="chatMessageInput" maxlength="250" placeholder="Escribe un mensaje..." data-i18n-ph="phChatMsg" class="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white" onkeydown="if(event.key==='Enter')sendChatMessage()">
-            <button type="button" onclick="sendChatMessage()" class="px-4 py-2 neon-btn text-zinc-950 font-bold rounded-xl text-xs transition shadow" data-i18n="chatSendBtn">Enviar</button>
+            <button id="btnChatSend" type="button" onclick="sendChatMessage()" class="px-4 py-2 neon-btn text-zinc-950 font-bold rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5" data-i18n="chatSendBtn">Enviar</button>
           </div>
         </div>
       </section>
     </div>
+
+    <!-- CONTENEDOR DINÁMICO PARA PESTAÑAS PERSONALIZADAS -->
+    <div id="customTabsContainer"></div>
 
     <!-- PANEL CURADORES -->
     <section id="adminView" class="hidden space-y-6">
@@ -375,8 +379,157 @@
           </div>
         </div>
 
-        <!-- CONFIGURACIÓN -->
+        <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
+
+          <!-- 1. TEMA DESTACADO: ACTIVAR / DESACTIVAR Y PESTAÑAS -->
+          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="font-bold text-emerald-400 text-sm uppercase">🌟 Visibilidad del Tema Destacado</h3>
+                <p class="text-[11px] text-zinc-400 mt-0.5">Activa o desactiva el reproductor del tema destacado y elige en qué pestañas aparece.</p>
+              </div>
+              <button type="button" id="toggleFeaturedBtn" onclick="toggleFeaturedEnabled()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow">...</button>
+            </div>
+            <div class="space-y-2 pt-2 border-t border-white/10">
+              <p class="text-[11px] text-zinc-300 font-semibold">Mostrar Tema Destacado en:</p>
+              <div id="featuredTabsCheckboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div>
+              <button type="button" onclick="saveFeaturedSettings()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition mt-2">💾 Guardar Visibilidad Destacado</button>
+            </div>
+          </div>
+
+          <!-- 2. DISEÑO DEL REPRODUCTOR SPOTIFY POR LISTA -->
+          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
+            <div>
+              <h3 class="font-bold text-purple-400 text-sm uppercase">🎵 Diseño y Reproducción Spotify por Lista</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige una lista para configurar el estilo visual del reproductor, su altura en píxeles y el segundo de inicio de la muestra.</p>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Lista / Reproductor:</label>
+                <select id="adminPlayerListSelect" onchange="loadPlayerStyleForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-purple-500 focus:outline-none">
+                  <option value="active">📻 Lista Activa (On Air)</option>
+                  <option value="weekly">🔥 Cola Semanal</option>
+                  <option value="monthly">🗓️ Lista Mensual</option>
+                  <option value="annual">📀 Lista Anual</option>
+                  <option value="featured">🌟 Tema Destacado</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Estilo / Formato de Reproductor:</label>
+                  <select id="adminPlayerPresetSelect" onchange="applyPlayerPresetHeight()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                    <option value="ultracompact">Ultracompacto (80px)</option>
+                    <option value="compact">Compacto (152px)</option>
+                    <option value="standard">Estándar / Landscape (232px)</option>
+                    <option value="large">Grande / Portada Completa (352px)</option>
+                    <option value="podcast">Estilo Podcast / Episodio (152px)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Alto exacto (px):</label>
+                  <input type="number" id="adminPlayerHeightInput" min="80" max="600" value="80" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Segundo de inicio de muestra (t=):</label>
+                  <input type="number" id="adminPlayerStartSecInput" min="0" max="300" value="0" placeholder="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Duración muestra (info):</label>
+                  <input type="text" disabled value="30s (fijo por Spotify desde inicio)" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-[11px] text-zinc-500">
+                </div>
+              </div>
+              <button type="button" onclick="savePlayerStyleConfig()" class="w-full py-2.5 bg-purple-500 hover:bg-purple-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Diseño de Reproductor</button>
+            </div>
+          </div>
+
+          <!-- 3. GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR NUEVAS Y GIF) -->
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Reordena con las flechas, cambia nombres, oculta pestañas o añade una imagen/GIF animado junto al nombre.</p>
+            </div>
+            <div id="adminTabsManagerList" class="space-y-2 text-xs"></div>
+
+            <div class="pt-3 border-t border-white/10 space-y-2.5">
+              <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <input type="url" id="newCustomTabGif" placeholder="URL imagen o GIF animado (opcional)" class="px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              </div>
+              <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
+              <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
+            </div>
+            <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
+          </div>
+
+          <!-- 4. PERSONALIZADOR DE BOTONES (TEXTO, COLOR, FONDO, TAMAÑO Y GIF) -->
+          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
+            <div>
+              <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones (Texto, Color, Fondo, Tamaño y GIF)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón de la web para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Botón:</label>
+                <select id="adminButtonSelect" onchange="loadButtonCustomForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <option value="btnContactHeader">✉️ Botón Contacto (Cabecera)</option>
+                  <option value="btnInfoHeader">📜 Botón Normas y Funcionamiento (Cabecera)</option>
+                  <option value="activePlaylistLinkBtn">🟢 Abrir Playlist Spotify (Lista Activa)</option>
+                  <option value="btnGoVoteActive">⭐ Ir a Votar (Lista Activa)</option>
+                  <option value="playlistLinkBtn">🟢 Abrir Playlist Spotify (Cola Semanal)</option>
+                  <option value="submitBtn">🚀 Enviar Propuesta (Formulario)</option>
+                  <option value="btnVotingRules">📜 Normas de Votación (Pestaña Votar)</option>
+                  <option value="btnChatJoin">💬 Entrar al Chat</option>
+                  <option value="btnChatSend">📨 Enviar Mensaje Chat</option>
+                  <option value="toggleAdminBtn">⚙️ Panel Curadores (Pie de página)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Texto personalizado (vacío = por defecto):</label>
+                  <input type="text" id="adminBtnText" placeholder="Texto del botón..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Tamaño del botón:</label>
+                  <select id="adminBtnSize" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                    <option value="">Por defecto</option>
+                    <option value="sm">Pequeño (Compacto)</option>
+                    <option value="md">Mediano (Estándar)</option>
+                    <option value="lg">Grande (Destacado)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Fondo:</label>
+                  <div class="flex gap-1.5 items-center">
+                    <input type="color" id="adminBtnBgColor" value="#10b981" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
+                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseBg" class="accent-pink-500"> Aplicar</label>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Texto:</label>
+                  <div class="flex gap-1.5 items-center">
+                    <input type="color" id="adminBtnTextColor" value="#ffffff" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
+                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseText" class="accent-pink-500"> Aplicar</label>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] text-zinc-400 mb-1">URL de imagen o GIF animado dentro del botón (opcional):</label>
+                <input type="url" id="adminBtnGifUrl" placeholder="https://.../animacion.gif" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="saveButtonCustomization()" class="flex-1 py-2.5 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Estilo de Botón</button>
+                <button type="button" onclick="resetButtonCustomization()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. AVISOS IMPORTANTES EN CABECERA DE CADA PESTAÑA -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
             <div>
               <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
@@ -385,15 +538,7 @@
             <div class="space-y-2.5">
               <div>
                 <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Pestaña *</label>
-                <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none">
-                  <option value="active">📻 Activa (On Air)</option>
-                  <option value="weekly">🔥 Cola Semanal</option>
-                  <option value="monthly">🗓️ Mensual</option>
-                  <option value="annual">📀 Anual</option>
-                  <option value="top">🏆 TOP</option>
-                  <option value="vote">⭐ Votar</option>
-                  <option value="chat">💬 Chat</option>
-                </select>
+                <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none"></select>
               </div>
               <div>
                 <label class="block text-[11px] text-zinc-400 mb-1">Mensaje de Aviso Importante *</label>
@@ -410,10 +555,11 @@
             </div>
           </div>
 
+          <!-- 6. LOGO DE CABECERA -->
           <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
-              <h3 class="font-bold text-cyan-400 text-sm uppercase">🖼️ Logo de Cabecera (Imagen o Texto)</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Sustituye el título de texto <strong>"Next Wave Rising"</strong> por una imagen seleccionada desde tu dispositivo o mediante enlace.</p>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">🖼️ Logo de Cabecera (Imagen, GIF o Texto)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Sustituye el título de texto <strong>"Next Wave Rising"</strong> por una imagen o GIF animado desde tu dispositivo o URL.</p>
             </div>
             <div class="space-y-3">
               <div>
@@ -421,8 +567,8 @@
                 <input type="file" id="adminLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="w-full text-xs text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30 cursor-pointer">
               </div>
               <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">O pega una URL directa de imagen:</label>
-                <input type="url" id="adminLogoUrlInput" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="block text-[11px] text-zinc-400 mb-1">O pega una URL directa de imagen o GIF animado:</label>
+                <input type="url" id="adminLogoUrlInput" placeholder="https://.../logo.gif" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
               </div>
               <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2">
                 <span class="text-[10px] text-zinc-400 uppercase">Vista previa del logo:</span>
@@ -435,9 +581,10 @@
             </div>
           </div>
 
+          <!-- 7. GESTIÓN DE USUARIOS DEL CHAT -->
           <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
-            <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat. Puedes silenciar/bloquear un usuario o eliminarlo de la base de datos.</p>
+            <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat.</p>
             <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs"><p class="text-zinc-400 text-center py-4">Cargando usuarios de chat...</p></div>
             <div class="border-t border-white/10 pt-4 flex justify-between items-center">
               <div>
@@ -562,8 +709,8 @@
 
   <footer class="w-full max-w-2xl text-xs text-zinc-500 mt-12 text-center space-y-4 border-t border-white/10 pt-6">
     <div>
-      <button id="toggleAdminBtn" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-white font-medium text-xs transition shadow-sm">
-        ⚙️ <span id="txtAdminBtn">Panel Curadores</span>
+      <button id="toggleAdminBtn" class="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-400 hover:text-white font-medium text-xs transition shadow-sm inline-flex items-center justify-center gap-1.5">
+        <span>⚙️</span> <span id="txtAdminBtn">Panel Curadores</span>
       </button>
     </div>
     <p>Next Wave Rising • Breyde &amp; Darko</p>
@@ -589,8 +736,7 @@
 
     const $ = id => document.getElementById(id);
     const escapeHtml = s => String(s || "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-    const toEmbed = u => (!u || !u.includes("spotify.com/") || !u.includes("/track/")) ? "" : `https://open.spotify.com/embed/track/${u.split("?")[0].split("/").pop()}?utm_source=generator&theme=0`;
-    const madridStr = (opts) => new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid", ...opts });
+    const madridStr = () => new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
     const madridDateOnly = () => new Date().toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" });
     const flagFromCode = c => (!c || c.length !== 2) ? "🌐" : String.fromCodePoint(...c.toUpperCase().split("").map(x => 127397 + x.charCodeAt(0)));
 
@@ -647,19 +793,59 @@
       }
     };
 
-    const tabLabelsEs = { active: "📻 Activa", weekly: "🔥 Cola Semanal", monthly: "🗓️ Mensual", annual: "📀 Anual", top: "🏆 TOP", vote: "⭐ Votar", chat: "💬 Chat" };
-    const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const PUBLIC_TABS = ['active', 'weekly', 'monthly', 'annual', 'top', 'vote', 'chat'];
-    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'backups'];
+    const defaultTabsList = [
+      { id: 'active', labelEs: '📻 Activa', labelEn: '📻 Active', visible: true, gifUrl: '', custom: false },
+      { id: 'weekly', labelEs: '🔥 Cola Semanal', labelEn: '🔥 Weekly Queue', visible: true, gifUrl: '', custom: false },
+      { id: 'monthly', labelEs: 'Mensual', labelEn: 'Monthly', visible: true, gifUrl: '', custom: false },
+      { id: 'annual', labelEs: 'Anual', labelEn: 'Annual', visible: true, gifUrl: '', custom: false },
+      { id: 'top', labelEs: 'TOP', labelEn: 'TOP', visible: true, gifUrl: '', custom: false },
+      { id: 'vote', labelEs: 'Votar', labelEn: 'Vote', visible: true, gifUrl: '', custom: false },
+      { id: 'chat', labelEs: '💬 Chat', labelEn: '💬 Chat', visible: true, gifUrl: '', custom: false }
+    ];
 
-    let currentLang = 'es', globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
+    const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
+    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'backups'];
+    const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
+
+    let currentLang = 'es', currentActiveTab = 'active', globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
     let sessionPendingVotes = [], lockedRandomOrder = null, chatUnsubscribe = null, presenceInterval = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
     let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false;
     let chatSessionId = sessionStorage.getItem('nwr_session_id') || ('sess_' + Math.random().toString(36).slice(2, 9));
     sessionStorage.setItem('nwr_session_id', chatSessionId);
 
-    let config = { edition: "Edición Semanal #1", playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", trackUrl: "", votingActive: true, logoUrl: "", tabNotices: {} };
+    let config = {
+      edition: "Edición Semanal #1",
+      playlistUrl: "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF",
+      trackUrl: "",
+      votingActive: true,
+      logoUrl: "",
+      tabNotices: {},
+      featuredEnabled: true,
+      featuredTabs: ['weekly'],
+      playerStyles: {
+        active: { preset: 'ultracompact', height: 80, startSec: 0 },
+        weekly: { preset: 'ultracompact', height: 80, startSec: 0 },
+        monthly: { preset: 'ultracompact', height: 80, startSec: 0 },
+        annual: { preset: 'ultracompact', height: 80, startSec: 0 },
+        featured: { preset: 'compact', height: 152, startSec: 0 }
+      },
+      tabsConfig: JSON.parse(JSON.stringify(defaultTabsList)),
+      customButtons: {}
+    };
+
+    function getEmbedUrl(url, listKey) {
+      if (!url || !url.includes("spotify.com/") || !url.includes("/track/")) return "";
+      const id = url.split("?")[0].split("/").pop();
+      if (!id) return "";
+      const st = config.playerStyles?.[listKey] || { startSec: 0 };
+      const tParam = (st.startSec && parseInt(st.startSec, 10) > 0) ? `&t=${parseInt(st.startSec, 10)}` : "";
+      return `https://open.spotify.com/embed/track/${id}?utm_source=generator&theme=0${tParam}`;
+    }
+
+    function getPlayerHeight(listKey) {
+      return parseInt(config.playerStyles?.[listKey]?.height, 10) || (listKey === 'featured' ? 152 : 80);
+    }
 
     function toggleModal(id, force) {
       const el = $(id);
@@ -707,6 +893,261 @@
       updateChatPresence();
     }
 
+    // ==================== TEMA DESTACADO VISIBILIDAD ====================
+    function renderFeaturedPlayer() {
+      const sec = $("playerSection");
+      const embed = getEmbedUrl(config.trackUrl, 'featured');
+      const h = getPlayerHeight('featured');
+      $("spotifyIframe").height = h;
+
+      if (!config.featuredEnabled || !embed) {
+        sec.classList.add("hidden");
+        return;
+      }
+
+      $("spotifyIframe").src = embed;
+      sec.classList.remove("hidden");
+
+      const allowedTabs = config.featuredTabs || ['weekly'];
+      const targetTab = allowedTabs.includes(currentActiveTab) ? currentActiveTab : allowedTabs[0];
+      const slot = targetTab ? $(`featuredSlot_${targetTab}`) : null;
+      if (slot) {
+        slot.appendChild(sec);
+      } else {
+        sec.classList.add("hidden");
+      }
+    }
+
+    window.toggleFeaturedEnabled = () => {
+      config.featuredEnabled = !config.featuredEnabled;
+      updateFeaturedAdminUI();
+    };
+
+    function updateFeaturedAdminUI() {
+      const btn = $("toggleFeaturedBtn");
+      if (btn) {
+        btn.textContent = config.featuredEnabled ? "🟢 Destacado Activo" : "🔴 Destacado Oculto";
+        btn.className = config.featuredEnabled ? "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow" : "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow";
+      }
+      const box = $("featuredTabsCheckboxes");
+      if (box) {
+        const tabs = config.tabsConfig || defaultTabsList;
+        const activeTabs = config.featuredTabs || ['weekly'];
+        box.innerHTML = tabs.map(t => `
+          <label class="flex items-center gap-1.5 bg-zinc-900 p-2 rounded-lg border border-white/5 cursor-pointer">
+            <input type="checkbox" value="${t.id}" ${activeTabs.includes(t.id) ? 'checked' : ''} class="feat-tab-cb accent-emerald-500">
+            <span class="truncate">${escapeHtml(t.labelEs)}</span>
+          </label>
+        `).join('');
+      }
+    }
+
+    window.saveFeaturedSettings = async () => {
+      const checked = Array.from(document.querySelectorAll('.feat-tab-cb:checked')).map(cb => cb.value);
+      config.featuredTabs = checked;
+      try {
+        await db.collection("settings").doc("activeEdition").set({ featuredEnabled: config.featuredEnabled, featuredTabs: config.featuredTabs }, { merge: true });
+        renderFeaturedPlayer();
+        alert("✅ Visibilidad del Tema Destacado guardada.");
+      } catch (e) { alert("Error al guardar: " + e.message); }
+    };
+
+    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA ====================
+    window.loadPlayerStyleForm = () => {
+      const key = $("adminPlayerListSelect").value;
+      const st = config.playerStyles?.[key] || { preset: 'ultracompact', height: 80, startSec: 0 };
+      $("adminPlayerPresetSelect").value = st.preset || 'ultracompact';
+      $("adminPlayerHeightInput").value = st.height || 80;
+      $("adminPlayerStartSecInput").value = st.startSec || 0;
+    };
+
+    window.applyPlayerPresetHeight = () => {
+      const preset = $("adminPlayerPresetSelect").value;
+      if (presetHeights[preset]) $("adminPlayerHeightInput").value = presetHeights[preset];
+    };
+
+    window.savePlayerStyleConfig = async () => {
+      const key = $("adminPlayerListSelect").value;
+      const preset = $("adminPlayerPresetSelect").value;
+      const height = Math.max(80, Math.min(600, parseInt($("adminPlayerHeightInput").value, 10) || 80));
+      const startSec = Math.max(0, parseInt($("adminPlayerStartSecInput").value, 10) || 0);
+      if (!config.playerStyles) config.playerStyles = {};
+      config.playerStyles[key] = { preset, height, startSec };
+      try {
+        await db.collection("settings").doc("activeEdition").set({ playerStyles: config.playerStyles }, { merge: true });
+        renderFeaturedPlayer();
+        await loadAllLists();
+        alert("✅ Diseño de reproductor guardado y aplicado.");
+      } catch (e) { alert("Error al guardar: " + e.message); }
+    };
+
+    // ==================== GESTOR DE PESTAÑAS (ORDENAR, RENOMBRAR, OCULTAR, CREAR, GIF) ====================
+    function renderNavigationAndCustomViews() {
+      const nav = $("mainNavBar");
+      const customCont = $("customTabsContainer");
+      const tabs = (config.tabsConfig && config.tabsConfig.length) ? config.tabsConfig : defaultTabsList;
+
+      // Renderizar vistas personalizadas
+      customCont.innerHTML = tabs.filter(t => t.custom).map(t => `
+        <div id="view_${t.id}" class="hidden space-y-6">
+          <div id="noticeBanner_${t.id}" class="hidden"></div>
+          <div id="featuredSlot_${t.id}"></div>
+          <section class="glass rounded-2xl p-6 space-y-4 border border-cyan-500/30">
+            <div class="flex items-center gap-2 border-b border-white/10 pb-3">
+              ${t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-7 w-7 object-contain rounded">` : ''}
+              <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">${escapeHtml(currentLang === 'en' && t.labelEn ? t.labelEn : t.labelEs)}</h3>
+            </div>
+            ${t.gifUrl ? `<div class="flex justify-center"><img src="${escapeHtml(t.gifUrl)}" class="max-h-48 rounded-xl object-contain"></div>` : ''}
+            <div class="text-xs text-zinc-200 leading-relaxed whitespace-pre-line">${escapeHtml(t.content || '')}</div>
+          </section>
+        </div>
+      `).join('');
+
+      const visibleTabs = tabs.filter(t => t.visible !== false);
+      nav.style.gridTemplateColumns = `repeat(${Math.min(visibleTabs.length, 7)}, minmax(0, 1fr))`;
+      nav.innerHTML = visibleTabs.map(t => {
+        const label = (currentLang === 'en' && t.labelEn) ? t.labelEn : t.labelEs;
+        const isActive = currentActiveTab === t.id;
+        const gifHtml = t.gifUrl ? `<img src="${escapeHtml(t.gifUrl)}" class="h-3.5 w-3.5 object-contain inline-block mr-0.5 rounded-sm">` : '';
+        return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[8px] sm:text-[10px] leading-tight font-bold py-2.5 px-0.5 rounded-xl glass border text-center transition flex items-center justify-center gap-0.5">${gifHtml}<span class="truncate">${escapeHtml(label)}</span></button>`;
+      }).join('');
+
+      // Actualizar desplegable de avisos
+      const noticeSel = $("adminNoticeTabSelect");
+      if (noticeSel) {
+        const prevVal = noticeSel.value;
+        noticeSel.innerHTML = tabs.map(t => `<option value="${t.id}">${escapeHtml(t.labelEs)}</option>`).join('');
+        if (prevVal && tabs.some(t => t.id === prevVal)) noticeSel.value = prevVal;
+      }
+
+      renderAllTabNotices();
+      renderFeaturedPlayer();
+    }
+
+    function renderAdminTabsManager() {
+      const list = $("adminTabsManagerList");
+      if (!list) return;
+      const tabs = config.tabsConfig || defaultTabsList;
+      list.innerHTML = tabs.map((t, idx) => `
+        <div class="p-2.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" ${t.visible !== false ? 'checked' : ''} onchange="updateTabProp(${idx}, 'visible', this.checked)" class="accent-emerald-500" title="Visible / Oculta">
+              <span class="text-[10px] font-mono text-zinc-500">${t.custom ? 'CUSTOM' : t.id.toUpperCase()}</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="moveTabOrder(${idx}, -1)" class="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px]" ${idx === 0 ? 'disabled opacity-40' : ''}>⬆️</button>
+              <button type="button" onclick="moveTabOrder(${idx}, 1)" class="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 rounded text-[11px]" ${idx === tabs.length - 1 ? 'disabled opacity-40' : ''}>⬇️</button>
+              ${t.custom ? `<button type="button" onclick="deleteCustomTab(${idx})" class="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded text-[11px]">🗑️</button>` : ''}
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            <input type="text" value="${escapeHtml(t.labelEs)}" onchange="updateTabProp(${idx}, 'labelEs', this.value)" placeholder="Nombre ES" class="px-2.5 py-1.5 rounded bg-zinc-950 border border-zinc-700 text-xs text-white">
+            <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', this.value)" placeholder="URL GIF / Icono (opcional)" class="px-2.5 py-1.5 rounded bg-zinc-950 border border-zinc-700 text-xs text-white">
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.moveTabOrder = (idx, dir) => {
+      const tabs = config.tabsConfig;
+      const target = idx + dir;
+      if (target < 0 || target >= tabs.length) return;
+      [tabs[idx], tabs[target]] = [tabs[target], tabs[idx]];
+      renderAdminTabsManager();
+    };
+
+    window.updateTabProp = (idx, prop, val) => {
+      config.tabsConfig[idx][prop] = val;
+    };
+
+    window.createNewCustomTab = () => {
+      const label = $("newCustomTabLabel").value.trim();
+      const gifUrl = $("newCustomTabGif").value.trim();
+      const content = $("newCustomTabContent").value.trim();
+      if (!label) return alert("Escribe un nombre para la nueva pestaña.");
+      const id = 'custom_' + Date.now();
+      config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl, content, custom: true });
+      $("newCustomTabLabel").value = $("newCustomTabGif").value = $("newCustomTabContent").value = "";
+      renderAdminTabsManager();
+      alert("Pestaña añadida a la lista. Pulsa 'Guardar Orden y Cambios de Pestañas' para publicarla.");
+    };
+
+    window.deleteCustomTab = idx => {
+      if (!confirm("¿Eliminar esta pestaña personalizada?")) return;
+      config.tabsConfig.splice(idx, 1);
+      renderAdminTabsManager();
+    };
+
+    window.saveTabsConfiguration = async () => {
+      try {
+        await db.collection("settings").doc("activeEdition").set({ tabsConfig: config.tabsConfig }, { merge: true });
+        renderNavigationAndCustomViews();
+        updateFeaturedAdminUI();
+        alert("✅ Pestañas guardadas y actualizadas.");
+      } catch (e) { alert("Error al guardar pestañas: " + e.message); }
+    };
+
+    // ==================== PERSONALIZADOR DE BOTONES ====================
+    function applyAllCustomButtons() {
+      const btns = config.customButtons || {};
+      const sizeClasses = { sm: ['text-[10px]', 'py-1', 'px-2.5'], md: ['text-xs', 'py-2.5', 'px-4'], lg: ['text-sm', 'py-3.5', 'px-5'] };
+
+      Object.entries(btns).forEach(([btnId, st]) => {
+        const el = $(btnId);
+        if (!el || !st) return;
+        if (st.bgColor) { el.style.background = st.bgColor; el.style.backgroundColor = st.bgColor; }
+        if (st.textColor) el.style.color = st.textColor;
+        if (st.size && sizeClasses[st.size]) {
+          el.classList.remove('text-[10px]', 'text-xs', 'text-sm', 'py-1', 'py-2', 'py-2.5', 'py-3', 'py-3.5', 'px-2.5', 'px-3', 'px-3.5', 'px-4', 'px-5', 'h-9');
+          el.classList.add(...sizeClasses[st.size]);
+        }
+        if (st.text || st.gifUrl) {
+          const gifHtml = st.gifUrl ? `<img src="${escapeHtml(st.gifUrl)}" class="h-4 w-4 object-contain inline-block rounded-sm">` : '';
+          const txt = st.text ? escapeHtml(st.text) : el.textContent.trim();
+          el.innerHTML = `${gifHtml}<span>${txt}</span>`;
+        }
+      });
+    }
+
+    window.loadButtonCustomForm = () => {
+      const id = $("adminButtonSelect").value;
+      const st = config.customButtons?.[id] || {};
+      $("adminBtnText").value = st.text || "";
+      $("adminBtnSize").value = st.size || "";
+      $("adminBtnGifUrl").value = st.gifUrl || "";
+      $("adminBtnUseBg").checked = Boolean(st.bgColor);
+      if (st.bgColor) $("adminBtnBgColor").value = st.bgColor;
+      $("adminBtnUseText").checked = Boolean(st.textColor);
+      if (st.textColor) $("adminBtnTextColor").value = st.textColor;
+    };
+
+    window.saveButtonCustomization = async () => {
+      const id = $("adminButtonSelect").value;
+      if (!config.customButtons) config.customButtons = {};
+      config.customButtons[id] = {
+        text: $("adminBtnText").value.trim(),
+        size: $("adminBtnSize").value,
+        bgColor: $("adminBtnUseBg").checked ? $("adminBtnBgColor").value : "",
+        textColor: $("adminBtnUseText").checked ? $("adminBtnTextColor").value : "",
+        gifUrl: $("adminBtnGifUrl").value.trim()
+      };
+      try {
+        await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
+        applyAllCustomButtons();
+        alert("✅ Estilo del botón guardado.");
+      } catch (e) { alert("Error al guardar botón: " + e.message); }
+    };
+
+    window.resetButtonCustomization = async () => {
+      const id = $("adminButtonSelect").value;
+      if (config.customButtons?.[id]) delete config.customButtons[id];
+      try {
+        await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
+        alert("✅ Botón restaurado (recarga la página para ver su estilo original por defecto).");
+      } catch (e) {}
+    };
+
     // ==================== PAÍSES ====================
     async function registerOrUpdateArtistCountry(artistName, email) {
       const cleanEmail = (email || "").trim().toLowerCase();
@@ -732,7 +1173,7 @@
             submissionsCount: 1, ip: clientIp || "unknown_ip", country: clientGeo.country || "Desconocido", city: clientGeo.city || "", flag: clientGeo.flag || "🌐"
           });
         }
-      } catch (e) { console.warn("Países:", e.message); }
+      } catch (e) {}
     }
 
     window.syncExistingTracksToCountries = async function() {
@@ -816,12 +1257,8 @@
     window.openEditCountryModal = id => {
       const c = countriesCache.find(x => x.id === id);
       if (!c) return;
-      $("editCountryDocId").value = c.id;
-      $("editCountryEmail").value = c.email || "";
-      $("editCountryArtist").value = c.artist || "";
-      $("editCountryFlag").value = c.flag || "🌐";
-      $("editCountryName").value = c.country || "";
-      $("editCountryCity").value = c.city || "";
+      $("editCountryDocId").value = c.id; $("editCountryEmail").value = c.email || ""; $("editCountryArtist").value = c.artist || "";
+      $("editCountryFlag").value = c.flag || "🌐"; $("editCountryName").value = c.country || ""; $("editCountryCity").value = c.city || "";
       $("editCountryCount").value = c.submissionsCount || 1;
       toggleModal('editCountryModal', true);
     };
@@ -910,8 +1347,9 @@
 
     function renderAllTabNotices() {
       const notices = config.tabNotices || {}, badge = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
-      PUBLIC_TABS.forEach(k => {
-        const b = $(`noticeBanner_${k}`);
+      const tabs = config.tabsConfig || defaultTabsList;
+      tabs.forEach(t => {
+        const k = t.id, b = $(`noticeBanner_${k}`);
         if (!b) return;
         const msg = notices[k];
         if (msg?.trim()) {
@@ -922,11 +1360,13 @@
       const adminList = $("adminActiveNoticesList");
       if (adminList) {
         const keys = Object.keys(notices).filter(k => notices[k]?.trim());
-        adminList.innerHTML = !keys.length ? '<p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p>' : keys.map(k => `
-          <div class="p-3 bg-zinc-900 rounded-xl border border-amber-500/20 flex justify-between items-start gap-2">
-            <div class="space-y-1"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${tabLabelsEs[k] || k}</span><p class="text-xs text-zinc-200 whitespace-pre-line">${escapeHtml(notices[k])}</p></div>
+        adminList.innerHTML = !keys.length ? '<p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p>' : keys.map(k => {
+          const tabObj = tabs.find(x => x.id === k);
+          return `<div class="p-3 bg-zinc-900 rounded-xl border border-amber-500/20 flex justify-between items-start gap-2">
+            <div class="space-y-1"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${escapeHtml(tabObj ? tabObj.labelEs : k)}</span><p class="text-xs text-zinc-200 whitespace-pre-line">${escapeHtml(notices[k])}</p></div>
             <div class="flex gap-1.5 shrink-0"><button type="button" onclick="editTabNotice('${k}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] font-bold transition">Editar</button><button type="button" onclick="deleteTabNotice('${k}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] font-bold transition">Eliminar</button></div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
       }
     }
 
@@ -940,12 +1380,12 @@
         config.tabNotices[k] = msg;
         await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices }, { merge: true });
         renderAllTabNotices();
-        alert(`✅ Aviso guardado para ${tabLabelsEs[k] || k}.`);
+        alert("✅ Aviso guardado.");
       } catch (e) { alert("Error: " + e.message); }
     };
     window.deleteTabNotice = async k => {
       if (!config.tabNotices?.[k]) { $("adminNoticeTextInput").value = ""; return; }
-      if (!confirm(`¿Eliminar el aviso de ${tabLabelsEs[k] || k}?`)) return;
+      if (!confirm("¿Eliminar este aviso?")) return;
       try {
         delete config.tabNotices[k];
         await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices }, { merge: true });
@@ -962,26 +1402,30 @@
       $("langEnBtn").className = lang === 'en' ? 'px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs';
       const t = translations[lang];
       $("txtAdminBtn").textContent = !$("adminView").classList.contains("hidden") ? t.backApp : t.adminBtn;
-      PUBLIC_TABS.forEach(k => { const el = $('tab' + k[0].toUpperCase() + k.slice(1)); if (el && t['tab' + k[0].toUpperCase() + k.slice(1)]) el.textContent = t['tab' + k[0].toUpperCase() + k.slice(1)]; });
       document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k]) el.innerHTML = t[k]; });
       document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); if (t[k]) el.placeholder = t[k]; });
+      renderNavigationAndCustomViews();
       updateVotingUI(globalVotingActive);
-      renderAllTabNotices();
+      applyAllCustomButtons();
     }
 
     function switchTab(tab) {
-      PUBLIC_TABS.forEach(t => {
-        const cap = t[0].toUpperCase() + t.slice(1);
-        $('view' + cap)?.classList.add('hidden');
-        const btn = $('tab' + cap);
-        if (btn) { btn.classList.remove('active', 'text-emerald-400', 'text-cyan-400'); btn.classList.add('text-zinc-400'); }
+      currentActiveTab = tab;
+      const tabs = config.tabsConfig || defaultTabsList;
+      tabs.forEach(t => {
+        const vId = t.custom ? `view_${t.id}` : 'view' + t.id[0].toUpperCase() + t.id.slice(1);
+        $(vId)?.classList.add('hidden');
+        const btn = $(`tab_${t.id}`);
+        if (btn) { btn.classList.remove('active', 'text-emerald-400', 'text-cyan-400', 'border-emerald-500/40'); btn.classList.add('text-zinc-400', 'border-white/10'); }
       });
       $("adminView").classList.add('hidden');
-      const cap = tab[0].toUpperCase() + tab.slice(1);
-      $('view' + cap)?.classList.remove('hidden');
-      const activeBtn = $('tab' + cap);
-      if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400'); activeBtn.classList.remove('text-zinc-400'); }
+      const targetObj = tabs.find(x => x.id === tab);
+      const targetVId = targetObj?.custom ? `view_${tab}` : 'view' + tab[0].toUpperCase() + tab.slice(1);
+      $(targetVId)?.classList.remove('hidden');
+      const activeBtn = $(`tab_${tab}`);
+      if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
       $("txtAdminBtn").textContent = translations[currentLang].adminBtn;
+      renderFeaturedPlayer();
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
 
@@ -995,7 +1439,15 @@
       $(map[tab][1]).classList.remove('hidden');
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
-      else if (tab === 'config') { loadSelectedTabNoticeToForm(); renderAllTabNotices(); loadAdminChatUsers(); }
+      else if (tab === 'config') {
+        updateFeaturedAdminUI();
+        loadPlayerStyleForm();
+        renderAdminTabsManager();
+        loadButtonCustomForm();
+        loadSelectedTabNoticeToForm();
+        renderAllTabNotices();
+        loadAdminChatUsers();
+      }
       else if (tab === 'backups') loadAdminBackups();
     }
 
@@ -1300,7 +1752,7 @@
         if (parts.weekday === 'Thu' && parseInt(parts.hour, 10) >= 22) active = false;
       } catch (e) {}
       globalVotingActive = active;
-      const ind = $("votingIndicatorText"), hInd = $("headerVotingStatus"), tVote = $("tabVote"), vBadge = $("voteTabStatusBadge"), tBtn = $("toggleVotingBtn");
+      const ind = $("votingIndicatorText"), hInd = $("headerVotingStatus"), tVote = $("tab_vote"), vBadge = $("voteTabStatusBadge"), tBtn = $("toggleVotingBtn");
       if (active) {
         if (ind) { ind.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>"; ind.className = "text-[10px] text-emerald-400 font-bold"; }
         if (tBtn) { tBtn.textContent = "Desactivar Votación"; tBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow"; }
@@ -1319,18 +1771,21 @@
     async function loadConfig() {
       try {
         const snap = await db.collection("settings").doc("activeEdition").get();
-        if (snap.exists) Object.assign(config, snap.data());
+        if (snap.exists) {
+          const d = snap.data();
+          Object.assign(config, d);
+          if (!d.tabsConfig || !d.tabsConfig.length) config.tabsConfig = JSON.parse(JSON.stringify(defaultTabsList));
+        }
       } catch (e) {}
       $("editionTitle").textContent = config.edition;
       $("playlistLinkBtn").href = $("activePlaylistLinkBtn").href = config.playlistUrl;
       $("adminEditionInput").value = config.edition;
       $("adminPlaylistInput").value = config.playlistUrl;
       $("adminTrackInput").value = config.trackUrl || "";
-      updateVotingUI(config.votingActive !== false);
       applyBrandLogo(config.logoUrl);
-      renderAllTabNotices();
-      const embed = toEmbed(config.trackUrl), sec = $("playerSection");
-      if (embed) { $("spotifyIframe").src = embed; sec.classList.remove("hidden"); } else sec.classList.add("hidden");
+      renderNavigationAndCustomViews();
+      updateVotingUI(config.votingActive !== false);
+      applyAllCustomButtons();
     }
 
     async function loadAllLists() {
@@ -1346,6 +1801,7 @@
 
       // 1. LISTA ACTIVA
       const pAct = $("publicActiveList"), aAct = $("adminActiveListContainer"), vList = $("voteTabViewList");
+      const hAct = getPlayerHeight('active');
       if (activeRes.status === "fulfilled") {
         activeSubs = activeRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $("publicActiveCount").textContent = $("adminActiveCount").textContent = $("adminActiveCountBadge").textContent = activeSubs.length;
@@ -1359,8 +1815,8 @@
           aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">No hay temas en la Lista Activa todavía.</p>';
         } else {
           pAct.innerHTML = activeSubs.map((s, i) => {
-            const em = toEmbed(s.url);
-            return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-[10px]">On Air</span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
+            const em = getEmbedUrl(s.url, 'active');
+            return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-[10px]">On Air</span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="${hAct}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
           }).join("");
 
           aAct.innerHTML = activeSubs.map((s, i) => {
@@ -1382,13 +1838,13 @@
           } else sorted.sort((a, b) => (b.votes || 0) - (a.votes || 0));
 
           vList.innerHTML = sorted.map((s, i) => {
-            const em = toEmbed(s.url);
+            const em = getEmbedUrl(s.url, 'active');
             if (!em) return '';
             const sel = sessionPendingVotes.includes(s.id);
             const rank = totalVotes > 0 ? (["🥇", "🥈", "🥉"][i] || `#${i + 1}`) : `#${i + 1}`;
             return `<div class="p-3 bg-zinc-900/90 rounded-2xl border border-white/10 space-y-2">
               <div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">${rank}</span> ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ${String(s.votes || 0).padStart(2, '0')}</span></div>
-              <iframe style="border-radius:12px" src="${em}" width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+              <iframe style="border-radius:12px" src="${em}" width="100%" height="${hAct}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
               <div class="pt-1.5 border-t border-white/5 flex justify-between items-center text-xs text-zinc-400"><span>${currentLang === 'es' ? 'Seleccionados' : 'Selected'}: <strong>${sessionPendingVotes.length}/3</strong></span><button onclick="handleVoteClick('${s.id}')" class="${sel ? 'px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white' : 'px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950'} font-bold rounded-xl text-xs shadow transition">${sel ? (currentLang === 'es' ? '❌ Anular Voto' : '❌ Cancel Vote') : (currentLang === 'es' ? '🗳️ Añadir Voto' : '🗳️ Add Vote')}</button></div>
             </div>`;
           }).join("");
@@ -1396,7 +1852,7 @@
       }
 
       // 2. COLA SEMANAL
-      const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
+      const aSub = $("submissionsList"), pSub = $("publicSubmissionsList"), hWeek = getPlayerHeight('weekly');
       if (subRes.status === "fulfilled") {
         subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
@@ -1409,24 +1865,24 @@
             return `<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center"><div><p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p><p class="text-[10px] text-zinc-400">${s.dateString || ''}</p></div><div class="flex gap-1.5"><a href="${s.url.split('?')[0]}" target="_blank" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a>${mailBtn}<button onclick="deleteSubmissionTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div></div>`;
           }).join("");
           pSub.innerHTML = subs.map((s, i) => {
-            const em = toEmbed(s.url);
-            return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-[10px]">Reg: ${s.dateString || ''}</span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
+            const em = getEmbedUrl(s.url, 'weekly');
+            return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span><span class="text-[10px]">Reg: ${s.dateString || ''}</span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="${hWeek}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
           }).join("");
         }
       }
 
       // 3. MENSUAL & 4. ANUAL
-      const renderSimpleList = (res, countId, contId, emptyKey, prefixFn, colorClass) => {
+      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, colorClass) => {
         if (res.status !== "fulfilled") return;
-        const items = res.value.docs.map(d => d.data());
+        const items = res.value.docs.map(d => d.data()), h = getPlayerHeight(listKey);
         $(countId).textContent = items.length;
         $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang][emptyKey]}</p>` : items.map((s, i) => {
-          const em = toEmbed(s.url);
-          return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${prefixFn(i)} ${escapeHtml(s.artist)} — <span class="${colorClass}">${escapeHtml(s.title)}</span></span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
+          const em = getEmbedUrl(s.url, listKey);
+          return em ? `<div class="space-y-1 pt-1"><div class="flex justify-between items-center px-1 text-xs text-zinc-400"><span class="font-bold text-white">${prefixFn(i)} ${escapeHtml(s.artist)} — <span class="${colorClass}">${escapeHtml(s.title)}</span></span></div><iframe style="border-radius:12px" src="${em}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>` : '';
         }).join("");
       };
-      renderSimpleList(monthlyRes, "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}:`, "text-cyan-400");
-      renderSimpleList(annualRes, "annualCount", "annualListContainer", "annualEmpty", i => `${i + 1}.`, "text-amber-400");
+      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}:`, "text-cyan-400");
+      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `${i + 1}.`, "text-amber-400");
     }
 
     // ==================== VOTACIONES ====================
@@ -1491,7 +1947,10 @@
 
       $("toggleAdminBtn").addEventListener("click", () => {
         const av = $("adminView"), hid = av.classList.contains("hidden");
-        PUBLIC_TABS.forEach(t => $('view' + t[0].toUpperCase() + t.slice(1))?.classList.add('hidden'));
+        (config.tabsConfig || defaultTabsList).forEach(t => {
+          const vId = t.custom ? `view_${t.id}` : 'view' + t.id[0].toUpperCase() + t.id.slice(1);
+          $(vId)?.classList.add('hidden');
+        });
         av.classList.toggle("hidden", !hid);
         $("txtAdminBtn").textContent = hid ? translations[currentLang].backApp : translations[currentLang].adminBtn;
       });
@@ -1655,8 +2114,7 @@
 
       clock();
       setInterval(clock, 1000);
-      loadConfig();
-      loadAllLists();
+      loadConfig().then(() => loadAllLists());
     });
   </script>
 </body>
