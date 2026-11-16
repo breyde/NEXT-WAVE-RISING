@@ -31,9 +31,16 @@
       </div>
     </div>
 
-    <div id="brandHeaderContainer" class="w-full flex justify-center items-center pt-1">
+    <!-- CABECERA MULTIMEDIA (IMAGEN / VÍDEO) -->
+    <div id="brandHeaderContainer" class="w-full flex justify-center items-center pt-1 overflow-hidden rounded-2xl">
       <h1 id="brandTextTitle" class="text-3xl font-extrabold text-white tracking-wide text-center py-2">Next Wave Rising</h1>
       <img id="brandLogoImg" src="" alt="Next Wave Rising" class="hidden w-full max-w-full max-h-40 sm:max-h-52 object-contain mx-auto select-none">
+      <video id="brandLogoVideo" src="" autoplay muted loop playsinline class="hidden w-full max-h-52 object-cover mx-auto rounded-2xl"></video>
+    </div>
+
+    <!-- CONTENEDOR VÍDEO DE YOUTUBE PERSONALIZADO -->
+    <div id="publicYoutubeContainer" class="w-full hidden overflow-hidden rounded-xl shadow-lg border border-white/10">
+      <div id="publicYoutubeInner" class="w-full h-full"></div>
     </div>
 
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
@@ -295,6 +302,7 @@
         <div class="flex gap-1.5 border-b border-white/10 pb-3 overflow-x-auto">
           <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
           <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
+          <button onclick="switchAdminTab('cabecera')" id="adminTabCabecera" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📺 Cabecera</button>
           <button onclick="switchAdminTab('paises')" id="adminTabPaises" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🌍 Países (<span id="countriesCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
@@ -357,6 +365,74 @@
           </div>
         </div>
 
+        <!-- NUEVA PESTAÑA: CABECERA (LOGO, VÍDEO Y YOUTUBE CONTAINER) -->
+        <div id="adminViewCabecera" class="hidden space-y-5 mb-8">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
+            <h3 class="font-bold text-emerald-400 text-sm uppercase">📺 Configuración de la Cabecera</h3>
+            <p class="text-[11px] text-zinc-400">Elige si deseas mostrar el título de texto, una imagen/GIF o un vídeo en bucle como portada de la web.</p>
+            
+            <div class="space-y-3">
+              <div>
+                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Tipo de Portada Superior:</label>
+                <select id="adminHeaderMediaType" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+                  <option value="text">Solo Título de Texto</option>
+                  <option value="image">Imagen / GIF</option>
+                  <option value="video">Vídeo en Bucle</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">URL de Imagen o Vídeo (o sube a GitHub con Examinar):</label>
+                <div class="flex gap-1.5 items-center">
+                  <input type="url" id="adminHeaderMediaUrl" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+                  <label class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                    <span>📁 Examinar</span>
+                    <input type="file" accept="image/*,video/*" onchange="handleHeaderMediaUpload(event)" class="hidden">
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
+            <h3 class="font-bold text-purple-400 text-sm uppercase">🎥 Contenedor de Vídeo de YouTube</h3>
+            <p class="text-[11px] text-zinc-400">Añade un reproductor flotante o fijo de tu canal de YouTube debajo de la portada.</p>
+            
+            <div class="space-y-3">
+              <label class="flex items-center gap-2 text-xs text-white cursor-pointer">
+                <input type="checkbox" id="adminYtEnabled" class="accent-purple-500"> <strong>Activar Contenedor de YouTube</strong>
+              </label>
+
+              <div>
+                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Enlace o ID de YouTube:</label>
+                <input type="text" id="adminYtUrl" placeholder="https://www.youtube.com/watch?v=XXXX o ID (dQw4w9WgXcQ)" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Ancho (ej. 100% o 500px):</label>
+                  <input type="text" id="adminYtWidth" value="100%" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Alto (ej. 140px):</label>
+                  <input type="text" id="adminYtHeight" value="140px" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <label class="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer bg-zinc-900 p-2.5 rounded-xl border border-white/5">
+                  <input type="checkbox" id="adminYtAutoplay" class="accent-purple-500"> Reproducción Automática
+                </label>
+                <label class="flex items-center gap-2 text-xs text-zinc-300 cursor-pointer bg-zinc-900 p-2.5 rounded-xl border border-white/5">
+                  <input type="checkbox" id="adminYtMuted" class="accent-purple-500"> Reproducir en Silencio (Muted)
+                </label>
+              </div>
+            </div>
+
+            <button type="button" onclick="saveHeaderAndYoutubeConfig()" class="w-full py-2.5 bg-purple-500 hover:bg-purple-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Configuración de Cabecera</button>
+          </div>
+        </div>
+
         <!-- PAÍSES -->
         <div id="adminViewPaises" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-4 mb-8 border border-cyan-500/30">
@@ -389,8 +465,8 @@
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
-              <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Subir Iconos / GIFs a GitHub (Carpeta <code>img/</code>)</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Sube tus GIFs animados e imágenes directamente a tu repositorio <strong>breyde/NEXT-WAVE-RISING</strong> sin ocupar base de datos, míralos en la galería y copia su URL directa.</p>
+              <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Subir Archivos a GitHub (Carpeta <code>img/</code>)</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Sube imágenes, GIFs y vídeos cortos directamente a tu repositorio <strong>breyde/NEXT-WAVE-RISING</strong>.</p>
             </div>
 
             <div class="space-y-2.5 bg-zinc-950/70 p-3.5 rounded-xl border border-white/10">
@@ -404,17 +480,17 @@
 
             <div class="flex flex-wrap items-center gap-2">
               <label class="flex-1 py-2.5 px-4 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs cursor-pointer transition flex items-center justify-center gap-2">
-                <span>📤 Seleccionar y Subir Archivos a GitHub (<code>img/</code>)</span>
-                <input type="file" id="ghUploadInput" accept="image/*" multiple onchange="uploadFilesToGithub(event)" class="hidden">
+                <span>📤 Seleccionar y Subir Archivos (Imágenes o Vídeos)</span>
+                <input type="file" id="ghUploadInput" accept="image/*,video/*" multiple onchange="uploadFilesToGithub(event)" class="hidden">
               </label>
               <button type="button" onclick="loadGithubGallery()" class="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs border border-white/10 transition">🔄 Actualizar Galería</button>
             </div>
             <p id="ghUploadStatus" class="text-xs text-center text-sky-300 hidden font-semibold"></p>
 
             <div class="space-y-2 pt-2 border-t border-white/10">
-              <p class="text-[11px] font-bold text-zinc-300 uppercase">🖼️ Galería en GitHub (<code>img/</code>):</p>
+              <p class="text-[11px] font-bold text-zinc-300 uppercase">🖼️ Galería en GitHub:</p>
               <div id="ghGalleryContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-                <p class="col-span-full text-zinc-500 italic text-[11px]">Pulsa "Actualizar Galería" para ver tus iconos subidos en GitHub.</p>
+                <p class="col-span-full text-zinc-500 italic text-[11px]">Pulsa "Actualizar Galería" para ver tus archivos subidos.</p>
               </div>
             </div>
           </div>
@@ -613,30 +689,6 @@
             <div class="pt-2 border-t border-white/10 space-y-2">
               <p class="text-[11px] font-bold text-zinc-300 uppercase">Avisos Activos Actualmente:</p>
               <div id="adminActiveNoticesList" class="space-y-2 text-xs"><p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p></div>
-            </div>
-          </div>
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
-            <div>
-              <h3 class="font-bold text-cyan-400 text-sm uppercase">🖼️ Logo de Cabecera (Imagen, GIF o Texto)</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Pega la URL de GitHub o pulsa <strong>Examinar</strong> para subirlo directo a GitHub desde tu dispositivo.</p>
-            </div>
-            <div class="space-y-3">
-              <div class="flex gap-1.5 items-center">
-                <input type="url" id="adminLogoUrlInput" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                  <span>📁 Examinar</span>
-                  <input type="file" id="adminLogoFileInput" accept="image/*" onchange="handleLogoFileUpload(event)" class="hidden">
-                </label>
-              </div>
-              <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2">
-                <span class="text-[10px] text-zinc-400 uppercase">Vista previa del logo:</span>
-                <img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg">
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <button type="button" onclick="saveBrandLogo()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Logo</button>
-                <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar Texto</button>
-              </div>
             </div>
           </div>
 
@@ -883,7 +935,7 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'backups'];
+    const ADMIN_TABS = ['principal', 'activa', 'cabecera', 'paises', 'mensajes', 'config', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
     let currentLang = 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
@@ -899,6 +951,16 @@
       trackUrl: "",
       votingActive: true,
       logoUrl: "",
+      headerMediaType: "text", // text, image, video
+      headerMediaUrl: "",
+      youtubeContainer: {
+        enabled: false,
+        url: "",
+        width: "100%",
+        height: "140px",
+        autoplay: false,
+        muted: false
+      },
       defaultTab: "active",
       tabNotices: {},
       tabNoticesEn: {},
@@ -969,7 +1031,7 @@
 
     async function pushSingleFileToGithub(file) {
       const token = getGithubToken();
-      if (!token) throw new Error("Configura primero tu GitHub Token en el apartado 'Subir Iconos / GIFs a GitHub'.");
+      if (!token) throw new Error("Configura primero tu GitHub Token en el apartado correspondiente.");
 
       const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
       const path = `${GH_FOLDER}/${safeName}`;
@@ -1028,29 +1090,30 @@
 
         const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}?t=${Date.now()}`, { headers });
         if (res.status === 404) {
-          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">La carpeta <code>img/</code> aún está vacía. Sube tu primer icono arriba.</p>';
+          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">La carpeta <code>img/</code> aún está vacía. Sube tu primer archivo arriba.</p>';
           return;
         }
         if (!res.ok) throw new Error(`Error ${res.status}`);
         const items = await res.json();
-        const images = (Array.isArray(items) ? items : []).filter(x => x.type === "file" && /\.(png|jpe?g|gif|webp|svg)$/i.test(x.name));
+        const files = (Array.isArray(items) ? items : []).filter(x => x.type === "file" && /\.(png|jpe?g|gif|webp|svg|mp4|webm|mov)$/i.test(x.name));
 
-        if (!images.length) {
-          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">No hay imágenes en <code>img/</code> todavía.</p>';
+        if (!files.length) {
+          cont.innerHTML = '<p class="col-span-full text-zinc-400 text-center py-4">No hay archivos en <code>img/</code> todavía.</p>';
           return;
         }
 
-        cont.innerHTML = images.map(img => {
-          const directUrl = img.download_url || `${GH_RAW_BASE}${img.name}`;
+        cont.innerHTML = files.map(file => {
+          const directUrl = file.download_url || `${GH_RAW_BASE}${file.name}`;
+          const isVid = /\.(mp4|webm|mov)$/i.test(file.name);
           return `
             <div class="p-2.5 bg-zinc-900 rounded-xl border border-white/10 flex flex-col items-center justify-between gap-2 text-center">
               <div class="h-14 w-full flex items-center justify-center bg-zinc-950 rounded-lg p-1 overflow-hidden">
-                <img src="${directUrl}" alt="${escapeHtml(img.name)}" class="max-h-12 max-w-full object-contain">
+                ${isVid ? `<video src="${directUrl}" class="max-h-12 max-w-full object-contain"></video>` : `<img src="${directUrl}" alt="${escapeHtml(file.name)}" class="max-h-12 max-w-full object-contain">`}
               </div>
-              <p class="text-[10px] text-zinc-300 truncate w-full font-mono" title="${escapeHtml(img.name)}">${escapeHtml(img.name)}</p>
+              <p class="text-[10px] text-zinc-300 truncate w-full font-mono" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</p>
               <div class="flex gap-1 w-full">
-                <button type="button" onclick="copyGithubAssetUrl('${directUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 Copiar URL</button>
-                <button type="button" onclick="deleteGithubAsset('${img.path}', '${img.sha}', '${escapeHtml(img.name)}')" class="py-1 px-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded text-[10px] transition">🗑️</button>
+                <button type="button" onclick="copyGithubAssetUrl('${directUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 URL</button>
+                <button type="button" onclick="deleteGithubAsset('${file.path}', '${file.sha}', '${escapeHtml(file.name)}')" class="py-1 px-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded text-[10px] transition">🗑️</button>
               </div>
             </div>
           `;
@@ -1090,7 +1153,7 @@
           alert(`✅ Subido a GitHub y URL asignada:\n${url}`);
         } catch (err) { alert("Error subiendo a GitHub: " + err.message); }
       } else {
-        alert("💡 Configura tu GitHub Token arriba en 'Subir Iconos / GIFs a GitHub' para subir archivos directo a GitHub desde Examinar.");
+        alert("💡 Configura tu GitHub Token arriba para subir archivos directo a GitHub.");
       }
     }
 
@@ -1234,7 +1297,115 @@
       } catch (e) { alert("Error al guardar: " + e.message); }
     };
 
-    // ==================== DISEÑO REPRODUCTOR SPOTIFY POR LISTA (CLICK-TO-PLAY CON CARÁTULAS DE SPOTIFY OEMBED) ====================
+    // ==================== GESTIÓN DE CABECERA (LOGO / VÍDEO Y YOUTUBE) ====================
+    window.loadHeaderConfigForm = () => {
+      if ($("adminHeaderMediaType")) $("adminHeaderMediaType").value = config.headerMediaType || "text";
+      if ($("adminHeaderMediaUrl")) $("adminHeaderMediaUrl").value = config.headerMediaUrl || "";
+      
+      const yt = config.youtubeContainer || {};
+      if ($("adminYtEnabled")) $("adminYtEnabled").checked = Boolean(yt.enabled);
+      if ($("adminYtUrl")) $("adminYtUrl").value = yt.url || "";
+      if ($("adminYtWidth")) $("adminYtWidth").value = yt.width || "100%";
+      if ($("adminYtHeight")) $("adminYtHeight").value = yt.height || "140px";
+      if ($("adminYtAutoplay")) $("adminYtAutoplay").checked = Boolean(yt.autoplay);
+      if ($("adminYtMuted")) $("adminYtMuted").checked = Boolean(yt.muted);
+    };
+
+    window.handleHeaderMediaUpload = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      handleExamineToGithubOrLocal(file, url => {
+        $("adminHeaderMediaUrl").value = url;
+        if (file.type.startsWith("video/")) {
+          $("adminHeaderMediaType").value = "video";
+        } else {
+          $("adminHeaderMediaType").value = "image";
+        }
+      });
+    };
+
+    window.saveHeaderAndYoutubeConfig = async () => {
+      config.headerMediaType = $("adminHeaderMediaType").value;
+      config.headerMediaUrl = normalizeUrl($("adminHeaderMediaUrl").value);
+      config.youtubeContainer = {
+        enabled: $("adminYtEnabled").checked,
+        url: $("adminYtUrl").value.trim(),
+        width: $("adminYtWidth").value.trim() || "100%",
+        height: $("adminYtHeight").value.trim() || "140px",
+        autoplay: $("adminYtAutoplay").checked,
+        muted: $("adminYtMuted").checked
+      };
+
+      try {
+        await db.collection("settings").doc("activeEdition").set({
+          headerMediaType: config.headerMediaType,
+          headerMediaUrl: config.headerMediaUrl,
+          youtubeContainer: config.youtubeContainer
+        }, { merge: true });
+        applyHeaderMediaAndYoutube();
+        alert("✅ Configuración de cabecera guardada con éxito.");
+      } catch (e) { alert("Error al guardar: " + e.message); }
+    };
+
+    function applyHeaderMediaAndYoutube() {
+      const textEl = $("brandTextTitle"), imgEl = $("brandLogoImg"), vidEl = $("brandLogoVideo");
+      const ytCont = $("publicYoutubeContainer"), ytInner = $("publicYoutubeInner");
+
+      // 1. Cabecera (Texto / Imagen / Vídeo)
+      if (config.headerMediaType === 'video' && config.headerMediaUrl) {
+        textEl.classList.add("hidden");
+        imgEl.classList.add("hidden");
+        vidEl.src = config.headerMediaUrl;
+        vidEl.classList.remove("hidden");
+      } else if (config.headerMediaType === 'image' && config.headerMediaUrl) {
+        textEl.classList.add("hidden");
+        vidEl.classList.add("hidden");
+        vidEl.src = "";
+        imgEl.src = config.headerMediaUrl;
+        imgEl.classList.remove("hidden");
+      } else {
+        vidEl.classList.add("hidden");
+        vidEl.src = "";
+        imgEl.classList.add("hidden");
+        textEl.classList.remove("hidden");
+      }
+
+      // 2. Contenedor YouTube
+      const yt = config.youtubeContainer;
+      if (yt && yt.enabled && yt.url) {
+        let ytEmbed = "";
+        const raw = yt.url.trim();
+        let videoId = "";
+        if (raw.includes("youtube.com/watch?v=")) {
+          videoId = raw.split("v=")[1]?.split("&")[0];
+        } else if (raw.includes("youtu.be/")) {
+          videoId = raw.split("youtu.be/")[1]?.split("?")[0];
+        } else {
+          videoId = raw; // Asumir ID directo
+        }
+
+        if (videoId) {
+          const auto = yt.autoplay ? "1" : "0";
+          const mute = yt.muted ? "1" : "0";
+          ytEmbed = `https://www.youtube.com/embed/${videoId}?autoplay=${auto}&mute=${mute}&enablejsapi=1`;
+        }
+
+        if (ytEmbed) {
+          ytCont.style.width = yt.width || "100%";
+          ytCont.style.height = yt.height || "140px";
+          ytCont.classList.remove("hidden");
+          ytInner.innerHTML = `<iframe src="${ytEmbed}" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px;"></iframe>`;
+        } else {
+          ytCont.classList.add("hidden");
+          ytInner.innerHTML = "";
+        }
+      } else {
+        ytCont.classList.add("hidden");
+        ytInner.innerHTML = "";
+      }
+    }
+
+    // ==================== DISEÑO REPRODUCTOR SPOTIFY (CARÁTULAS DE SPOTIFY OEMBED) ====================
     window.loadPlayerStyleForm = () => {
       const key = $("adminPlayerListSelect").value;
       const st = config.playerStyles?.[key] || { preset: 'ultracompact', height: 80, startSec: 0 };
@@ -1308,7 +1479,7 @@
               <p class="text-[9px] text-zinc-400">${extraBadge || 'Spotify Track'}</p>
             </div>
           </div>
-          <button type="button" onclick="playTrackCard(this, '${s.url}', '${listKey}')" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow shrink-0 flex items-center gap-1 cursor-pointer">
+          <button type="button" onclick="playTrackCard(this, '${s.url}', '${listKey}')" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-[11px] transition shadow shrink-0 flex items-center gap-1 cursor-pointer whitespace-nowrap">
             <span>▶</span> Play
           </button>
         </div>
@@ -1410,7 +1581,7 @@
               <input type="url" value="${escapeHtml(t.gifUrl || '')}" onchange="updateTabProp(${idx}, 'gifUrl', normalizeUrl(this.value)); renderAdminTabsManager();" placeholder="URL imagen/GIF (ej. https://raw.githubusercontent.com/...)" class="flex-1 px-2.5 py-1.5 rounded-lg bg-zinc-950 border border-zinc-700 text-xs text-white">
               <label class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] cursor-pointer transition whitespace-nowrap">
                 <span>📁 Examinar</span>
-                <input type="file" accept="image/*" onchange="handleExistingTabFileUpload(event, ${idx})" class="hidden">
+                <input type="file" accept="image/*,video/*" onchange="handleExistingTabFileUpload(event, ${idx})" class="hidden">
               </label>
               ${t.gifUrl ? `<button type="button" onclick="clearExistingTabGif(${idx})" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-[11px] font-bold">✕</button>` : ''}
             </div>
@@ -1445,7 +1616,7 @@
       const label = $("newCustomTabLabel").value.trim();
       const gifUrl = normalizeUrl($("newCustomTabUrl").value);
       const content = $("newCustomTabContent").value.trim();
-      if (!label && !gifUrl) return alert("Escribe un nombre o sube un icono/GIF para la nueva pestaña.");
+      if (!label && !gifUrl) return alert("Escribe un nombre o sube un archivo para la nueva pestaña.");
       const id = 'custom_' + Date.now();
       config.tabsConfig.push({ id, labelEs: label, labelEn: label, visible: true, gifUrl, content, custom: true });
       $("newCustomTabLabel").value = $("newCustomTabUrl").value = $("newCustomTabContent").value = "";
@@ -1469,7 +1640,7 @@
       } catch (e) { alert("Error al guardar pestañas: " + e.message); }
     };
 
-    // ==================== PERSONALIZADOR DE BOTONES E INDICADOR DE VOTACIÓN ====================
+    // ==================== PERSONALIZADOR DE BOTONES ====================
     function applyButtonStyleToElement(el, st) {
       if (!el || !st) return;
       const sizeClasses = { sm: ['text-[10px]', 'py-1', 'px-2.5'], md: ['text-xs', 'py-2.5', 'px-4'], lg: ['text-sm', 'py-3.5', 'px-5'] };
@@ -1537,7 +1708,7 @@
       if (config.customButtons?.[id]) delete config.customButtons[id];
       try {
         await db.collection("settings").doc("activeEdition").set({ customButtons: config.customButtons }, { merge: true });
-        alert("✅ Restaurado (recarga la página para ver su estilo original por defecto).");
+        alert("✅ Restaurado.");
       } catch (e) {}
     };
 
@@ -1755,698 +1926,6 @@
       }
     };
 
-    // ==================== LOGO Y AVISOS ====================
-    function applyBrandLogo(url) {
-      const clean = normalizeUrl(url);
-      const textEl = $("brandTextTitle"), imgEl = $("brandLogoImg"), pBox = $("adminLogoPreviewBox"), pImg = $("adminLogoPreviewImg"), uInp = $("adminLogoUrlInput");
-      if (uInp && clean && !clean.startsWith("data:image")) uInp.value = clean;
-      if (clean) {
-        imgEl.src = clean; imgEl.classList.remove("hidden"); textEl.classList.add("hidden");
-        if (pBox && pImg) { pImg.src = clean; pBox.classList.remove("hidden"); }
-      } else {
-        imgEl.src = ""; imgEl.classList.add("hidden"); textEl.classList.remove("hidden");
-        if (pBox) pBox.classList.add("hidden"); if (uInp) uInp.value = "";
-      }
-    }
-
-    window.handleLogoFileUpload = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      handleExamineToGithubOrLocal(file, url => {
-        config.logoUrl = url;
-        $("adminLogoUrlInput").value = url;
-        $("adminLogoPreviewImg").src = url;
-        $("adminLogoPreviewBox").classList.remove("hidden");
-      });
-    };
-
-    window.saveBrandLogo = async () => {
-      const typed = normalizeUrl($("adminLogoUrlInput").value);
-      if (typed) config.logoUrl = typed;
-      if (!config.logoUrl) return alert("Pega una URL de GitHub o pulsa Examinar antes de guardar.");
-      try {
-        await db.collection("settings").doc("activeEdition").set({ logoUrl: config.logoUrl }, { merge: true });
-        applyBrandLogo(config.logoUrl);
-        alert("✅ Logo guardado.");
-      } catch (e) { alert("Error: " + e.message); }
-    };
-
-    window.resetBrandLogoToText = async () => {
-      if (!confirm("¿Volver al título de texto 'Next Wave Rising'?")) return;
-      try {
-        config.logoUrl = "";
-        await db.collection("settings").doc("activeEdition").set({ logoUrl: "" }, { merge: true });
-        applyBrandLogo("");
-        $("adminLogoFileInput").value = "";
-        alert("✅ Título de texto restaurado.");
-      } catch (e) { alert("Error al restaurar."); }
-    };
-
-    async function renderAllTabNotices() {
-      const notices = config.tabNotices || {};
-      const noticesEn = config.tabNoticesEn || {};
-      const badge = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
-      const tabs = config.tabsConfig || defaultTabsList;
-
-      for (const t of tabs) {
-        const k = t.id, b = $(`noticeBanner_${k}`);
-        if (!b) continue;
-        const msgEs = notices[k];
-        if (msgEs?.trim()) {
-          let displayMsg = msgEs;
-          if (currentLang === 'en') {
-            if (noticesEn[k]?.trim()) displayMsg = noticesEn[k];
-            else if (autoTranslatedNotices[k]) displayMsg = autoTranslatedNotices[k];
-            else {
-              displayMsg = await translateTextToEnglish(msgEs);
-              autoTranslatedNotices[k] = displayMsg;
-            }
-          }
-          b.className = "rounded-2xl p-4 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 shadow-lg flex items-start gap-3";
-          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1.5 flex-1"><div class="flex justify-between items-center gap-2"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span><button type="button" onclick="toggleNoticeLanguage('${k}')" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-amber-300 font-bold text-[10px] border border-amber-400/30 transition">🌐 ES / EN</button></div><p id="noticeText_${k}" class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(displayMsg)}</p></div>`;
-        } else { b.className = "hidden"; b.innerHTML = ""; }
-      }
-
-      const adminList = $("adminActiveNoticesList");
-      if (adminList) {
-        const keys = Object.keys(notices).filter(k => notices[k]?.trim());
-        adminList.innerHTML = !keys.length ? '<p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p>' : keys.map(k => {
-          const tabObj = tabs.find(x => x.id === k);
-          return `<div class="p-3 bg-zinc-900 rounded-xl border border-amber-500/20 flex justify-between items-start gap-2">
-            <div class="space-y-1"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">${escapeHtml(tabObj ? (tabObj.labelEs || tabObj.id) : k)}</span><p class="text-xs text-zinc-200 whitespace-pre-line">${escapeHtml(notices[k])}</p></div>
-            <div class="flex gap-1.5 shrink-0"><button type="button" onclick="editTabNotice('${k}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] font-bold transition">Editar</button><button type="button" onclick="deleteTabNotice('${k}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] font-bold transition">Eliminar</button></div>
-          </div>`;
-        }).join('');
-      }
-    }
-
-    window.toggleNoticeLanguage = async k => {
-      const pEl = $(`noticeText_${k}`);
-      const msgEs = (config.tabNotices || {})[k];
-      if (!pEl || !msgEs) return;
-      if (pEl.dataset.langMode === "en") {
-        pEl.textContent = msgEs;
-        pEl.dataset.langMode = "es";
-      } else {
-        pEl.textContent = "⏳ Translating...";
-        const enText = (config.tabNoticesEn || {})[k]?.trim() || autoTranslatedNotices[k] || await translateTextToEnglish(msgEs);
-        autoTranslatedNotices[k] = enText;
-        pEl.textContent = enText;
-        pEl.dataset.langMode = "en";
-      }
-    };
-
-    window.loadSelectedTabNoticeToForm = () => {
-      const k = $("adminNoticeTabSelect").value;
-      $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
-      $("adminNoticeTextEnInput").value = (config.tabNoticesEn || {})[k] || "";
-    };
-    window.editTabNotice = k => {
-      $("adminNoticeTabSelect").value = k;
-      $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
-      $("adminNoticeTextEnInput").value = (config.tabNoticesEn || {})[k] || "";
-      $("adminNoticeTextInput").focus();
-    };
-    window.saveTabNotice = async () => {
-      const k = $("adminNoticeTabSelect").value, msg = $("adminNoticeTextInput").value.trim(), msgEn = $("adminNoticeTextEnInput").value.trim();
-      if (!msg) return alert("Escribe un aviso o pulsa 'Quitar'.");
-      try {
-        if (!config.tabNotices) config.tabNotices = {};
-        if (!config.tabNoticesEn) config.tabNoticesEn = {};
-        config.tabNotices[k] = msg;
-        config.tabNoticesEn[k] = msgEn;
-        delete autoTranslatedNotices[k];
-        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices, tabNoticesEn: config.tabNoticesEn }, { merge: true });
-        await renderAllTabNotices();
-        alert("✅ Aviso guardado.");
-      } catch (e) { alert("Error: " + e.message); }
-    };
-    window.deleteTabNotice = async k => {
-      if (!config.tabNotices?.[k]) { $("adminNoticeTextInput").value = $("adminNoticeTextEnInput").value = ""; return; }
-      if (!confirm("¿Eliminar este aviso?")) return;
-      try {
-        delete config.tabNotices[k];
-        if (config.tabNoticesEn) delete config.tabNoticesEn[k];
-        delete autoTranslatedNotices[k];
-        await db.collection("settings").doc("activeEdition").set({ tabNotices: config.tabNotices, tabNoticesEn: config.tabNoticesEn || {} }, { merge: true });
-        if ($("adminNoticeTabSelect").value === k) $("adminNoticeTextInput").value = $("adminNoticeTextEnInput").value = "";
-        await renderAllTabNotices();
-        alert("🗑️ Aviso eliminado.");
-      } catch (e) { alert("Error: " + e.message); }
-    };
-
-    // ==================== NAVEGACIÓN ====================
-    function setLanguage(lang) {
-      currentLang = lang;
-      $("langEsBtn").className = lang === 'es' ? 'px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs';
-      $("langEnBtn").className = lang === 'en' ? 'px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs';
-      const t = translations[lang];
-      $("txtAdminBtn").textContent = !$("adminView").classList.contains("hidden") ? t.backApp : t.adminBtn;
-      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k]) el.innerHTML = t[k]; });
-      document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); if (t[k]) el.placeholder = t[k]; });
-      renderNavigationAndCustomViews();
-      updateVotingUI(globalVotingActive);
-      applyAllCustomButtons();
-    }
-
-    function switchTab(tab) {
-      currentActiveTab = tab;
-      const tabs = config.tabsConfig || defaultTabsList;
-      tabs.forEach(t => {
-        const vId = t.custom ? `view_${t.id}` : 'view' + t.id[0].toUpperCase() + t.id.slice(1);
-        $(vId)?.classList.add('hidden');
-        const btn = $(`tab_${t.id}`);
-        if (btn) { btn.classList.remove('active', 'text-emerald-400', 'text-cyan-400', 'border-emerald-500/40'); btn.classList.add('text-zinc-400', 'border-white/10'); }
-      });
-      $("adminView").classList.add('hidden');
-      const targetObj = tabs.find(x => x.id === tab);
-      const targetVId = targetObj?.custom ? `view_${tab}` : 'view' + tab[0].toUpperCase() + tab.slice(1);
-      $(targetVId)?.classList.remove('hidden');
-      const activeBtn = $(`tab_${tab}`);
-      if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
-      $("txtAdminBtn").textContent = translations[currentLang].adminBtn;
-      renderFeaturedPlayer();
-      if (tab === 'chat' && currentChatNick) initChatRealtime();
-    }
-
-    function switchAdminTab(tab) {
-      const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], config: ['adminTabConfig', 'adminViewConfig'], backups: ['adminTabBackups', 'adminViewBackups'] };
-      ADMIN_TABS.forEach(k => {
-        $(map[k][0]).className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
-        $(map[k][1]).classList.add('hidden');
-      });
-      $(map[tab][0]).className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
-      $(map[tab][1]).classList.remove('hidden');
-      if (tab === 'paises') loadAdminCountries();
-      else if (tab === 'mensajes') loadAdminMessages();
-      else if (tab === 'config') {
-        updateGithubTokenStatus();
-        loadGithubGallery();
-        updateDefaultTabSelectUI();
-        updateFeaturedAdminUI();
-        loadPlayerStyleForm();
-        renderAdminTabsManager();
-        loadButtonCustomForm();
-        loadSelectedTabNoticeToForm();
-        renderAllTabNotices();
-        loadAdminChatUsers();
-      }
-      else if (tab === 'backups') loadAdminBackups();
-    }
-
-    window.quickOpenConfig = () => {
-      const adminView = $("adminView");
-      if (adminView.classList.contains("hidden")) {
-        adminView.classList.remove("hidden");
-        $("txtAdminBtn").textContent = translations[currentLang].backApp;
-      }
-      switchAdminTab('config');
-      window.scrollTo({ top: adminView.offsetTop, behavior: 'smooth' });
-    };
-
-    // ==================== RESTAURACIÓN DESDE BACKUPS CON SELECCIÓN DE LISTAS ====================
-    window.toggleBackupRestoreView = id => {
-      const el = $(`backupRestorePanel_${id}`);
-      if (el) el.classList.toggle('hidden');
-    };
-
-    window.restoreSingleRecordFromBackup = async (backupId, sectionKey, index) => {
-      const b = backupsCache[backupId];
-      if (!b) return;
-      const tracks = ({ active: b.activeTracks, weekly: b.weeklyTracks, monthly: b.monthlyTracks, annual: b.annualTracks }[sectionKey]) || [];
-      const item = tracks[index];
-      if (!item) return;
-
-      const targetCol = { active: 'active_list', weekly: 'submissions', monthly: 'monthly_list', annual: 'annual_list' }[sectionKey];
-      const colNameEs = { active: 'Lista Activa', weekly: 'Cola Semanal', monthly: 'Lista Mensual', annual: 'Lista Anual' }[sectionKey];
-
-      if (!confirm(`⚠️ ATENCIÓN:\nSe va a restaurar (añadir) el siguiente registro:\n• Artista: ${item.artist}\n• Canción: ${item.title}\n\nDestino: Colección '${colNameEs}' en Firebase.\n¿Deseas confirmar esta restauración individual?`)) return;
-
-      try {
-        const cleanItem = { ...item };
-        delete cleanItem.id;
-        await db.collection(targetCol).add({
-          ...cleanItem,
-          timestamp: Date.now(),
-          dateString: cleanItem.dateString || madridStr()
-        });
-        await loadAllLists();
-        alert(`✅ Registro restaurado con éxito en ${colNameEs}.`);
-      } catch (e) {
-        alert("Error al restaurar: " + e.message);
-      }
-    };
-
-    window.restoreSelectedRecordsFromBackup = async backupId => {
-      const b = backupsCache[backupId];
-      if (!b) return;
-
-      const doActive = document.getElementById(`rest_active_${backupId}`)?.checked || false;
-      const doWeekly = document.getElementById(`rest_weekly_${backupId}`)?.checked || false;
-      const doMonthly = document.getElementById(`rest_monthly_${backupId}`)?.checked || false;
-      const doAnnual = document.getElementById(`rest_annual_${backupId}`)?.checked || false;
-
-      if (!doActive && !doWeekly && !doMonthly && !doAnnual) {
-        return alert("⚠️ Selecciona al menos una lista marcada para restaurar.");
-      }
-
-      let summary = [];
-      if (doActive) summary.push("• Lista Activa");
-      if (doWeekly) summary.push("• Cola Semanal");
-      if (doMonthly) summary.push("• Lista Mensual");
-      if (doAnnual) summary.push("• Lista Anual");
-
-      if (!confirm(`⚠️ ATENCIÓN CRÍTICA:\nSe van a SUSTITUIR por completo las siguientes listas actuales con los datos de esta copia de seguridad:\n\n${summary.join('\n')}\n\nLas listas NO marcadas permanecerán intactas.\n¿Deseas confirmar la sustitución?`)) return;
-
-      try {
-        const clearAndReplace = async (tracks, colName) => {
-          const snap = await db.collection(colName).get();
-          if (!snap.empty) {
-            const delBatch = db.batch();
-            snap.docs.forEach(doc => delBatch.delete(doc.ref));
-            await delBatch.commit();
-          }
-          if (tracks && tracks.length) {
-            const addBatch = db.batch();
-            tracks.forEach(t => {
-              const cleanT = { ...t };
-              delete cleanT.id;
-              const newRef = db.collection(colName).doc();
-              addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
-            });
-            await addBatch.commit();
-          }
-        };
-
-        if (doActive) await clearAndReplace(b.activeTracks, 'active_list');
-        if (doWeekly) await clearAndReplace(b.weeklyTracks, 'submissions');
-        if (doMonthly) await clearAndReplace(b.monthlyTracks, 'monthly_list');
-        if (doAnnual) await clearAndReplace(b.annualTracks, 'annual_list');
-
-        await loadAllLists();
-        alert("✅ Restauración y sustitución completada con éxito en las listas seleccionadas.");
-      } catch (e) {
-        alert("Error en la restauración: " + e.message);
-      }
-    };
-
-    window.exportBackupToSpotify = backupId => {
-      const b = backupsCache[backupId];
-      if (!b) return;
-      const allTracks = [...(b.activeTracks || []), ...(b.weeklyTracks || []), ...(b.monthlyTracks || []), ...(b.annualTracks || [])];
-      if (!allTracks.length) return alert("Esta copia no contiene canciones para exportar.");
-
-      const urlsText = allTracks.map(t => t.url).filter(Boolean).join('\n');
-      navigator.clipboard.writeText(urlsText);
-
-      if (confirm(`✅ Se han copiado al portapapeles ${allTracks.length} enlaces de Spotify de esta copia de seguridad.\n\n¿Deseas abrir tu playlist de Spotify en una pestaña nueva para pegarlos y actualizar tu lista?`)) {
-        window.open(config.playlistUrl || "https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF", "_blank");
-      }
-    };
-
-    // ==================== LISTA ACTIVA CURADOR ====================
-    window.addTrackToActiveList = async () => {
-      const artist = $("adminActiveArtist").value.trim(), title = $("adminActiveTitle").value.trim(), rawUrl = $("adminActiveUrl").value.trim(), email = $("adminActiveEmail").value.trim();
-      if (!artist || !title || !rawUrl) return alert("Rellena Artista, Canción y Enlace Spotify.");
-      const cleanUrl = rawUrl.split("?")[0].trim();
-      if (!cleanUrl.includes("spotify.com/") || !cleanUrl.includes("/track/")) return alert("Enlace Spotify no válido.");
-      try {
-        await db.collection("active_list").add({ artist, title, url: cleanUrl, email: email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
-        if (email) await registerOrUpdateArtistCountry(artist, email);
-        $("adminActiveArtist").value = $("adminActiveTitle").value = $("adminActiveUrl").value = $("adminActiveEmail").value = "";
-        await Promise.all([loadAllLists(), loadAdminCountries()]);
-        alert("✅ Tema añadido a la Lista Activa.");
-      } catch (e) { alert("Error: " + e.message); }
-    };
-
-    window.openEditActiveModal = id => {
-      const t = activeSubs.find(x => x.id === id);
-      if (!t) return;
-      $("editActiveId").value = t.id; $("editActiveArtist").value = t.artist || ""; $("editActiveTitle").value = t.title || ""; $("editActiveUrl").value = t.url || ""; $("editActiveEmail").value = t.email || "";
-      toggleModal('editActiveTrackModal', true);
-    };
-
-    window.saveActiveTrackEdit = async () => {
-      const id = $("editActiveId").value, artist = $("editActiveArtist").value.trim(), title = $("editActiveTitle").value.trim(), rawUrl = $("editActiveUrl").value.trim(), email = $("editActiveEmail").value.trim();
-      if (!artist || !title || !rawUrl) return alert("Artista, Canción y Enlace son obligatorios.");
-      try {
-        await db.collection("active_list").doc(id).update({ artist, title, url: rawUrl.split("?")[0].trim(), email });
-        toggleModal('editActiveTrackModal', false);
-        await loadAllLists();
-        alert("✅ Tema actualizado.");
-      } catch (e) { alert("Error: " + e.message); }
-    };
-
-    window.deleteActiveTrack = async id => {
-      if (!confirm("¿Eliminar este tema de la Lista Activa?")) return;
-      try { await db.collection("active_list").doc(id).delete(); await loadAllLists(); } catch (e) { alert("Error al eliminar."); }
-    };
-
-    window.exportActiveList = () => {
-      if (!activeSubs.length) return alert("La Lista Activa está vacía.");
-      navigator.clipboard.writeText(activeSubs.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ''} (${s.url.split("?")[0]})`).join("\n"));
-      alert("Lista Activa copiada.");
-    };
-
-    // ==================== BACKUPS ====================
-    async function saveBackupSnapshot(customTitle, fixedDocId, scope = 'all') {
-      const fetchCol = async (col, ordered = true) => {
-        const q = ordered ? db.collection(col).orderBy("timestamp", "asc") : db.collection(col);
-        const snap = await q.get();
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      };
-      const [activeData, weeklyData, monthlyData, annualData, countriesData] = await Promise.all([
-        (scope === 'all' || scope === 'active') ? fetchCol("active_list") : [],
-        (scope === 'all' || scope === 'weekly') ? fetchCol("submissions") : [],
-        (scope === 'all' || scope === 'monthly') ? fetchCol("monthly_list") : [],
-        (scope === 'all' || scope === 'annual') ? fetchCol("annual_list") : [],
-        (scope === 'all' || scope === 'countries') ? fetchCol("artist_countries", false) : []
-      ]);
-
-      const payload = {
-        scope, edition: customTitle || `${backupScopeLabels[scope] || "Backup"} (${config.edition || "Edición"})`,
-        dateString: madridStr(), dateOnly: madridDateOnly(), timestamp: Date.now(),
-        activeCount: activeData.length, weeklyCount: weeklyData.length, monthlyCount: monthlyData.length, annualCount: annualData.length, countriesCount: countriesData.length,
-        activeTracks: activeData, weeklyTracks: weeklyData, monthlyTracks: monthlyData, annualTracks: annualData, countriesList: countriesData
-      };
-
-      if (fixedDocId) {
-        const ref = db.collection("backups").doc(fixedDocId);
-        if (!(await ref.get()).exists) await ref.set(payload);
-      } else { await db.collection("backups").add(payload); }
-      return payload;
-    }
-
-    window.createManualBackup = async (scope = 'all') => {
-      try {
-        const res = await saveBackupSnapshot(null, null, scope);
-        await loadAdminBackups();
-        alert(`✅ Copia guardada:\n${res.edition}\n📅 ${res.dateString}`);
-      } catch (e) { alert("Error al crear backup: " + e.message); }
-    };
-
-    async function triggerThursdaySystemBackup() {
-      if (autoBackupDone) return;
-      autoBackupDone = true;
-      try {
-        const dOnly = madridDateOnly();
-        await saveBackupSnapshot(`Copia de sistema - ${dOnly}`, "sys_backup_" + dOnly.replace(/\//g, "-"), 'all');
-        if (!$("adminDashboard").classList.contains("hidden")) loadAdminBackups();
-      } catch (e) {}
-    }
-
-    async function loadAdminBackups() {
-      const container = $("adminBackupsList"), badge = $("backupsCountBadge");
-      try {
-        const snap = await db.collection("backups").orderBy("timestamp", "desc").get();
-        backupsCache = {};
-        const list = snap.docs.map(d => { const item = { id: d.id, ...d.data() }; backupsCache[d.id] = item; return item; });
-        if (badge) badge.textContent = list.length;
-        if (!container) return;
-        if (!list.length) { container.innerHTML = '<p class="text-zinc-400 text-center py-6">No hay copias de seguridad guardadas todavía.</p>'; return; }
-
-        container.innerHTML = list.map(b => {
-          const sc = b.scope || 'all', aT = b.activeTracks || [], wT = b.weeklyTracks || [], mT = b.monthlyTracks || [], anT = b.annualTracks || [], cT = b.countriesList || [];
-          const icon = (b.edition || '').toLowerCase().includes('copia de sistema') ? '🤖' : '💾';
-          const parts = [];
-          if (sc === 'all' || sc === 'active') parts.push(`Activa: <strong>${aT.length}</strong>`);
-          if (sc === 'all' || sc === 'weekly') parts.push(`Cola: <strong>${wT.length}</strong>`);
-          if (sc === 'all' || sc === 'monthly') parts.push(`Mensual: <strong>${mT.length}</strong>`);
-          if (sc === 'all' || sc === 'annual') parts.push(`Anual: <strong>${anT.length}</strong>`);
-          if (sc === 'all' || sc === 'countries') parts.push(`Países: <strong>${cT.length}</strong>`);
-
-          const btns = sc === 'all'
-            ? `<button type="button" onclick="copyBackupToClipboard('${b.id}','active')" class="px-2 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[10px] transition">📋 Activa</button>
-               <button type="button" onclick="copyBackupToClipboard('${b.id}','weekly')" class="px-2 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold rounded-lg text-[10px] transition border border-white/10">📋 Cola</button>
-               <button type="button" onclick="copyBackupToClipboard('${b.id}','countries')" class="px-2 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded-lg text-[10px] transition">📋 Países</button>`
-            : `<button type="button" onclick="copyBackupToClipboard('${b.id}','${sc}')" class="px-2.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded-lg text-[11px] transition">📋 Copiar Lista</button>`;
-
-          let prev = '';
-          if ((sc === 'all' || sc === 'active') && aT.length) prev += `<p class="text-[10px] uppercase font-bold text-emerald-400">📻 Lista Activa (${aT.length}):</p><ul class="space-y-1 pl-2 mb-2">${aT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — <span class="text-emerald-400">${escapeHtml(t.title)}</span> (${String(t.votes || 0).padStart(2, '0')} votos)</li>`).join('')}</ul>`;
-          if ((sc === 'all' || sc === 'weekly') && wT.length) prev += `<p class="text-[10px] uppercase font-bold text-cyan-400">🔥 Cola Semanal (${wT.length}):</p><ul class="space-y-1 pl-2 mb-2">${wT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — <span class="text-cyan-400">${escapeHtml(t.title)}</span></li>`).join('')}</ul>`;
-          if ((sc === 'all' || sc === 'monthly') && mT.length) prev += `<p class="text-[10px] uppercase font-bold text-sky-400">🗓️ Lista Mensual (${mT.length}):</p><ul class="space-y-1 pl-2 mb-2">${mT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — ${escapeHtml(t.title)}</li>`).join('')}</ul>`;
-          if ((sc === 'all' || sc === 'annual') && anT.length) prev += `<p class="text-[10px] uppercase font-bold text-amber-400">📀 Lista Anual (${anT.length}):</p><ul class="space-y-1 pl-2 mb-2">${anT.map((t, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — ${escapeHtml(t.title)}</li>`).join('')}</ul>`;
-          if ((sc === 'all' || sc === 'countries') && cT.length) prev += `<p class="text-[10px] uppercase font-bold text-purple-400">🌍 Países (${cT.length}):</p><ul class="space-y-1 pl-2">${cT.map((c, i) => `<li class="text-[11px] text-zinc-300 truncate">${i + 1}. ${c.flag || '🌐'} <strong>${escapeHtml(c.artist)}</strong> (${escapeHtml(c.email)}) — Temas: ${c.submissionsCount || 1}</li>`).join('')}</ul>`;
-
-          let restoreRecordsHtml = '';
-          const renderSectionRestoreItems = (arr, keyName, titleLbl, colColor) => {
-            if (!arr || !arr.length) return '';
-            return `<div class="space-y-1.5"><p class="text-[10px] uppercase font-bold ${colColor}">${titleLbl} (${arr.length}):</p>` +
-              arr.map((t, i) => `
-                <div class="flex items-center justify-between bg-zinc-950 p-2 rounded-lg border border-white/5 gap-2">
-                  <span class="text-[11px] text-zinc-200 truncate">${i + 1}. <strong>${escapeHtml(t.artist)}</strong> — ${escapeHtml(t.title)}</span>
-                  <button type="button" onclick="restoreSingleRecordFromBackup('${b.id}', '${keyName}', ${i})" class="px-2 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold rounded text-[10px] whitespace-nowrap transition">Restaurar individual</button>
-                </div>
-              `).join('') + `</div>`;
-          };
-
-          if (aT.length || wT.length || mT.length || anT.length) {
-            restoreRecordsHtml = `
-              <div class="mt-3 pt-3 border-t border-purple-500/30 space-y-3 bg-purple-950/20 p-3 rounded-xl border">
-                <div class="flex flex-col gap-2">
-                  <span class="font-bold text-purple-300 text-xs">🛠️ Centro de Restauración Masiva</span>
-                  <p class="text-[10px] text-zinc-400">Marca las listas que deseas sustituir con esta copia (las desmarcadas no se tocarán):</p>
-                  <div class="grid grid-cols-2 gap-1.5 py-1">
-                    ${aT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_active_${b.id}" checked class="accent-purple-500"> Lista Activa (${aT.length})</label>` : ''}
-                    ${wT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_weekly_${b.id}" checked class="accent-purple-500"> Cola Semanal (${wT.length})</label>` : ''}
-                    ${mT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_monthly_${b.id}" checked class="accent-purple-500"> Lista Mensual (${mT.length})</label>` : ''}
-                    ${anT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_annual_${b.id}" checked class="accent-purple-500"> Lista Anual (${anT.length})</label>` : ''}
-                  </div>
-                  <button type="button" onclick="restoreSelectedRecordsFromBackup('${b.id}')" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow transition">⚡ Restaurar Listas Marcadas (Sustituir)</button>
-                </div>
-                ${renderSectionRestoreItems(aT, 'active', 'Lista Activa', 'text-emerald-400')}
-                ${renderSectionRestoreItems(wT, 'weekly', 'Cola Semanal', 'text-cyan-400')}
-                ${renderSectionRestoreItems(mT, 'monthly', 'Lista Mensual', 'text-sky-400')}
-                ${renderSectionRestoreItems(anT, 'annual', 'Lista Anual', 'text-amber-400')}
-              </div>
-            `;
-          }
-
-          return `<div class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2.5">
-            <div class="flex flex-wrap justify-between items-center gap-2">
-              <div><p class="font-bold text-white text-xs">${icon} ${escapeHtml(b.edition || 'Backup')}</p><p class="text-[11px] text-cyan-400 font-mono mt-0.5">📅 ${b.dateString || ''}</p><p class="text-[10px] text-zinc-400 mt-0.5">${parts.join(' | ')}</p></div>
-              <div class="flex flex-wrap gap-1.5">
-                ${btns}
-                <button type="button" onclick="toggleBackupRestoreView('${b.id}')" class="px-2.5 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold rounded-lg text-[11px] transition">♻️ Restaurar</button>
-                <button type="button" onclick="exportBackupToSpotify('${b.id}')" class="px-2.5 py-1.5 bg-[#1DB954]/20 hover:bg-[#1DB954]/30 text-[#1DB954] font-bold rounded-lg text-[11px] transition">🟢 Exportar a Spotify</button>
-                <button type="button" onclick="deleteBackup('${b.id}')" class="px-2.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[11px] transition">🗑️</button>
-              </div>
-            </div>
-            <details class="text-[11px] text-zinc-400 pt-1.5 border-t border-white/5"><summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver contenido guardado</summary><div class="mt-2 bg-zinc-950 p-2.5 rounded-lg max-h-56 overflow-y-auto">${prev || '<p class="text-zinc-500 italic">Vacío.</p>'}</div></details>
-            <div id="backupRestorePanel_${b.id}" class="hidden">${restoreRecordsHtml}</div>
-          </div>`;
-        }).join('');
-      } catch (e) { if (container) container.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando backups.</p>'; }
-    }
-
-    window.copyBackupToClipboard = (id, type) => {
-      const b = backupsCache[id];
-      if (!b) return;
-      if (type === 'countries') {
-        const list = b.countriesList || [];
-        if (!list.length) return alert("Sin registros de países en esta copia.");
-        navigator.clipboard.writeText(list.map((c, i) => `${i + 1}. ${c.flag || '🌐'} ${c.artist} (${c.email}) | ${[c.city, c.country].filter(Boolean).join(', ')} | Temas: ${c.submissionsCount || 1}`).join('\n'));
-        return alert("Listado de países copiado.");
-      }
-      const tracks = ({ active: b.activeTracks, weekly: b.weeklyTracks, monthly: b.monthlyTracks, annual: b.annualTracks }[type]) || [];
-      if (!tracks.length) return alert("Esa sección no tiene canciones.");
-      navigator.clipboard.writeText(tracks.map((s, i) => `${i + 1}. ${s.artist} - ${s.title}${s.email ? ' | ' + s.email : ''} (${(s.url || '').split('?')[0]})`).join('\n'));
-      alert("Lista del backup copiada.");
-    };
-
-    window.deleteBackup = async id => {
-      if (!confirm("¿Eliminar esta copia de seguridad?")) return;
-      try { await db.collection("backups").doc(id).delete(); loadAdminBackups(); } catch (e) { alert("Error al eliminar."); }
-    };
-
-    // ==================== MENSAJES Y CHAT ADMIN ====================
-    async function loadAdminMessages() {
-      const container = $("adminMessagesList"), badge = $("msgCountBadge"), total = $("totalMsgCount");
-      try {
-        const snap = await db.collection("contact_messages").orderBy("timestamp", "desc").get();
-        const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        badge.textContent = total.textContent = msgs.length;
-        container.innerHTML = !msgs.length ? '<p class="text-zinc-400 text-center py-6">No hay mensajes recibidos todavía.</p>' : msgs.map(m => {
-          const gmail = `mailto:${m.email}?subject=${encodeURIComponent(`Respuesta: Next Wave Rising - ${m.name}`)}&body=${encodeURIComponent(`Hola ${m.name},\n\nEn respuesta a tu mensaje:\n"${m.message}"\n\n---\nBreyde & Darko (Next Wave Rising)`)}`;
-          return `<div class="p-3.5 bg-zinc-900 rounded-xl border border-white/5 space-y-2">
-            <div class="flex justify-between items-center text-xs"><span class="font-bold text-white">${escapeHtml(m.name)} (<a href="mailto:${escapeHtml(m.email)}" class="text-emerald-400 hover:underline">${escapeHtml(m.email)}</a>)</span><span class="text-[10px] text-zinc-400">${m.dateString || ''}</span></div>
-            <p class="text-xs text-zinc-300 whitespace-pre-line bg-zinc-950 p-2.5 rounded-lg border border-white/5">${escapeHtml(m.message)}</p>
-            <div class="flex justify-end gap-2"><a href="${gmail}" target="_blank" class="px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded text-[11px] font-bold transition">✉️ Contestar por Gmail</a><button onclick="deleteContactMsg('${m.id}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Eliminar</button></div>
-          </div>`;
-        }).join('');
-      } catch (e) { container.innerHTML = '<p class="text-rose-400 text-center py-4">Error cargando mensajes.</p>'; }
-    }
-
-    window.deleteContactMsg = async id => { if (confirm("¿Eliminar este mensaje?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
-    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { await db.collection("submissions").doc(id).delete(); loadAllLists(); } };
-
-    async function loadAdminChatUsers() {
-      const container = $("adminChatUsersList");
-      if (!container) return;
-      try {
-        container.innerHTML = '<p class="text-zinc-400 text-center py-3">Cargando usuarios...</p>';
-        const snap = await db.collection('chat_users').get();
-        const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        if (!users.length) { container.innerHTML = '<p class="text-zinc-400 text-center py-3">No hay usuarios de chat registrados.</p>'; return; }
-        const rows = await Promise.all(users.map(async u => {
-          const geo = await fetchGeoByIp(u.ip);
-          return `<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center">
-            <div><p class="font-bold text-white text-xs">${escapeHtml(u.nick)} <span class="ml-1">${geo.flag}</span></p><p class="text-[10px] text-zinc-400 font-mono">IP: ${escapeHtml(u.ip)}</p></div>
-            <div class="flex gap-1.5"><button onclick="silenceChatUser('${u.ip}')" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-[11px] transition">Silenciar</button><button onclick="deleteChatUser('${u.id}')" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded text-[11px] transition">Eliminar</button></div>
-          </div>`;
-        }));
-        container.innerHTML = rows.join('');
-      } catch (e) { container.innerHTML = '<p class="text-rose-400 text-center py-3">Error cargando usuarios.</p>'; }
-    }
-
-    window.silenceChatUser = async ip => {
-      if (!confirm(`¿Silenciar IP ${ip}?`)) return;
-      const snap = await db.collection('chat_users').where('ip', '==', ip).get();
-      const b = db.batch(); snap.docs.forEach(d => b.delete(d.ref)); await b.commit();
-      loadAdminChatUsers();
-    };
-    window.deleteChatUser = async id => { if (confirm("¿Eliminar usuario?")) { await db.collection('chat_users').doc(id).delete(); loadAdminChatUsers(); } };
-    window.clearAllChatMessages = async () => {
-      if (!confirm("¿Vaciar todos los mensajes del chat?")) return;
-      const snap = await db.collection('chat_messages').get();
-      const b = db.batch(); snap.docs.forEach(d => b.delete(d.ref)); await b.commit();
-      alert("¡Chat vaciado!");
-    };
-
-    async function submitContactMessage() {
-      const name = $("contactName").value.trim(), email = $("contactEmail").value.trim(), message = $("contactMsgText").value.trim(), fb = $("contactFeedback");
-      if (!name || !email || !message) { fb.textContent = currentLang === 'es' ? "Rellena todos los campos." : "Fill in all fields."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
-      try {
-        await db.collection("contact_messages").add({ name, email, message, timestamp: Date.now(), dateString: madridStr(), read: false });
-        fb.textContent = currentLang === 'es' ? "✓ ¡Mensaje enviado con éxito!" : "✓ Message sent!"; fb.className = "text-xs text-center text-emerald-400"; fb.classList.remove("hidden");
-        $("contactForm").reset();
-        setTimeout(() => { toggleModal('contactModal', false); fb.classList.add("hidden"); }, 1800);
-      } catch (e) { fb.textContent = "Error al enviar."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); }
-    }
-
-    // ==================== CHAT PÚBLICO ====================
-    async function updateChatPresence() {
-      if (!currentChatNick || !clientIp) return;
-      try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick, ip: clientIp }, { merge: true }); } catch (e) {}
-    }
-
-    function listenActiveUsers() {
-      db.collection('chat_presence').onSnapshot(snap => {
-        const now = Date.now();
-        let active = 0;
-        snap.forEach(d => { if (d.data().lastSeen && (now - d.data().lastSeen < 45000)) active++; });
-        const countStr = String(active).padStart(2, '0');
-        
-        const countEl = $("activeUsersCount");
-        const adminCountEl = $("adminActiveUsersCount");
-        const iconEl = $("activeUsersIcon");
-        const badgeEl = $("activeUsersBadge");
-
-        if (countEl) countEl.textContent = countStr;
-        if (adminCountEl) adminCountEl.textContent = countStr;
-
-        if (iconEl && badgeEl) {
-          if (active > 0) {
-            iconEl.className = "w-3.5 h-3.5 text-emerald-400";
-            badgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-bold";
-          } else {
-            iconEl.className = "w-3.5 h-3.5 text-zinc-600";
-            badgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-white/10 text-zinc-400";
-          }
-        }
-      }, () => {});
-    }
-
-    async function joinChatRoom() {
-      const nick = $("chatNickInput").value.trim(), err = $("chatLoginError");
-      if (nick.length < 2) { err.textContent = currentLang === 'es' ? "Mínimo 2 caracteres." : "Min 2 chars."; err.classList.remove('hidden'); return; }
-      err.classList.add('hidden');
-      try {
-        const usersRef = db.collection('chat_users');
-        if (clientIp && clientIp !== "unknown_ip") {
-          const q = await usersRef.where('ip', '==', clientIp).get();
-          if (!q.empty) { currentChatNick = q.docs[0].data().nick; localStorage.setItem('nwr_chat_nick', currentChatNick); return initChatRealtime(); }
-        }
-        await usersRef.add({ nick, ip: clientIp || "unknown_ip", timestamp: Date.now() });
-        currentChatNick = nick; localStorage.setItem('nwr_chat_nick', currentChatNick);
-        initChatRealtime();
-      } catch (e) { err.textContent = "Error al entrar."; err.classList.add('hidden'); }
-    }
-
-    function leaveChatRoom() {
-      if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
-      if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
-      db.collection('chat_presence').doc(chatSessionId).delete().catch(() => {});
-      currentChatNick = ""; localStorage.removeItem('nwr_chat_nick');
-      $("chatRoomBox").classList.add('hidden'); $("chatLoginBox").classList.remove('hidden'); $("chatNickInput").value = '';
-      $("chatStatusBadge").textContent = currentLang === 'es' ? "Desconectado" : "Disconnected";
-      $("chatStatusBadge").className = "text-xs px-2.5 py-1 rounded-full bg-zinc-500/20 text-zinc-300 font-bold";
-    }
-
-    function initChatRealtime() {
-      if (!currentChatNick) return;
-      $("chatLoginBox").classList.add('hidden'); $("chatRoomBox").classList.remove('hidden');
-      $("chatUserDisplay").textContent = (currentLang === 'es' ? "Usuario: " : "User: ") + currentChatNick;
-      $("chatStatusBadge").textContent = currentLang === 'es' ? "Conectado" : "Connected";
-      $("chatStatusBadge").className = "text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold";
-      updateChatPresence();
-      if (presenceInterval) clearInterval(presenceInterval);
-      presenceInterval = setInterval(updateChatPresence, 15000);
-      if (chatUnsubscribe) chatUnsubscribe();
-      chatUnsubscribe = db.collection('chat_messages').orderBy('timestamp', 'asc').limit(100).onSnapshot(snap => {
-        const c = $("chatMessagesContainer");
-        let html = '';
-        snap.forEach(d => {
-          const m = d.data(), me = m.nick === currentChatNick;
-          html += `<div class="${me ? 'text-right' : 'text-left'} space-y-0.5"><span class="text-[10px] font-bold ${me ? 'text-emerald-400' : 'text-cyan-400'}">${escapeHtml(m.nick)}</span><div class="inline-block max-w-full text-left p-2.5 rounded-xl border ${me ? 'bg-emerald-950/40 border-emerald-500/30' : 'bg-zinc-900 border-white/5'} text-white text-xs break-words">${escapeHtml(m.text)}</div><span class="block text-[9px] text-zinc-500">${m.timeString || ''}</span></div>`;
-        });
-        c.innerHTML = html || '<p class="text-zinc-500 text-center italic py-4">No hay mensajes todavía. ¡Saluda!</p>';
-        c.scrollTop = c.scrollHeight;
-      });
-    }
-
-    async function sendChatMessage() {
-      const inp = $("chatMessageInput"), text = inp.value.trim();
-      if (!text || !currentChatNick) return;
-      try {
-        await db.collection('chat_messages').add({ nick: currentChatNick, text, timestamp: Date.now(), timeString: new Date().toLocaleTimeString("es-ES", { timeZone: "Europe/Madrid", hour: '2-digit', minute: '2-digit' }), ip: clientIp || "unknown_ip" });
-        inp.value = ""; updateChatPresence();
-      } catch (e) {}
-    }
-
-    // ==================== CONFIGURACIÓN Y CARGA PARALELA ====================
-    function updateVotingUI(active) {
-      try {
-        const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", weekday: "short", hour: "2-digit", hour12: false }).formatToParts(new Date()).map(x => [x.type, x.value]));
-        if (parts.weekday === 'Thu' && parseInt(parts.hour, 10) >= 22) active = false;
-      } catch (e) {}
-      globalVotingActive = active;
-      const ind = $("votingIndicatorText"), hInd = $("headerVotingStatus"), tVote = $("tab_vote"), vBadge = $("voteTabStatusBadge"), tBtn = $("toggleVotingBtn");
-      if (active) {
-        if (ind) { ind.innerHTML = "● Votación Activa <span class='text-zinc-400 font-normal'>(activa)</span>"; ind.className = "text-[10px] text-emerald-400 font-bold"; }
-        if (tBtn) { tBtn.textContent = "Desactivar Votación"; tBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-zinc-950 shadow"; }
-        if (hInd) {
-          hInd.style = "";
-          hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center gap-1.5";
-          hInd.textContent = currentLang === 'es' ? "Votación activa" : "Voting active";
-          applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeActive);
-        }
-        if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Activa" : "Active"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold"; }
-        if (tVote) { tVote.style.opacity = "1"; tVote.style.pointerEvents = "auto"; }
-      } else {
-        if (ind) { ind.innerHTML = "● Votación Inactiva <span class='text-zinc-400 font-normal'>(desactivada)</span>"; ind.className = "text-[10px] text-rose-400 font-bold"; }
-        if (tBtn) { tBtn.textContent = "Activar Votación"; tBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500 text-white shadow"; }
-        if (hInd) {
-          hInd.style = "";
-          hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center gap-1.5";
-          hInd.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive";
-          applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeInactive);
-        }
-        if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold"; }
-        if (tVote) tVote.style.opacity = "0.6";
-      }
-    }
-
     async function loadConfig() {
       try {
         const snap = await db.collection("settings").doc("activeEdition").get();
@@ -2461,7 +1940,9 @@
       $("adminEditionInput").value = config.edition;
       $("adminPlaylistInput").value = config.playlistUrl;
       $("adminTrackInput").value = config.trackUrl || "";
-      applyBrandLogo(config.logoUrl);
+      
+      applyHeaderMediaAndYoutube();
+      loadHeaderConfigForm();
 
       if (!initialTabApplied && config.defaultTab) {
         initialTabApplied = true;
