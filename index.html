@@ -1666,12 +1666,14 @@
       if (!geoToUse || !geoToUse.ip || geoToUse.ip === "unknown_ip") {
         try { geoToUse = await fetchGeoByIp(""); } catch (e) { console.warn("No se pudo obtener la IP del envío:", e); }
       }
+      // Nunca sustituir la IP del remitente por la IP global del navegador.
+      // Si el servicio falla, guardar el envío sin IP para evitar atribuciones erróneas.
       if (!geoToUse || !geoToUse.ip || geoToUse.ip === "unknown_ip") {
         geoToUse = {
-          ip: clientIp || "unknown_ip",
-          country: clientGeo.country || "",
-          city: clientGeo.city || "",
-          flag: clientGeo.flag || "🌐"
+          ip: "unknown_ip",
+          country: "",
+          city: "",
+          flag: "🌐"
         };
       }
 
