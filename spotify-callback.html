@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#09090b">
+  <title>Conectar Spotify · Next Wave Rising</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#09090b;color:#f4f4f5;font:16px system-ui,sans-serif;display:grid;place-items:center;padding:24px}
+    main{width:min(100%,560px);background:#18181b;border:1px solid #3f3f46;border-radius:20px;padding:26px}
+    h1{font-size:25px;margin:0 0 10px}p{color:#d4d4d8;line-height:1.55}
+    button{background:#1ed760;color:#071b0d;border:0;border-radius:12px;padding:14px 18px;font-weight:800;font-size:16px;cursor:pointer}
+    textarea{width:100%;min-height:110px;background:#09090b;color:#f4f4f5;border:1px solid #52525b;border-radius:10px;padding:12px;overflow-wrap:anywhere}
+    .hidden{display:none}.notice{font-size:14px;color:#a1a1aa}.error{color:#fca5a5}.success{color:#86efac}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Conectar Spotify</h1>
+  <p>Autoriza Next Wave Rising para gestionar únicamente tus playlists privadas. Esta página utiliza OAuth con PKCE; no necesita tu contraseña ni el Client Secret.</p>
+  <section id="start">
+    <button id="connect">Conectar con Spotify</button>
+  </section>
+  <section id="working" class="hidden"><p>Procesando la autorización de Spotify…</p></section>
+  <section id="result" class="hidden">
+    <p id="message"></p>
+    <label for="refresh">Token de renovación para guardar como secreto SPOTIFY_REFRESH_TOKEN en GitHub:</label>
+    <textarea id="refresh" readonly></textarea>
+    <p><button id="copy">Copiar token</button></p>
+    <p class="notice">No lo publiques ni lo envíes por mensajes. Pégalo directamente en GitHub → Settings → Secrets and variables → Actions, con el nombre SPOTIFY_REFRESH_TOKEN. Después puedes cerrar esta página.</p>
+  </section>
+  <p id="error" class="error" role="alert"></p>
+</main>
+<script>
+(() => {
+  const CLIENT_ID = "0525688e1d0a4d0fa7ebf8b44e94be61";
+  const REDIRECT_URI = "https://breyde.github.io/NEXT-WAVE-RISING/spotify-callback.html";
+  const SCOPES = "playlist-modify-private playlist-read-private";
+  const $ = id => document.getElementById(id);
+  const random = n => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const bytes = crypto.getRandomValues(new Uint8Array(n));
+    return Array.from(bytes, b => chars[b % chars.length]).join("");
+  };
+  const challenge = async verifier => {
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+    return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_");
+  };
+  async function begin() {
+    const verifier = random(64);
+    const state = random(32);
+    sessionStorage.setItem("spotify_pkce_verifier", verifier);
+    sessionStorage.setItem("spotify_oauth_state", state);
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID, response_type: "code", redirect_uri: REDIRECT_URI,
+      scope: SCOPES, state, code_challenge_method: "S256",
+      code_challenge: await challenge(verifier)
+    });
+    location.href = "https://accounts.spotify.com/authorize?" + params.toString();
+  }
+  async function finish() {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    const error = params.get("error");
+    if (!code && !error) return;
+    $("start").classList.add("hidden");
+    $("working").classList.remove("hidden");
+    if (error) throw new Error("Spotify canceló o rechazó la autorización: " + error);
+    const state = params.get("state");
+    const expectedState = sessionStorage.getItem("spotify_oauth_state");
+    const verifier = sessionStorage.getItem("spotify_pkce_verifier");
+    if (!state || !expectedState || state !== expectedState || !verifier) {
+      throw new Error("No se pudo validar la sesión de autorización. Vuelve a iniciar la conexión desde esta página.");
+    }
+    const body = new URLSearchParams({
+      client_id: CLIENT_ID, grant_type: "authorization_code", code,
+      redirect_uri: REDIRECT_URI, code_verifier: verifier
+    });
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST", headers: {"Content-Type":"application/x-www-form-urlencoded"}, body
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error_description || data.error || "Spotify no pudo completar la conexión.");
+    if (!data.refresh_token) throw new Error("Spotify no devolvió un refresh token. Repite la conexión y revisa los permisos.");
+    sessionStorage.removeItem("spotify_pkce_verifier");
+    sessionStorage.removeItem("spotify_oauth_state");
+    history.replaceState({}, document.title, REDIRECT_URI);
+    $("working").classList.add("hidden");
+    $("result").classList.remove("hidden");
+    $("message").textContent = "¡Conexión autorizada! Copia el token y guárdalo directamente en GitHub Secrets.";
+    $("message").className = "success";
+    $("refresh").value = data.refresh_token;
+  }
+  $("connect").addEventListener("click", () => begin().catch(e => $("error").textContent = e.message));
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("refresh").value); $("copy").textContent = "Copiado"; }
+    catch { $("error").textContent = "No se pudo copiar automáticamente. Mantén pulsado el texto para copiarlo."; }
+  });
+  finish().catch(e => { $("working").classList.add("hidden"); $("error").textContent = e.message; });
+})();
+</script>
+</body>
+</html>
