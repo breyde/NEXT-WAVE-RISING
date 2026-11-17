@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09090b">
+  <title>Prueba de guardado Spotify — Next Wave Rising</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#09090b;color:#f4f4f5;font-family:Arial,sans-serif;display:grid;place-items:center;padding:20px}
+    main{width:100%;max-width:520px;background:#18181b;border:1px solid #3f3f46;border-radius:18px;padding:24px}
+    h1{font-size:22px;margin:0 0 10px;color:#34d399}p{font-size:14px;line-height:1.55;color:#d4d4d8}
+    button{width:100%;padding:14px;border:0;border-radius:10px;background:#1ed760;color:#07130b;font-weight:700;font-size:15px;cursor:pointer}
+    button:disabled{opacity:.55;cursor:wait}.result{margin-top:16px;padding:14px;border-radius:10px;background:#27272a;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+    .small{font-size:12px;color:#a1a1aa}.good{color:#86efac}.bad{color:#fca5a5}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Comprobar playlist semanal</h1>
+  <p>Esta prueba consulta si la cuenta de Spotify conectada tiene guardada la playlist semanal de Next Wave Rising.</p>
+  <button id="connect">Conectar Spotify para comprobar</button>
+  <div id="result" class="result" role="status">Todavía no se ha realizado ninguna comprobación.</div>
+  <p class="small">Permisos solicitados: lectura de elementos guardados y lectura de playlists privadas. No se guardan tokens de acceso ni se modifica tu biblioteca.</p>
+</main>
+<script>
+(() => {
+  const CLIENT_ID = "0525688e1d0a4d0fa7ebf8b44e94be61";
+  const REDIRECT_URI = "https://breyde.github.io/NEXT-WAVE-RISING/spotify-library-test.html";
+  const PLAYLIST_URI = "spotify:playlist:0MAX34xiCSEGAIiQ9VwpQF";
+  const SCOPES = "user-library-read playlist-read-private";
+  const button = document.getElementById("connect");
+  const result = document.getElementById("result");
+  const show = (message, cls = "") => { result.className = "result " + cls; result.textContent = message; };
+  const randomString = length => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+    const bytes = crypto.getRandomValues(new Uint8Array(length));
+    return Array.from(bytes, b => chars[b % chars.length]).join("");
+  };
+  const base64url = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  async function sha256(value) { return await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)); }
+
+  async function startAuth() {
+    button.disabled = true;
+    try {
+      const verifier = randomString(64);
+      const state = randomString(32);
+      sessionStorage.setItem("nwr_spotify_test_verifier", verifier);
+      sessionStorage.setItem("nwr_spotify_test_state", state);
+      const challenge = base64url(await sha256(verifier));
+      const params = new URLSearchParams({
+        client_id: CLIENT_ID,
+        response_type: "code",
+        redirect_uri: REDIRECT_URI,
+        scope: SCOPES,
+        state,
+        code_challenge_method: "S256",
+        code_challenge: challenge
+      });
+      location.assign("https://accounts.spotify.com/authorize?" + params.toString());
+    } catch (e) {
+      show("No se pudo iniciar la conexión segura. Vuelve a intentarlo.", "bad");
+      button.disabled = false;
+    }
+  }
+
+  async function handleCallback() {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+    const returnedState = params.get("state");
+    const error = params.get("error");
+    if (!code && !error) return;
+    history.replaceState({}, document.title, REDIRECT_URI);
+    if (error) {
+      sessionStorage.removeItem("nwr_spotify_test_verifier");
+      sessionStorage.removeItem("nwr_spotify_test_state");
+      show("Spotify no autorizó la prueba: " + error, "bad");
+      return;
+    }
+    const expectedState = sessionStorage.getItem("nwr_spotify_test_state");
+    const verifier = sessionStorage.getItem("nwr_spotify_test_verifier");
+    sessionStorage.removeItem("nwr_spotify_test_verifier");
+    sessionStorage.removeItem("nwr_spotify_test_state");
+    if (!verifier || !expectedState || returnedState !== expectedState) {
+      show("La comprobación de seguridad no coincide. Inicia la prueba de nuevo.", "bad");
+      return;
+    }
+    button.disabled = true;
+    show("Autorización recibida. Consultando Spotify…");
+    try {
+      const tokenResponse = await fetch("https://accounts.spotify.com/api/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: CLIENT_ID,
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: REDIRECT_URI,
+          code_verifier: verifier
+        })
+      });
+      const tokenData = await tokenResponse.json();
+      if (!tokenResponse.ok || !tokenData.access_token) throw new Error("No se pudo completar la autorización (" + tokenResponse.status + ").");
+      const checkResponse = await fetch("https://api.spotify.com/v1/me/library/contains?uris=" + encodeURIComponent(PLAYLIST_URI), {
+        headers: { Authorization: "Bearer " + tokenData.access_token }
+      });
+      const checkData = await checkResponse.json();
+      if (!checkResponse.ok || !Array.isArray(checkData)) {
+        const message = checkData && checkData.error && checkData.error.message ? checkData.error.message : "Respuesta inesperada de Spotify.";
+        throw new Error(message + " (" + checkResponse.status + ").");
+      }
+      if (checkData[0] === true) show("Spotify confirma que esta playlist aparece guardada en la biblioteca de esta cuenta.", "good");
+      else if (checkData[0] === false) show("Spotify confirma que esta playlist NO aparece guardada en la biblioteca de esta cuenta.", "bad");
+      else show("Spotify respondió, pero no pudimos interpretar el resultado.", "bad");
+    } catch (e) {
+      show("No se pudo verificar: " + e.message, "bad");
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  button.addEventListener("click", startAuth);
+  handleCallback();
+})();
+</script>
+</body>
+</html>
