@@ -1764,16 +1764,13 @@
           const ref = db.collection("artist_countries").doc(id);
           const existingDoc = existingMap[id];
           if (existingDoc) {
+            // La sincronización solo repara contadores y fechas.
+            // Nunca escribe ni sustituye IP, país, ciudad o bandera: esos datos
+            // solo pueden proceder del envío público original.
             const updateData = {
               submissionsCount: Math.max(existingDoc.submissionsCount || 1, info.count),
               lastSubmissionDate: info.lastDate
             };
-            if ((!existingDoc.ip || ["Histórico", "Sin IP previa", "unknown_ip"].includes(existingDoc.ip)) && info.ip && info.ip !== "unknown_ip") {
-              updateData.ip = info.ip;
-              updateData.country = info.country || existingDoc.country || "Desconocido";
-              updateData.city = info.city || existingDoc.city || "";
-              updateData.flag = info.flag || existingDoc.flag || "🌐";
-            }
             batch.update(ref, updateData);
             updated++;
           } else {
@@ -1783,10 +1780,10 @@
               firstPublishedDate: info.firstDate,
               lastSubmissionDate: info.lastDate,
               submissionsCount: info.count,
-              ip: info.ip && info.ip !== "unknown_ip" ? info.ip : "Histórico",
-              country: info.country || "Desconocido",
-              city: info.city || "",
-              flag: info.flag || "🌐"
+              ip: "Histórico",
+              country: "Desconocido",
+              city: "",
+              flag: "🌐"
             });
             added++;
           }
@@ -2383,7 +2380,7 @@
       if (!cleanUrl.includes("spotify.com/") || !cleanUrl.includes("/track/")) return alert("Enlace Spotify no válido.");
       try {
         await db.collection("active_list").add({ artist, title, url: cleanUrl, email: email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
-        if (email) await registerOrUpdateArtistCountry(artist, email);
+        // Las altas manuales de administración no registran la IP del administrador como IP del artista.
         $("adminActiveArtist").value = $("adminActiveTitle").value = $("adminActiveUrl").value = $("adminActiveEmail").value = "";
         await Promise.all([loadAllLists(), loadAdminCountries()]);
         alert("✅ Tema añadido a la Lista Activa.");
