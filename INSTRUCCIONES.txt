@@ -1,0 +1,58 @@
+NEXT WAVE RISING — AUTOMATIZACIÓN GRATUITA CON GITHUB ACTIONS
+
+IMPORTANTE
+Esta versión NO usa Firebase Cloud Functions, Cloud Scheduler ni Firebase Blaze.
+Usa GitHub Actions y el proyecto Firestore que ya tiene la web.
+
+QUÉ HACE
+- Jueves 22:00, hora Europe/Madrid: cierra automáticamente la votación.
+- Jueves 23:59, hora Europe/Madrid: crea y verifica una copia de seguridad antes de mover listas.
+- Después del backup: activa la cola semanal, archiva la lista activa en mensual y añade el ganador destacado a la nueva lista activa.
+- Conserva cuatro bloques semanales en mensual; los bloques más antiguos pasan a anual.
+- Durante todo enero reintenta automáticamente el cierre anual hasta completarlo.
+- Reintenta operaciones incompletas viernes, sábado y domingo, y una vez al día de lunes a jueves, sin duplicar rotaciones.
+- Al terminar cada rotación semanal o anual, crea un aviso en la bandeja Admin > Mensajes de la web (colección contact_messages).
+- Los avisos tienen identificador fijo y no se duplican en los reintentos.
+- Los botones individuales del panel Admin se mantienen y siguen siendo manuales.
+
+HORARIOS Y CAMBIO DE HORA
+GitHub Actions usa cron UTC. El workflow contiene las dos horas UTC posibles para verano e invierno en España. El script comprueba siempre Europe/Madrid antes de hacer cambios. Los reintentos cubren retrasos de entrega de GitHub.
+GitHub puede retrasar ejecuciones programadas; no se garantiza precisión absoluta al segundo. La operación se procesa en cuanto se ejecuta el runner después del umbral establecido.
+
+INSTALACIÓN (UNA SOLA VEZ)
+1. Descomprime el ZIP y copia a la raíz del repositorio:
+   - index.html (sustituye el actual)
+   - package.json
+   - scripts/automation.js
+   - .github/workflows/next-wave-rising.yml
+2. No copies ni despliegues la antigua carpeta functions/ ni firebase.json. Esta versión no los necesita.
+3. En Google Cloud Console del proyecto Firebase existente, crea una cuenta de servicio dedicada a la automatización y asígnale el rol mínimo necesario para leer y escribir en Firestore (Cloud Datastore User / roles/datastore.user). No actives facturación ni cambies el plan Firebase.
+4. Genera una clave JSON de esa cuenta de servicio. No la publiques, no la incluyas en el repositorio y no la pongas en index.html.
+5. En GitHub: repositorio > Settings > Secrets and variables > Actions > New repository secret.
+   Nombre exacto: FIREBASE_SERVICE_ACCOUNT
+   Valor: contenido completo del JSON de la clave.
+6. Comprueba que Actions está habilitado en el repositorio y que el workflow está en la rama predeterminada (normalmente main).
+7. En Actions debe aparecer “Next Wave Rising - automatización de listas”. La ejecución programada empieza automáticamente.
+
+SEGURIDAD
+- Nunca guardar el JSON de servicio en archivos públicos ni en el código de la web.
+- Limitar la cuenta de servicio a Firestore y usarla solo para esta automatización.
+- Proteger la rama principal y restringir quién puede editar workflows.
+- Si la cuenta de servicio se expone, revocar su clave inmediatamente.
+
+AVISOS EN LA WEB
+Los avisos se guardan en contact_messages con system=true, read=false y un ID estable. En Admin > Mensajes se muestran como “AVISO AUTOMÁTICO”, sin botón de responder por Gmail. Se pueden eliminar como los demás mensajes.
+
+COMPROBACIÓN
+En Firestore:
+- automation_runs: estado y resultado de cada cierre/rotación.
+- backups: copias previas a cada rotación.
+- contact_messages: avisos automáticos enviados a la bandeja.
+- settings/activeEdition: estado de la votación.
+
+LÍMITES Y PRECAUCIONES
+- GitHub Actions estándar es gratuito para repositorios públicos; las políticas y cuotas de GitHub pueden cambiar. No se contrata Firebase Blaze.
+- Las tareas programadas de GitHub pueden retrasarse. El sistema reintenta y usa IDs estables para evitar duplicados.
+- Antes de producción, revisar firestore.rules. El script cierra votingActive en Firestore, pero las reglas deben impedir escrituras directas de votos cuando votingActive=false. No se han sustituido reglas no facilitadas.
+- El backup completo se guarda como documento Firestore. Si supera el tamaño máximo seguro, la rotación se cancela para proteger las listas.
+- Se recomienda probar primero en una copia de Firestore.
