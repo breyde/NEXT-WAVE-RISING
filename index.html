@@ -1655,44 +1655,37 @@
       } catch (e) {}
     };
 
-    // ==================== PAÍSES (BLINDADO CONTRA SOBRESCRITURA) ====================
+    // ==================== PAÍSES (SIN CONSERVAR IP) ====================
     async function registerOrUpdateArtistCountry(artistName, email, submittedGeo = null) {
       const cleanEmail = (email || "").trim().toLowerCase();
       if (!cleanEmail) return null;
 
-      // Solo aceptar geolocalización capturada por el formulario público al enviar.
-      // Las acciones administrativas nunca deben consultar ni asignar la IP del administrador.
-      let geoToUse = submittedGeo;
-      if (!geoToUse || !geoToUse.ip || geoToUse.ip === "unknown_ip") {
-        geoToUse = {
-          ip: "unknown_ip",
-          country: "",
-          city: "",
-          flag: "🌐"
-        };
-      }
+      // La IP solo se usa en memoria para consultar la geolocalización.
+      // Nunca se guarda en artist_countries; solo se conservan país, ciudad y bandera.
+      const geo = submittedGeo || {};
+      const country = (geo.country || "").trim();
+      const countryKnown = !!country && country.toLowerCase() !== "desconocido";
 
-      const ipToUse = geoToUse.ip || "unknown_ip";
       try {
-        const docId = cleanEmail.replace(/[.#$\/\[\]]/g, "_");
+        const docId = cleanEmail.replace(/[.#$\\/\\[\\]]/g, "_");
         const docRef = db.collection("artist_countries").doc(docId);
         const snap = await docRef.get();
         const nowStr = madridStr();
+        const cleanGeo = {
+          country: countryKnown ? country : "Desconocido",
+          city: countryKnown ? (geo.city || "") : "",
+          flag: countryKnown ? (geo.flag || "🌐") : "🌐"
+        };
 
         if (snap.exists) {
           const prev = snap.data();
-          const updates = {
+          await docRef.update({
             submissionsCount: (prev.submissionsCount || 1) + 1,
-            lastSubmissionDate: nowStr
-          };
-          // Conserva la IP ya registrada; completa los registros históricos sin IP.
-          if (ipToUse !== "unknown_ip" && (!prev.ip || ["unknown_ip", "Histórico", "Sin IP previa"].includes(prev.ip))) {
-            updates.ip = ipToUse;
-            if (geoToUse.country) updates.country = geoToUse.country;
-            if (geoToUse.city) updates.city = geoToUse.city;
-            if (geoToUse.flag && geoToUse.flag !== "🌐") updates.flag = geoToUse.flag;
-          }
-          await docRef.update(updates);
+            lastSubmissionDate: nowStr,
+            ...cleanGeo,
+            ip: firebase.firestore.FieldValue.delete(),
+            ipCapturedAt: firebase.firestore.FieldValue.delete()
+          });
         } else {
           await docRef.set({
             email: cleanEmail,
@@ -1700,15 +1693,12 @@
             firstPublishedDate: nowStr,
             lastSubmissionDate: nowStr,
             submissionsCount: 1,
-            ip: ipToUse,
-            country: geoToUse.country || "Desconocido",
-            city: geoToUse.city || "",
-            flag: geoToUse.flag || "🌐"
+            ...cleanGeo
           });
         }
-        return { ip: ipToUse, country: geoToUse.country || "", city: geoToUse.city || "", flag: geoToUse.flag || "🌐" };
+        return cleanGeo;
       } catch (e) {
-        console.error("Error guardando el registro de país/IP:", e);
+        console.error("Error guardando el país del artista:", e);
         return null;
       }
     }
@@ -3081,16 +3071,17 @@
           if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
           if (dupTrack) { fb.textContent = currentLang === 'es' ? "⚠️ Esta canción ya está en la cola." : "⚠️ Track already in queue."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
 
-          // Captura la IP y la ubicación del visitante antes de guardar la propuesta.
+          // La IP se usa solo durante esta consulta; no se conserva en el registro de países.
           const submitGeo = await fetchGeoByIp("");
-          const safeGeo = submitGeo || { ip: "unknown_ip", country: "", city: "", flag: "🌐" };
+          const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
 
           await db.collection("submissions").add({
             artist, title, url: cleanUrl, email,
             timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: []
           });
-          // La IP queda únicamente en el registro privado de Países, no en la cola pública.
+          // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
+          sessionStorage.removeItem("nwr_geo_self");
 
           $("receiptArtist").textContent = artist; $("receiptTitle").textContent = title; $("receiptEmail").textContent = email;
           receipt.classList.remove("hidden"); $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
