@@ -1660,14 +1660,9 @@
       const cleanEmail = (email || "").trim().toLowerCase();
       if (!cleanEmail) return null;
 
-      // La IP se obtiene en el momento del envío, no se depende de que initClientIp()
-      // haya terminado al cargar la página.
+      // Solo aceptar geolocalización capturada por el formulario público al enviar.
+      // Las acciones administrativas nunca deben consultar ni asignar la IP del administrador.
       let geoToUse = submittedGeo;
-      if (!geoToUse || !geoToUse.ip || geoToUse.ip === "unknown_ip") {
-        try { geoToUse = await fetchGeoByIp(""); } catch (e) { console.warn("No se pudo obtener la IP del envío:", e); }
-      }
-      // Nunca sustituir la IP del remitente por la IP global del navegador.
-      // Si el servicio falla, guardar el envío sin IP para evitar atribuciones erróneas.
       if (!geoToUse || !geoToUse.ip || geoToUse.ip === "unknown_ip") {
         geoToUse = {
           ip: "unknown_ip",
@@ -1722,9 +1717,13 @@
       const btn = $("syncCountriesBtn");
       if (btn) { btn.disabled = true; btn.textContent = "⏳ Sincronizando..."; }
       try {
-        const [snapW, snapA, snapC] = await Promise.all([
-          db.collection("submissions").orderBy("timestamp", "asc").get(),
-          db.collection("active_list").orderBy("timestamp", "asc").get(),
+        // Leer todas las listas sin orderBy: así también entran documentos antiguos
+        // que no tengan timestamp, y se recuperan artistas tras las rotaciones.
+        const [snapW, snapA, snapM, snapY, snapC] = await Promise.all([
+          db.collection("submissions").get(),
+          db.collection("active_list").get(),
+          db.collection("monthly_list").get(),
+          db.collection("annual_list").get(),
           db.collection("artist_countries").get()
         ]);
         const existingMap = {};
@@ -1754,6 +1753,8 @@
         };
         snapA.forEach(addDoc);
         snapW.forEach(addDoc);
+        snapM.forEach(addDoc);
+        snapY.forEach(addDoc);
 
         const entries = Object.entries(grouped);
         if (!entries.length) return alert("No se encontraron temas con correo electrónico.");
