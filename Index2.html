@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Next Wave Rising</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <script src="https://cdn.tailwindcss.com" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
-    img,video{max-width:100%} iframe{border:0} body{font-family:'Outfit',sans-serif;background:#09090b;color:#f4f4f5;min-height:100vh}
+    body{font-family:'Outfit',sans-serif;background:#09090b;color:#f4f4f5;min-height:100vh}
     .glass{background:rgba(24,24,27,0.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.08)}
     .neon-btn{background:linear-gradient(135deg,#10b981,#06b6d4)}
     .tab-btn.active{background:rgba(16,185,129,0.2);border-color:#10b981;color:#10b981}
@@ -74,7 +72,7 @@
           <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold whitespace-nowrap">Total: <strong id="publicActiveCount">0</strong></span>
         </div>
         <div class="flex flex-wrap gap-2">
-          <a id="activePlaylistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" rel="noopener noreferrer" class="flex-1 text-center py-2.5 px-4 bg-[#1DB954] text-black font-bold rounded-xl text-xs shadow hover:opacity-95 transition flex items-center justify-center gap-1.5" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
+          <a id="activePlaylistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="flex-1 text-center py-2.5 px-4 bg-[#1DB954] text-black font-bold rounded-xl text-xs shadow hover:opacity-95 transition flex items-center justify-center gap-1.5" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
           <button id="btnGoVoteActive" type="button" onclick="switchTab('vote')" class="py-2.5 px-4 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5" data-i18n="btnGoVote">⭐ Ir a Votar</button>
         </div>
         <div id="publicActiveList" class="space-y-3 pt-1">
@@ -112,7 +110,7 @@
 
       <div class="glass rounded-2xl p-6 space-y-3">
         <h3 class="font-semibold" data-i18n="step1Title">1. Guarda la playlist</h3>
-        <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" rel="noopener noreferrer" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm flex items-center justify-center gap-1.5" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
+        <a id="playlistLinkBtn" href="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" target="_blank" class="block text-center py-2.5 bg-[#1DB954] text-black font-bold rounded-xl text-sm flex items-center justify-center gap-1.5" data-i18n="step1Btn">Abrir Playlist en Spotify</a>
         <label class="flex gap-2 text-xs text-zinc-300 pt-2 cursor-pointer"><input type="checkbox" id="confirmSaveCheckbox" class="accent-emerald-500"> <span data-i18n="step1Check">Confirmo que ya he guardado la playlist en mi biblioteca.</span></label>
       </div>
 
@@ -657,6 +655,63 @@
       if (st) st.innerHTML = tok ? `Estado: <span class="text-emerald-400 font-bold">Activo</span>` : `Estado: Sin token.`;
     }
 
+    function fileToBase64Pure(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function pushSingleFileToGithub(file) {
+      const token = getGithubToken();
+      if (!token) throw new Error("Falta GitHub Token.");
+      const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+      const path = `${GH_FOLDER}/${safeName}`;
+      const base64Content = await fileToBase64Pure(file);
+      let sha;
+      try {
+        const checkRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (checkRes.ok) sha = (await checkRes.json()).sha;
+      } catch (e) {}
+      const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ message: `Upload ${safeName}`, content: base64Content, ...(sha ? { sha } : {}) })
+      });
+      const data = await res.json();
+      return data.content?.download_url || `${GH_RAW_BASE}${safeName}`;
+    }
+
+    window.uploadFilesToGithub = async e => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      $("ghUploadStatus").textContent = `⏳ Subiendo...`;
+      $("ghUploadStatus").classList.remove("hidden");
+      try {
+        for (const f of files) await pushSingleFileToGithub(f);
+        $("ghUploadStatus").textContent = `✅ Subido correctamente.`;
+        loadGithubGallery();
+      } catch (err) { $("ghUploadStatus").textContent = `❌ ${err.message}`; }
+    };
+
+    window.loadGithubGallery = async () => {
+      const cont = $("ghGalleryContainer");
+      if (!cont) return;
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}`);
+        if (!res.ok) { cont.innerHTML = '<p class="text-xs text-zinc-500">Vacío.</p>'; return; }
+        const items = await res.json();
+        cont.innerHTML = items.map(file => `
+          <div class="p-2 bg-zinc-900 rounded-lg text-center truncate">
+            <p class="text-[10px] text-zinc-300 truncate">${escapeHtml(file.name)}</p>
+            <button onclick="navigator.clipboard.writeText('${file.download_url}');alert('Copiado');" class="mt-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[9px]">Copiar URL</button>
+          </div>
+        `).join('');
+      } catch (e) {}
+    };
+
     function getEmbedUrl(url, listKey) {
       if (!url || !url.includes("spotify.com/") || !url.includes("/track/")) return "";
       const id = url.split("?")[0].split("/").pop();
@@ -686,12 +741,9 @@
 
     async function fetchGeoByIp(ip = "") {
       try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 4500);
-        const res = await fetch(`https://ipwho.is/${ip}`, { signal: controller.signal });
-        clearTimeout(timeout);
+        const res = await fetch(`https://ipwho.is/${ip}`);
         const d = await res.json();
-        if (d && d.success) return { ip: d.ip || ip, country: d.country || "", city: d.city || "", flag: d.flag?.emoji || flagFromCode(d.country_code) };
+        if (d && d.success) return { ip: d.ip || ip, country: d.country || "", city: d.city || "", flag: d.flag?.emoji || "" };
       } catch (e) {}
       return { ip: ip || "unknown_ip", country: "", city: "", flag: "🌐" };
     }
@@ -816,54 +868,6 @@
       } else { ytCont.classList.add("hidden"); ytInner.innerHTML = ""; }
     }
 
-    async function pushSingleFileToGithub(file) {
-      const token = getGithubToken();
-      if (!token) throw new Error("Falta GitHub Token.");
-      const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
-      const path = `${GH_FOLDER}/${safeName}`;
-      const base64Content = await fileToBase64Pure(file);
-      let sha;
-      try {
-        const checkRes = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, { headers: { Authorization: `Bearer ${token}` } });
-        if (checkRes.ok) sha = (await checkRes.json()).sha;
-      } catch (e) {}
-      const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ message: `Upload ${safeName}`, content: base64Content, ...(sha ? { sha } : {}) })
-      });
-      const data = await res.json();
-      return data.content?.download_url || `${GH_RAW_BASE}${safeName}`;
-    }
-
-    window.uploadFilesToGithub = async e => {
-      const files = Array.from(e.target.files || []);
-      if (!files.length) return;
-      $("ghUploadStatus").textContent = `⏳ Subiendo...`;
-      $("ghUploadStatus").classList.remove("hidden");
-      try {
-        for (const f of files) await pushSingleFileToGithub(f);
-        $("ghUploadStatus").textContent = `✅ Subido correctamente.`;
-        loadGithubGallery();
-      } catch (err) { $("ghUploadStatus").textContent = `❌ ${err.message}`; }
-    };
-
-    window.loadGithubGallery = async () => {
-      const cont = $("ghGalleryContainer");
-      if (!cont) return;
-      try {
-        const res = await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}`);
-        if (!res.ok) { cont.innerHTML = '<p class="text-xs text-zinc-500">Vacío.</p>'; return; }
-        const items = await res.json();
-        cont.innerHTML = items.map(file => `
-          <div class="p-2 bg-zinc-900 rounded-lg text-center truncate">
-            <p class="text-[10px] text-zinc-300 truncate">${escapeHtml(file.name)}</p>
-            <button onclick="navigator.clipboard.writeText('${file.download_url}');alert('Copiado');" class="mt-1 px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[9px]">Copiar URL</button>
-          </div>
-        `).join('');
-      } catch (e) {}
-    };
-
     window.playTrackCard = (btn, url, listKey) => {
       const container = btn.closest('.track-card-container');
       const embedUrl = getEmbedUrl(url, listKey);
@@ -872,64 +876,35 @@
       container.innerHTML = `<iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
     };
 
-    // Carga inmediata de todas las portadas de las listas renderizadas.
-    // Se comparte la misma petición para URLs repetidas.
-    const thumbnailCache = new Map();
-
-    function observeTrackThumbnails(root = document) {
-      const images = root.querySelectorAll('img[data-spotify-url]');
-      images.forEach(img => loadTrackThumbnail(img));
-    }
-
-    async function loadTrackThumbnail(imgEl) {
-      const spotifyUrl = imgEl?.dataset.spotifyUrl;
-      if (!spotifyUrl || !imgEl.isConnected) return;
-
-      const cleanUrl = spotifyUrl.split('?')[0];
-      let request = thumbnailCache.get(cleanUrl);
-
-      if (!request) {
-        request = (async () => {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 7000);
-          try {
-            const res = await fetch(
-              `https://open.spotify.com/oembed?url=${encodeURIComponent(cleanUrl)}`,
-              { signal: controller.signal }
-            );
-            if (!res.ok) throw new Error('Thumbnail unavailable');
-            const data = await res.json();
-            return data?.thumbnail_url || '';
-          } catch (e) {
-            return '';
-          } finally {
-            clearTimeout(timeout);
+    async function loadTrackThumbnail(spotifyUrl, imgId) {
+      try {
+        if (!spotifyUrl) return;
+        const cleanUrl = spotifyUrl.split("?")[0];
+        const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(cleanUrl)}`);
+        const data = await res.json();
+        if (data && data.thumbnail_url) {
+          const imgEl = document.getElementById(imgId);
+          if (imgEl) {
+            imgEl.src = data.thumbnail_url;
+            imgEl.style.display = "block";
+            const fallback = imgEl.nextElementSibling;
+            if (fallback) fallback.style.display = "none";
           }
-        })();
-        thumbnailCache.set(cleanUrl, request);
-      }
-
-      const url = await request;
-      if (url && imgEl.isConnected) showTrackThumbnail(imgEl, url);
-    }
-
-    function showTrackThumbnail(imgEl, url) {
-      imgEl.src = url;
-      imgEl.style.display = 'block';
-      const fallback = imgEl.nextElementSibling;
-      if (fallback) fallback.style.display = 'none';
+        }
+      } catch (e) {}
     }
 
     function renderPlayableTrackHtml(s, i, listKey, extraBadge = "") {
       const em = getEmbedUrl(s.url, listKey);
       if (!em) return '';
       const imgId = 'thumb_' + Math.random().toString(36).slice(2, 9);
+      setTimeout(() => loadTrackThumbnail(s.url, imgId), 50);
 
       return `
         <div class="track-card-container glass p-3 rounded-2xl border border-white/10 flex items-center justify-between gap-2.5">
           <div class="flex items-center gap-2.5 truncate flex-1 min-w-0">
             <div class="w-10 h-10 bg-zinc-900 rounded-lg overflow-hidden shrink-0 border border-white/10 flex items-center justify-center text-emerald-400 font-bold relative">
-              <img id="${imgId}" data-spotify-url="${escapeHtml(s.url)}" loading="eager" decoding="async" fetchpriority="high" alt="Cover" class="w-full h-full object-cover" style="display:none;" />
+              <img id="${imgId}" src="" alt="Cover" class="w-full h-full object-cover" style="display:none;" />
               <span class="absolute inset-0 flex items-center justify-center text-xs">🎵</span>
             </div>
             <div class="truncate flex-1 min-w-0">
@@ -959,7 +934,6 @@
         return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" style="flex: 1 1 ${pctWidth}; max-width: ${pctWidth};" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[10px] sm:text-xs font-bold py-2 px-1 rounded-xl glass border text-center transition truncate">${escapeHtml(label)}</button>`;
       }).join('');
       renderFeaturedPlayer();
-      observeTrackThumbnails(customCont);
     }
 
     function switchTab(tab) {
@@ -977,7 +951,6 @@
       const activeBtn = $(`tab_${tab}`);
       if (activeBtn) { activeBtn.classList.add('active', 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
       renderFeaturedPlayer();
-      observeTrackThumbnails($('view' + tab[0].toUpperCase() + tab.slice(1)) || document);
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
 
@@ -1090,10 +1063,8 @@
       try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick, ip: clientIp }, { merge: true }); } catch (e) {}
     }
 
-    let activeUsersUnsubscribe = null;
     function listenActiveUsers() {
-      if (activeUsersUnsubscribe) return;
-      activeUsersUnsubscribe = db.collection('chat_presence').onSnapshot(snap => {
+      db.collection('chat_presence').onSnapshot(snap => {
         const now = Date.now();
         let active = 0;
         snap.forEach(d => { if (d.data().lastSeen && (now - d.data().lastSeen < 45000)) active++; });
@@ -1112,7 +1083,6 @@
 
     function leaveChatRoom() {
       if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
-      if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
       currentChatNick = ""; localStorage.removeItem('nwr_chat_nick');
       $("chatRoomBox").classList.add('hidden'); $("chatLoginBox").classList.remove('hidden');
     }
@@ -1186,37 +1156,35 @@
       updateVotingUI(config.votingActive !== false);
     }
 
-    let listLoadVersion = 0;
     async function loadAllLists() {
-      const requestVersion = ++listLoadVersion;
       const [votersRes, activeRes, subRes] = await Promise.allSettled([
         db.collection("voters_log").get(),
-        db.collection("active_list").orderBy("timestamp", "asc").get(),
-        db.collection("submissions").orderBy("timestamp", "asc").get()
+        db.collection("active_list").get(),
+        db.collection("submissions").get()
       ]);
-      if (requestVersion !== listLoadVersion) return;
 
       if (votersRes.status === "fulfilled") $("statVotersCount").textContent = String(votersRes.value.size).padStart(2, '0');
 
       const pAct = $("publicActiveList"), aAct = $("adminActiveListContainer"), vList = $("voteTabViewList");
       if (activeRes.status === "fulfilled") {
         activeSubs = activeRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        activeSubs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
         $("publicActiveCount").textContent = $("adminActiveCount").textContent = $("adminActiveCountBadge").textContent = activeSubs.length;
         if (!activeSubs.length) {
-          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">Sin canciones.</p>`;
-          aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">Vacío.</p>';
+          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">Aún no hay canciones cargadas en la lista activa de esta semana.</p>`;
+          aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">No hay temas en la Lista Activa todavía.</p>';
         } else {
           pAct.innerHTML = activeSubs.map((s, i) => renderPlayableTrackHtml(s, i, 'active', 'On Air')).join("");
           aAct.innerHTML = activeSubs.map((s, i) => `
-            <div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5 flex justify-between items-center text-xs">
-              <span>${i + 1}. <strong>${escapeHtml(s.artist)}</strong> — ${escapeHtml(s.title)}</span>
-              <button onclick="db.collection('active_list').doc('${s.id}').delete();loadAllLists();" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">Eliminar</button>
+            <div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center text-xs">
+              <span class="truncate">${i + 1}. <strong>${escapeHtml(s.artist)}</strong> — ${escapeHtml(s.title)}</span>
+              <button onclick="db.collection('active_list').doc('${s.id}').delete();loadAllLists();" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded shrink-0">Eliminar</button>
             </div>
           `).join("");
           vList.innerHTML = activeSubs.map((s, i) => `
             <div class="track-card-container glass rounded-2xl p-4 border border-white/10 space-y-3">
-              <p class="font-bold text-white text-xs">${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p>
-              <button onclick="handleVoteClick('${s.id}')" class="w-full py-2 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs">Votar</button>
+              <p class="font-bold text-white text-xs truncate">${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p>
+              <button onclick="handleVoteClick('${s.id}')" class="w-full py-2 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs cursor-pointer">Votar</button>
             </div>
           `).join("");
         }
@@ -1225,23 +1193,22 @@
       const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
         subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        subs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
         if ($("subCount")) $("subCount").textContent = subs.length;
         if ($("publicSubCount")) $("publicSubCount").textContent = subs.length;
         if (!subs.length) {
-          if (aSub) aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas.</p>';
+          if (aSub) aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas en la cola semanal.</p>';
           if (pSub) pSub.innerHTML = '<p class="text-zinc-400 text-xs italic text-center py-4">Aún no hay propuestas...</p>';
         } else {
           if (aSub) aSub.innerHTML = subs.map((s, i) => `
             <div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex justify-between items-center text-xs">
-              <span>${i + 1}. <strong>${escapeHtml(s.artist)}</strong> — ${escapeHtml(s.title)}</span>
-              <button onclick="deleteSubmissionTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">Eliminar</button>
+              <span class="truncate">${i + 1}. <strong>${escapeHtml(s.artist)}</strong> — ${escapeHtml(s.title)}</span>
+              <button onclick="deleteSubmissionTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded shrink-0">Eliminar</button>
             </div>
           `).join("");
           if (pSub) pSub.innerHTML = subs.map((s, i) => renderPlayableTrackHtml(s, i, 'weekly', 'Reg: ' + (s.dateString || ''))).join("");
         }
       }
-      observeTrackThumbnails(pAct);
-      observeTrackThumbnails(pSub);
     }
 
     window.handleVoteClick = async id => {
@@ -1268,6 +1235,7 @@
           $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
           $("topConfigBtn").classList.remove("hidden");
           $("topConfigBtn").classList.add("flex");
+          loadAllLists();
           loadAdminCountries();
           loadAdminBackups();
         } else {
@@ -1307,13 +1275,7 @@
         } catch (e) {}
       });
 
-      loadConfig()
-        .then(() => loadAllLists())
-        .catch(err => {
-          console.error("Next Wave Rising startup error:", err);
-          const target = $("publicActiveList");
-          if (target) target.innerHTML = '<p class="text-rose-300 text-xs text-center py-4">No se han podido cargar los datos. Recarga la página en unos segundos.</p>';
-        });
+      loadConfig().then(() => loadAllLists());
     });
   </script>
 </body>
