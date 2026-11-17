@@ -5,7 +5,8 @@
   "description": "Automatizacion gratuita de cierre y rotacion semanal para Next Wave Rising",
   "main": "scripts/weekly-rotation.js",
   "scripts": {
-    "automation": "node scripts/weekly-rotation.js"
+    "automation": "node scripts/weekly-rotation.js",
+    "spotify-sync": "node scripts/spotify-sync.js"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0"
