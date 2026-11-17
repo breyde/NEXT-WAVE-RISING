@@ -197,7 +197,7 @@ async function makeVerifiedBackupIfNeeded(backupRef) {
     await closeVoting(stateRef);
     return;
   }
-  const rotationWindow = (weekday === "Thu" && hour === 23 && minute >= 45) ||
+  const rotationWindow = (weekday === "Thu" && hour === 23 && minute >= 59) ||
     (weekday === "Fri" && hour === 0 && minute < 15);
   if (rotationWindow && state.rotatedWeek !== weekKey) {
     if (state.closedWeek !== weekKey) {
