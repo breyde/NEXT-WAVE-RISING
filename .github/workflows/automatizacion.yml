@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "Falta el secreto FIREBASE_SERVICE_ACCOUNT."
           echo "Añadelo en Settings > Secrets and variables > Actions."
-          exit 1
+          echo "La ejecucion queda omitida hasta configurar Firebase."
 
       - name: Instalar dependencias
         if: env.FIREBASE_SERVICE_ACCOUNT != ''
