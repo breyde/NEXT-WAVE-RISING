@@ -184,9 +184,20 @@ async function makeVerifiedBackupIfNeeded(backupRef) {
 (async () => {
   const manual = process.env.GITHUB_EVENT_NAME === "workflow_dispatch";
   if (manual) {
-    console.log("Ejecución manual: comprobación de conexión y lectura; no modifica listas.");
+    console.log("Ejecución manual: comprobación de conexión y permisos; no modifica listas.");
     await db.collection("settings").doc("activeEdition").get();
-    console.log("Conexión Firebase correcta. Semana " + weekKey + ".");
+    const testRef = db.collection("_automation_healthchecks").doc("manual_permission_test");
+    try {
+      await testRef.set({ checkedAt: Date.now(), weekKey });
+      const testSnap = await testRef.get();
+      if (!testSnap.exists || testSnap.data().weekKey !== weekKey) {
+        throw new Error("La comprobación de escritura/lectura en Firebase no se pudo verificar.");
+      }
+      console.log("Firebase permite escribir y leer correctamente.");
+    } finally {
+      await testRef.delete().catch(() => {});
+    }
+    console.log("Permisos de Firebase comprobados. Documento temporal eliminado. Semana " + weekKey + ".");
     return;
   }
   const stateRef = db.collection("settings").doc("automationState");
