@@ -62,3 +62,25 @@ La revisión de `index.html` en `main` confirma que:
 - La comprobación del UID en el navegador puede añadirse como mejora de interfaz, pero nunca sustituye la autorización de Firestore.
 - Antes de redactar reglas completas hay que mapear todas las escrituras legítimas de la web y preservar las operaciones públicas necesarias (envíos, votos y mensajes). No se deben sustituir las reglas activas por una plantilla parcial.
 - No se ha cambiado `index.html`, no se han modificado reglas en Firebase Console y no se ha publicado ni desplegado ningún cambio.
+
+## Mapa de escrituras de la web y primer cambio aislado (18-11-2026)
+### Operaciones que deben seguir siendo públicas, con validación estricta
+- Envíos de propuestas: creación en `submissions`.
+- Votos: actualización de contadores/votantes en `active_list` y creación en `voters_log`.
+- Mensajes de contacto: creación en `contact_messages`.
+- Chat: alta de usuarios en `chat_users`, alta de mensajes en `chat_messages` y presencia en `chat_presence`.
+- Contador de visitas: transacción sobre `stats/visitors`.
+- Registro de país tras un envío: alta/actualización limitada en `artist_countries`; requiere reglas específicas para no permitir cambios arbitrarios de campos sensibles.
+### Operaciones que deben quedar reservadas al UID curador
+- Configuración `settings`, cambios en listas `active_list`, `submissions` (editar/eliminar/restaurar/rotar), `monthly_list`, `annual_list`.
+- Gestión de países, backups, lectura/gestión de mensajes de contacto, moderación del chat y cualquier historial futuro de revisiones semanales.
+- Reinicio de votos y rotaciones; no deben estar disponibles a cualquier cuenta autenticada.
+### Cambio realizado solo en esta rama
+- Se añadió a `index.html` una comprobación de UID en `auth.onAuthStateChanged` para que el panel visual solo aparezca a la cuenta curadora indicada.
+- Esto es únicamente un control de interfaz. El UID en JavaScript no protege Firestore: las reglas del servidor deben comprobar el mismo UID en cada operación administrativa.
+- El panel queda oculto a otras cuentas autenticadas, pero no se afirma que la base de datos ya esté protegida.
+### Pendiente obligatorio antes de integrar
+- Redactar y revisar el conjunto completo de reglas Firestore con el UID autorizado y validaciones de campos para cada operación pública legítima.
+- No aplicar reglas parciales ni reemplazar las reglas actuales hasta probar envíos, votos, chat, contacto, países, copias, rotación y restauración.
+- Las reglas activas no están versionadas en el repositorio; no se ha cambiado Firebase Console.
+- No se ha modificado `main`, no se ha publicado GitHub Pages, no se han ejecutado sincronizaciones ni rotaciones.
