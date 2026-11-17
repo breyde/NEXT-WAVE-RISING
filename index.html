@@ -3066,8 +3066,12 @@
       listenActiveUsers();
       if (currentChatNick) $("chatNickInput").value = currentChatNick;
 
+      // Control de interfaz: solo muestra el panel a la cuenta curadora prevista.
+      // La seguridad real debe reforzarse también en las reglas de Firestore.
+      const ADMIN_UID = "tNohkBzhmBML0E4eqmhw74hncUf2";
       auth.onAuthStateChanged(user => {
-        if (user) {
+        const isCurator = !!user && user.uid === ADMIN_UID;
+        if (isCurator) {
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
           $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
@@ -3081,6 +3085,9 @@
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
           $("topConfigBtn").classList.remove("flex");
+          if (user) {
+            $("adminLoginBox").querySelector("p")?.replaceChildren(document.createTextNode("Esta cuenta no tiene acceso al panel de curadores."));
+          }
         }
       });
 
