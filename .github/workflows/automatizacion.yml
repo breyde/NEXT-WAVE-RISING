@@ -1,1 +1,22 @@
 
+
+name: Next Wave Rising - Automatizacion
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  comprobacion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Comprobar archivos
+        run: |
+          echo "Repositorio descargado correctamente"
+          test -f index.html
+          echo "Index encontrado"
