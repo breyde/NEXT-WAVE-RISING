@@ -51,5 +51,5 @@ jobs:
         run: npm run automation
 
       - name: Sincronizar playlists privadas de Spotify
-        if: github.event_name == 'schedule' && env.FIREBASE_SERVICE_ACCOUNT != '' && env.SPOTIFY_REFRESH_TOKEN != ''
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.FIREBASE_SERVICE_ACCOUNT != '' && env.SPOTIFY_REFRESH_TOKEN != ''
         run: npm run spotify-sync
