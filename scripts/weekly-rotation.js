@@ -95,7 +95,7 @@ async function rotateLists(backupRef, stateRef) {
   const winner = active.length ? active.reduce((best, item) =>
     (Number(item.votes || 0) > Number(best.votes || 0) ? item : best), active[0]) : null;
 
-  const monthlyResult = monthly.map(item => ({ id: item.id, data: item }));
+  const monthlyResult = monthly.map(item => ({ id: item.id, data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id")) }));
   for (const item of active) {
     monthlyResult.push({
       id: "auto_" + weekKey.replace(/[^a-zA-Z0-9]/g, "_") + "_" + item.id,
@@ -103,7 +103,7 @@ async function rotateLists(backupRef, stateRef) {
     });
   }
   monthlyResult.sort((a, b) => Number(a.data.timestamp || 0) - Number(b.data.timestamp || 0));
-  const annualResult = annual.map(item => ({ id: item.id, data: item }));
+  const annualResult = annual.map(item => ({ id: item.id, data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id")) }));
   while (monthlyResult.length > 4) {
     const old = monthlyResult.shift();
     annualResult.push({
