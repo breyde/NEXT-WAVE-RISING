@@ -3156,7 +3156,19 @@
           }
 
           await Promise.all([loadAllLists(), loadConfig(), loadAdminBackups()]);
-          alert("¡Rotación completada con éxito!");
+
+          // Aviso interno para la bandeja de entrada del curador.
+          await db.collection("contact_messages").add({
+            name: "Next Wave Rising",
+            email: "",
+            message: "La rotación de listas se ha completado correctamente. Edición: " + (config.edition || "siguiente edición") + ". La Lista Activa, la cola semanal y los bloques mensuales/anuales se han actualizado.",
+            dateString: madridStr(),
+            timestamp: Date.now(),
+            system: true,
+            type: "rotation_completed"
+          });
+
+          alert("¡Rotación completada con éxito! Se ha enviado un aviso a tu bandeja de mensajes.");
         } catch (e) { alert("Error en la rotación: " + e.message); }
       });
 
