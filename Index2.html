@@ -597,7 +597,7 @@
         manifestTitle: "⚡ Manifesto & Rewards", manifestDesc: "Collaborative playlist.",
         step1Title: "1. Save playlist", step1Btn: "Open on Spotify", step1Check: "I confirm I saved the playlist.", step2Title: "2. Submit track",
         phArtist: "Artist Name *", phTitle: "Track Title *", phUrl: "Spotify Link *", phEmail: "Email *", submitBtn: "Submit",
-        upcomingTitle: "🔥 WEEKLY QUEUE", loading: "Loading...", monthlyHeader: "🗓️ LISTY", annualHeader: "📀 ANNUAL LIST", topHeader: "TOP ANNUAL",
+        upcomingTitle: "🔥 WEEKLY QUEUE", loading: "Loading...", monthlyHeader: "🗓️ MONTHLY LIST", annualHeader: "📀 ANNUAL LIST", topHeader: "TOP ANNUAL",
         voteTabTitle: "⭐ VOTE NEXT", infoBtnText: "Rules", infoModalTitle: "📜 Rules", contactBtn: "Contact"
       }
     };
@@ -923,16 +923,18 @@
     function renderNavigationAndCustomViews() {
       const nav = $("mainNavBar"), customCont = $("customTabsContainer");
       const tabs = (config.tabsConfig && config.tabsConfig.length) ? config.tabsConfig : defaultTabsList;
-      customCont.innerHTML = "";
+      if (customCont) customCont.innerHTML = "";
       const visibleTabs = tabs.filter(t => t.visible !== false);
       const count = visibleTabs.length || 1;
       const pctWidth = `calc(${(100 / (count <= 7 ? count : Math.ceil(count / 2))).toFixed(4)}% - 4px)`;
 
-      nav.innerHTML = visibleTabs.map(t => {
-        const label = (currentLang === 'en' && t.labelEn) ? t.labelEn : t.labelEs;
-        const isActive = currentActiveTab === t.id;
-        return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" style="flex: 1 1 ${pctWidth}; max-width: ${pctWidth};" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[10px] sm:text-xs font-bold py-2 px-1 rounded-xl glass border text-center transition truncate">${escapeHtml(label)}</button>`;
-      }).join('');
+      if (nav) {
+        nav.innerHTML = visibleTabs.map(t => {
+          const label = (currentLang === 'en' && t.labelEn) ? t.labelEn : t.labelEs;
+          const isActive = currentActiveTab === t.id;
+          return `<button onclick="switchTab('${t.id}')" id="tab_${t.id}" style="flex: 1 1 ${pctWidth}; max-width: ${pctWidth};" class="tab-btn ${isActive ? 'active text-emerald-400 border-emerald-500/40' : 'text-zinc-400 border-white/10'} text-[10px] sm:text-xs font-bold py-2 px-1 rounded-xl glass border text-center transition truncate">${escapeHtml(label)}</button>`;
+        }).join('');
+      }
       renderFeaturedPlayer();
     }
 
@@ -945,7 +947,7 @@
         const btn = $(`tab_${t.id}`);
         if (btn) { btn.classList.remove('active', 'text-emerald-400', 'border-emerald-500/40'); btn.classList.add('text-zinc-400', 'border-white/10'); }
       });
-      $("adminView").classList.add('hidden');
+      $("adminView")?.classList.add('hidden');
       const targetVId = 'view' + tab[0].toUpperCase() + tab.slice(1);
       $(targetVId)?.classList.remove('hidden');
       const activeBtn = $(`tab_${tab}`);
@@ -980,8 +982,6 @@
         updateDefaultTabSelectUI();
         updateFeaturedAdminUI();
         loadPlayerStyleForm();
-        renderAdminTabsManager();
-        renderAllTabNotices();
         loadAdminChatUsers();
       }
       else if (tab === 'backups') loadAdminBackups();
@@ -989,7 +989,7 @@
 
     window.quickOpenConfig = () => {
       const adminView = $("adminView");
-      if (adminView.classList.contains("hidden")) {
+      if (adminView && adminView.classList.contains("hidden")) {
         adminView.classList.remove("hidden");
         $("txtAdminBtn").textContent = translations[currentLang].backApp;
       }
