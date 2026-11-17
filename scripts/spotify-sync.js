@@ -78,11 +78,12 @@ async function ensurePlaylist(token, config, key, name, description) {
 }
 
 async function readTracks(collectionName) {
-  const snap = await db.collection(collectionName).orderBy("timestamp", "asc").get();
+  const snap = await db.collection(collectionName).get();
+  const docs = snap.docs.slice().sort((a, b) => Number(a.data().timestamp || 0) - Number(b.data().timestamp || 0));
   const uris = [];
   const seen = new Set();
   let skipped = 0;
-  for (const doc of snap.docs) {
+  for (const doc of docs) {
     const uri = spotifyTrackUri(doc.data().url);
     if (!uri) { skipped++; continue; }
     if (!seen.has(uri)) { seen.add(uri); uris.push(uri); }
