@@ -1,0 +1,13 @@
+{
+  "name": "next-wave-rising-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automatizacion gratuita de cierre y rotacion semanal para Next Wave Rising",
+  "main": "scripts/weekly-rotation.js",
+  "scripts": {
+    "automation": "node scripts/weekly-rotation.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  }
+}
