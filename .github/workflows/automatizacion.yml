@@ -1,22 +1,48 @@
-
-
 name: Next Wave Rising - Automatizacion
 
 on:
+  # Los dos horarios UTC cubren el cambio horario de Espana.
+  # El script comprueba siempre la hora local Europe/Madrid antes de actuar.
+  schedule:
+    - cron: "0 20,21 * * 4"
+    - cron: "59 21,22 * * 4"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: next-wave-rising-rotation
+  cancel-in-progress: false
+
 jobs:
-  comprobacion:
+  automatizacion:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Comprobar archivos
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Comprobar configuracion segura
+        if: env.FIREBASE_SERVICE_ACCOUNT == ''
         run: |
-          echo "Repositorio descargado correctamente"
-          test -f index.html
-          echo "Index encontrado"
+          echo "Falta el secreto FIREBASE_SERVICE_ACCOUNT."
+          echo "Añadelo en Settings > Secrets and variables > Actions."
+          exit 1
+
+      - name: Instalar dependencias
+        if: env.FIREBASE_SERVICE_ACCOUNT != ''
+        run: npm install --omit=dev
+
+      - name: Ejecutar automatizacion
+        if: env.FIREBASE_SERVICE_ACCOUNT != ''
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: npm run automation
