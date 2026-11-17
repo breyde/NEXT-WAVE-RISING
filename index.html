@@ -1761,6 +1761,11 @@
               submissionsCount: Math.max(existingDoc.submissionsCount || 1, info.count),
               lastSubmissionDate: info.lastDate
             };
+            // Si ya hay país identificado, retirar cualquier IP heredada del registro.
+            if (existingDoc.country && existingDoc.country.toLowerCase() !== "desconocido") {
+              updateData.ip = firebase.firestore.FieldValue.delete();
+              updateData.ipCapturedAt = firebase.firestore.FieldValue.delete();
+            }
             batch.update(ref, updateData);
             updated++;
           } else {
