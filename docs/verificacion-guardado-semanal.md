@@ -32,3 +32,15 @@ Ninguno de estos estados debe llamarse «Verificado por Spotify». Ese nombre se
 
 ## Alcance de esta rama
 Esta rama contiene únicamente la especificación. No cambia `index.html`, Firebase, las reglas de Firestore, las listas, GitHub Actions ni la web publicada. No se ha desplegado nada ni se ha activado facturación.
+
+
+## Auditoría inicial del repositorio (18-11-2026)
+- La rama `main` no contiene `firebase.json` ni `firestore.rules`; tampoco aparecen en el árbol de archivos versionados.
+- `index.html` inicializa Firebase en el navegador y accede directamente a Firestore.
+- El formulario público crea documentos en `submissions` y `contact_messages`.
+- El panel de curadores usa Firebase Authentication para iniciar sesión. Esto, por sí solo, no protege las escrituras: las reglas de Firestore deben validar los permisos en el servidor.
+- Las reglas activas del proyecto no se pueden deducir del código del navegador ni de que el panel oculte botones. Deben revisarse en Firebase Console antes de añadir una colección de historial o permitir cambios de estado.
+- La automatización existente de GitHub Actions tiene horarios programados y pasos de sincronización Spotify. No se ha ejecutado ni modificado durante esta revisión.
+
+## Resultado de la auditoría
+**Bloqueado para implementación en Firestore hasta revisar las reglas activas.** No crear todavía colecciones, documentos ni escrituras para los estados de revisión. No modificar las colecciones existentes ni la automatización.
