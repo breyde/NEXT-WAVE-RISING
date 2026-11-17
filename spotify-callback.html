@@ -17,7 +17,7 @@
 <body>
 <main>
   <h1>Conectar Spotify</h1>
-  <p>Autoriza Next Wave Rising para gestionar únicamente tus playlists privadas. Esta página utiliza OAuth con PKCE; no necesita tu contraseña ni el Client Secret.</p>
+  <p>Autoriza Next Wave Rising para gestionar tus playlists temporales privadas y actualizar el contenido de tus playlists públicas. Esta página utiliza OAuth con PKCE; no necesita tu contraseña ni el Client Secret.</p>
   <section id="start">
     <button id="connect">Conectar con Spotify</button>
   </section>
@@ -35,7 +35,7 @@
 (() => {
   const CLIENT_ID = "0525688e1d0a4d0fa7ebf8b44e94be61";
   const REDIRECT_URI = "https://breyde.github.io/NEXT-WAVE-RISING/spotify-callback.html";
-  const SCOPES = "playlist-modify-private playlist-read-private";
+  const SCOPES = "playlist-modify-private playlist-modify-public playlist-read-private";
   const $ = id => document.getElementById(id);
   const random = n => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
