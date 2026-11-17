@@ -22,6 +22,8 @@ jobs:
     timeout-minutes: 10
     env:
       FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      SPOTIFY_CLIENT_ID: "0525688e1d0a4d0fa7ebf8b44e94be61"
+      SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v5
@@ -47,3 +49,7 @@ jobs:
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: npm run automation
+
+      - name: Sincronizar playlists privadas de Spotify
+        if: github.event_name == 'schedule' && env.FIREBASE_SERVICE_ACCOUNT != '' && env.SPOTIFY_REFRESH_TOKEN != ''
+        run: npm run spotify-sync
