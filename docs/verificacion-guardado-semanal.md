@@ -44,3 +44,13 @@ Esta rama contiene únicamente la especificación. No cambia `index.html`, Fireb
 
 ## Resultado de la auditoría
 **Bloqueado para implementación en Firestore hasta revisar las reglas activas.** No crear todavía colecciones, documentos ni escrituras para los estados de revisión. No modificar las colecciones existentes ni la automatización.
+
+
+## Hallazgo adicional: autenticación del panel (18-11-2026)
+La revisión de `index.html` en `main` confirma que:
+- El panel se muestra para cualquier usuario que dispare `auth.onAuthStateChanged` con una sesión válida.
+- El inicio de sesión utiliza `signInWithEmailAndPassword`, pero el código no comprueba un rol administrativo específico ni una lista autorizada de UID.
+- Por tanto, las reglas actuales que usan únicamente `request.auth != null` no distinguen al curador de cualquier otra cuenta autenticada.
+- La comprobación visual del panel en el navegador no constituye una barrera de seguridad. La autorización debe aplicarse en reglas Firestore mediante una identidad/rol administrativo verificable en el servidor (por ejemplo, custom claims administrados de forma segura) o una alternativa equivalente.
+
+**Acción requerida antes de implementar:** definir cómo se asigna y verifica el rol de curador sin confiar en valores editables por el cliente. No basta con comprobar que hay un correo o una sesión activa. No se ha cambiado el código de producción ni las reglas publicadas.
