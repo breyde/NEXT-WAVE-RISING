@@ -54,3 +54,11 @@ La revisión de `index.html` en `main` confirma que:
 - La comprobación visual del panel en el navegador no constituye una barrera de seguridad. La autorización debe aplicarse en reglas Firestore mediante una identidad/rol administrativo verificable en el servidor (por ejemplo, custom claims administrados de forma segura) o una alternativa equivalente.
 
 **Acción requerida antes de implementar:** definir cómo se asigna y verifica el rol de curador sin confiar en valores editables por el cliente. No basta con comprobar que hay un correo o una sesión activa. No se ha cambiado el código de producción ni las reglas publicadas.
+
+## Identidad administrativa recibida (18-11-2026)
+- El propietario ha facilitado el UID de su cuenta de Firebase Authentication.
+- Por privacidad y para no publicar innecesariamente ese identificador, el valor no se copia a este repositorio ni a documentación pública.
+- Para este proyecto, la alternativa gratuita a custom claims/Cloud Functions que se evaluará es una comparación exacta de `request.auth.uid` con el UID autorizado directamente en las reglas de Firestore.
+- La comprobación del UID en el navegador puede añadirse como mejora de interfaz, pero nunca sustituye la autorización de Firestore.
+- Antes de redactar reglas completas hay que mapear todas las escrituras legítimas de la web y preservar las operaciones públicas necesarias (envíos, votos y mensajes). No se deben sustituir las reglas activas por una plantilla parcial.
+- No se ha cambiado `index.html`, no se han modificado reglas en Firebase Console y no se ha publicado ni desplegado ningún cambio.
