@@ -2591,10 +2591,15 @@
         const snap = await q.get();
         const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         if (col === "active_list" || col === "submissions") {
-          const contacts = await db.collection("private_artist_contacts").get();
-          const contactMap = {};
-          contacts.forEach(d => contactMap[d.id] = d.data());
-          items.forEach(item => { if (!item.email && contactMap[item.id]?.email) item.email = contactMap[item.id].email; });
+          try {
+            const contacts = await db.collection("private_artist_contacts").get();
+            const contactMap = {};
+            contacts.forEach(d => contactMap[d.id] = d.data());
+            items.forEach(item => { if (!item.email && contactMap[item.id]?.email) item.email = contactMap[item.id].email; });
+          } catch (e) {
+            // Antes de desplegar las reglas por fases, los backups siguen recogiendo
+            // el correo heredado que aún pueda existir en el documento público.
+          }
         }
         return items;
       };
