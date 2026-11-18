@@ -2414,11 +2414,16 @@
       try {
         const cleanItem = { ...item };
         delete cleanItem.id;
-        await db.collection(targetCol).add({
-          ...cleanItem,
-          timestamp: Date.now(),
-          dateString: cleanItem.dateString || madridStr()
-        });
+        const email = String(cleanItem.email || "").trim().toLowerCase();
+        delete cleanItem.email;
+        const newRef = db.collection(targetCol).doc();
+        const batch = db.batch();
+        batch.set(newRef, { ...cleanItem, timestamp: Date.now(), dateString: cleanItem.dateString || madridStr() });
+        if (email && (targetCol === "active_list" || targetCol === "submissions")) {
+          batch.set(db.collection("private_artist_contacts").doc(newRef.id), { email, artist: cleanItem.artist || "Artista", source: targetCol === "active_list" ? "active" : "weekly", updatedAt: Date.now() });
+          if (targetCol === "submissions") batch.set(db.collection("weekly_submitters").doc(email), { email, timestamp: Date.now() });
+        }
+        await batch.commit();
         await loadAllLists();
         alert(`✅ Registro restaurado con éxito en ${colNameEs}.`);
       } catch (e) {
@@ -2450,20 +2455,31 @@
       try {
         const clearAndReplace = async (tracks, colName) => {
           const snap = await db.collection(colName).get();
-          if (!snap.empty) {
+          const isContactList = colName === "active_list" || colName === "submissions";
+          const oldContacts = isContactList ? await db.collection("private_artist_contacts").get() : null;
+          if (!snap.empty || (oldContacts && !oldContacts.empty)) {
             const delBatch = db.batch();
             snap.docs.forEach(doc => delBatch.delete(doc.ref));
+            if (oldContacts) oldContacts.docs.forEach(doc => delBatch.delete(doc.ref));
             await delBatch.commit();
           }
           if (tracks && tracks.length) {
-            const addBatch = db.batch();
-            tracks.forEach(t => {
-              const cleanT = { ...t };
-              delete cleanT.id;
-              const newRef = db.collection(colName).doc();
-              addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
-            });
-            await addBatch.commit();
+            for (let i = 0; i < tracks.length; i += 200) {
+              const addBatch = db.batch();
+              tracks.slice(i, i + 200).forEach(t => {
+                const cleanT = { ...t };
+                delete cleanT.id;
+                const email = String(cleanT.email || "").trim().toLowerCase();
+                delete cleanT.email;
+                const newRef = db.collection(colName).doc();
+                addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
+                if (email && isContactList) {
+                  addBatch.set(db.collection("private_artist_contacts").doc(newRef.id), { email, artist: cleanT.artist || "Artista", source: colName === "active_list" ? "active" : "weekly", updatedAt: Date.now() });
+                  if (colName === "submissions") addBatch.set(db.collection("weekly_submitters").doc(email), { email, timestamp: Date.now() });
+                }
+              });
+              await addBatch.commit();
+            }
           }
         };
 
@@ -2557,7 +2573,14 @@
       const fetchCol = async (col, ordered = true) => {
         const q = ordered ? db.collection(col).orderBy("timestamp", "asc") : db.collection(col);
         const snap = await q.get();
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (col === "active_list" || col === "submissions") {
+          const contacts = await db.collection("private_artist_contacts").get();
+          const contactMap = {};
+          contacts.forEach(d => contactMap[d.id] = d.data());
+          items.forEach(item => { if (!item.email && contactMap[item.id]?.email) item.email = contactMap[item.id].email; });
+        }
+        return items;
       };
       const [activeData, weeklyData, monthlyData, annualData, countriesData] = await Promise.all([
         (scope === 'all' || scope === 'active') ? fetchCol("active_list") : [],
@@ -3039,6 +3062,44 @@
     // UID del único curador autorizado; las reglas Firestore aplican el mismo control.
     const ADMIN_UID = "tNohkBzhmBML0E4eqmhw74hncUf2";
 
+    window.migrateLegacyArtistContacts = async () => {
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
+      if (!confirm("Se copiarán los correos de active_list y submissions a registros privados y se eliminarán de las listas públicas. Haz antes una copia de seguridad completa. ¿Continuar?")) return;
+      try {
+        const [activeSnap, submissionsSnap] = await Promise.all([
+          db.collection("active_list").get(), db.collection("submissions").get()
+        ]);
+        const records = [
+          ...activeSnap.docs.map(doc => ({ doc, source: "active" })),
+          ...submissionsSnap.docs.map(doc => ({ doc, source: "weekly" }))
+        ];
+        const writes = [];
+        const weeklyEmails = new Set();
+        records.forEach(({ doc, source }) => {
+          const data = doc.data(), email = String(data.email || "").trim().toLowerCase();
+          if (email) {
+            writes.push({ ref: db.collection("private_artist_contacts").doc(doc.id), data: {
+              email, artist: data.artist || "Artista", source, updatedAt: Date.now()
+            }});
+            if (source === "weekly") weeklyEmails.add(email);
+            writes.push({ ref: doc.ref, update: { email: firebase.firestore.FieldValue.delete() } });
+          }
+        });
+        weeklyEmails.forEach(email => writes.push({ ref: db.collection("weekly_submitters").doc(email), data: { email, timestamp: Date.now() } }));
+        for (let i = 0; i < writes.length; i += 400) {
+          const batch = db.batch();
+          writes.slice(i, i + 400).forEach(w => w.update
+            ? batch.update(w.ref, w.update)
+            : batch.set(w.ref, w.data, { merge: true }));
+          await batch.commit();
+        }
+        await loadAllLists();
+        alert("Migración de contactos terminada. Comprueba el panel y los backups antes de cerrar la edición.");
+      } catch (e) {
+        alert("No se pudo migrar los contactos: " + (e.message || "error"));
+      }
+    };
+
     window.migrateLegacyVotePrivacy = async () => {
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
       if (!confirm("Se migrarán los registros antiguos de votantes a documentos privados y se eliminarán los correos de votantes de la lista activa. No se modificarán las canciones ni sus contadores. ¿Continuar?")) return;
@@ -3197,6 +3258,7 @@
       });
 
       $("migrateVotePrivacyBtn").addEventListener("click", window.migrateLegacyVotePrivacy);
+      $("migrateArtistContactsBtn").addEventListener("click", window.migrateLegacyArtistContacts);
       $("resetVotesBtn").addEventListener("click", async () => {
         if (!confirm("¿Poner a cero los votos de la Lista Activa y los registros de votantes?")) return;
         try {
