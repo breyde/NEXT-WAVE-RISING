@@ -3409,13 +3409,23 @@
         if (!confirm("¿Cerrar edición y rotar listas?\n\n• Copia de Sistema automática.\n• Lista Activa -> Mensual.\n• Cola Semanal -> Lista Activa (con votación abierta).\n• Campeón -> Destacado y reingresa en Cola Semanal.")) return;
         try {
           await saveBackupSnapshot(`Copia de sistema - ${madridDateOnly()}`, null, 'all');
-          const snapActive = await db.collection("active_list").orderBy("timestamp", "asc").get();
-          const curActive = snapActive.docs.map(d => ({ ref: d.ref, data: d.data() }));
+          const [snapActive, snapContacts] = await Promise.all([
+            db.collection("active_list").orderBy("timestamp", "asc").get(),
+            db.collection("private_artist_contacts").get()
+          ]);
+          const contactMap = {};
+          snapContacts.forEach(doc => contactMap[doc.id] = doc.data());
+          const curActive = snapActive.docs.map(d => ({
+            ref: d.ref, data: d.data(),
+            email: contactMap[d.id]?.email || d.data().email || ""
+          }));
           let winner = null;
 
           if (curActive.length) {
             winner = curActive.reduce((p, c) => ((c.data.votes || 0) > (p.data.votes || 0)) ? c : p);
-            for (const item of curActive) await db.collection("monthly_list").add({ artist: item.data.artist, title: item.data.title, url: item.data.url, timestamp: Date.now() });
+            for (const item of curActive) await db.collection("monthly_list").add({
+              artist: item.data.artist, title: item.data.title, url: item.data.url, timestamp: Date.now()
+            });
             const snapM = await db.collection("monthly_list").orderBy("timestamp", "asc").get();
             const mDocs = [...snapM.docs];
             while (mDocs.length > 4) {
@@ -3423,16 +3433,41 @@
               await db.collection("annual_list").add({ artist: d.artist, title: d.title, url: d.url, timestamp: Date.now() });
               await old.ref.delete();
             }
-            const bDelA = db.batch(); snapActive.docs.forEach(d => bDelA.delete(d.ref)); await bDelA.commit();
+            const deleteRefs = snapActive.docs.flatMap(doc => [
+              doc.ref,
+              ...(winner && doc.id !== winner.ref.id ? [db.collection("private_artist_contacts").doc(doc.id)] : [])
+            ]);
+            for (let i = 0; i < deleteRefs.length; i += 400) {
+              const batch = db.batch();
+              deleteRefs.slice(i, i + 400).forEach(ref => batch.delete(ref));
+              await batch.commit();
+            }
           }
 
           const snapSub = await db.collection("submissions").orderBy("timestamp", "asc").get();
           if (!snapSub.empty) {
-            for (const doc of snapSub.docs) {
-              const d = doc.data();
-              await db.collection("active_list").add({ artist: d.artist, title: d.title, url: d.url, email: d.email || "", timestamp: Date.now(), dateString: d.dateString || madridStr(), votes: 0 });
+            for (let i = 0; i < snapSub.docs.length; i += 150) {
+              const batch = db.batch();
+              snapSub.docs.slice(i, i + 150).forEach(doc => {
+                const d = doc.data(), email = String(contactMap[doc.id]?.email || d.email || "").trim().toLowerCase();
+                const activeRef = db.collection("active_list").doc(doc.id);
+                batch.set(activeRef, {
+                  artist: d.artist, title: d.title, url: d.url,
+                  timestamp: Date.now(), dateString: d.dateString || madridStr(), votes: 0
+                });
+                if (email) batch.set(db.collection("private_artist_contacts").doc(doc.id), {
+                  email, artist: d.artist || "Artista", source: "active", updatedAt: Date.now()
+                }, { merge: true });
+                batch.delete(doc.ref);
+              });
+              await batch.commit();
             }
-            const bDelS = db.batch(); snapSub.docs.forEach(d => bDelS.delete(d.ref)); await bDelS.commit();
+          }
+          const oldSubmitters = await db.collection("weekly_submitters").get();
+          for (let i = 0; i < oldSubmitters.docs.length; i += 400) {
+            const batch = db.batch();
+            oldSubmitters.docs.slice(i, i + 400).forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
           }
 
           const sVot = await db.collection("voters_log").get();
@@ -3442,7 +3477,21 @@
           await db.collection("settings").doc("activeEdition").set({ votingActive: true, ...(winner ? { trackUrl: winner.data.url } : {}) }, { merge: true });
 
           if (winner && (winner.data.votes || 0) > 0) {
-            await db.collection("submissions").add({ artist: winner.data.artist, title: winner.data.title, url: winner.data.url, email: winner.data.email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0 });
+            const winnerRef = db.collection("submissions").doc(winner.ref.id);
+            await winnerRef.set({
+              artist: winner.data.artist, title: winner.data.title, url: winner.data.url,
+              timestamp: Date.now(), dateString: madridStr(), votes: 0
+            });
+            if (winner.email) {
+              const batch = db.batch();
+              batch.set(db.collection("private_artist_contacts").doc(winner.ref.id), {
+                email: winner.email.trim().toLowerCase(), artist: winner.data.artist || "Artista", source: "weekly", updatedAt: Date.now()
+              }, { merge: true });
+              batch.set(db.collection("weekly_submitters").doc(winner.email.trim().toLowerCase()), {
+                email: winner.email.trim().toLowerCase(), timestamp: Date.now()
+              });
+              await batch.commit();
+            }
           }
 
           const now = new Date();
