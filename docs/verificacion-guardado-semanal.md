@@ -44,8 +44,8 @@
 - \`docs/firestore.rules.transition.proposed\`: reglas transitorias de compatibilidad para habilitar las dos nuevas colecciones y permitir que el frontend antiguo siga funcionando durante la ventana de migración. Mantienen temporalmente algunas lecturas públicas heredadas, por lo que deben utilizarse solo durante una ventana corta y controlada.
 - \`docs/firestore.rules.proposed\`: reglas finales propuestas. Restringen al curador la lectura de contactos, votantes, usuarios de chat, países, mensajes de contacto y backups; y eliminan el correo de los documentos públicos de canciones.
 - `firestore.rules` y `firebase.json` se han añadido para ejecutar pruebas aisladas del emulador; no apuntan a un proyecto Firebase real.
-- Se ha añadido un conjunto de pruebas automatizadas y un workflow de GitHub Actions. La primera ejecución del emulador terminó con 10 pruebas aprobadas y 0 fallidas. Después se endureció la validación del ID de revisión y se corrigió la vinculación con el envío del mismo batch; la repetición de pruebas de esos últimos cambios está en curso.
-- Los archivos siguen siendo borradores. Las reglas finales sí han pasado las pruebas automatizadas; las transitorias y una copia real de datos aún requieren validación. No copiarlos a Firebase Console todavía.
+- Se ha añadido un conjunto de pruebas automatizadas y un workflow de GitHub Actions. Última ejecución comprobada: **12 pruebas aprobadas y 0 fallidas**. Incluye reglas finales, reglas transitorias y sintaxis del JavaScript integrado de `index.html`.
+- Los archivos siguen siendo propuestas pendientes de despliegue. Las reglas finales y transitorias han pasado las pruebas automatizadas del emulador. Esto no sustituye un ensayo en un proyecto Firebase de pruebas independiente ni acredita la restauración de un backup real. No copiarlos a Firebase Console todavía.
 
 ## Orden de despliegue obligatorio
 1. Crear y comprobar un backup completo recuperable con las reglas y el código actuales.
@@ -63,8 +63,8 @@
 - Sin un backend confiable (por ejemplo, Cloud Functions, que requeriría Blaze), el contador público de votos sigue siendo susceptible a manipulación directa: las reglas pueden limitar cada actualización a +1, pero no pueden demostrar que cada incremento corresponde a una persona real sin una identidad autenticada y un proceso de servidor.
 - La colección \`artist_countries\` conserva correos, pero las reglas finales reservan su lectura al curador. \`backups\` también pueden contener copias históricas de correos y quedan reservados al curador.
 - Los registros de \`chat_users\` conservan IP para la moderación; su lectura queda restringida al curador. La presencia pública no conserva IP.
-- Las pruebas automatizadas están preparadas, pero todavía no hay resultado de ejecución. Los cambios tampoco se han probado con una copia real. Las reglas transitorias y finales deben revisarse antes de cualquier publicación.
+- Las pruebas automatizadas han terminado: **12/12 aprobadas, 0 fallidas** en GitHub Actions. No se ha realizado ensayo en un proyecto Firebase independiente ni prueba completa del navegador conectado a Firebase real. Las reglas transitorias y finales no deben publicarse hasta completar esos controles.
 - El panel privado de revisión semanal ya registra la declaración inicial, permite pasar a pendiente, revisado manualmente o no acreditado y conserva el historial de cambios. No almacena capturas ni enlaces de pruebas. El curador debe revisar la evidencia recibida por un canal privado acordado fuera de la web; ese canal aún debe definirse.
 
 ## Estado
-Trabajo preparado en una rama aislada, pendiente de pruebas técnicas y aprobación explícita antes de integrar o desplegar. La rama de producción, Firebase activo, las playlists y la sincronización programada permanecen intactos.
+Trabajo preparado en una rama aislada. La validación automatizada del emulador está superada, pero la migración sigue **bloqueada** hasta disponer de un backup completo y restaurable, un proyecto Firebase de pruebas independiente y una comprobación integral del frontend. No se ha ejecutado ninguna acción sobre Firebase activo ni GitHub Pages. La rama `main`, las playlists y la sincronización programada permanecen intactas. No se activa Blaze ni ningún servicio de pago.
