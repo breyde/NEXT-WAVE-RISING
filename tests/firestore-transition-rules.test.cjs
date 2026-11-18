@@ -16,6 +16,8 @@ test("transition rules compile and shield legacy private collections", async () 
   });
   try {
     const db = env.unauthenticatedContext().firestore();
+    await assertFails(getDoc(doc(db, "submissions/legacy-weekly")));
+    await assertFails(getDoc(doc(db, "active_list/legacy-active")));
     await assertFails(getDoc(doc(db, "voters_log/legacy@example.test")));
     await assertFails(getDoc(doc(db, "chat_users/legacy-session")));
     await assertFails(getDoc(doc(db, "chat_presence/legacy-session")));
