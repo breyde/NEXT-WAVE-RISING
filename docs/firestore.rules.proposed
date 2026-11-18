@@ -1,0 +1,252 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isCurator() {
+      return signedIn() && request.auth.uid == "tNohkBzhmBML0E4eqmhw74hncUf2";
+    }
+
+    function validEmail(email) {
+      return email is string
+        && email.size() >= 5
+        && email.size() <= 254
+        && email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+$');
+    }
+
+    function validTrack(data) {
+      return data.keys().hasAll(['artist', 'title', 'url', 'timestamp'])
+        && data.artist is string
+        && data.title is string
+        && data.url is string
+        && data.url.matches('https?://(open\\.)?spotify\\.com/(intl-[a-z]{2}/)?track/[A-Za-z0-9]{22}/?')
+        && data.timestamp is number;
+    }
+
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+
+    match /submissions/{document} {
+      allow read: if true;
+      // Los correos se guardan por separado en private_artist_contacts.
+      allow create: if validTrack(request.resource.data)
+        && request.resource.data.keys().hasOnly([
+          'artist', 'title', 'url', 'timestamp', 'dateString', 'votes'
+        ]);
+      allow update, delete: if isCurator();
+    }
+
+    match /active_list/{document} {
+      allow read: if true;
+      allow create, delete: if isCurator();
+      // Los participantes solo pueden incrementar el contador.
+      allow update: if isCurator() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes'])
+        && resource.data.votes is number
+        && request.resource.data.votes == resource.data.votes + 1
+      );
+    }
+
+    match /monthly_list/{document} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+
+    match /annual_list/{document} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+
+    match /private_artist_contacts/{document} {
+      // Se puede enviar un contacto, pero solo el curador puede consultarlo.
+      allow read: if isCurator();
+      allow create: if isCurator() || (
+        request.resource.data.keys().hasOnly([
+          'email', 'artist', 'source', 'updatedAt'
+        ])
+        && validEmail(request.resource.data.email)
+        && request.resource.data.artist is string
+        && request.resource.data.source in ['weekly', 'active']
+        && request.resource.data.updatedAt is number
+      );
+      allow update, delete: if isCurator();
+    }
+
+    match /weekly_save_reviews/{reviewId} {
+      allow read: if isCurator();
+      function submissionExistsAfter(submissionId) {
+        return existsAfter(/databases/$(database)/documents/submissions/$(submissionId));
+      }
+      function submissionMatchesAfter(submissionId, artist, title) {
+        let submission = getAfter(/databases/$(database)/documents/submissions/$(submissionId));
+        return submission.data.artist == artist && submission.data.title == title;
+      }
+      function submitterExistsAfter(email) {
+        return existsAfter(/databases/$(database)/documents/weekly_submitters/$(email));
+      }
+      function submitterMatchesAfter(email) {
+        let submitter = getAfter(/databases/$(database)/documents/weekly_submitters/$(email));
+        return submitter.data.email == email;
+      }
+      // El participante solo puede declarar un envío real en el mismo batch.
+      allow create: if reviewId.matches('^[A-Za-z0-9_-]{10,80}$')
+        && request.resource.data.keys().hasOnly([
+          'submissionId', 'email', 'artist', 'title', 'edition',
+          'status', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.submissionId is string
+        && validEmail(request.resource.data.email)
+        && request.resource.data.artist is string
+        && request.resource.data.title is string
+        && request.resource.data.edition is string
+        && request.resource.data.status == 'declared'
+        && request.resource.data.createdAt is number
+        && request.resource.data.updatedAt is number
+        && submissionExistsAfter(request.resource.data.submissionId)
+        && submissionMatchesAfter(request.resource.data.submissionId, request.resource.data.artist, request.resource.data.title)
+        && submitterExistsAfter(request.resource.data.email)
+        && submitterMatchesAfter(request.resource.data.email);
+      allow update, delete: if isCurator();
+    }
+ 
+    match /weekly_save_review_history/{eventId} {
+      allow read, create, update, delete: if isCurator();
+    }
+
+    match /weekly_submitters/{document} {
+      // Documento único por correo y edición; el participante solo puede crearlo.
+      allow read: if isCurator();
+      allow create: if document == request.resource.data.email
+        && request.resource.data.keys().hasOnly(['email', 'timestamp'])
+        && validEmail(request.resource.data.email)
+        && request.resource.data.timestamp is number;
+      allow update, delete: if isCurator();
+    }
+
+    match /voters_log/{document} {
+      // El correo es el ID. Los registros solo son visibles para el curador.
+      allow read: if isCurator();
+      allow create: if isCurator() || (
+        document == request.resource.data.email
+        && request.resource.data.keys().hasOnly(['email', 'votedTracks', 'timestamp'])
+        && validEmail(request.resource.data.email)
+        && request.resource.data.votedTracks is list
+        && request.resource.data.votedTracks.size() == 3
+        && request.resource.data.votedTracks[0] is string
+        && request.resource.data.votedTracks[1] is string
+        && request.resource.data.votedTracks[2] is string
+        && request.resource.data.votedTracks[0] != request.resource.data.votedTracks[1]
+        && request.resource.data.votedTracks[0] != request.resource.data.votedTracks[2]
+        && request.resource.data.votedTracks[1] != request.resource.data.votedTracks[2]
+        && request.resource.data.timestamp is number
+      );
+      allow update: if isCurator();
+      allow delete: if isCurator();
+    }
+
+    match /artist_countries/{document} {
+      // La colección contiene correos: lectura solo para el curador.
+      allow read, delete: if isCurator();
+      allow create: if request.resource.data.keys().hasAll([
+          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
+          'submissionsCount', 'country', 'city', 'flag'
+        ])
+        && validEmail(request.resource.data.email)
+        && request.resource.data.artist is string
+        && request.resource.data.submissionsCount is number
+        && request.resource.data.keys().hasOnly([
+          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
+          'submissionsCount', 'country', 'city', 'flag'
+        ]);
+      allow update: if isCurator() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'artist', 'flag', 'country', 'city', 'submissionsCount',
+          'lastSubmissionDate', 'ip', 'ipCapturedAt'
+        ])
+        && (
+          (!(resource.data.submissionsCount is number) && request.resource.data.submissionsCount == 1)
+          || (resource.data.submissionsCount is number
+            && request.resource.data.submissionsCount == resource.data.submissionsCount + 1)
+        )
+      );
+    }
+
+    match /backups/{document} {
+      allow read, write: if isCurator();
+    }
+
+    match /contact_messages/{document} {
+      allow create: if isCurator() || (
+        request.resource.data.keys().hasAll([
+          'name', 'email', 'message', 'timestamp'
+        ])
+        && request.resource.data.name is string
+        && validEmail(request.resource.data.email)
+        && request.resource.data.message is string
+        && request.resource.data.timestamp is number
+      );
+      allow read, update, delete: if isCurator();
+    }
+
+    match /chat_messages/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll([
+          'nick', 'text', 'timestamp'
+        ])
+        && request.resource.data.nick is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 2000
+        && request.resource.data.timestamp is number;
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+
+    match /chat_users/{document} {
+      // Estos registros pueden contener IP; solo el curador puede consultarlos.
+      allow read: if isCurator();
+      allow create: if request.resource.data.keys().hasAll([
+          'nick', 'ip', 'timestamp'
+        ])
+        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
+        && request.resource.data.nick is string
+        && request.resource.data.ip is string
+        && request.resource.data.timestamp is number;
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+
+    match /chat_presence/{document} {
+      // Presencia pública sin IP ni correo.
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly([
+          'lastSeen', 'nick'
+        ])
+        && request.resource.data.lastSeen is number
+        && request.resource.data.nick is string;
+      allow delete: if true;
+    }
+
+    match /stats/{document} {
+      allow read: if true;
+      allow create: if document == 'visitors'
+        && request.resource.data.keys().hasOnly(['total'])
+        && request.resource.data.total == 1;
+      allow update: if isCurator() || (
+        document == 'visitors'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
+        && request.resource.data.total is number
+        && request.resource.data.total == resource.data.total + 1
+      );
+      allow delete: if isCurator();
+    }
+
+    // Denegar por defecto cualquier colección no declarada.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

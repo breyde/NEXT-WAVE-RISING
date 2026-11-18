@@ -1,0 +1,40 @@
+# Plan seguro de migración de privacidad de Firestore
+
+**Estado: preparado, no ejecutado.** No se han cambiado las reglas ni los datos de Firebase activo.
+
+## Alcance
+
+- Solo la lista semanal y los datos privados relacionados.
+- Las listas mensual y anual no se modifican.
+- Sin servicios de pago, Blaze, Cloud Functions ni almacenamiento externo de pago.
+- No se realizan cambios de Spotify ni rotaciones.
+
+## Qué protege cada fase
+
+Las reglas transitorias bloquean temporalmente la lectura pública de `submissions` y `active_list`, además de `voters_log`, `chat_users` y `chat_presence`. Es necesario porque Firestore no permite ocultar campos concretos en una lectura: mientras los documentos antiguos contengan correos o arrays de votantes, permitir la lectura pública de esas listas seguiría exponiendo esos datos.
+
+**Efecto temporal:** durante la migración, los visitantes no podrán leer las listas semanal y activa. El panel del curador sí podrá hacerlo. Las listas mensual y anual seguirán siendo públicas.
+
+## Secuencia obligatoria
+
+1. **Ensayo aislado:** probar frontend, reglas finales y reglas transitorias en Firestore Emulator y, antes de tocar producción, en un proyecto Firebase de pruebas separado con datos ficticios. No usar datos personales reales en el ensayo.
+2. **Copia local:** el botón JSON enumera colecciones públicas y privadas usadas por la aplicación, incluidas `voters_log`, `chat_users`, `chat_presence` y `weekly_submitters`. La descarga puede fallar por permisos y quedar marcada como parcial. Aunque todas las lecturas funcionen, el JSON no es una exportación nativa ni existe todavía un procedimiento de restauración probado. Por ello sirve como copia de consulta local, pero **no satisface por sí solo el requisito de respaldo recuperable para una migración de producción**. No continuar hasta disponer de una estrategia de recuperación ensayada, gratuita y sin relajar reglas.
+3. **Pausa de escrituras:** desactivar temporalmente envíos y votaciones desde la configuración de la edición.
+4. **Publicar el frontend nuevo:** debe escribir los correos solo en `private_artist_contacts`, usar `weekly_submitters` y crear las declaraciones en `weekly_save_reviews`. No debe escribir correos ni arrays de votantes en documentos públicos.
+5. **Ventana privada:** aplicar las reglas transitorias. La lectura pública de las listas semanal y activa queda bloqueada mientras se limpian los documentos antiguos.
+6. **Migrar contactos y votos:** ejecutar las herramientas de migración del panel solo después de comprobar la copia y el procedimiento de recuperación. Ejecutar también la limpieza de presencia antigua. No borrar canciones ni contadores de votos.
+7. **Verificación de datos:** comprobar que los correos necesarios están en las colecciones privadas; que `submissions` y `active_list` ya no contienen campos `email` ni arrays `voters`; y que `chat_presence` no conserva IP. Comparar recuentos antes/después y revisar muestras.
+8. **Reglas finales:** aplicar las reglas finales únicamente cuando la limpieza esté completa. Probar lectura pública de listas sin PII, privacidad de colecciones sensibles, nuevos envíos, votaciones, duplicados, historial de revisión, copias y recuperación.
+9. **Reapertura:** reactivar envíos y votaciones solo después de que todas las pruebas pasen.
+
+## Criterios de parada y recuperación
+
+- Si falla la copia, una migración, la verificación de recuentos o una prueba de permisos, detener el proceso y mantener los envíos/votos desactivados.
+- No aplicar las reglas finales sobre documentos que aún contengan PII pública.
+- No llamar «backup completo» ni «restaurable» al JSON local. No borrar backups ni registros de origen hasta verificar una recuperación real.
+- No improvisar cambios desde Firebase Console: usar los archivos versionados y revisar el proyecto/entorno antes de aplicar reglas.
+- Las declaraciones de guardado son declaraciones del participante; solo una comprobación externa manual permite marcar «Revisado manualmente».
+
+## Validación automatizada actual
+
+La suite de GitHub Actions prueba las reglas finales con Firestore Emulator y compila/prueba las reglas transitorias en un proyecto de emulador separado. Estas pruebas no sustituyen el ensayo en un proyecto Firebase independiente ni autorizan por sí solas una migración real.
