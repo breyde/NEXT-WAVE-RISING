@@ -3149,9 +3149,10 @@
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
       if (!confirm("Se migrarán los registros antiguos de votantes a documentos privados y se eliminarán los correos de votantes de la lista activa. No se modificarán las canciones ni sus contadores. ¿Continuar?")) return;
       try {
-        const [votersSnap, activeSnap] = await Promise.all([
+        const [votersSnap, activeSnap, submissionsSnap] = await Promise.all([
           db.collection("voters_log").get(),
-          db.collection("active_list").get()
+          db.collection("active_list").get(),
+          db.collection("submissions").get()
         ]);
         const merged = new Map();
         const addVoter = (email, trackId) => {
@@ -3164,7 +3165,7 @@
           const data = doc.data();
           (data.votedTracks || []).forEach(trackId => addVoter(data.email, trackId));
         });
-        activeSnap.docs.forEach(doc => {
+        [...activeSnap.docs, ...submissionsSnap.docs].forEach(doc => {
           (doc.data().voters || []).forEach(email => addVoter(email, doc.id));
         });
         const writes = [];
@@ -3177,9 +3178,12 @@
           writes.slice(i, i + 400).forEach(w => w.type === "set" ? batch.set(w.ref, w.data) : batch.delete(w.ref));
           await batch.commit();
         }
-        for (let i = 0; i < activeSnap.docs.length; i += 400) {
+        const legacyVoteDocs = [...activeSnap.docs, ...submissionsSnap.docs];
+        for (let i = 0; i < legacyVoteDocs.length; i += 400) {
           const batch = db.batch();
-          activeSnap.docs.slice(i, i + 400).forEach(doc => batch.update(doc.ref, { voters: firebase.firestore.FieldValue.delete() }));
+          legacyVoteDocs.slice(i, i + 400).forEach(doc => batch.update(doc.ref, {
+            voters: firebase.firestore.FieldValue.delete()
+          }));
           await batch.commit();
         }
         await loadAllLists();
