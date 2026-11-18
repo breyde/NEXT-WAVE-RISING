@@ -2833,6 +2833,7 @@
     async function submitContactMessage() {
       const name = $("contactName").value.trim(), email = $("contactEmail").value.trim(), message = $("contactMsgText").value.trim(), fb = $("contactFeedback");
       if (!name || !email || !message) { fb.textContent = currentLang === 'es' ? "Rellena todos los campos." : "Fill in all fields."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
+      if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) { fb.textContent = currentLang === 'es' ? "Correo electrónico no válido." : "Please enter a valid email address."; fb.className = "text-xs text-center text-rose-400"; fb.classList.remove("hidden"); return; }
       try {
         await db.collection("contact_messages").add({ name, email, message, timestamp: Date.now(), dateString: madridStr(), read: false });
         fb.textContent = currentLang === 'es' ? "✓ ¡Mensaje enviado con éxito!" : "✓ Message sent!"; fb.className = "text-xs text-center text-emerald-400"; fb.classList.remove("hidden");
