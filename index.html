@@ -2463,7 +2463,6 @@
         const clearAndReplace = async (tracks, colName) => {
           const snap = await db.collection(colName).get();
           const isContactList = colName === "active_list" || colName === "submissions";
-          const oldContacts = isContactList ? await db.collection("private_artist_contacts").get() : null;
           const deleteRefs = snap.docs.flatMap(doc => isContactList
             ? [doc.ref, db.collection("private_artist_contacts").doc(doc.id)]
             : [doc.ref]);
@@ -2762,7 +2761,20 @@
     }
 
     window.deleteContactMsg = async id => { if (confirm("¿Eliminar este mensaje?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
-    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { await db.collection("submissions").doc(id).delete(); loadAllLists(); } };
+    window.deleteSubmissionTrack = async id => {
+      if (!confirm("¿Eliminar esta canción de la cola semanal?")) return;
+      try {
+        const contactRef = db.collection("private_artist_contacts").doc(id);
+        const contactSnap = await contactRef.get();
+        const email = contactSnap.exists ? String(contactSnap.data().email || "").trim().toLowerCase() : "";
+        const batch = db.batch();
+        batch.delete(db.collection("submissions").doc(id));
+        batch.delete(contactRef);
+        if (email) batch.delete(db.collection("weekly_submitters").doc(email));
+        await batch.commit();
+        await loadAllLists();
+      } catch (e) { alert("Error al eliminar: " + e.message); }
+    };
 
     async function loadAdminChatUsers() {
       const container = $("adminChatUsersList");
