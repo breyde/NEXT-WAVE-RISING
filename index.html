@@ -2493,7 +2493,7 @@
       const cleanUrl = rawUrl.split("?")[0].trim();
       if (!cleanUrl.includes("spotify.com/") || !cleanUrl.includes("/track/")) return alert("Enlace Spotify no válido.");
       try {
-        await db.collection("active_list").add({ artist, title, url: cleanUrl, email: email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
+        await db.collection("active_list").add({ artist, title, url: cleanUrl, email: email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0 });
         // Las altas manuales de administración no registran la IP del administrador como IP del artista.
         $("adminActiveArtist").value = $("adminActiveTitle").value = $("adminActiveUrl").value = $("adminActiveEmail").value = "";
         await Promise.all([loadAllLists(), loadAdminCountries()]);
@@ -2905,15 +2905,19 @@
     }
 
     async function loadAllLists() {
+      const isCuratorSession = !!auth.currentUser && auth.currentUser.uid === ADMIN_UID;
       const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
-        db.collection("voters_log").get(),
+        isCuratorSession ? db.collection("voters_log").get() : Promise.resolve(null),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
         db.collection("submissions").orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
         db.collection("annual_list").orderBy("timestamp", "asc").get()
       ]);
 
-      if (votersRes.status === "fulfilled") $("statVotersCount").textContent = String(votersRes.value.size).padStart(2, '0');
+      if (activeRes.status === "fulfilled") {
+        const totalVotesForCount = activeRes.value.docs.reduce((sum, d) => sum + (d.data().votes || 0), 0);
+        $("statVotersCount").textContent = String(Math.floor(totalVotesForCount / 3)).padStart(2, '0');
+      }
 
       // 1. LISTA ACTIVA (CON CLICK-TO-PLAY Y CARÁTULAS)
       const pAct = $("publicActiveList"), aAct = $("adminActiveListContainer"), vList = $("voteTabViewList");
@@ -2933,14 +2937,16 @@
           pAct.innerHTML = activeSubs.map((s, i) => renderPlayableTrackHtml(s, i, 'active', 'On Air')).join("");
 
           aAct.innerHTML = activeSubs.map((s, i) => {
-            const voters = s.voters || [];
-            const vHtml = voters.length ? voters.map(v => `<li class="text-[11px] text-zinc-300">• ${escapeHtml(v)}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin votos aún</li>';
+            const voterEmails = votersRes.status === "fulfilled" && votersRes.value
+              ? votersRes.value.docs.filter(v => (v.data().votedTracks || []).includes(s.id)).map(v => v.data().email).filter(Boolean)
+              : [];
+            const vHtml = voterEmails.length ? voterEmails.map(v => `<li class="text-[11px] text-zinc-300">• ${escapeHtml(v)}</li>`).join('') : '<li class="text-[11px] text-zinc-500 italic">Sin datos de votantes visibles</li>';
             return `<div class="p-3 bg-zinc-900 rounded-xl space-y-2 border border-white/5">
               <div class="flex flex-wrap justify-between items-center gap-2">
                 <div><p class="font-bold text-white">${i + 1}. ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></p><p class="text-[10px] text-zinc-400">${escapeHtml(s.email || 'Sin email')} | Votos: <strong>${String(s.votes || 0).padStart(2, '0')}</strong></p></div>
                 <div class="flex gap-1.5"><a href="${(s.url || '').split('?')[0]}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a><button type="button" onclick="openEditActiveModal('${s.id}')" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded">Editar</button><button type="button" onclick="deleteActiveTrack('${s.id}')" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded">Eliminar</button></div>
               </div>
-              <details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5"><summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (${voters.length})</summary><ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">${vHtml}</ul></details>
+              <details class="text-[11px] text-zinc-400 pt-1 border-t border-white/5"><summary class="cursor-pointer text-emerald-400 font-semibold hover:underline">Ver votantes (${voterEmails.length || (s.votes || 0)})</summary><ul class="mt-1.5 space-y-1 pl-3 bg-zinc-950 p-2 rounded-lg">${vHtml}</ul></details>
             </div>`;
           }).join("");
 
@@ -3011,9 +3017,6 @@
       if (!em || !em.includes("@") || em.length < 5) { inp.focus(); inp.style.borderColor = "#ef4444"; return alert(currentLang === 'es' ? "Introduce un correo válido." : "Enter a valid email."); }
       inp.style.borderColor = "#3f3f46";
       try {
-        const vRef = db.collection("voters_log");
-        if (!(await vRef.where("email", "==", em).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
-        if (clientIp && clientIp !== "unknown_ip" && !(await vRef.where("ip", "==", clientIp).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
         if (sessionPendingVotes.includes(id)) { sessionPendingVotes = sessionPendingVotes.filter(x => x !== id); return loadAllLists(); }
         if (sessionPendingVotes.length >= 3) return alert(currentLang === 'es' ? "Ya seleccionaste 3 temas." : "Already selected 3 tracks.");
         sessionPendingVotes.push(id);
@@ -3027,21 +3030,26 @@
       if (isVotingCutoffReached()) { sessionPendingVotes = []; updateVotingUI(false); loadAllLists(); return alert(currentLang === 'es' ? "El plazo terminó a las 22:00. Estos votos no se han guardado." : "Voting closed at 22:00. These votes were not saved."); }
       const inp = $("globalVoterEmail"), em = inp.value.trim().toLowerCase();
       try {
-        const vRef = db.collection("voters_log");
-        if (!(await vRef.where("email", "==", em).get()).empty) { sessionPendingVotes = []; lockedRandomOrder = null; loadAllLists(); return alert("Ya has votado."); }
-        for (const tid of sessionPendingVotes) {
-          const ref = db.collection("active_list").doc(tid), doc = await ref.get();
-          if (doc.exists) {
-            const vList = doc.data().voters || [];
-            if (!vList.includes(em)) vList.push(em);
-            await ref.update({ votes: (doc.data().votes || 0) + 1, voters: vList });
-          }
-        }
-        await vRef.add({ email: em, ip: clientIp || "unknown_ip", votedTracks: sessionPendingVotes, timestamp: Date.now() });
+        if (!em || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(em)) throw new Error("EMAIL_INVALID");
+        const trackDocs = await Promise.all(sessionPendingVotes.map(tid => db.collection("active_list").doc(tid).get()));
+        if (trackDocs.some(d => !d.exists)) throw new Error("TRACK_MISSING");
+        const batch = db.batch();
+        const voterRef = db.collection("voters_log").doc(em);
+        batch.set(voterRef, { email: em, votedTracks: [...sessionPendingVotes], timestamp: Date.now() });
+        trackDocs.forEach(doc => batch.update(doc.ref, {
+          votes: firebase.firestore.FieldValue.increment(1),
+          voters: firebase.firestore.FieldValue.delete()
+        }));
+        await batch.commit();
         alert(currentLang === 'es' ? "¡Votos guardados!" : "Votes saved!");
         sessionPendingVotes = []; lockedRandomOrder = null; inp.value = "";
         loadAllLists();
-      } catch (e) { alert("Error al guardar votos."); sessionPendingVotes = []; loadAllLists(); }
+      } catch (e) {
+        alert(e.message === "EMAIL_INVALID" ? "Introduce un correo válido." :
+          e.code === "permission-denied" ? "Ese correo ya ha votado o no se ha podido validar el registro." :
+          "Error al guardar votos.");
+        sessionPendingVotes = []; loadAllLists();
+      }
     };
 
     window.cancelVoteConfirmation = () => { toggleModal('voteConfirmModal', false); sessionPendingVotes = []; alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled."); loadAllLists(); };
@@ -3120,7 +3128,7 @@
         if (!confirm("¿Poner a cero los votos de la Lista Activa y los registros de votantes?")) return;
         try {
           const [sAct, sVot] = await Promise.all([db.collection("active_list").get(), db.collection("voters_log").get()]);
-          const b1 = db.batch(); sAct.docs.forEach(d => b1.update(d.ref, { votes: 0, voters: [] }));
+          const b1 = db.batch(); sAct.docs.forEach(d => b1.update(d.ref, { votes: 0, voters: firebase.firestore.FieldValue.delete() }));
           const b2 = db.batch(); sVot.docs.forEach(d => b2.delete(d.ref));
           await Promise.all([b1.commit(), b2.commit()]);
           sessionPendingVotes = []; lockedRandomOrder = null;
@@ -3205,7 +3213,7 @@
 
           await db.collection("submissions").add({
             artist, title, url: cleanUrl, email,
-            timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: []
+            timestamp: Date.now(), dateString: madridStr(), votes: 0
           });
           // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
@@ -3251,7 +3259,7 @@
           if (!snapSub.empty) {
             for (const doc of snapSub.docs) {
               const d = doc.data();
-              await db.collection("active_list").add({ artist: d.artist, title: d.title, url: d.url, email: d.email || "", timestamp: Date.now(), dateString: d.dateString || madridStr(), votes: 0, voters: [] });
+              await db.collection("active_list").add({ artist: d.artist, title: d.title, url: d.url, email: d.email || "", timestamp: Date.now(), dateString: d.dateString || madridStr(), votes: 0 });
             }
             const bDelS = db.batch(); snapSub.docs.forEach(d => bDelS.delete(d.ref)); await bDelS.commit();
           }
@@ -3263,7 +3271,7 @@
           await db.collection("settings").doc("activeEdition").set({ votingActive: true, ...(winner ? { trackUrl: winner.data.url } : {}) }, { merge: true });
 
           if (winner && (winner.data.votes || 0) > 0) {
-            await db.collection("submissions").add({ artist: winner.data.artist, title: winner.data.title, url: winner.data.url, email: winner.data.email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: [] });
+            await db.collection("submissions").add({ artist: winner.data.artist, title: winner.data.title, url: winner.data.url, email: winner.data.email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0 });
           }
 
           const now = new Date();
