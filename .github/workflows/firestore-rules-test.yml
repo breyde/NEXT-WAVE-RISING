@@ -29,4 +29,4 @@ jobs:
       - name: Install isolated test dependencies
         run: npm install --no-save firebase-tools @firebase/rules-unit-testing firebase
       - name: Run Firestore emulator tests
-        run: npx firebase emulators:exec --only firestore --project demo-next-wave-rising "node --test tests/firestore-rules.test.cjs"
+        run: npx firebase emulators:exec --only firestore --project demo-next-wave-rising "node --test tests/*.test.cjs"
