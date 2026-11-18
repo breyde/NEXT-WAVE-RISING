@@ -84,3 +84,10 @@ La revisión de `index.html` en `main` confirma que:
 - No aplicar reglas parciales ni reemplazar las reglas actuales hasta probar envíos, votos, chat, contacto, países, copias, rotación y restauración.
 - Las reglas activas no están versionadas en el repositorio; no se ha cambiado Firebase Console.
 - No se ha modificado `main`, no se ha publicado GitHub Pages, no se han ejecutado sincronizaciones ni rotaciones.
+
+## Borrador inicial de reglas Firestore (NO APLICAR TODAVÍA)
+- Se añadió `docs/firestore.rules.proposed` a esta rama como punto de partida, con comparación de UID para permisos administrativos y permisos separados para las operaciones públicas que usa actualmente la web.
+- El borrador todavía no ha sido validado con Firebase Emulator Suite ni probado contra la aplicación real. No copiarlo a Firebase Console.
+- Riesgos que deben resolverse antes de activarlo: `voters_log` y `chat_users` contienen datos personales y el código actual necesita consultas públicas; `chat_presence` también expone datos de presencia; `artist_countries` permite actualizaciones públicas para mantener el registro de envíos. Hay que rediseñar esos flujos para minimizar exposición y evitar falsificación.
+- También hay que probar el formato exacto de todos los documentos existentes, especialmente propuestas antiguas, votos, presencia y estadísticas, antes de cerrar permisos.
+- Este archivo es un borrador técnico, no una configuración activa. Ninguna regla se ha publicado.
