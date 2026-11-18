@@ -3088,8 +3088,7 @@
         const voterRef = db.collection("voters_log").doc(em);
         batch.set(voterRef, { email: em, votedTracks: [...sessionPendingVotes], timestamp: Date.now() });
         trackDocs.forEach(doc => batch.update(doc.ref, {
-          votes: firebase.firestore.FieldValue.increment(1),
-          voters: firebase.firestore.FieldValue.delete()
+          votes: firebase.firestore.FieldValue.increment(1)
         }));
         await batch.commit();
         alert(currentLang === 'es' ? "¡Votos guardados!" : "Votes saved!");
