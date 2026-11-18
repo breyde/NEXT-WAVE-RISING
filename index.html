@@ -467,6 +467,7 @@
               </div>
               <div><label class="block text-[11px] text-zinc-300 mb-1">Empezar en el segundo:</label><input type="number" id="adminHeaderYoutubeStart" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
             </div>
+            <div class="rounded-xl bg-zinc-950/70 border border-cyan-500/20 p-3 space-y-2"><label class="block text-[11px] text-zinc-200 font-bold">Mostrar cabecera en estas pestañas</label><div class="flex flex-wrap gap-2"><button type="button" onclick="setHeaderTabsSelection(true)" class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-200 text-[10px]">Todas</button><button type="button" onclick="setHeaderTabsSelection(false)" class="px-2 py-1 rounded bg-zinc-800 text-zinc-300 text-[10px]">Ninguna</button></div><div id="adminHeaderTabsList" class="grid grid-cols-2 gap-2"></div><p class="text-[10px] text-zinc-500">Marca las pestañas donde quieres mostrar la cabecera multimedia.</p></div>
             <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2"><span class="text-[10px] text-zinc-400 uppercase">Vista previa del archivo:</span><img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg"></div>
             <div class="flex flex-wrap gap-2">
               <button type="button" onclick="saveHeaderMediaConfig()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar cabecera</button>
@@ -2201,7 +2202,7 @@
     let editingGraphicBannerId = null;
     function getGraphicBanners(){ if(Array.isArray(config.graphicBanners)) return config.graphicBanners; const old=config.graphicBanner; return old&&old.url?[{...old,id:old.id||"banner-legacy",name:old.name||"Banner principal"}]:[]; }
     function refreshGraphicBannerManager(){ const bs=getGraphicBanners(),sel=$("adminBannerSelect"),list=$("adminBannerList");if(!sel)return;if(!editingGraphicBannerId||!bs.some(b=>b.id===editingGraphicBannerId))editingGraphicBannerId=bs[0]?.id||null;sel.innerHTML=bs.map((b,i)=>"<option value=\""+escapeHtml(b.id)+"\">"+(i+1)+". "+escapeHtml(b.name||("Banner "+(i+1)))+" · "+(b.enabled?"ACTIVO":"INACTIVO")+"</option>").join("")||"<option value=\"\">Sin banners creados</option>";sel.value=editingGraphicBannerId||"";if(list)list.innerHTML=bs.map((b,i)=>"<div class=\"flex justify-between\"><span>"+escapeHtml(b.name||("Banner "+(i+1)))+"</span><span>"+(b.enabled?"Activo":"Desactivado")+"</span></div>").join("");}
-    function renderGraphicBanner(tab){const host=$("graphicBannersHost");if(!host)return;document.querySelectorAll("[id^=\"graphicBanner_\"]").forEach(el=>el.remove());host.innerHTML="";getGraphicBanners().forEach((b,i)=>{const tabs=Array.isArray(b.tabs)?b.tabs:[],allowed=b.tabsAll===true||(b.tabsAll===undefined&&tabs.length===0)||tabs.includes(tab);if(b.enabled!==true||!b.url||!allowed)return;const type=b.type||"image",w=validHeaderWidth(b.width||"100%"),h=Math.max(40,Math.min(1200,Number(b.height)||150)),box=document.createElement("div");box.id="graphicBanner_"+(b.id||i);box.dataset.position=String(b.position??1);box.className="w-full flex justify-center items-center px-2 py-2";
+    function renderGraphicBanner(tab){renderHeaderVisibility(tab);const host=$("graphicBannersHost");if(!host)return;document.querySelectorAll("[id^=\"graphicBanner_\"]").forEach(el=>el.remove());host.innerHTML="";getGraphicBanners().forEach((b,i)=>{const tabs=Array.isArray(b.tabs)?b.tabs:[],allowed=b.tabsAll===true||(b.tabsAll===undefined&&tabs.length===0)||tabs.includes(tab);if(b.enabled!==true||!b.url||!allowed)return;const type=b.type||"image",w=validHeaderWidth(b.width||"100%"),h=Math.max(40,Math.min(1200,Number(b.height)||150)),box=document.createElement("div");box.id="graphicBanner_"+(b.id||i);box.dataset.position=String(b.position??1);box.className="w-full flex justify-center items-center px-2 py-2";
       if(type==="image"){const el=document.createElement("img");el.src=b.url;el.alt=b.name||"Banner";el.className="max-w-full rounded-xl";el.style.width=w;el.style.height=h+"px";el.style.objectFit=b.objectFit||"contain";box.appendChild(el);}
       else if(type==="video"){const el=document.createElement("video");el.src=b.url;el.className="max-w-full rounded-xl";el.style.width=w;el.style.height=h+"px";el.style.objectFit=b.objectFit||"contain";el.autoplay=!!b.videoAutoplay;el.muted=b.videoMuted!==false;el.loop=b.videoLoop!==false;el.controls=b.videoControls!==false;el.playsInline=true;el.preload="metadata";box.appendChild(el);if(el.autoplay)el.play().catch(()=>{});}
       else if(type==="youtube"){const id=getYoutubeVideoId(b.url);if(!id)return;const el=document.createElement("iframe");el.src="https://www.youtube-nocookie.com/embed/"+id+"?controls="+(b.youtubeControls===false?"0":"1")+"&rel=0";el.title="Vídeo del banner";el.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";el.allowFullscreen=true;el.loading="lazy";el.style.width=w;el.style.height=h+"px";el.className="max-w-full border-0 rounded-xl";box.appendChild(el);}
@@ -2363,6 +2364,10 @@
       if (inp) inp.placeholder = type === "youtube" ? "https://www.youtube.com/watch?v=..." : "URL directa de tu biblioteca...";
     };
 
+    function renderHeaderTabCheckboxes(selectedTabs, allLegacy) { const host=$("adminHeaderTabsList"); if(!host)return; const tabs=(config.tabsConfig||defaultTabsList).filter(t=>t.visible!==false); const selected=new Set(Array.isArray(selectedTabs)?selectedTabs:[]); host.innerHTML=tabs.map(t=>`<label class="flex items-center gap-2 rounded-lg bg-zinc-900/80 px-2 py-2"><input type="checkbox" data-header-tab="${escapeHtml(t.id)}" ${allLegacy||selected.has(t.id)?"checked":""} class="accent-cyan-500"><span>${escapeHtml(t.labelEs||t.labelEn||t.id)}</span></label>`).join("")||'<p class="col-span-2 text-zinc-500">No hay pestañas públicas visibles.</p>'; }
+    window.setHeaderTabsSelection=all=>document.querySelectorAll("#adminHeaderTabsList input[data-header-tab]").forEach(el=>{el.checked=!!all;});
+    function selectedHeaderTabs(){return Array.from(document.querySelectorAll("#adminHeaderTabsList input[data-header-tab]:checked")).map(el=>el.getAttribute("data-header-tab"));}
+    function renderHeaderVisibility(tab){const el=$("brandHeaderContainer");if(!el)return;const all=config.headerTabsAll===true||(config.headerTabsAll===undefined&&(!Array.isArray(config.headerTabs)||!config.headerTabs.length));const show=all||(Array.isArray(config.headerTabs)&&config.headerTabs.includes(tab));el.classList.toggle("hidden",!show);}
     function loadHeaderMediaEditor() {
       const type = config.headerMediaType || (config.logoUrl ? "image" : "text");
       $("adminHeaderMediaType").value = type;
@@ -2381,6 +2386,7 @@
       $("adminHeaderYoutubeLoop").checked = !!config.headerYoutubeLoop;
       $("adminHeaderYoutubeControls").checked = config.headerYoutubeControls !== false;
       $("adminHeaderYoutubeStart").value = config.headerYoutubeStart || 0;
+      const allHeaderTabs=config.headerTabsAll===true||(config.headerTabsAll===undefined&&(!Array.isArray(config.headerTabs)||!config.headerTabs.length)); renderHeaderTabCheckboxes(config.headerTabs,allHeaderTabs);
       updateHeaderMediaEditor();
     }
 
@@ -2442,7 +2448,9 @@
         headerYoutubeMute: $("adminHeaderYoutubeMute").checked,
         headerYoutubeLoop: $("adminHeaderYoutubeLoop").checked,
         headerYoutubeControls: $("adminHeaderYoutubeControls").checked,
-        headerYoutubeStart: Math.max(0, Number($("adminHeaderYoutubeStart").value) || 0)
+        headerYoutubeStart: Math.max(0, Number($("adminHeaderYoutubeStart").value) || 0),
+        headerTabs: selectedHeaderTabs(),
+        headerTabsAll: false
       };
       try {
         Object.assign(config, data);
