@@ -67,7 +67,8 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasOnly([
           'email', 'artist', 'source', 'updatedAt'
         ])
-        && validEmail(request.resource.data.email)
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 500
         && request.resource.data.artist is string
         && request.resource.data.source in ['weekly', 'active']
         && request.resource.data.updatedAt is number;
