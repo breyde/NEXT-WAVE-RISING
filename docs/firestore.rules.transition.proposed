@@ -9,7 +9,11 @@ service cloud.firestore {
       return request.auth != null
         && request.auth.uid == "tNohkBzhmBML0E4eqmhw74hncUf2";
     }
-    function validTrack(data) {
+    function validEmail(email) {
+      return email is string
+        && email.size() >= 5
+        && email.size() <= 254
+        && email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+
       return data.keys().hasAll(['artist', 'title', 'url', 'timestamp'])
         && data.artist is string
         && data.title is string
@@ -56,7 +60,7 @@ service cloud.firestore {
     match /private_artist_contacts/{document} {
       allow read: if isCurator();
       allow create: if request.resource.data.keys().hasOnly(['email', 'artist', 'source', 'updatedAt'])
-        && request.resource.data.email is string
+        && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.source in ['weekly', 'active']
         && request.resource.data.updatedAt is number;
@@ -78,7 +82,7 @@ service cloud.firestore {
           'status', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.submissionId is string
-        && request.resource.data.email is string
+        && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.title is string
         && request.resource.data.edition is string
@@ -171,7 +175,258 @@ service cloud.firestore {
           'status', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.submissionId is string
+        && validEmail(request.resource.data.email)
+        && request.resource.data.artist is string
+        && request.resource.data.title is string
+        && request.resource.data.edition is string
+        && request.resource.data.status == 'declared'
+        && request.resource.data.createdAt is number
+        && request.resource.data.updatedAt is number
+        && existsAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId))
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId)).data.artist == request.resource.data.artist
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId)).data.title == request.resource.data.title;
+      allow update, delete: if isCurator();
+    }
+    match /weekly_save_review_history/{eventId} {
+      allow read, create, update, delete: if isCurator();
+    }
+
+    match /weekly_submitters/{document} {
+      allow read: if isCurator();
+      allow create: if document == request.resource.data.email
+        && request.resource.data.keys().hasOnly(['email', 'timestamp'])
         && request.resource.data.email is string
+        && request.resource.data.timestamp is number;
+      allow update, delete: if isCurator();
+    }
+
+    // Compatibilidad temporal: el frontend antiguo consulta estos registros.
+    match /voters_log/{document} {
+      allow read: if isCurator();
+      allow create: if request.resource.data.keys().hasAll(['email', 'votedTracks', 'timestamp'])
+        && request.resource.data.email is string
+        && request.resource.data.votedTracks is list
+        && request.resource.data.timestamp is number;
+      allow update: if isCurator();
+      allow delete: if isCurator();
+    }
+    match /artist_countries/{document} {
+      allow read, delete: if isCurator();
+      allow create: if request.resource.data.keys().hasAll([
+        'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
+        'submissionsCount', 'country', 'city', 'flag'
+      ]);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'artist', 'flag', 'country', 'city', 'submissionsCount',
+        'lastSubmissionDate', 'ip', 'ipCapturedAt'
+      ]);
+    }
+    match /backups/{document} {
+      allow read, write: if isCurator();
+    }
+    match /contact_messages/{document} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message', 'timestamp']);
+      allow read, update, delete: if isCurator();
+    }
+    match /chat_messages/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['nick', 'text', 'timestamp']);
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+    match /chat_users/{document} {
+      allow read: if isCurator();
+      allow create: if request.resource.data.keys().hasAll(['nick', 'ip', 'timestamp']);
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+    match /chat_presence/{document} {
+      // Se bloquea temporalmente la lectura pública hasta limpiar sesiones antiguas con IP.
+      allow read: if isCurator();
+      allow create, update: if request.resource.data.keys().hasOnly(['lastSeen', 'nick', 'ip'])
+        && request.resource.data.lastSeen is number
+        && request.resource.data.nick is string;
+      allow delete: if true;
+    }
+    match /stats/{document} {
+      allow read: if true;
+      allow create: if document == 'visitors'
+        && request.resource.data.total == 1;
+      allow update: if document == 'visitors'
+        && request.resource.data.total == resource.data.total + 1;
+      allow delete: if isCurator();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+);
+    }
+    function validTrack(data) {
+      return data.keys().hasAll(['artist', 'title', 'url', 'timestamp'])
+        && data.artist is string
+        && data.title is string
+        && data.url is string
+        && data.timestamp is number;
+    }
+
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+    match /submissions/{document} {
+      allow read: if true;
+      allow create: if validTrack(request.resource.data)
+        && request.resource.data.keys().hasOnly([
+          'artist', 'title', 'url', 'email', 'timestamp', 'dateString', 'votes', 'voters'
+        ]);
+      allow update, delete: if isCurator();
+    }
+    match /active_list/{document} {
+      allow read: if true;
+      allow create, delete: if isCurator();
+      allow update: if isCurator() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes'])
+        && request.resource.data.votes == resource.data.votes + 1
+      ) || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes', 'voters'])
+        && request.resource.data.votes == resource.data.votes + 1
+        && request.resource.data.voters is list
+        && resource.data.voters is list
+        && request.resource.data.voters.size() == resource.data.voters.size() + 1
+        && request.resource.data.voters.hasAll(resource.data.voters)
+      );
+    }
+    match /monthly_list/{document} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+    match /annual_list/{document} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+
+    match /private_artist_contacts/{document} {
+      allow read: if isCurator();
+      allow create: if request.resource.data.keys().hasOnly(['email', 'artist', 'source', 'updatedAt'])
+        && validEmail(request.resource.data.email)
+        && request.resource.data.artist is string
+        && request.resource.data.source in ['weekly', 'active']
+        && request.resource.data.updatedAt is number;
+      allow update, delete: if isCurator();
+    }
+    match /weekly_save_reviews/{reviewId} {
+      allow read: if isCurator();
+      function submissionExistsAfter(submissionId) {
+        return existsAfter(/databases/$(database)/documents/submissions/$(submissionId));
+      }
+      function submissionMatchesAfter(submissionId, artist, title) {
+        let submission = getAfter(/databases/$(database)/documents/submissions/$(submissionId));
+        return submission.data.artist == artist && submission.data.title == title;
+      }
+      // El participante solo puede declarar un envío real en el mismo batch.
+      allow create: if reviewId.matches('^[A-Za-z0-9_-]{10,80}$')
+        && request.resource.data.keys().hasOnly([
+          'submissionId', 'email', 'artist', 'title', 'edition',
+          'status', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.submissionId is string
+        && validEmail(request.resource.data.email)
+        && request.resource.data.artist is string
+        && request.resource.data.title is string
+        && request.resource.data.edition is string
+        && request.resource.data.status == 'declared'
+        && request.resource.data.createdAt is number
+        && request.resource.data.updatedAt is number
+        && submissionExistsAfter(request.resource.data.submissionId)
+        && submissionMatchesAfter(request.resource.data.submissionId, request.resource.data.artist, request.resource.data.title);
+      allow update, delete: if isCurator();
+    }
+ 
+    match /weekly_save_review_history/{eventId} {
+      allow read, create, update, delete: if isCurator();
+    }
+
+    match /weekly_submitters/{document} {
+      allow read: if isCurator();
+      allow create: if document == request.resource.data.email
+        && request.resource.data.keys().hasOnly(['email', 'timestamp'])
+        && request.resource.data.email is string
+        && request.resource.data.timestamp is number;
+      allow update, delete: if isCurator();
+    }
+
+    // Compatibilidad temporal: el frontend antiguo consulta estos registros.
+    match /voters_log/{document} {
+      allow read: if isCurator();
+      allow create: if request.resource.data.keys().hasAll(['email', 'votedTracks', 'timestamp'])
+        && request.resource.data.email is string
+        && request.resource.data.votedTracks is list
+        && request.resource.data.timestamp is number;
+      allow update: if isCurator();
+      allow delete: if isCurator();
+    }
+    match /artist_countries/{document} {
+      allow read, delete: if isCurator();
+      allow create: if request.resource.data.keys().hasAll([
+        'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
+        'submissionsCount', 'country', 'city', 'flag'
+      ]);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'artist', 'flag', 'country', 'city', 'submissionsCount',
+        'lastSubmissionDate', 'ip', 'ipCapturedAt'
+      ]);
+    }
+    match /backups/{document} {
+      allow read, write: if isCurator();
+    }
+    match /contact_messages/{document} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message', 'timestamp']);
+      allow read, update, delete: if isCurator();
+    }
+    match /chat_messages/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['nick', 'text', 'timestamp']);
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+    match /chat_users/{document} {
+      allow read: if isCurator();
+      allow create: if request.resource.data.keys().hasAll(['nick', 'ip', 'timestamp']);
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+    match /chat_presence/{document} {
+      // Se bloquea temporalmente la lectura pública hasta limpiar sesiones antiguas con IP.
+      allow read: if isCurator();
+      allow create, update: if request.resource.data.keys().hasOnly(['lastSeen', 'nick', 'ip'])
+        && request.resource.data.lastSeen is number
+        && request.resource.data.nick is string;
+      allow delete: if true;
+    }
+    match /stats/{document} {
+      allow read: if true;
+      allow create: if document == 'visitors'
+        && request.resource.data.total == 1;
+      allow update: if document == 'visitors'
+        && request.resource.data.total == resource.data.total + 1;
+      allow delete: if isCurator();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+)
+        && request.resource.data.keys().hasOnly([
+          'submissionId', 'email', 'artist', 'title', 'edition',
+          'status', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.submissionId is string
+        && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.title is string
         && request.resource.data.edition is string
