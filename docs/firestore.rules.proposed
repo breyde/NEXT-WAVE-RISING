@@ -64,14 +64,15 @@ service cloud.firestore {
     match /private_artist_contacts/{document} {
       // Se puede enviar un contacto, pero solo el curador puede consultarlo.
       allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasOnly([
+      allow create: if isCurator() || (
+        request.resource.data.keys().hasOnly([
           'email', 'artist', 'source', 'updatedAt'
         ])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() <= 500
+        && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.source in ['weekly', 'active']
-        && request.resource.data.updatedAt is number;
+        && request.resource.data.updatedAt is number
+      );
       allow update, delete: if isCurator();
     }
 
@@ -115,7 +116,11 @@ service cloud.firestore {
         ])
         && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
+        && request.resource.data.submissionsCount is number
+        && request.resource.data.keys().hasOnly([
+          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
+          'submissionsCount', 'country', 'city', 'flag'
+        ]);
       allow update: if isCurator() || (
         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'artist', 'flag', 'country', 'city', 'submissionsCount',
