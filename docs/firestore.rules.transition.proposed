@@ -64,7 +64,16 @@ service cloud.firestore {
     }
     match /weekly_save_reviews/{reviewId} {
       allow read: if isCurator();
-      allow create: if reviewId.matches('^[A-Za-z0-9_-]{10,80}
+      function submissionExistsAfter(submissionId) {
+        return existsAfter(/databases/$(database)/documents/submissions/$(submissionId));
+      }
+      function submissionMatchesAfter(submissionId, artist, title) {
+        let submission = getAfter(/databases/$(database)/documents/submissions/$(submissionId));
+        return submission.data.artist == artist && submission.data.title == title;
+      }
+      // El participante solo puede declarar un envío real en el mismo batch.
+      allow create: if reviewId.matches('^[A-Za-z0-9_-]{10,80}$')
+        && request.resource.data.keys().hasOnly([
           'submissionId', 'email', 'artist', 'title', 'edition',
           'status', 'createdAt', 'updatedAt'
         ])
@@ -76,11 +85,11 @@ service cloud.firestore {
         && request.resource.data.status == 'declared'
         && request.resource.data.createdAt is number
         && request.resource.data.updatedAt is number
-        && existsAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId))
-        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId)).data.artist == request.resource.data.artist
-        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId)).data.title == request.resource.data.title;
+        && submissionExistsAfter(request.resource.data.submissionId)
+        && submissionMatchesAfter(request.resource.data.submissionId, request.resource.data.artist, request.resource.data.title);
       allow update, delete: if isCurator();
     }
+ 
     match /weekly_save_review_history/{eventId} {
       allow read, create, update, delete: if isCurator();
     }
