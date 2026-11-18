@@ -122,20 +122,24 @@ service cloud.firestore {
     }
 
     match /chat_users/{document} {
-      allow read: if true;
+      // Los registros pueden contener IP: solo el curador puede consultarlos.
+      allow read: if isCurator();
       allow create: if request.resource.data.keys().hasAll([
           'nick', 'ip', 'timestamp'
         ])
+        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
         && request.resource.data.nick is string
+        && request.resource.data.ip is string
         && request.resource.data.timestamp is number;
       allow update: if false;
       allow delete: if isCurator();
     }
 
     match /chat_presence/{document} {
+      // La presencia pública solo contiene nick y última actividad; nunca IP.
       allow read: if true;
       allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick', 'ip'
+          'lastSeen', 'nick'
         ])
         && request.resource.data.lastSeen is number
         && request.resource.data.nick is string;
