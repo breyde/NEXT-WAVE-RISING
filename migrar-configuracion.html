@@ -19,9 +19,9 @@ button{width:100%;padding:13px;margin-top:20px;border:0;border-radius:11px;backg
 <body><main>
 <h1>Recuperar personalizaciones antiguas</h1>
 <p>Esta herramienta copia únicamente el documento <b>settings / activeEdition</b> del Firebase antiguo al nuevo. Conserva vídeo de YouTube, logo, cabecera, pestañas, botones, avisos y opciones del reproductor. No modifica ni borra datos de las listas.</p>
-<p class="small">Inicia sesión en ambos proyectos con tu cuenta propietaria. La contraseña se envía directamente a Firebase Authentication; esta página no la guarda ni la envía a ningún otro servicio.</p>
+<p class="small">La configuración antigua se intenta leer como hace la web pública, sin pedir la contraseña del proyecto antiguo. La contraseña solo se usa para guardar en el proyecto nuevo y se envía directamente a Firebase Authentication; esta página no la guarda ni la envía a ningún otro servicio.</p>
 <label for="email">Correo de la cuenta propietaria</label><input id="email" type="email" autocomplete="username" value="br3yda@gmail.com">
-<label for="password">Contraseña de Firebase</label><input id="password" type="password" autocomplete="current-password">
+<label for="password">Contraseña de la cuenta del proyecto nuevo</label><input id="password" type="password" autocomplete="current-password">
 <button id="go">Copiar configuración antigua al proyecto nuevo</button>
 <div id="status" role="status">Preparado. No se cambiará nada hasta pulsar el botón.</div>
 </main>
@@ -37,17 +37,15 @@ button.addEventListener("click",async()=>{
  const email=document.getElementById("email").value.trim().toLowerCase();
  const password=document.getElementById("password").value;
  if(email!=="br3yda@gmail.com"||!password){status.textContent="Comprueba el correo propietario y la contraseña.";return;}
- button.disabled=true;status.textContent="Conectando con Firebase antiguo y nuevo…";
+ button.disabled=true;status.textContent="Leyendo la configuración pública del proyecto antiguo…";
  try{
-  await oldAuth.signInWithEmailAndPassword(email,password);
-  status.textContent="Leyendo settings/activeEdition del proyecto antiguo…";
   const snap=await oldDb.collection("settings").doc("activeEdition").get();
   if(!snap.exists)throw new Error("No existe settings/activeEdition en el proyecto antiguo.");
   const data=snap.data();
   const keys=Object.keys(data||{});
   if(!keys.length)throw new Error("El documento antiguo está vacío.");
-  status.textContent="Configuración encontrada ("+keys.length+" campos). Guardando una copia JSON en el proyecto nuevo…";
-  await newAuth.signInWithEmailAndPassword(email,password);
+  status.textContent="Configuración antigua encontrada ("+keys.length+" campos). Iniciando sesión en el proyecto nuevo…";
+  try{await newAuth.signInWithEmailAndPassword(email,password);}catch(authError){throw new Error("El acceso al proyecto nuevo ha fallado: "+(authError.code||"") +" "+(authError.message||""));}
   await newDb.collection("settings").doc("activeEdition").set(data,{merge:true});
   const check=await newDb.collection("settings").doc("activeEdition").get();
   if(!check.exists)throw new Error("No se pudo verificar el documento en el proyecto nuevo.");
