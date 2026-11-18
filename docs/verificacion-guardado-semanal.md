@@ -30,8 +30,8 @@ Ninguno de estos estados debe llamarse «Verificado por Spotify». Ese nombre se
 4. Comprobar que la rotación semanal conserva el historial y que las listas mensuales/anuales y la sincronización de Spotify no cambian.
 5. Solo después de superar las pruebas, decidir si se integra en `main`.
 
-## Alcance de esta rama
-Esta rama contiene únicamente la especificación. No cambia `index.html`, Firebase, las reglas de Firestore, las listas, GitHub Actions ni la web publicada. No se ha desplegado nada ni se ha activado facturación.
+## Alcance de esta rama (actualizado)
+La rama contiene la especificación y cambios de código aislados para revisión. No se ha cambiado Firebase Console, no se han publicado reglas, no se han modificado listas ni GitHub Actions, y no se ha desplegado la web. No se ha activado facturación.
 
 
 ## Auditoría inicial del repositorio (18-11-2026)
@@ -91,3 +91,17 @@ La revisión de `index.html` en `main` confirma que:
 - Riesgos que deben resolverse antes de activarlo: `voters_log` y `chat_users` contienen datos personales y el código actual necesita consultas públicas; `chat_presence` también expone datos de presencia; `artist_countries` permite actualizaciones públicas para mantener el registro de envíos. Hay que rediseñar esos flujos para minimizar exposición y evitar falsificación.
 - También hay que probar el formato exacto de todos los documentos existentes, especialmente propuestas antiguas, votos, presencia y estadísticas, antes de cerrar permisos.
 - Este archivo es un borrador técnico, no una configuración activa. Ninguna regla se ha publicado.
+
+
+## Corrección de privacidad del chat (18-11-2026)
+Cambios realizados solo en `free-weekly-save-review`:
+- La entrada al chat ya no consulta públicamente `chat_users` por IP. El participante conserva su nick localmente en el dispositivo y cada entrada crea un nuevo registro.
+- `chat_users` queda con lectura reservada al UID curador en el borrador de reglas. La creación pública se conserva para que el chat pueda registrar nuevas entradas y el panel pueda moderarlas.
+- `chat_presence` deja de escribir IP. La presencia pública solo incluye nick y última actividad.
+- El borrador de reglas limita los campos permitidos en ambos flujos.
+
+## Bloqueos de privacidad todavía pendientes
+- `voters_log` sigue siendo consultado públicamente por el sistema de votación y contiene email e IP.
+- Los documentos de `active_list` incluyen el array `voters` con correos, y la colección se lee públicamente para mostrar la lista y votar.
+- No se debe activar el borrador de reglas mientras esos datos sigan expuestos. Hay que rediseñar el control de voto duplicado y separar los datos privados de votantes de los datos públicos de canciones.
+- El cambio del chat aún no se ha probado en Firebase real ni con Emulator Suite. La moderación por IP seguirá funcionando en el panel porque el registro `chat_users` conserva la IP, pero ahora solo el curador puede leerlo según el borrador.
