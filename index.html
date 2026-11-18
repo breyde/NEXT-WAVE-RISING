@@ -2701,7 +2701,7 @@
     }
 
     window.deleteContactMsg = async id => { if (confirm("¿Eliminar este mensaje?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
-    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { await db.collection("submissions").doc(id).delete(); loadAllLists(); } };
+    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { const batch = db.batch(); batch.delete(db.collection("submissions").doc(id)); batch.delete(db.collection("weekly_public").doc(id)); await batch.commit(); loadAllLists(); } };
 
     async function loadAdminChatUsers() {
       const container = $("adminChatUsersList");
@@ -2912,7 +2912,9 @@
       const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
         db.collection("voters_log").get(),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
-        db.collection("submissions").orderBy("timestamp", "asc").get(),
+        (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com"
+          ? db.collection("submissions")
+          : db.collection("weekly_public")).orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
         db.collection("annual_list").orderBy("timestamp", "asc").get()
       ]);
@@ -3089,8 +3091,12 @@
         try {
           const ref = db.collection("stats").doc("visitors");
           if (!localStorage.getItem("nwr_visited_unique")) {
+            await db.runTransaction(async tx => {
+              const d = await tx.get(ref);
+              const current = d.exists ? (Number(d.data().total) || 0) : 0;
+              tx.set(ref, { total: current + 1 }, { merge: true });
+            });
             localStorage.setItem("nwr_visited_unique", "true");
-            await db.runTransaction(async tx => { const d = await tx.get(ref); tx.set(ref, { total: (d.exists ? (d.data().total || 0) : 0) + 1 }, { merge: true }); });
           }
           const s = await ref.get();
           $("uniqueVisitorCount").textContent = s.exists ? (s.data().total || 1) : "1";
@@ -3200,10 +3206,20 @@
           const submitGeo = await fetchGeoByIp("");
           const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
 
-          await db.collection("submissions").add({
+          const submittedAt = Date.now();
+          const submittedDate = madridStr();
+          const privateRef = db.collection("submissions").doc();
+          const publicRef = db.collection("weekly_public").doc(privateRef.id);
+          const batch = db.batch();
+          batch.set(privateRef, {
             artist, title, url: cleanUrl, email,
-            timestamp: Date.now(), dateString: madridStr(), votes: 0, voters: []
+            timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: []
           });
+          batch.set(publicRef, {
+            artist, title, url: cleanUrl,
+            timestamp: submittedAt, dateString: submittedDate
+          });
+          await batch.commit();
           // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
           sessionStorage.removeItem("nwr_geo_self");
