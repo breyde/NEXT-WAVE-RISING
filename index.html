@@ -2500,7 +2500,11 @@
       const cleanUrl = rawUrl.split("?")[0].trim();
       if (!cleanUrl.includes("spotify.com/") || !cleanUrl.includes("/track/")) return alert("Enlace Spotify no válido.");
       try {
-        await db.collection("active_list").add({ artist, title, url: cleanUrl, email: email || "", timestamp: Date.now(), dateString: madridStr(), votes: 0 });
+        const trackRef = db.collection("active_list").doc();
+        const batch = db.batch();
+        batch.set(trackRef, { artist, title, url: cleanUrl, timestamp: Date.now(), dateString: madridStr(), votes: 0 });
+        if (email) batch.set(db.collection("private_artist_contacts").doc(trackRef.id), { email: email.trim().toLowerCase(), artist, source: "active", updatedAt: Date.now() });
+        await batch.commit();
         // Las altas manuales de administración no registran la IP del administrador como IP del artista.
         $("adminActiveArtist").value = $("adminActiveTitle").value = $("adminActiveUrl").value = $("adminActiveEmail").value = "";
         await Promise.all([loadAllLists(), loadAdminCountries()]);
@@ -2519,7 +2523,12 @@
       const id = $("editActiveId").value, artist = $("editActiveArtist").value.trim(), title = $("editActiveTitle").value.trim(), rawUrl = $("editActiveUrl").value.trim(), email = $("editActiveEmail").value.trim();
       if (!artist || !title || !rawUrl) return alert("Artista, Canción y Enlace son obligatorios.");
       try {
-        await db.collection("active_list").doc(id).update({ artist, title, url: rawUrl.split("?")[0].trim(), email });
+        const batch = db.batch();
+        batch.update(db.collection("active_list").doc(id), { artist, title, url: rawUrl.split("?")[0].trim() });
+        const contactRef = db.collection("private_artist_contacts").doc(id);
+        if (email) batch.set(contactRef, { email: email.trim().toLowerCase(), artist, source: "active", updatedAt: Date.now() });
+        else batch.delete(contactRef);
+        await batch.commit();
         toggleModal('editActiveTrackModal', false);
         await loadAllLists();
         alert("✅ Tema actualizado.");
@@ -2528,7 +2537,13 @@
 
     window.deleteActiveTrack = async id => {
       if (!confirm("¿Eliminar este tema de la Lista Activa?")) return;
-      try { await db.collection("active_list").doc(id).delete(); await loadAllLists(); } catch (e) { alert("Error al eliminar."); }
+      try {
+        const batch = db.batch();
+        batch.delete(db.collection("active_list").doc(id));
+        batch.delete(db.collection("private_artist_contacts").doc(id));
+        await batch.commit();
+        await loadAllLists();
+      } catch (e) { alert("Error al eliminar."); }
     };
 
     window.exportActiveList = () => {
@@ -2913,13 +2928,18 @@
 
     async function loadAllLists() {
       const isCuratorSession = !!auth.currentUser && !$("adminDashboard").classList.contains("hidden");
-      const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
+      const [votersRes, activeRes, subRes, monthlyRes, annualRes, contactsRes] = await Promise.allSettled([
         isCuratorSession ? db.collection("voters_log").get() : Promise.resolve(null),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
         db.collection("submissions").orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
-        db.collection("annual_list").orderBy("timestamp", "asc").get()
+        db.collection("annual_list").orderBy("timestamp", "asc").get(),
+        isCuratorSession ? db.collection("private_artist_contacts").get() : Promise.resolve(null)
       ]);
+      const privateContacts = {};
+      if (contactsRes.status === "fulfilled" && contactsRes.value) {
+        contactsRes.value.docs.forEach(d => privateContacts[d.id] = d.data());
+      }
 
       if (activeRes.status === "fulfilled") {
         const totalVotesForCount = activeRes.value.docs.reduce((sum, d) => sum + (d.data().votes || 0), 0);
@@ -2930,7 +2950,7 @@
       const pAct = $("publicActiveList"), aAct = $("adminActiveListContainer"), vList = $("voteTabViewList");
       const hAct = getPlayerHeight('active');
       if (activeRes.status === "fulfilled") {
-        activeSubs = activeRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        activeSubs = activeRes.value.docs.map(d => ({ id: d.id, ...d.data(), ...(isCuratorSession && privateContacts[d.id] ? { email: privateContacts[d.id].email } : {}) }));
         $("publicActiveCount").textContent = $("adminActiveCount").textContent = $("adminActiveCountBadge").textContent = activeSubs.length;
         let votedTracks = 0, totalVotes = 0;
         activeSubs.forEach(s => { const v = s.votes || 0; totalVotes += v; if (v > 0) votedTracks++; });
@@ -2991,7 +3011,7 @@
       // 2. COLA SEMANAL
       const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
-        subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data(), ...(isCuratorSession && privateContacts[d.id] ? { email: privateContacts[d.id].email } : {}) }));
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
         if (!subs.length) {
           aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas en la cola semanal.</p>';
@@ -3254,7 +3274,7 @@
           let dupUser = false, dupTrack = false;
           snap.forEach(d => {
             const data = d.data();
-            if (data.artist.toLowerCase() === artist.toLowerCase() || data.email.toLowerCase() === email.toLowerCase()) dupUser = true;
+            if ((data.artist || "").toLowerCase() === artist.toLowerCase()) dupUser = true;
             if (data.url?.split("?")[0] === cleanUrl) dupTrack = true;
           });
           if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
@@ -3264,10 +3284,13 @@
           const submitGeo = await fetchGeoByIp("");
           const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
 
-          await db.collection("submissions").add({
-            artist, title, url: cleanUrl, email,
-            timestamp: Date.now(), dateString: madridStr(), votes: 0
-          });
+          const submissionRef = db.collection("submissions").doc();
+          const batch = db.batch();
+          batch.set(submissionRef, { artist, title, url: cleanUrl, timestamp: Date.now(), dateString: madridStr(), votes: 0 });
+          batch.set(db.collection("private_artist_contacts").doc(submissionRef.id), { email: email.toLowerCase(), artist, source: "weekly", updatedAt: Date.now() });
+          // Un documento por correo y edición; create-only en Firestore evita duplicados sin exponer el listado.
+          batch.set(db.collection("weekly_submitters").doc(email.toLowerCase()), { email: email.toLowerCase(), timestamp: Date.now() });
+          await batch.commit();
           // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
           sessionStorage.removeItem("nwr_geo_self");
@@ -3276,7 +3299,11 @@
           receipt.classList.remove("hidden"); $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
           $("submissionForm").classList.add("opacity-50", "pointer-events-none");
           loadAllLists();
-        } catch (e) { err("Error de conexión.", "Connection error."); }
+        } catch (e) {
+          err(e.code === "permission-denied"
+            ? "Este correo ya ha enviado una canción en esta edición, o el envío no ha sido autorizado."
+            : "Error de conexión.", "This email has already submitted in this edition, or the submission was not authorized.");
+        }
         finally { btn.disabled = false; btn.textContent = translations[currentLang].submitBtn; }
       });
 
