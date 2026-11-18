@@ -3103,6 +3103,22 @@
     // UID del único curador autorizado; las reglas Firestore aplican el mismo control.
     const ADMIN_UID = "tNohkBzhmBML0E4eqmhw74hncUf2";
 
+    window.clearLegacyChatPresence = async () => {
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
+      if (!confirm("Se borrarán los registros temporales de presencia del chat. Los usuarios conectados volverán a aparecer en unos segundos. ¿Continuar?")) return;
+      try {
+        const snap = await db.collection("chat_presence").get();
+        for (let i = 0; i < snap.docs.length; i += 400) {
+          const batch = db.batch();
+          snap.docs.slice(i, i + 400).forEach(doc => batch.delete(doc.ref));
+          await batch.commit();
+        }
+        alert("Presencia antigua eliminada. Los usuarios activos volverán a registrarse automáticamente.");
+      } catch (e) {
+        alert("No se pudo limpiar la presencia: " + (e.message || "error"));
+      }
+    };
+
     window.migrateLegacyArtistContacts = async () => {
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
       if (!confirm("Se copiarán los correos de active_list y submissions a registros privados y se eliminarán de las listas públicas. Haz antes una copia de seguridad completa. ¿Continuar?")) return;
@@ -3318,6 +3334,7 @@
 
       $("migrateVotePrivacyBtn").addEventListener("click", window.migrateLegacyVotePrivacy);
       $("migrateArtistContactsBtn").addEventListener("click", window.migrateLegacyArtistContacts);
+      $("clearLegacyChatPresenceBtn").addEventListener("click", window.clearLegacyChatPresence);
       $("resetVotesBtn").addEventListener("click", async () => {
         if (!confirm("¿Poner a cero los votos de la Lista Activa y los registros de votantes?")) return;
         try {
