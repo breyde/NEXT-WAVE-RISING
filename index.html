@@ -3131,8 +3131,9 @@
 
     window.migrateLegacyArtistContacts = async () => {
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
-      if (!confirm("Se copiarán los correos de active_list y submissions a registros privados y se eliminarán de las listas públicas. Haz antes una copia de seguridad completa. ¿Continuar?")) return;
+      if (!confirm("Se creará primero una copia de seguridad completa. Después se copiarán los correos de active_list y submissions a registros privados y se eliminarán de las listas públicas. ¿Continuar?")) return;
       try {
+        await saveBackupSnapshot("Backup previo a migración de contactos - " + madridDateOnly(), null, "all");
         const [activeSnap, submissionsSnap, contactsSnap] = await Promise.all([
           db.collection("active_list").get(),
           db.collection("submissions").get(),
@@ -3173,8 +3174,9 @@
 
     window.migrateLegacyVotePrivacy = async () => {
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
-      if (!confirm("Se migrarán los registros antiguos de votantes a documentos privados y se eliminarán los correos de votantes de la lista activa. No se modificarán las canciones ni sus contadores. ¿Continuar?")) return;
+      if (!confirm("Se creará primero una copia de seguridad completa. Después se migrarán los registros antiguos de votantes a documentos privados y se eliminarán los arrays públicos de correos. No se modificarán las canciones ni sus contadores. ¿Continuar?")) return;
       try {
+        await saveBackupSnapshot("Backup previo a migración de votos - " + madridDateOnly(), null, "all");
         const [votersSnap, activeSnap, submissionsSnap] = await Promise.all([
           db.collection("voters_log").get(),
           db.collection("active_list").get(),
