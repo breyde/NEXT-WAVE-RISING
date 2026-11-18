@@ -17,25 +17,110 @@
     .glass{background:rgba(24,24,27,0.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.08)}
     .neon-btn{background:linear-gradient(135deg,#10b981,#06b6d4)}
     .tab-btn.active{background:rgba(16,185,129,0.2);border-color:#10b981;color:#10b981}
-  </style>
+    /* Vista compacta del administrador: deja a la vista solo la barra superior. */
+    body.admin-mode:not(.admin-show-site) #brandHeaderContainer,
+    body.admin-mode:not(.admin-show-site) #btnInfoHeader,
+    body.admin-mode:not(.admin-show-site) #mainNavBar,
+    body.admin-mode:not(.admin-show-site) footer { display:none !important; }
+    body.admin-mode:not(.admin-show-site) header { margin-bottom:12px !important; gap:0 !important; }
+    body.admin-mode:not(.admin-show-site) #mainContentContainer > :not(#adminView) { display:none !important; }
+    body.admin-mode #adminView { width:100%; }
+    .admin-top-action { display:none; }
+    body.admin-mode #adminShowSiteBtn { display:flex; width:100vw; max-width:100vw; height:22px; min-height:22px; margin:7px calc(50% - 50vw) 0; padding:0; align-items:center; justify-content:center; border:0; border-radius:0; background:rgba(39,39,42,.92); color:#a1a1aa; font-size:10px; font-weight:600; letter-spacing:.04em; line-height:1; box-shadow:inset 0 1px rgba(255,255,255,.08); }
+    /* Navegación admin adaptable: nunca fuerza el ancho del documento. */
+    #adminView, #adminDashboard, #adminTabsBar { width:100%; max-width:100%; min-width:0; box-sizing:border-box; }
+    #adminTabsBar { display:none !important; width:100%; max-width:100%; min-width:0; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; overflow:hidden; background:linear-gradient(180deg,#292929,#171717); border:1px solid rgba(255,255,255,.13); border-bottom:2px solid rgba(16,185,129,.55); border-radius:12px 12px 5px 5px; padding:5px 5px 0; box-shadow:0 8px 22px rgba(0,0,0,.24); }
+    body.admin-mode #adminTabsBar { display:grid !important; }
+    body.admin-mode #topConfigBtn.admin-gear-active { color:#34d399 !important; border-color:rgba(52,211,153,.65) !important; background:rgba(16,185,129,.16) !important; box-shadow:0 0 0 1px rgba(16,185,129,.12); }
+    body.admin-mode.admin-panel-closed #adminTabsBar { display:none !important; }
+    #adminTabsBar button { min-width:0 !important; max-width:100%; width:100%; min-height:39px; white-space:normal !important; overflow-wrap:anywhere; text-align:center; display:flex; align-items:center; justify-content:center; line-height:1.15; padding:8px 3px 9px !important; font-size:clamp(8px,2.4vw,10px) !important; font-weight:800 !important; letter-spacing:.045em; text-transform:uppercase; border:1px solid rgba(255,255,255,.09) !important; border-bottom:0 !important; border-radius:9px 9px 0 0 !important; background:linear-gradient(180deg,rgba(63,63,70,.55),rgba(24,24,27,.85)) !important; color:#a1a1aa !important; }
+    #adminTabsBar button:hover { background:rgba(255,255,255,.06) !important; color:#fff !important; }
+    #adminTabsBar button.admin-tab-active { position:relative; transform:translateY(-2px); background:linear-gradient(180deg,rgba(16,185,129,.28),rgba(6,78,59,.34)) !important; color:#a7f3d0 !important; border-color:rgba(16,185,129,.55) !important; border-bottom:2px solid #10b981 !important; box-shadow:inset 0 1px rgba(255,255,255,.08),0 -3px 12px rgba(16,185,129,.08); }
+    body { overflow-x:hidden; }
+    /* ÚNICA botonera superior, sin estilos ni contenedores heredados. */
+     header { min-width:0; }
+     .top-control-bar { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:center; gap:2px !important; width:100%; min-width:0; padding:5px; box-sizing:border-box; border:1px solid rgba(16,185,129,.22); border-radius:16px; background:rgba(18,24,22,.92); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); box-shadow:0 10px 30px -10px rgba(0,0,0,.7),0 0 15px rgba(16,185,129,.05); }
+     .top-control-bar > * { min-width:0 !important; max-width:100%; box-sizing:border-box; }
+     .top-control-bar .header-lang-picker,.top-control-bar #btnContactHeader,.top-control-bar #headerVotingStatus { width:100% !important; height:38px !important; min-width:0 !important; margin:0 !important; box-sizing:border-box; border-radius:11px !important; }
+     .top-control-bar .header-lang-picker { padding:0 !important; }
+
+     /* Desplegable de idiomas: cristal verde oscuro y contraste alto. */
+     .top-control-bar .header-lang-picker { position:relative; }
+     .top-control-bar .modal-lang-menu:not(.hidden) {
+       position:absolute !important; top:calc(100% + 5px) !important; left:0 !important; z-index:10000 !important;
+       display:flex !important; flex-direction:column !important; width:min(230px,78vw) !important;
+       max-height:min(60vh,340px) !important; overflow-y:auto !important; padding:6px !important; gap:3px !important;
+       border:1px solid rgba(52,211,153,.68) !important; border-radius:13px !important;
+       background:rgba(5,35,26,.97) !important; color:#ecfdf5 !important;
+       -webkit-backdrop-filter:blur(18px) saturate(145%) !important; backdrop-filter:blur(18px) saturate(145%) !important;
+       box-shadow:0 12px 32px rgba(0,0,0,.72),0 0 18px rgba(16,185,129,.16) !important;
+     }
+     .top-control-bar .modal-lang-option {
+       display:flex !important; align-items:center !important; gap:10px !important; width:100% !important;
+       min-height:39px !important; padding:8px 10px !important; border:1px solid rgba(167,243,208,.14) !important;
+       border-radius:9px !important; background:rgba(6,78,59,.55) !important; color:#f0fdf4 !important;
+       text-align:left !important; font-size:13px !important; font-weight:600 !important;
+     }
+     .top-control-bar .modal-lang-option .lang-code { color:#6ee7b7 !important; font-size:11px !important; font-weight:800 !important; }
+     .top-control-bar .modal-lang-option .lang-name { color:#f0fdf4 !important; }
+     .top-control-bar .modal-lang-option[aria-selected="true"] { background:rgba(16,185,129,.38) !important; border-color:rgba(110,231,183,.7) !important; }
+     .top-control-bar .modal-lang-option:hover,.top-control-bar .modal-lang-option:active { background:rgba(16,185,129,.48) !important; }
+
+     .top-control-bar .modal-lang-trigger { width:100% !important; height:38px !important; justify-content:center; padding:0 4px !important; border-radius:11px; background:#141c19; border:1px solid rgba(16,185,129,.28); color:#a7f3d0; font-size:clamp(9px,2.8vw,12px); }
+     .top-control-bar #btnContactHeader { display:flex !important; align-items:center; justify-content:center; gap:5px; padding:0 4px !important; border:1px solid rgba(255,255,255,.12) !important; background:#141c19 !important; color:#e5e7eb !important; font-size:clamp(9px,2.8vw,12px) !important; white-space:nowrap; box-shadow:none !important; }
+     .top-control-bar #btnContactHeader span:first-child { color:#34d399; }
+     .top-control-bar #btnContactHeader span:last-child { overflow:hidden; text-overflow:ellipsis; }
+     .top-control-bar #headerVotingStatus { display:flex; align-items:center; justify-content:center; gap:4px; padding:0 4px !important; border:1px solid rgba(239,68,68,.34) !important; background:#1a1414 !important; color:#fecaca !important; font-size:clamp(8px,2.45vw,11px) !important; line-height:1.05; text-align:center; white-space:nowrap; overflow:hidden; box-shadow:none !important; }
+     .top-control-bar #headerVotingStatus span:last-child { overflow:hidden; text-overflow:ellipsis; }
+     .top-control-bar #topConfigBtn { display:none !important; }
+     body.admin-mode .top-control-bar { grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.15fr) 38px; }
+     body.admin-mode .top-control-bar #topConfigBtn { display:flex !important; align-items:center; justify-content:center; width:38px; height:38px; min-width:38px !important; padding:0 !important; border-radius:11px; background:#141c19 !important; border:1px solid rgba(255,255,255,.14) !important; color:#a7f3d0 !important; box-shadow:none !important; }
+     body.admin-mode .top-control-bar #btnContactHeader span:last-child { display:none; }
+     body.admin-mode #topConfigBtn.admin-gear-active { color:#6ee7b7 !important; border-color:rgba(52,211,153,.65) !important; background:rgba(16,185,129,.16) !important; }
+     body.admin-mode #adminShowSiteBtn { display:flex; width:100vw; max-width:100vw; height:22px; min-height:22px; margin:7px calc(50% - 50vw) 0; padding:0; align-items:center; justify-content:center; border:0; border-radius:0; background:rgba(39,39,42,.92); color:#a1a1aa; font-size:10px; font-weight:600; letter-spacing:.04em; line-height:1; }
+     body.admin-mode.admin-show-site #adminShowSiteBtn { margin-bottom:8px; }
+     body.admin-mode #adminTabsBar { margin-top:5px; }
+     @media(max-width:380px) { .top-control-bar { gap:2px !important; padding:3px !important; } .top-control-bar .modal-lang-trigger { gap:2px; } body.admin-mode .top-control-bar { grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 34px; } body.admin-mode .top-control-bar #topConfigBtn { width:34px; min-width:34px !important; height:36px; } .top-control-bar #btnContactHeader { padding:0 3px !important; } }
+     body.admin-mode:not(.admin-show-site) #brandHeaderContainer,body.admin-mode:not(.admin-show-site) #btnInfoHeader,body.admin-mode:not(.admin-show-site) #mainNavBar,body.admin-mode:not(.admin-show-site) footer { display:none !important; }
+     body.admin-mode:not(.admin-show-site) header { margin-bottom:12px !important; gap:0 !important; }
+     body.admin-mode:not(.admin-show-site) #mainContentContainer > :not(#adminView) { display:none !important; }
+     body.admin-mode #adminView { width:100%; }
+     .admin-top-action { display:none; }
+     body.admin-mode #adminTabsBar { display:grid !important; }
+     body.admin-mode.admin-panel-closed #adminTabsBar { display:none !important; }
+     body.admin-mode #adminShowSiteBtn { flex:0 0 auto; }
+
+      /* Vista pública: botonera casi al borde superior y contenido inmediatamente debajo. */
+      body:not(.admin-mode) { padding-top:4px !important; }
+      body:not(.admin-mode) > header { margin-top:0 !important; margin-bottom:4px !important; row-gap:4px !important; }
+      body:not(.admin-mode) > main#mainContentContainer { margin-top:0 !important; }
+
+     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-3">
-    <div class="w-full flex justify-between items-center text-xs gap-2">
-      <div class="flex items-center gap-2">
-        <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md h-9 items-center">
-          <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs">🇪🇸 ES</button>
-          <button onclick="setLanguage('en')" id="langEnBtn" class="px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs">🇬🇧 EN</button>
-        </div>
-        <button id="btnContactHeader" onclick="toggleModal('contactModal')" class="px-3.5 h-9 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-zinc-300 font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-          <span>✉️</span> <span data-i18n="contactBtn">Contacto</span>
-        </button>
+    <span id="mediaPositionSlot0" class="hidden" aria-hidden="true"></span>
+    <nav class="top-control-bar" aria-label="Barra superior">
+      <div class="modal-lang-picker header-lang-picker" data-modal-lang-picker>
+        <button type="button" class="modal-lang-trigger" onclick="toggleModalLanguageMenu(this)" aria-haspopup="listbox" aria-expanded="false" aria-label="Seleccionar idioma">🇪🇸 ES <span aria-hidden="true">⌄</span></button>
+        <div class="modal-lang-menu hidden" role="listbox" aria-label="Idiomas disponibles"></div>
       </div>
-      <div class="flex items-center gap-2">
-        <div id="headerVotingStatus" class="px-3 h-9 rounded-xl text-xs font-bold border shadow-sm flex items-center justify-center gap-1.5"></div>
-        <button id="topConfigBtn" onclick="quickOpenConfig()" class="hidden px-3 h-9 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs transition shadow-sm items-center gap-1">⚙️ Config</button>
-      </div>
+      <button id="btnContactHeader" onclick="toggleModal('contactModal')" class="h-9 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5"><span>✉️</span> <span data-i18n="contactBtn">Contacto</span></button>
+      <div id="headerVotingStatus" class="h-9 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"></div>
+      <button id="topConfigBtn" type="button" onclick="toggleQuickConfig()" aria-label="Configuración" aria-pressed="false" class="hidden h-9 w-9 rounded-xl text-lg transition items-center justify-center">⚙</button>
+    </nav>
+    <button type="button" id="adminShowSiteBtn" class="admin-top-action" onclick="toggleAdminSiteHeader()" aria-expanded="false">⌄ Mostrar cabecera</button>
+    <div id="adminTabsBar">
+      <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="admin-tab-active">🏠 INICIO</button>
+      <button onclick="switchAdminTab('activa')" id="adminTabActiva">📚 LISTAS · LISTA ACTIVA (<span id="adminActiveCountBadge">0</span>)</button>
+      <button onclick="switchAdminTab('paises')" id="adminTabPaises">🌍 PAÍSES (<span id="countriesCountBadge">0</span>)</button>
+      <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes">✉️ MENSAJES (<span id="msgCountBadge">0</span>)</button>
+      <button onclick="switchAdminTab('diseno')" id="adminTabDiseno">🎨 DISEÑO</button>
+      <button onclick="switchAdminTab('galeria')" id="adminTabGaleria">🖼️ GALERÍA</button>
+      <button onclick="switchAdminTab('ajustes')" id="adminTabAjustes">⚙️ AJUSTES</button>
+      <button onclick="switchAdminTab('spotify')" id="adminTabSpotify">🎵 SPOTIFY</button>
+      <button onclick="switchAdminTab('backups')" id="adminTabBackups">🗂️ COPIAS (<span id="backupsCountBadge">0</span>)</button>
     </div>
 
     <div id="brandHeaderContainer" class="w-full flex justify-center items-center pt-1">
@@ -44,14 +129,18 @@
       <video id="brandHeaderVideo" class="hidden mx-auto" playsinline preload="metadata"></video>
       <iframe id="brandHeaderYoutube" class="hidden mx-auto border-0" title="Vídeo de cabecera de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
     </div>
+    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="hidden max-w-full object-contain rounded-xl"><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>
 
+    <span id="mediaPositionSlot1" class="hidden" aria-hidden="true"></span>
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
       <span class="shrink-0">📜</span>
       <span data-i18n="infoBtnText" class="truncate">Importante: Normas y Funcionamiento</span>
       <span class="text-emerald-400/80 shrink-0 text-[10px]">→</span>
     </button>
 
+    <span id="mediaPositionSlot2" class="hidden" aria-hidden="true"></span>
     <nav id="mainNavBar" class="w-full flex flex-wrap items-stretch justify-between gap-1 pt-1"></nav>
+    <span id="mediaPositionSlot3" class="hidden" aria-hidden="true"></span>
   </header>
 
   <main id="mainContentContainer" class="w-full max-w-2xl space-y-6 pb-12">
@@ -60,6 +149,7 @@
       <h3 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider" data-i18n="txtFeatured">🎵 TEMA DESTACADO</h3>
       <iframe id="spotifyIframe" style="border-radius:12px" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </section>
+    <span id="mediaPositionSlot4" class="hidden" aria-hidden="true"></span>
 
     <!-- PESTAÑA 0: LISTA ACTIVA -->
     <div id="viewActive" class="space-y-6">
@@ -301,18 +391,149 @@
           <button type="button" onclick="logoutCurator()" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-[11px] font-bold transition">Cerrar Sesión</button>
         </div>
 
-        <div class="flex gap-1.5 border-b border-white/10 pb-3 overflow-x-auto">
-          <button onclick="switchAdminTab('principal')" id="adminTabPrincipal" class="px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap">Principal</button>
-          <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
-          <button onclick="switchAdminTab('paises')" id="adminTabPaises" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🌍 Países (<span id="countriesCountBadge">0</span>)</button>
-          <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
-          <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
-          <button onclick="switchAdminTab('spotify')" id="adminTabSpotify" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🎵 Sincronizar listas</button>
-          <button onclick="switchAdminTab('backups')" id="adminTabBackups" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Backups (<span id="backupsCountBadge">0</span>)</button>
-        </div>
+
 
         <!-- PRINCIPAL -->
         <div id="adminViewPrincipal" class="space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
+            </div>
+            <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
+
+            <div class="pt-3 border-t border-white/10 space-y-2.5">
+              <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
+              <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              <div class="flex gap-1.5 items-center">
+                <input type="url" id="newCustomTabUrl" placeholder="URL imagen / GIF de GitHub (o pulsa Examinar)..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
+                  <span>📁 Examinar</span>
+                  <input type="file" id="newCustomTabFile" accept="image/*" onchange="handleNewTabFileUpload(event)" class="hidden">
+                </label>
+              </div>
+              <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
+              <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
+            </div>
+            <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
+          </div>
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-400 text-sm uppercase">🎬 Cabecera multimedia personalizable</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige texto, imagen/GIF, vídeo de tu biblioteca o un vídeo de YouTube. Configura tamaño, posición y reproducción.</p>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[11px] text-zinc-300 font-semibold">Contenido de la cabecera:</label>
+              <select id="adminHeaderMediaType" onchange="updateHeaderMediaEditor()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="text">Texto original</option><option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option>
+              </select>
+            </div>
+            <div id="adminHeaderUrlGroup" class="space-y-2">
+              <label class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
+              <div class="flex gap-2">
+                <input type="url" id="adminLogoUrlInput" placeholder="URL directa de imagen/vídeo o enlace de YouTube" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 text-cyan-200 text-xs cursor-pointer whitespace-nowrap">📁 Importar<input type="file" id="adminLogoFileInput" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" onchange="handleLogoFileUpload(event)" class="hidden"></label>
+              </div>
+              <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen/GIF o vídeo puedes importar un archivo o elegirlo desde la galería.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %)</label><input type="text" id="adminHeaderWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input type="number" id="adminHeaderHeight" min="60" max="1200" value="220" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-zinc-950/70 border border-cyan-500/20">
+              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición en la página (0–10)</label><select id="adminHeaderPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="0">0 · Encima de la botonera superior</option><option value="1">1 · Posición normal</option><option value="2">2 · Debajo del recuadro informativo</option><option value="3">3 · Debajo de la botonera de navegación</option><option value="4">4 · Debajo del reproductor destacado</option><option value="5">5 · Debajo del primer bloque de la pestaña</option><option value="6">6 · Debajo del segundo bloque de la pestaña</option><option value="7">7 · Debajo del tercer bloque de la pestaña</option><option value="8">8 · Debajo del cuarto bloque de la pestaña</option><option value="9">9 · Debajo del quinto bloque de la pestaña</option><option value="10">10 · Debajo del sexto bloque de la pestaña</option></select></div>
+              <div class="col-span-2"><label class="block text-[11px] text-zinc-300 mb-1">Alineación horizontal</label><select id="adminHeaderHorizontalPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="flex-start">Izquierda</option><option value="center">Centro</option><option value="flex-end">Derecha</option></select></div>
+            </div>
+            <div id="adminHeaderFitGroup">
+              <label class="block text-[11px] text-zinc-300 mb-1">Ajuste de imagen/vídeo:</label>
+              <select id="adminHeaderObjectFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener (sin recortar)</option><option value="cover">Cubrir (rellenar)</option><option value="fill">Estirar al tamaño</option></select>
+            </div>
+            <div id="adminHeaderVideoOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-cyan-300">Opciones de vídeo de biblioteca</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoAutoplay" class="accent-cyan-500"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoMuted" checked class="accent-cyan-500"> Silenciado</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoLoop" checked class="accent-cyan-500"> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoControls" checked class="accent-cyan-500"> Controles</label>
+              </div>
+            </div>
+            <div id="adminHeaderYoutubeOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-red-300">Opciones de YouTube</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeAutoplay" class="accent-red-500"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeMute" checked class="accent-red-500"> Silenciar</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeLoop" class="accent-red-500"> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeControls" checked class="accent-red-500"> Mostrar controles</label>
+              </div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Empezar en el segundo:</label><input type="number" id="adminHeaderYoutubeStart" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2"><span class="text-[10px] text-zinc-400 uppercase">Vista previa del archivo:</span><img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg"></div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="saveHeaderMediaConfig()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar cabecera</button>
+              <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar texto</button>
+            </div>
+            <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
+          </div>
+          <div class="glass rounded-2xl p-5 space-y-4 border border-fuchsia-500/30">
+            <div>
+              <h3 class="font-bold text-fuchsia-300 text-sm uppercase">🖼️ Banner multimedia independiente</h3>
+              <p class="text-[11px] text-zinc-400">Admite imagen/GIF, vídeo de tu biblioteca y YouTube, igual que la cabecera. Configura dónde lo verá el público.</p>
+            </div>
+            <div>
+              <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Contenido del banner:</label>
+              <select id="adminBannerMediaType" onchange="updateBannerMediaEditor()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option>
+              </select>
+            </div>
+            <div id="adminBannerUrlGroup" class="space-y-2">
+              <label class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
+              <div class="flex gap-2">
+                <input type="url" id="adminBannerUrl" placeholder="URL directa o enlace de YouTube" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <label class="px-3 py-2 rounded-xl bg-fuchsia-500/20 text-fuchsia-200 text-xs cursor-pointer whitespace-nowrap">📁 Importar<input id="adminBannerFile" type="file" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" class="hidden" onchange="handleBannerFileUpload(event)"></label>
+              </div>
+              <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen, GIF o vídeo puedes importar un archivo o usar una URL.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición en la página (0–10)</label><select id="adminBannerPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="0">0 · Encima de la botonera superior</option><option value="1">1 · Posición normal</option><option value="2">2 · Debajo del recuadro informativo</option><option value="3">3 · Debajo de la botonera de navegación</option><option value="4">4 · Debajo del reproductor destacado</option><option value="5">5 · Debajo del primer bloque de la pestaña</option><option value="6">6 · Debajo del segundo bloque de la pestaña</option><option value="7">7 · Debajo del tercer bloque de la pestaña</option><option value="8">8 · Debajo del cuarto bloque de la pestaña</option><option value="9">9 · Debajo del quinto bloque de la pestaña</option><option value="10">10 · Debajo del sexto bloque de la pestaña</option></select></div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %)</label><input id="adminBannerWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input id="adminBannerHeight" type="number" min="40" max="1200" value="150" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div id="adminBannerFitGroup">
+              <label class="block text-[11px] text-zinc-300 mb-1">Ajuste de imagen/vídeo:</label>
+              <select id="adminBannerObjectFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener (sin recortar)</option><option value="cover">Cubrir (rellenar)</option><option value="fill">Estirar al tamaño</option></select>
+            </div>
+            <div id="adminBannerVideoOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-fuchsia-300">Opciones de vídeo de biblioteca</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoAutoplay"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoMuted" checked> Silenciado</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoLoop" checked> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerVideoControls" checked> Controles</label>
+              </div>
+            </div>
+            <div id="adminBannerYoutubeOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
+              <p class="text-[11px] font-bold text-red-300">Opciones de YouTube</p>
+              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeAutoplay"> Autoplay</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeMute" checked> Silenciar</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeLoop"> Bucle (loop)</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="adminBannerYoutubeControls" checked> Mostrar controles</label>
+              </div>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Empezar en el segundo:</label><input type="number" id="adminBannerYoutubeStart" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
+            </div>
+            <div class="rounded-xl bg-zinc-950/70 border border-white/10 p-3 space-y-2">
+              <div class="flex items-center justify-between gap-2"><label class="text-[11px] text-zinc-200 font-bold">Pestañas donde aparecerá para usuarios</label><div class="flex gap-2"><button type="button" onclick="setBannerTabsSelection(true)" class="text-[10px] text-emerald-300">Todas</button><button type="button" onclick="setBannerTabsSelection(false)" class="text-[10px] text-zinc-400">Ninguna</button></div></div>
+              <div id="adminBannerTabsList" class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300"></div>
+            </div>
+            <label class="flex items-center gap-2 text-xs text-zinc-300"><input type="checkbox" id="adminBannerEnabled" checked> Mostrar banner</label>
+            <div id="adminBannerPreview" class="hidden rounded-xl bg-zinc-950 p-2 flex justify-center items-center min-h-16">
+              <img id="adminBannerPreviewImage" alt="Vista previa del banner" class="hidden max-w-full object-contain">
+              <video id="adminBannerPreviewVideo" class="hidden max-w-full" playsinline muted controls></video>
+              <iframe id="adminBannerPreviewYoutube" class="hidden max-w-full border-0" title="Vista previa de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+            </div>
+            <div class="flex gap-2"><button type="button" onclick="saveGraphicBanner()" class="flex-1 py-2.5 bg-fuchsia-500 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar banner</button><button type="button" onclick="clearGraphicBanner()" class="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-xs">Quitar</button></div>
+          </div>
+
           <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm">Configuración &amp; Rotación Semanal</h3>
             <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
@@ -341,14 +562,11 @@
               ℹ️ Al pulsar <strong>Nueva Edición (Rotar Listas)</strong>: se guarda copia de sistema, la <strong>Lista Activa</strong> pasa a la <strong>Mensual</strong>, la <strong>Cola Semanal</strong> pasa a ser la nueva <strong>Lista Activa</strong> (con votación activada) y el campeón de la activa anterior pasa a <strong>Destacado</strong> y reingresa en Cola Semanal.
             </p>
           </div>
-          <div class="glass rounded-2xl p-5 space-y-3 mb-8">
-            <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">🔥 Cola Semanal Recibidas (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
-            <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
-          </div>
+
         </div>
 
         <!-- LISTA ACTIVA -->
-        <div id="adminViewActiva" class="hidden space-y-4">
+                <div id="adminViewActiva" class="hidden space-y-4">
           <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
             <h3 class="font-bold text-emerald-400 text-sm">➕ Añadir Tema Directamente a la Lista Activa (On Air)</h3>
             <p class="text-[11px] text-zinc-400">Modo curador sin restricciones: puedes añadir ilimitados temas, repetir artistas/correos o saltar bloqueos de IP.</p>
@@ -359,12 +577,16 @@
             <button type="button" onclick="addTrackToActiveList()" class="w-full py-2.5 neon-btn text-zinc-950 font-bold rounded-xl text-xs shadow transition">Añadir a Lista Activa (Sin Límites)</button>
           </div>
           <div class="glass rounded-2xl p-5 space-y-3 mb-8">
-            <div class="flex justify-between items-center border-b border-white/10 pb-3">
-              <h3 class="font-bold text-sm text-white">📻 Temas en Lista Activa (<span id="adminActiveCount">0</span>)</h3>
-              <button type="button" onclick="exportActiveList()" class="text-xs px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista Activa</button>
-            </div>
+            <div class="flex justify-between items-center border-b border-white/10 pb-3"><h3 class="font-bold text-sm text-white">📻 Temas en Lista Activa (<span id="adminActiveCount">0</span>)</h3><button type="button" onclick="exportActiveList()" class="text-xs px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista Activa</button></div>
             <div id="adminActiveListContainer" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando lista activa...</p></div>
           </div>
+          <div class="glass rounded-2xl p-5 space-y-3 mb-8">
+            <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-white">🔥 COLA SEMANAL · ADMIN (<span id="subCount">0</span>)</h3><button type="button" id="exportListBtn" class="text-xs px-2 py-1 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700">Copiar Lista</button></div>
+            <div id="submissionsList" class="space-y-3 text-xs"><p class="text-zinc-400">Cargando...</p></div>
+          </div>
+          <div class="glass rounded-2xl p-5 space-y-3 border border-cyan-500/30"><div class="flex justify-between"><h3 class="font-bold text-cyan-400 text-sm">🗓️ LISTA MENSUAL · ADMIN</h3><strong id="adminMonthlyCount">0</strong></div><div id="adminMonthlyListContainer" class="space-y-3 text-xs">Cargando...</div></div>
+          <div class="glass rounded-2xl p-5 space-y-3 border border-amber-500/30"><div class="flex justify-between"><h3 class="font-bold text-amber-400 text-sm">📀 LISTA ANUAL · ADMIN</h3><strong id="adminAnnualCount">0</strong></div><div id="adminAnnualListContainer" class="space-y-3 text-xs">Cargando...</div></div>
+          <div class="glass rounded-2xl p-5 space-y-3 border border-purple-500/30"><div class="flex justify-between items-center"><h3 class="font-bold text-purple-400 text-sm">🏆 TOP ANUAL · ADMIN</h3><button type="button" onclick="addTopAnnualTrack()" class="px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">＋ Añadir tema</button></div><p class="text-[10px] text-zinc-400">Clasificación anual administrada por el equipo.</p><div id="adminTopAnnualListContainer" class="space-y-3 text-xs">Cargando...</div></div>
         </div>
 
         <!-- PAÍSES -->
@@ -396,7 +618,7 @@
         </div>
 
         <!-- CONFIGURACIÓN AVANZADA -->
-        <div id="adminViewConfig" class="hidden space-y-5 mb-8">
+        <div id="adminViewGaleria" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Biblioteca multimedia GitHub (Carpeta <code>img/</code>)</h3>
@@ -428,7 +650,16 @@
               </div>
             </div>
           </div>
-
+        </div>
+        <div id="adminViewDiseno" class="hidden space-y-5 mb-8">
+          <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
+            <div><h3 class="font-bold text-emerald-400 text-sm uppercase">✨ Contador de prestigio</h3><p class="text-[11px] text-zinc-400 mt-1">Añade un bonus visual al contador público. Las visitas reales se conservan por separado.</p></div>
+            <label class="block text-xs text-zinc-300" for="visitorPrestigeBonusInput">Bonus de prestigio</label>
+            <input id="visitorPrestigeBonusInput" type="number" min="0" max="1000000" step="1" value="1000" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm">
+            <button type="button" onclick="saveVisitorPrestigeBonus()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar bonus</button>
+          </div>
+          
+        <div id="adminViewAjustes" class="hidden space-y-5 mb-8">
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
@@ -456,6 +687,7 @@
               <button type="button" onclick="saveFeaturedSettings()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition mt-2">💾 Guardar Visibilidad Destacado</button>
             </div>
           </div>
+
 
           <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
             <div>
@@ -503,185 +735,6 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
-            <div>
-              <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
-            </div>
-            <div id="adminTabsManagerList" class="space-y-2.5 text-xs"></div>
-
-            <div class="pt-3 border-t border-white/10 space-y-2.5">
-              <p class="text-xs font-bold text-white">➕ Crear Nueva Pestaña Personalizada</p>
-              <input type="text" id="newCustomTabLabel" placeholder="Nombre de la pestaña (ej. 🎁 Sorteos) *" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-              <div class="flex gap-1.5 items-center">
-                <input type="url" id="newCustomTabUrl" placeholder="URL imagen / GIF de GitHub (o pulsa Examinar)..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                  <span>📁 Examinar</span>
-                  <input type="file" id="newCustomTabFile" accept="image/*" onchange="handleNewTabFileUpload(event)" class="hidden">
-                </label>
-              </div>
-              <textarea id="newCustomTabContent" rows="3" placeholder="Contenido que se mostrará dentro de esta nueva pestaña..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none"></textarea>
-              <button type="button" onclick="createNewCustomTab()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">+ Añadir Nueva Pestaña</button>
-            </div>
-            <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
-          </div>
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
-            <div>
-              <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón o el indicador superior de <strong>Votación activa / inactiva</strong> para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
-            </div>
-            <div class="space-y-3">
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Elemento:</label>
-                <select id="adminButtonSelect" onchange="loadButtonCustomForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                  <option value="votingBadgeActive">🟢 Indicador Votación Activa (Arriba derecha)</option>
-                  <option value="votingBadgeInactive">🔴 Indicador Votación Inactiva (Arriba derecha)</option>
-                  <option value="btnContactHeader">✉️ Botón Contacto (Cabecera)</option>
-                  <option value="btnInfoHeader">📜 Botón Normas y Funcionamiento (Cabecera)</option>
-                  <option value="activePlaylistLinkBtn">🟢 Abrir Playlist Spotify (Lista Activa)</option>
-                  <option value="btnGoVoteActive">⭐ Ir a Votar (Lista Activa)</option>
-                  <option value="playlistLinkBtn">🟢 Abrir Playlist Spotify (Cola Semanal)</option>
-                  <option value="submitBtn">🚀 Enviar Propuesta (Formulario)</option>
-                  <option value="btnVotingRules">📜 Normas de Votación (Pestaña Votar)</option>
-                  <option value="btnChatJoin">💬 Entrar al Chat</option>
-                  <option value="btnChatSend">📨 Enviar Mensaje Chat</option>
-                  <option value="toggleAdminBtn">⚙️ Panel Curadores (Pie de página)</option>
-                </select>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Texto personalizado (vacío = por defecto):</label>
-                  <input type="text" id="adminBtnText" placeholder="Texto..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Tamaño:</label>
-                  <select id="adminBtnSize" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                    <option value="">Por defecto</option>
-                    <option value="sm">Pequeño (Compacto)</option>
-                    <option value="md">Mediano (Estándar)</option>
-                    <option value="lg">Grande (Destacado)</option>
-                  </select>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Fondo:</label>
-                  <div class="flex gap-1.5 items-center">
-                    <input type="color" id="adminBtnBgColor" value="#10b981" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
-                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseBg" class="accent-pink-500"> Aplicar</label>
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-[11px] text-zinc-400 mb-1">Color de Texto:</label>
-                  <div class="flex gap-1.5 items-center">
-                    <input type="color" id="adminBtnTextColor" value="#ffffff" class="h-8 w-10 rounded bg-zinc-900 border border-zinc-700 cursor-pointer">
-                    <label class="text-[11px] text-zinc-400 flex items-center gap-1"><input type="checkbox" id="adminBtnUseText" class="accent-pink-500"> Aplicar</label>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">URL de imagen/GIF (o pulsa Examinar para subir a GitHub):</label>
-                <div class="flex gap-1.5 items-center">
-                  <input type="url" id="adminBtnGifUrl" placeholder="https://raw.githubusercontent.com/..." class="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                  <label class="px-3 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                    <span>📁 Examinar</span>
-                    <input type="file" accept="image/*" onchange="handleBtnGifUpload(event)" class="hidden">
-                  </label>
-                </div>
-              </div>
-              <div class="flex gap-2">
-                <button type="button" onclick="saveButtonCustomization()" class="flex-1 py-2.5 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Estilo</button>
-                <button type="button" onclick="resetButtonCustomization()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
-            <div>
-              <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, la web lo traducirá automáticamente cuando el usuario pulse 🇬🇧 EN o el botón Traducir.</p>
-            </div>
-            <div class="space-y-2.5">
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Selecciona Pestaña *</label>
-                <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white focus:border-amber-500 focus:outline-none"></select>
-              </div>
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Mensaje en Español 🇪🇸 *</label>
-                <textarea id="adminNoticeTextInput" rows="3" placeholder="Escribe aquí el aviso importante en español..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
-              </div>
-              <div>
-                <label class="block text-[11px] text-zinc-400 mb-1">Traducción al Inglés 🇬🇧 (opcional - se traduce solo si se deja vacío):</label>
-                <textarea id="adminNoticeTextEnInput" rows="2" placeholder="Optional English version..." class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white resize-none focus:border-amber-500 focus:outline-none"></textarea>
-              </div>
-              <div class="flex gap-2">
-                <button type="button" onclick="saveTabNotice()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar / Actualizar Aviso</button>
-                <button type="button" onclick="deleteTabNotice(document.getElementById('adminNoticeTabSelect').value)" class="px-3.5 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-xs border border-rose-500/40 transition">🗑️ Quitar</button>
-              </div>
-            </div>
-            <div class="pt-2 border-t border-white/10 space-y-2">
-              <p class="text-[11px] font-bold text-zinc-300 uppercase">Avisos Activos Actualmente:</p>
-              <div id="adminActiveNoticesList" class="space-y-2 text-xs"><p class="text-zinc-500 italic text-[11px]">No hay avisos configurados.</p></div>
-            </div>
-          </div>
-
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
-            <div>
-              <h3 class="font-bold text-cyan-400 text-sm uppercase">🎬 Cabecera multimedia personalizable</h3>
-              <p class="text-[11px] text-zinc-400 mt-0.5">Elige texto, imagen/GIF, vídeo de tu biblioteca o un vídeo de YouTube. Configura tamaño y reproducción aquí.</p>
-            </div>
-            <div class="space-y-2">
-              <label class="block text-[11px] text-zinc-300 font-semibold">Contenido de la cabecera:</label>
-              <select id="adminHeaderMediaType" onchange="updateHeaderMediaEditor()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <option value="text">Texto original</option><option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option>
-              </select>
-            </div>
-            <div id="adminHeaderUrlGroup" class="space-y-2">
-              <label class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
-              <div class="flex gap-1.5 items-center">
-                <input type="url" id="adminLogoUrlInput" placeholder="URL directa de img/ o enlace de YouTube..." class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <label class="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold text-xs cursor-pointer transition whitespace-nowrap">
-                  <span>📁 Importar</span><input type="file" id="adminLogoFileInput" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" onchange="handleLogoFileUpload(event)" class="hidden">
-                </label>
-              </div>
-              <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal del vídeo. Para imagen/vídeo puedes importar un archivo o seleccionarlo en la galería.</p>
-            </div>
-            <div class="grid grid-cols-2 gap-2.5">
-              <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %):</label><input type="text" id="adminHeaderWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-              <div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px):</label><input type="number" id="adminHeaderHeight" min="60" max="1200" value="220" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-            </div>
-            <div id="adminHeaderFitGroup">
-              <label class="block text-[11px] text-zinc-300 mb-1">Ajuste de imagen/vídeo:</label>
-              <select id="adminHeaderObjectFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener (sin recortar)</option><option value="cover">Cubrir (rellenar)</option><option value="fill">Estirar al tamaño</option></select>
-            </div>
-            <div id="adminHeaderVideoOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
-              <p class="text-[11px] font-bold text-cyan-300">Opciones de vídeo de biblioteca</p>
-              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoAutoplay" class="accent-cyan-500"> Autoplay</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoMuted" checked class="accent-cyan-500"> Silenciado</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoLoop" checked class="accent-cyan-500"> Bucle (loop)</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderVideoControls" checked class="accent-cyan-500"> Controles</label>
-              </div><p class="text-[10px] text-zinc-500">Los navegadores suelen exigir vídeo silenciado para permitir autoplay.</p>
-            </div>
-            <div id="adminHeaderYoutubeOptions" class="hidden bg-zinc-950/70 p-3 rounded-xl border border-white/10 space-y-2">
-              <p class="text-[11px] font-bold text-red-300">Opciones de YouTube</p>
-              <div class="grid grid-cols-2 gap-2 text-[11px] text-zinc-300">
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeAutoplay" class="accent-red-500"> Autoplay</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeMute" checked class="accent-red-500"> Silenciar</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeLoop" class="accent-red-500"> Bucle (loop)</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="adminHeaderYoutubeControls" checked class="accent-red-500"> Mostrar controles</label>
-              </div>
-              <div><label class="block text-[11px] text-zinc-300 mb-1">Empezar en el segundo:</label><input type="number" id="adminHeaderYoutubeStart" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
-              <p class="text-[10px] text-zinc-500">YouTube puede limitar autoplay según el navegador. El bucle de un vídeo se configura automáticamente.</p>
-            </div>
-            <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2"><span class="text-[10px] text-zinc-400 uppercase">Vista previa del archivo:</span><img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg"></div>
-            <div class="flex flex-wrap gap-2">
-              <button type="button" onclick="saveHeaderMediaConfig()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar cabecera</button>
-              <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar texto</button>
-            </div>
-            <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
-          </div>
 
             <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
@@ -724,12 +777,55 @@
 
         <!-- BACKUPS -->
         <div id="adminViewBackups" class="hidden space-y-4">
+          <section class="glass rounded-2xl p-5 space-y-3 border border-cyan-500/40">
+            <div>
+              <h3 class="font-bold text-cyan-300 text-sm uppercase">📁 Copias JSON de listas</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Descarga las listas a tu dispositivo o importa un JSON. Al importar, se guarda como un backup nuevo en Firebase; no sustituye nada automáticamente.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <select id="jsonBackupScope" class="flex-1 px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                <option value="all">📦 Todas las listas</option>
+                <option value="active">📻 Lista Activa</option>
+                <option value="weekly">🔥 Cola Semanal</option>
+                <option value="monthly">🗓️ Lista Mensual</option>
+                <option value="annual">📀 Lista Anual</option>
+                <option value="countries">🌍 Países</option>
+              </select>
+              <button type="button" onclick="exportListsJson()" class="px-3 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold text-xs">⬇️ Exportar JSON</button>
+              <button type="button" onclick="document.getElementById('listsJsonImportInput').click()" class="px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs border border-white/10">⬆️ Importar JSON</button>
+              <input id="listsJsonImportInput" type="file" accept="application/json,.json" class="hidden" onchange="importListsJson(event)">
+            </div>
+            <p id="listsJsonBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">La importación añade una copia al historial. Para restaurarla, usa el botón «Restaurar» de esa copia.</p>
+          </section>
+          <section class="glass rounded-2xl p-5 space-y-3 border border-amber-500/40">
+            <div>
+              <h3 class="font-bold text-amber-300 text-sm uppercase">🧰 Copia de seguridad de configuración</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Guarda o recupera aspecto, iconos, pestañas, reproductores, cabecera, botones y avisos. No incluye listas, usuarios ni credenciales.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="exportSiteConfiguration()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs">⬇️ Exportar configuración</button>
+              <button type="button" onclick="document.getElementById('siteConfigImportInput').click()" class="flex-1 min-w-[130px] px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs border border-white/10">⬆️ Importar configuración</button>
+              <input id="siteConfigImportInput" type="file" accept="application/json,.json" class="hidden" onchange="importSiteConfiguration(event)">
+            </div>
+            <p id="siteConfigBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">Las copias se descargan en tu dispositivo como archivo JSON.</p>
+          </section>
+          <section class="glass rounded-2xl p-5 space-y-3 border border-violet-500/40">
+            <div><h3 class="font-bold text-violet-300 text-sm uppercase">🔐 Copia de seguridad de reglas Firebase</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Guarda aquí una copia privada de las reglas de Firestore. Esta copia no publica ni modifica las reglas activas: para aplicarlas tendrás que hacerlo desde la consola de Firebase.</p></div>
+            <textarea id="firestoreRulesEditor" spellcheck="false" class="w-full min-h-[300px] px-3 py-3 rounded-xl bg-zinc-950 border border-zinc-700 text-[11px] leading-relaxed text-zinc-200 font-mono" placeholder="Reglas de Firestore..."></textarea>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="saveFirestoreRulesBackup()" class="flex-1 min-w-[145px] px-3 py-2.5 rounded-xl bg-violet-500 hover:bg-violet-400 text-white font-bold text-xs">💾 Guardar copia en Firebase</button>
+              <button type="button" onclick="loadFirestoreRulesBackup(true)" class="flex-1 min-w-[120px] px-3 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-white font-bold text-xs">↩️ Recuperar guardada</button>
+              <button type="button" onclick="copyFirestoreRulesBackup()" class="flex-1 min-w-[100px] px-3 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold text-xs border border-cyan-500/30">📋 Copiar</button>
+              <button type="button" onclick="downloadFirestoreRulesBackup()" class="flex-1 min-w-[100px] px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold text-xs border border-white/10">⬇️ Descargar</button>
+            </div><p id="firestoreRulesBackupStatus" class="text-[11px] text-zinc-400" aria-live="polite">Reglas precargadas. Guarda para conservarlas en Firebase.</p>
+          </section>
           <div class="glass rounded-2xl p-5 space-y-4 mb-8">
             <div class="border-b border-white/10 pb-3 space-y-3">
               <div class="flex flex-wrap justify-between items-center gap-2">
                 <div>
                   <h3 class="font-bold text-emerald-400 text-sm uppercase">💾 Copias de Seguridad (Backups)</h3>
-                  <p class="text-[11px] text-zinc-400 mt-0.5">Elige en el desplegable qué sección quieres respaldar. Son copias aisladas.</p>
+                  <p class="text-[11px] text-zinc-400 mt-0.5">Aquí están juntas las copias de configuración y de todas las listas. Las copias locales JSON y las copias guardadas en Firebase son independientes.</p>
                 </div>
                 <button type="button" onclick="inspectDatabaseLive()" class="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs border border-purple-500/40 transition">🔍 Ver Registros en Vivo</button>
               </div>
@@ -805,14 +901,14 @@
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase" data-i18n="contactModalTitle">✉️ Envíanos un mensaje</h3>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es')" class="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-emerald-300 border border-white/10">🌐 ES / EN</button>
+          
           <button onclick="toggleModal('contactModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
         </div>
       </div>
       <form id="contactForm" onsubmit="return false;" class="space-y-3">
-        <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactName">Tu Nombre *</label><input type="text" id="contactName" required placeholder="Nombre Artístico / Tu Nombre" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
-        <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactEmail">Tu Correo Electrónico *</label><input type="email" id="contactEmail" required placeholder="tucorreo@email.com" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
-        <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactMsg">Tu Mensaje *</label><textarea id="contactMsgText" required rows="4" placeholder="Escribe tu consulta o sugerencia aquí..." class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white resize-none"></textarea></div>
+        <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactName">Tu Nombre *</label><input type="text" id="contactName" required data-i18n-ph="phContactName" placeholder="Nombre Artístico / Tu Nombre" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
+        <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactEmail">Tu Correo Electrónico *</label><input type="email" id="contactEmail" required data-i18n-ph="phContactEmail" placeholder="tucorreo@email.com" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></div>
+        <div><label class="block text-[11px] text-zinc-400 mb-1" data-i18n="lblContactMsg">Tu Mensaje *</label><textarea id="contactMsgText" required rows="4" data-i18n-ph="phContactMessage" placeholder="Escribe tu consulta o sugerencia aquí..." class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white resize-none"></textarea></div>
         <button type="button" id="sendContactBtn" onclick="submitContactMessage()" class="w-full py-3 neon-btn text-zinc-950 font-bold rounded-xl text-sm shadow transition" data-i18n="sendContactBtn">Enviar Mensaje</button>
         <p id="contactFeedback" class="text-xs text-center hidden"></p>
       </form>
@@ -824,7 +920,7 @@
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="infoModalTitle">📜 Manifiesto &amp; Funcionamiento</h3>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es'); openInfoModal();" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-[11px] font-bold text-emerald-300 border border-emerald-500/40">🌐 ES / EN</button>
+          
           <button onclick="toggleModal('infoModal', false)" class="text-zinc-400 hover:text-white font-bold text-lg">✕</button>
         </div>
       </div>
@@ -836,7 +932,7 @@
     <div class="glass rounded-2xl p-6 max-w-sm w-full space-y-4 border border-emerald-500/40 text-center shadow-2xl">
       <div class="flex justify-between items-center">
         <span class="text-[10px] text-zinc-500 uppercase font-bold">Next Wave Rising</span>
-        <button type="button" onclick="setLanguage(currentLang === 'es' ? 'en' : 'es')" class="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-emerald-300">🌐 ES / EN</button>
+        
       </div>
       <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="confirmVoteTitle">Confirmar Votación</h3>
       <p class="text-xs text-zinc-300 leading-relaxed" data-i18n="confirmVoteDesc">Va a emitir sus votos. No se podrán anular si acepta.</p>
@@ -901,6 +997,7 @@
 
     const translations = {
       es: {
+        phContactName: "Nombre Artístico / Tu Nombre", phContactEmail: "tucorreo@email.com", phContactMessage: "Escribe tu consulta o sugerencia aquí...",
         adminBtn: "Panel Curadores", backApp: "Volver a la App",
         activeListHeader: "📻 LISTA ACTIVA (ON AIR ESTA SEMANA)", activeListSub: "Estos son los temas que están sonando actualmente y compiten en la votación de esta semana.", btnGoVote: "⭐ Ir a Votar", activeListEmpty: "Aún no hay canciones cargadas en la lista activa de esta semana.",
         txtClosure: "Cierre: Viernes 00:00h", statusOpen: "Abierta", statusClosed: "Cerrada", lblDays: "DÍAS", lblHours: "HORAS", lblMins: "MIN", lblSecs: "SEG", txtFeatured: "🎵 TEMA DESTACADO",
@@ -946,6 +1043,7 @@
         confirmVoteTitle: "Confirmar Votación", confirmVoteDesc: "Va a emitir sus votos. No se podrán anular si acepta.", btnCancel: "Cancelar", btnAccept: "Aceptar", lblUniqueVisitors: "👤 Visitantes únicos:", noticeImportantBadge: "AVISO IMPORTANTE"
       },
       en: {
+        phContactName: "Artist Name / Your Name", phContactEmail: "your@email.com", phContactMessage: "Write your question or suggestion here...",
         adminBtn: "Curators Panel", backApp: "Back to App",
         activeListHeader: "📻 ACTIVE LIST (ON AIR THIS WEEK)", activeListSub: "These are the tracks currently playing and competing in this week's vote.", btnGoVote: "⭐ Go to Vote", activeListEmpty: "No tracks loaded in this week's active list yet.",
         txtClosure: "Closes: Friday 00:00h", statusOpen: "Open", statusClosed: "Closed", lblDays: "DAYS", lblHours: "HOURS", lblMins: "MINS", lblSecs: "SECS", txtFeatured: "🎵 FEATURED TRACK",
@@ -1002,10 +1100,11 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'spotify', 'backups'];
+    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'diseno', 'galeria', 'ajustes', 'spotify', 'backups'];
+    const DEFAULT_ADMIN_TABS = ADMIN_TABS.map(id => ({id:id,label:({principal:'🏠 INICIO',activa:'📚 LISTAS',paises:'🌍 PAÍSES',mensajes:'✉️ MENSAJES',diseno:'🎨 DISEÑO',galeria:'🖼️ GALERÍA',ajustes:'⚙️ AJUSTES',spotify:'🎵 SPOTIFY',backups:'🗂️ COPIAS'})[id],iconUrl:'',visible:true,custom:false}));
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
-    let currentLang = 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
+    let currentLang = localStorage.getItem('nwr_site_language_v2') || 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
     let sessionPendingVotes = [], lockedRandomOrder = null, chatUnsubscribe = null, presenceInterval = null;
     let currentChatNick = localStorage.getItem('nwr_chat_nick') || "";
     let backupsCache = {}, countriesCache = [], subs = [], activeSubs = [], autoBackupDone = false, autoTranslatedNotices = {};
@@ -1022,6 +1121,10 @@
       headerMediaUrl: "",
       headerWidth: "100%",
       headerHeight: 220,
+      headerVerticalPosition: 0,
+      headerPosition: 1,
+      headerHorizontalPosition: "center",
+      graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, position: 1, tabs: [], tabsAll: true, objectFit: "contain", videoAutoplay: false, videoMuted: true, videoLoop: true, videoControls: true, youtubeAutoplay: false, youtubeMute: true, youtubeLoop: false, youtubeControls: true, youtubeStart: 0 },
       headerObjectFit: "contain",
       headerVideoAutoplay: false,
       headerVideoMuted: true,
@@ -1045,7 +1148,23 @@
         featured: { preset: 'compact', height: 152, startSec: 0 }
       },
       tabsConfig: JSON.parse(JSON.stringify(defaultTabsList)),
-      customButtons: {}
+      adminTabsConfig: JSON.parse(JSON.stringify(DEFAULT_ADMIN_TABS)),
+      customButtons: {},
+      visitorPrestigeBonus: 1000
+    };
+    let realUniqueVisitors = 0;
+    function renderVisitorPrestigeCount() {
+      const bonus = Math.max(0, Number(config.visitorPrestigeBonus ?? 1000) || 0);
+      if ($("uniqueVisitorCount")) $("uniqueVisitorCount").textContent = (realUniqueVisitors + bonus).toLocaleString("es-ES");
+    }
+    window.saveVisitorPrestigeBonus = async () => {
+      const value = Math.max(0, Math.min(1000000, Math.floor(Number($("visitorPrestigeBonusInput").value) || 0)));
+      try {
+        config.visitorPrestigeBonus = value;
+        await db.collection("settings").doc("activeEdition").set({ visitorPrestigeBonus: value }, { merge: true });
+        renderVisitorPrestigeCount();
+        alert("Bonus de prestigio guardado. Las visitas reales siguen registrándose por separado.");
+      } catch (e) { alert("No se pudo guardar el bonus: " + e.message); }
     };
 
     async function translateTextToEnglish(text) {
@@ -1254,15 +1373,20 @@
 
     function toggleModal(id, force) {
       const el = $(id);
-      if (el) el.classList.toggle('hidden', force !== undefined ? !force : undefined);
+      if (!el) return;
+      el.classList.toggle('hidden', force !== undefined ? !force : undefined);
+      if (!el.classList.contains('hidden') && currentLang !== "es") {
+        Promise.resolve().then(() => applyAdditionalLanguage(currentLang));
+      }
     }
 
-    function openInfoModal() {
-      const t = translations[currentLang], m = $('infoModal');
+    async function openInfoModal() {
+      const t = (translations[currentLang] || translations.es), m = $('infoModal');
       if (m) {
         m.querySelector('[data-i18n="infoModalTitle"]').innerHTML = t.infoModalTitle;
         m.querySelector('[data-i18n="infoModalBody"]').innerHTML = t.infoModalBody;
         toggleModal('infoModal', true);
+        if (currentLang !== "es") await applyAdditionalLanguage(currentLang);
       }
     }
 
@@ -1514,7 +1638,7 @@
                 ${cleanGif ? `<img src="${escapeHtml(cleanGif)}" class="h-7 w-7 object-contain rounded">` : ''}
                 <h3 class="font-extrabold text-cyan-400 text-sm uppercase tracking-wider">${escapeHtml(currentLang === 'en' && t.labelEn ? t.labelEn : (t.labelEs || t.id))}</h3>
               </div>
-              <button type="button" onclick="translateCustomTabContent('${t.id}')" class="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-cyan-300 border border-white/10">🌐 ES / EN</button>
+
             </div>
             ${cleanGif ? `<div class="flex justify-center"><img src="${escapeHtml(cleanGif)}" class="max-h-48 rounded-xl object-contain"></div>` : ''}
             <div id="customTabBody_${t.id}" class="text-xs text-zinc-200 leading-relaxed whitespace-pre-line">${escapeHtml(t.content || '')}</div>
@@ -1553,21 +1677,18 @@
       renderFeaturedPlayer();
     }
 
-    window.translateCustomTabContent = async id => {
-      const tab = (config.tabsConfig || []).find(x => x.id === id);
-      const bodyEl = $(`customTabBody_${id}`);
-      if (!tab || !bodyEl) return;
-      if (bodyEl.dataset.translated === "1") {
-        bodyEl.textContent = tab.content || "";
-        bodyEl.dataset.translated = "0";
-      } else {
-        bodyEl.textContent = "⏳ Translating...";
-        bodyEl.textContent = await translateTextToEnglish(tab.content || "");
-        bodyEl.dataset.translated = "1";
-      }
-    };
-
-    function renderAdminTabsManager() {
+    function getAdminTabsConfig(){if(!Array.isArray(config.adminTabsConfig)||!config.adminTabsConfig.length)config.adminTabsConfig=JSON.parse(JSON.stringify(DEFAULT_ADMIN_TABS));return config.adminTabsConfig;}
+    function renderAdminNavigation(){const bar=$("adminTabsBar");if(!bar)return;bar.innerHTML=getAdminTabsConfig().filter(t=>t.visible!==false).map(t=>{const img=t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-5 w-5 object-contain inline-block mr-1">':"";let badge="";if(t.id==="activa")badge=' (<span id="adminActiveCountBadge">0</span>)';if(t.id==="paises")badge=' (<span id="countriesCountBadge">0</span>)';if(t.id==="mensajes")badge=' (<span id="msgCountBadge">0</span>)';if(t.id==="backups")badge=' (<span id="backupsCountBadge">0</span>)';return '<button type="button" onclick="switchAdminTab(\'' + t.id + '\')" id="adminTab' + t.id + '" class="' + (t.id==="principal"?"admin-tab-active":"") + '">' + img + escapeHtml(t.label||t.id.toUpperCase()) + badge + '</button>';}).join("");}
+    function renderAdminCustomViews(){const host=$("adminView");if(!host)return;let area=$("adminCustomViews");if(!area){area=document.createElement("div");area.id="adminCustomViews";host.appendChild(area);}area.innerHTML=getAdminTabsConfig().filter(t=>t.custom).map(t=>'<div id="adminCustomView' + t.id + '" class="hidden glass rounded-2xl p-5 space-y-3"><h3 class="font-bold text-violet-300">' + escapeHtml(t.label) + '</h3>' + (t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-10 w-10 object-contain">':"") + '<div class="text-sm text-zinc-200 whitespace-pre-line">' + escapeHtml(t.content||"") + '</div></div>').join("");}
+    function renderAdminAdminTabsManager(){const box=$("adminAdminTabsManagerList");if(!box)return;box.innerHTML=getAdminTabsConfig().map((t,i)=>{const img=t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-6 w-6 object-contain">':"";return '<div class="p-3 bg-zinc-950 rounded-xl border border-white/10 space-y-2"><div class="flex justify-between items-center gap-2"><label class="flex items-center gap-2"><input type="checkbox" ' + (t.visible!==false?"checked":"") + ' onchange="updateAdminTab(' + i + ',\'visible\',this.checked)" class="accent-emerald-500">' + img + '<b>' + escapeHtml(t.label||t.id) + '</b></label><div class="flex gap-1"><button onclick="moveAdminTab(' + i + ',-1)" class="px-2 py-1 bg-zinc-800 rounded">⬆️</button><button onclick="moveAdminTab(' + i + ',1)" class="px-2 py-1 bg-zinc-800 rounded">⬇️</button>' + (t.custom?'<button onclick="deleteAdminCustomTab(' + i + ')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">🗑️</button>':"") + '</div></div><input value="' + escapeHtml(t.label||"") + '" onchange="updateAdminTab(' + i + ',\'label\',this.value)" placeholder="Nombre" class="w-full px-2 py-1.5 rounded bg-zinc-900 border border-zinc-700 text-white"><div class="flex gap-2"><input value="' + escapeHtml(t.iconUrl||"") + '" onchange="updateAdminTab(' + i + ',\'iconUrl\',this.value)" placeholder="URL del icono" class="flex-1 min-w-0 px-2 py-1.5 rounded bg-zinc-900 border border-zinc-700 text-white"><label class="px-2 py-1 bg-violet-500/20 rounded cursor-pointer">📁<input type="file" accept="image/*" class="hidden" onchange="handleExistingAdminTabIcon(event,' + i + ')"></label></div></div>';}).join("");}
+    window.updateAdminTab=(i,k,v)=>{getAdminTabsConfig()[i][k]=v;};
+    window.moveAdminTab=(i,d)=>{const a=getAdminTabsConfig(),j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];renderAdminAdminTabsManager();};
+    window.handleExistingAdminTabIcon=(e,i)=>{const file=e.target.files&&e.target.files[0];if(file)handleExamineToGithubOrLocal(file,url=>{getAdminTabsConfig()[i].iconUrl=url;renderAdminAdminTabsManager();});};
+    window.handleNewAdminTabIcon=e=>{const file=e.target.files&&e.target.files[0];if(file)handleExamineToGithubOrLocal(file,url=>{$("newAdminTabIcon").value=url;});};
+    window.createAdminCustomTab=()=>{const label=$("newAdminTabLabel").value.trim(),iconUrl=normalizeUrl($("newAdminTabIcon").value),content=$("newAdminTabContent").value.trim();if(!label)return alert("Escribe un nombre.");const id="customadmin_"+Date.now();getAdminTabsConfig().push({id,label,iconUrl,content,visible:true,custom:true});$("newAdminTabLabel").value=$("newAdminTabIcon").value=$("newAdminTabContent").value="";renderAdminAdminTabsManager();};
+    window.deleteAdminCustomTab=i=>{if(!confirm("¿Eliminar esta pestaña personalizada?"))return;getAdminTabsConfig().splice(i,1);renderAdminAdminTabsManager();renderAdminNavigation();renderAdminCustomViews();};
+    window.saveAdminTabsConfiguration=async()=>{try{await db.collection("settings").doc("activeEdition").set({adminTabsConfig:getAdminTabsConfig()},{merge:true});renderAdminNavigation();renderAdminCustomViews();alert("✅ Pestañas del administrador guardadas.");}catch(e){alert("Error al guardar: "+e.message);}};
+        function renderAdminTabsManager() {
       const list = $("adminTabsManagerList");
       if (!list) return;
       const tabs = config.tabsConfig || defaultTabsList;
@@ -1991,6 +2112,188 @@
       } catch (e) { return ""; }
     }
 
+    function ensureDynamicMediaPositionSlots() {
+      for (let n = 5; n <= 10; n++) document.getElementById("mediaPositionSlot" + n)?.remove();
+      const tabs = config.tabsConfig || defaultTabsList;
+      const tab = tabs.find(t => t.id === currentActiveTab);
+      const viewId = tab?.custom ? "view_" + currentActiveTab : "view" + currentActiveTab.charAt(0).toUpperCase() + currentActiveTab.slice(1);
+      const view = document.getElementById(viewId);
+      if (!view) return;
+      const excluded = new Set(["brandHeaderContainer", "graphicBannerContainer"]);
+      const children = Array.from(view.children).filter(el => !excluded.has(el.id) && !/^mediaPositionSlot/.test(el.id || "") && !el.classList.contains("hidden") && (el.children.length > 0 || (el.textContent || "").trim().length > 0));
+      for (let n = 5; n <= 10; n++) {
+        const target = children[n - 5];
+        if (!target) break;
+        const marker = document.createElement("span");
+        marker.id = "mediaPositionSlot" + n;
+        marker.className = "hidden";
+        marker.setAttribute("aria-hidden", "true");
+        target.insertAdjacentElement("afterend", marker);
+      }
+    }
+    function applyMediaPositions() {
+      ensureDynamicMediaPositionSlots();
+      const items = [
+        { el: $("brandHeaderContainer"), pos: Math.max(0, Math.min(10, Number(config.headerPosition ?? 1))) },
+        { el: $("graphicBannerContainer"), pos: Math.max(0, Math.min(10, Number(config.graphicBanner?.position ?? 1))) }
+      ];
+      for (let n = 0; n <= 10; n++) {
+        const marker = $("mediaPositionSlot" + n);
+        if (!marker || !marker.parentNode) continue;
+        let anchor = marker;
+        items.filter(item => item.el && item.pos === n).forEach(item => {
+          anchor.insertAdjacentElement("afterend", item.el);
+          anchor = item.el;
+        });
+      }
+    }
+
+    function renderGraphicBanner(tab) {
+      const box = $("graphicBannerContainer"), b = config.graphicBanner || {};
+      const img = $("graphicBannerImage"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube");
+      if (!box || !img || !video || !yt) return;
+      const tabs = Array.isArray(b.tabs) ? b.tabs : [];
+      const allowed = b.tabsAll === true || tabs.includes(tab);
+      const type = b.type || "image";
+      const visible = b.enabled === true && !!b.url && allowed;
+      box.classList.toggle("hidden", !visible);
+      applyMediaPositions();
+      video.pause(); video.removeAttribute("src"); video.load();
+      [img, video, yt].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
+      if (!visible) return;
+      const width = validHeaderWidth(b.width || "100%");
+      const height = Math.max(40, Math.min(1200, Number(b.height) || 150));
+      if (type === "image") {
+        img.src = b.url; img.style.width = width; img.style.height = height + "px";
+        img.style.maxWidth = "100%"; img.style.objectFit = b.objectFit || "contain"; img.classList.remove("hidden");
+      } else if (type === "video") {
+        video.src = b.url; video.style.width = width; video.style.height = height + "px";
+        video.style.maxWidth = "100%"; video.style.objectFit = b.objectFit || "contain";
+        video.autoplay = !!b.videoAutoplay; video.muted = b.videoMuted !== false;
+        video.loop = b.videoLoop !== false; video.controls = b.videoControls !== false;
+        video.playsInline = true; video.classList.remove("hidden");
+        if (video.autoplay) video.play().catch(() => {});
+      } else if (type === "youtube") {
+        const id = getYoutubeVideoId(b.url);
+        if (!id) return;
+        const params = new URLSearchParams({
+          autoplay: b.youtubeAutoplay ? "1" : "0", mute: b.youtubeMute !== false ? "1" : "0",
+          loop: b.youtubeLoop ? "1" : "0", controls: b.youtubeControls === false ? "0" : "1",
+          start: String(Math.max(0, Number(b.youtubeStart) || 0)), rel: "0", playsinline: "1"
+        });
+        if (b.youtubeLoop) params.set("playlist", id);
+        yt.src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+        yt.style.width = width; yt.style.height = height + "px"; yt.style.maxWidth = "100%";
+        yt.classList.remove("hidden");
+      }
+    }
+    function renderBannerTabCheckboxes(selectedTabs, allLegacy) {
+      const host = $("adminBannerTabsList");
+      if (!host) return;
+      const tabs = (config.tabsConfig || defaultTabsList).filter(t => t.visible !== false);
+      const selected = new Set(Array.isArray(selectedTabs) ? selectedTabs : []);
+      host.innerHTML = tabs.map(t => {
+        const checked = allLegacy || selected.has(t.id);
+        return `<label class="flex items-center gap-2 rounded-lg bg-zinc-900/80 px-2 py-2"><input type="checkbox" data-banner-tab="${escapeHtml(t.id)}" ${checked ? "checked" : ""} class="accent-fuchsia-500"><span>${escapeHtml(t.labelEs || t.labelEn || t.id)}</span></label>`;
+      }).join("") || '<p class="col-span-2 text-zinc-500">No hay pestañas públicas visibles.</p>';
+    }
+    window.setBannerTabsSelection = all => {
+      document.querySelectorAll("#adminBannerTabsList input[data-banner-tab]").forEach(el => { el.checked = !!all; });
+    };
+    function selectedBannerTabs() {
+      return Array.from(document.querySelectorAll("#adminBannerTabsList input[data-banner-tab]:checked")).map(el => el.getAttribute("data-banner-tab"));
+    }
+    window.updateBannerMediaEditor = () => {
+      const type = $("adminBannerMediaType")?.value || "image";
+      $("adminBannerFitGroup")?.classList.toggle("hidden", type === "youtube");
+      $("adminBannerVideoOptions")?.classList.toggle("hidden", type !== "video");
+      $("adminBannerYoutubeOptions")?.classList.toggle("hidden", type !== "youtube");
+      const url = normalizeUrl($("adminBannerUrl")?.value || "");
+      const preview = $("adminBannerPreview");
+      const img = $("adminBannerPreviewImage"), video = $("adminBannerPreviewVideo"), yt = $("adminBannerPreviewYoutube");
+      [img, video, yt].forEach(el => { if (el) { el.classList.add("hidden"); if (el !== video) el.removeAttribute("src"); } });
+      if (video) { video.pause(); video.removeAttribute("src"); video.load(); }
+      if (!url) { preview?.classList.add("hidden"); return; }
+      const width = validHeaderWidth($("adminBannerWidth")?.value || "100%");
+      const height = Math.max(40, Math.min(1200, Number($("adminBannerHeight")?.value) || 150));
+      if (type === "image" && img) { img.src=url; img.style.width=width; img.style.height=height+"px"; img.classList.remove("hidden"); }
+      else if (type === "video" && video) { video.src=url; video.style.width=width; video.style.height=height+"px"; video.classList.remove("hidden"); }
+      else if (type === "youtube" && yt) {
+        const id=getYoutubeVideoId(url);
+        if (id) { yt.src=`https://www.youtube-nocookie.com/embed/${id}?controls=1&rel=0`; yt.style.width=width; yt.style.height=height+"px"; yt.classList.remove("hidden"); }
+      }
+      preview?.classList.remove("hidden");
+    };
+    function loadGraphicBannerEditor() {
+      const b = config.graphicBanner || {};
+      const type = b.type || "image";
+      if ($("adminBannerMediaType")) $("adminBannerMediaType").value = type;
+      if ($("adminBannerUrl")) $("adminBannerUrl").value = b.url || "";
+      if ($("adminBannerWidth")) $("adminBannerWidth").value = b.width || "100%";
+      if ($("adminBannerHeight")) $("adminBannerHeight").value = b.height || 150;
+      if ($("adminBannerPosition")) $("adminBannerPosition").value = String(b.position ?? 1);
+      if ($("adminBannerObjectFit")) $("adminBannerObjectFit").value = b.objectFit || "contain";
+      if ($("adminBannerEnabled")) $("adminBannerEnabled").checked = b.enabled === true;
+      if ($("adminBannerVideoAutoplay")) $("adminBannerVideoAutoplay").checked = !!b.videoAutoplay;
+      if ($("adminBannerVideoMuted")) $("adminBannerVideoMuted").checked = b.videoMuted !== false;
+      if ($("adminBannerVideoLoop")) $("adminBannerVideoLoop").checked = b.videoLoop !== false;
+      if ($("adminBannerVideoControls")) $("adminBannerVideoControls").checked = b.videoControls !== false;
+      if ($("adminBannerYoutubeAutoplay")) $("adminBannerYoutubeAutoplay").checked = !!b.youtubeAutoplay;
+      if ($("adminBannerYoutubeMute")) $("adminBannerYoutubeMute").checked = b.youtubeMute !== false;
+      if ($("adminBannerYoutubeLoop")) $("adminBannerYoutubeLoop").checked = !!b.youtubeLoop;
+      if ($("adminBannerYoutubeControls")) $("adminBannerYoutubeControls").checked = b.youtubeControls !== false;
+      if ($("adminBannerYoutubeStart")) $("adminBannerYoutubeStart").value = b.youtubeStart || 0;
+      const legacyAll = b.tabsAll === true || (b.tabsAll === undefined && (!Array.isArray(b.tabs) || b.tabs.length === 0));
+      renderBannerTabCheckboxes(b.tabs, legacyAll);
+      updateBannerMediaEditor();
+    }
+    window.handleBannerFileUpload = e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) { alert("Selecciona una imagen, GIF o vídeo."); e.target.value = ""; return; }
+      if (file.type.startsWith("video/") && file.size > 50 * 1024 * 1024) { alert("El vídeo supera el límite de 50 MB."); e.target.value = ""; return; }
+      handleExamineToGithubOrLocal(file, url => {
+        $("adminBannerMediaType").value = file.type.startsWith("video/") ? "video" : "image";
+        $("adminBannerUrl").value = url;
+        updateBannerMediaEditor();
+        e.target.value = "";
+      });
+    };
+    window.saveGraphicBanner = async () => {
+      const type = $("adminBannerMediaType").value;
+      const url = normalizeUrl($("adminBannerUrl").value);
+      if (!url) return alert("Introduce una URL o importa un archivo para el banner.");
+      if (type === "youtube" && !getYoutubeVideoId(url)) return alert("El enlace de YouTube no parece válido.");
+      if (type === "video" && !/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url) && !confirm("La URL no termina en una extensión de vídeo habitual. ¿Quieres guardarla de todos modos?")) return;
+      const tabs = selectedBannerTabs();
+      const data = { graphicBanner: {
+        enabled: $("adminBannerEnabled").checked, type, url,
+        width: validHeaderWidth($("adminBannerWidth").value),
+        height: Math.max(40, Math.min(1200, Number($("adminBannerHeight").value) || 150)),
+        position: Math.max(0, Math.min(10, Number($("adminBannerPosition").value) || 0)),
+        tabs, tabsAll: false, objectFit: $("adminBannerObjectFit").value,
+        videoAutoplay: $("adminBannerVideoAutoplay").checked, videoMuted: $("adminBannerVideoMuted").checked,
+        videoLoop: $("adminBannerVideoLoop").checked, videoControls: $("adminBannerVideoControls").checked,
+        youtubeAutoplay: $("adminBannerYoutubeAutoplay").checked, youtubeMute: $("adminBannerYoutubeMute").checked,
+        youtubeLoop: $("adminBannerYoutubeLoop").checked, youtubeControls: $("adminBannerYoutubeControls").checked,
+        youtubeStart: Math.max(0, Number($("adminBannerYoutubeStart").value) || 0)
+      }};
+      try {
+        await db.collection("settings").doc("activeEdition").set(data, { merge: true });
+        config.graphicBanner = data.graphicBanner;
+        renderGraphicBanner(currentActiveTab); loadGraphicBannerEditor();
+        alert("Banner multimedia guardado correctamente.");
+      } catch (e) { alert("No se pudo guardar el banner: " + e.message); }
+    };
+    window.clearGraphicBanner = async () => {
+      if (!confirm("¿Quitar el banner multimedia?")) return;
+      const data = { graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, position: 1, tabs: [], tabsAll: false, objectFit: "contain" } };
+      try {
+        await db.collection("settings").doc("activeEdition").set(data, { merge: true });
+        config.graphicBanner = data.graphicBanner; loadGraphicBannerEditor(); renderGraphicBanner(currentActiveTab);
+      } catch (e) { alert("No se pudo quitar: " + e.message); }
+    };
+
     function applyHeaderMediaConfig() {
       const type = config.headerMediaType || (config.logoUrl ? "image" : "text");
       const url = config.headerMediaUrl || config.logoUrl || "";
@@ -2000,6 +2303,12 @@
       const videoEl = $("brandHeaderVideo"), ytEl = $("brandHeaderYoutube");
       const previewBox = $("adminLogoPreviewBox"), previewImg = $("adminLogoPreviewImg");
       const input = $("adminLogoUrlInput");
+      const headerBox = $("brandHeaderContainer");
+      if (headerBox) {
+        headerBox.style.justifyContent = ["flex-start","center","flex-end"].includes(config.headerHorizontalPosition) ? config.headerHorizontalPosition : "center";
+        headerBox.style.transform = "";
+      }
+      applyMediaPositions();
 
       if (videoEl) { videoEl.pause(); videoEl.removeAttribute("src"); videoEl.load(); }
       [imgEl, videoEl, ytEl].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
@@ -2079,6 +2388,8 @@
       $("adminLogoUrlInput").value = config.headerMediaUrl || config.logoUrl || "";
       $("adminHeaderWidth").value = config.headerWidth || "100%";
       $("adminHeaderHeight").value = config.headerHeight || 220;
+      if ($("adminHeaderPosition")) $("adminHeaderPosition").value = String(config.headerPosition ?? 1);
+      if ($("adminHeaderHorizontalPosition")) $("adminHeaderHorizontalPosition").value = config.headerHorizontalPosition || "center";
       $("adminHeaderObjectFit").value = config.headerObjectFit || "contain";
       $("adminHeaderVideoAutoplay").checked = !!config.headerVideoAutoplay;
       $("adminHeaderVideoMuted").checked = config.headerVideoMuted !== false;
@@ -2137,6 +2448,8 @@
         logoUrl: type === "image" ? url : "",
         headerWidth: validHeaderWidth($("adminHeaderWidth").value),
         headerHeight: Math.max(60, Math.min(1200, Number($("adminHeaderHeight").value) || 220)),
+        headerPosition: Math.max(0, Math.min(10, Number($("adminHeaderPosition")?.value) || 0)),
+        headerHorizontalPosition: ["flex-start","center","flex-end"].includes($("adminHeaderHorizontalPosition")?.value) ? $("adminHeaderHorizontalPosition").value : "center",
         headerObjectFit: $("adminHeaderObjectFit").value,
         headerVideoAutoplay: $("adminHeaderVideoAutoplay").checked,
         headerVideoMuted: $("adminHeaderVideoMuted").checked,
@@ -2174,7 +2487,7 @@
     async function renderAllTabNotices() {
       const notices = config.tabNotices || {};
       const noticesEn = config.tabNoticesEn || {};
-      const badge = translations[currentLang].noticeImportantBadge || "AVISO IMPORTANTE";
+      const badge = (translations[currentLang] || translations.es).noticeImportantBadge || "AVISO IMPORTANTE";
       const tabs = config.tabsConfig || defaultTabsList;
 
       for (const t of tabs) {
@@ -2183,16 +2496,19 @@
         const msgEs = notices[k];
         if (msgEs?.trim()) {
           let displayMsg = msgEs;
-          if (currentLang === 'en') {
-            if (noticesEn[k]?.trim()) displayMsg = noticesEn[k];
-            else if (autoTranslatedNotices[k]) displayMsg = autoTranslatedNotices[k];
+          if (currentLang !== 'es') {
+            if (currentLang === 'en' && noticesEn[k]?.trim()) displayMsg = noticesEn[k];
             else {
-              displayMsg = await translateTextToEnglish(msgEs);
-              autoTranslatedNotices[k] = displayMsg;
+              const cacheKey = currentLang + "_" + k;
+              if (autoTranslatedNotices[cacheKey]) displayMsg = autoTranslatedNotices[cacheKey];
+              else {
+                displayMsg = await translateUiText(msgEs, currentLang);
+                autoTranslatedNotices[cacheKey] = displayMsg;
+              }
             }
           }
           b.className = "rounded-2xl p-4 border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 shadow-lg flex items-start gap-3";
-          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1.5 flex-1"><div class="flex justify-between items-center gap-2"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span><button type="button" onclick="toggleNoticeLanguage('${k}')" class="px-2 py-0.5 rounded bg-black/40 hover:bg-black/60 text-amber-300 font-bold text-[10px] border border-amber-400/30 transition">🌐 ES / EN</button></div><p id="noticeText_${k}" class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(displayMsg)}</p></div>`;
+          b.innerHTML = `<span class="text-xl leading-none mt-0.5 select-none">📢</span><div class="space-y-1.5 flex-1"><div class="flex justify-between items-center gap-2"><span class="inline-block px-2 py-0.5 rounded-md bg-amber-400 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase">⚠️ ${badge}</span></div><p id="noticeText_${k}" class="text-xs text-amber-100 font-medium leading-relaxed whitespace-pre-line">${escapeHtml(displayMsg)}</p></div>`;
         } else { b.className = "hidden"; b.innerHTML = ""; }
       }
 
@@ -2208,22 +2524,6 @@
         }).join('');
       }
     }
-
-    window.toggleNoticeLanguage = async k => {
-      const pEl = $(`noticeText_${k}`);
-      const msgEs = (config.tabNotices || {})[k];
-      if (!pEl || !msgEs) return;
-      if (pEl.dataset.langMode === "en") {
-        pEl.textContent = msgEs;
-        pEl.dataset.langMode = "es";
-      } else {
-        pEl.textContent = "⏳ Translating...";
-        const enText = (config.tabNoticesEn || {})[k]?.trim() || autoTranslatedNotices[k] || await translateTextToEnglish(msgEs);
-        autoTranslatedNotices[k] = enText;
-        pEl.textContent = enText;
-        pEl.dataset.langMode = "en";
-      }
-    };
 
     window.loadSelectedTabNoticeToForm = () => {
       const k = $("adminNoticeTabSelect").value;
@@ -2265,18 +2565,240 @@
     };
 
     // ==================== NAVEGACIÓN ====================
-    function setLanguage(lang) {
+    function translationHash(value) {
+      let h=2166136261;
+      for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619);}
+      return (h>>>0).toString(36);
+    }
+    function decodeTranslatedText(value) {
+      const box=document.createElement("textarea");
+      box.innerHTML=value;
+      return box.value;
+    }
+    async function translateUiText(text, lang) {
+      if (!text || !text.trim() || lang==="es") return text;
+      const cacheKey="nwr_ui_v3_"+lang+"_"+translationHash(text);
+      try {
+        const cached=localStorage.getItem(cacheKey);
+        if(cached) return cached;
+      } catch(e) {}
+      const apertiumCodes={en:"eng",fr:"fra",it:"ita",pt:"por"};
+      const target=apertiumCodes[lang];
+      if(target) {
+        try {
+          const params=new URLSearchParams({q:text.slice(0,450),langpair:"spa|"+target});
+          const response=await fetch("https://apertium.org/apy/translate?"+params.toString(),{cache:"no-store"});
+          if(!response.ok) throw new Error("Apertium HTTP "+response.status);
+          const data=await response.json();
+          const raw=data?.responseData?.translatedText || "";
+          const translated=decodeTranslatedText(raw);
+          if(Number(data?.responseStatus)===200 && translated && translated.trim() &&
+             translated.trim().toLowerCase()!==text.trim().toLowerCase()) {
+            try{localStorage.setItem(cacheKey,translated);}catch(e){}
+            return translated;
+          }
+          throw new Error(data?.responseDetails || "Apertium no devolvió traducción");
+        } catch(e) {
+          console.warn("Apertium no disponible; se probará el respaldo:",e);
+        }
+      }
+      try {
+        const response=await fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text.slice(0,450))+"&langpair=es|"+encodeURIComponent(lang),{cache:"force-cache"});
+        if(!response.ok) throw new Error("Translation HTTP "+response.status);
+        const data=await response.json();
+        const status=Number(data?.responseStatus);
+        const raw=data?.responseData?.translatedText || "";
+        const errorText=String(data?.responseDetails || raw).toLowerCase();
+        const failed=status!==200 || data?.quotaFinished===true ||
+          /quota|limit exceeded|invalid source language|invalid target language|please select two distinct languages|warning/.test(errorText);
+        if(!failed && raw) {
+          const translated=decodeTranslatedText(raw);
+          if(translated && translated.trim() && translated.trim().toLowerCase()!==text.trim().toLowerCase()) {
+            try{localStorage.setItem(cacheKey,translated);}catch(e){}
+            return translated;
+          }
+        }
+        if(failed) console.warn("El servicio de respaldo no ha aceptado la solicitud:",data?.responseDetails || raw || status);
+      } catch(e) { console.warn("No hay servicio de traducción disponible para este texto:",e); }
+      return text;
+    }
+
+    const originalUiTextNodes = new Map();
+    const dynamicContentSelectors = "#publicActiveList,#publicSubmissionsList,#monthlyListContainer,#annualListContainer,#voteTabViewList,#chatMessagesContainer,#submissionsList,#adminActiveListContainer,#adminCountriesList,#adminMessagesList,#ghGalleryContainer,[id^=\"noticeText_\"]";
+    async function applyAdditionalLanguage(lang) {
+      const base = translations.es || {};
+      const tagged = [...document.querySelectorAll("[data-i18n]")].filter(el=>!el.closest('[hidden],.hidden'));
+      for (let i=0;i<tagged.length;i+=4) {
+        await Promise.all(tagged.slice(i,i+4).map(async el => {
+          const key=el.getAttribute("data-i18n"), source=base[key];
+          if(typeof source==="string" && source.trim() && !/[<>]/.test(source)) {
+            const translated=await translateUiText(source,lang);
+            if(currentLang===lang && translated) el.textContent=translated;
+          }
+        }));
+      }
+      const fields=[...document.querySelectorAll("input[placeholder],textarea[placeholder]")];
+      for(let i=0;i<fields.length;i+=4) {
+        await Promise.all(fields.slice(i,i+4).map(async el=>{
+          if(!el.dataset.originalPlaceholder) el.dataset.originalPlaceholder=el.placeholder;
+          const translated=await translateUiText(el.dataset.originalPlaceholder,lang);
+          if(currentLang===lang && translated) el.placeholder=translated;
+        }));
+      }
+
+      // Traduce también los textos fijos que no estaban etiquetados, sin tocar
+      // nombres de artistas, canciones, mensajes del chat ni datos aportados por usuarios.
+      const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+      const pending=[];
+      let node;
+      while((node=walker.nextNode())) {
+        const parent=node.parentElement;
+        if(!parent || !node.nodeValue.trim()) continue;
+        if(parent.closest('script,style,noscript,textarea,[contenteditable="true"],[hidden],.hidden,'+dynamicContentSelectors)) continue;
+        const tagged=parent.closest('[data-i18n]');
+        if(tagged) {
+          const key=tagged.getAttribute("data-i18n");
+          const baseSource=(translations.es||{})[key];
+          if(typeof baseSource==="string" && !/[<>]/.test(baseSource)) continue;
+        }
+        if(!originalUiTextNodes.has(node)) originalUiTextNodes.set(node,node.nodeValue);
+        const source=originalUiTextNodes.get(node);
+        if(!source || !/\p{L}{2}/u.test(source)) continue;
+        pending.push({node,source});
+      }
+      for(let i=0;i<pending.length;i+=5) {
+        await Promise.all(pending.slice(i,i+5).map(async item=>{
+          const translated=await translateUiText(item.source,lang);
+          if(currentLang===lang && translated && item.node.isConnected) item.node.nodeValue=translated;
+        }));
+      }
+      // Traduce también etiquetas accesibles y títulos de controles.
+      const attrs=[...document.querySelectorAll("[title],[aria-label]")].filter(el=>!el.closest(dynamicContentSelectors));
+      for(let i=0;i<attrs.length;i+=4) {
+        await Promise.all(attrs.slice(i,i+4).map(async el=>{
+          for(const attr of ["title","aria-label"]) {
+            const key="original"+attr.replace(/^[a-z]/,c=>c.toUpperCase());
+            if(!el.dataset[key] && el.hasAttribute(attr)) el.dataset[key]=el.getAttribute(attr);
+            const source=el.dataset[key];
+            if(source) {
+              const translated=await translateUiText(source,lang);
+              if(currentLang===lang && translated) el.setAttribute(attr,translated);
+            }
+          }
+        }));
+      }
+    }
+    function restoreOriginalUiText() {
+      originalUiTextNodes.forEach((value,node)=>{ if(node.isConnected) node.nodeValue=value; });
+      document.querySelectorAll("input[data-original-placeholder],textarea[data-original-placeholder]").forEach(el=>el.placeholder=el.dataset.originalPlaceholder);
+      document.querySelectorAll("[data-original-title],[data-original-aria-label]").forEach(el=>{
+        if(el.dataset.originalTitle) el.title=el.dataset.originalTitle;
+        if(el.dataset.originalAriaLabel) el.setAttribute("aria-label",el.dataset.originalAriaLabel);
+      });
+    }
+    async function setLanguage(lang) {
+      const supported = ["es","en","fr","it","pt"];
+      if (!supported.includes(lang)) lang = "es";
       currentLang = lang;
-      $("langEsBtn").className = lang === 'es' ? 'px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs';
-      $("langEnBtn").className = lang === 'en' ? 'px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition text-xs';
-      const t = translations[lang];
+      localStorage.setItem("nwr_site_language_v2", lang);
+      document.documentElement.lang = lang;
+      syncModalLanguagePickers();
+      if (lang === "es") restoreOriginalUiText();
+      const t = translations[lang] || translations.es;
       $("txtAdminBtn").textContent = !$("adminView").classList.contains("hidden") ? t.backApp : t.adminBtn;
-      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k]) el.innerHTML = t[k]; });
-      document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); if (t[k]) el.placeholder = t[k]; });
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (t[key]) el.innerHTML = t[key];
+      });
+      document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+        const key = el.getAttribute("data-i18n-ph");
+        if (t[key]) el.placeholder = t[key];
+      });
       renderNavigationAndCustomViews();
       updateVotingUI(globalVotingActive);
       applyAllCustomButtons();
+      await renderAllTabNotices();
+      if (lang !== "es") await runAutomaticTranslationPass(lang);
     }
+
+    let languageMutationObserver=null, languageTranslationTimer=null, languageTranslationRunning=false;
+    function scheduleAutomaticTranslation() {
+      if(currentLang==="es" || languageTranslationTimer) return;
+      languageTranslationTimer=setTimeout(async()=>{
+        languageTranslationTimer=null;
+        if(languageTranslationRunning || currentLang==="es") return;
+        languageTranslationRunning=true;
+        const lang=currentLang;
+        try {
+          if(languageMutationObserver) languageMutationObserver.disconnect();
+          await applyAdditionalLanguage(lang);
+        } catch(e) { console.warn("No se pudo completar la traducción dinámica:",e); }
+        finally {
+          languageTranslationRunning=false;
+          if(languageMutationObserver && document.body) languageMutationObserver.observe(document.body,{childList:true,subtree:true});
+        }
+      },90);
+    }
+    async function runAutomaticTranslationPass(lang) {
+      if(lang==="es") return;
+      if(languageTranslationTimer){clearTimeout(languageTranslationTimer);languageTranslationTimer=null;}
+      if(languageTranslationRunning) return;
+      languageTranslationRunning=true;
+      try {
+        if(languageMutationObserver) languageMutationObserver.disconnect();
+        await applyAdditionalLanguage(lang);
+      } finally {
+        languageTranslationRunning=false;
+        if(languageMutationObserver && document.body) languageMutationObserver.observe(document.body,{childList:true,subtree:true});
+      }
+    }
+    function startAutomaticTranslationObserver() {
+      if(languageMutationObserver || !document.body) return;
+      languageMutationObserver=new MutationObserver(records=>{
+        if(currentLang==="es") return;
+        if(records.some(record=>[...record.addedNodes].some(node=>node.nodeType===1 || (node.nodeType===3 && node.nodeValue.trim())))) scheduleAutomaticTranslation();
+      });
+      languageMutationObserver.observe(document.body,{childList:true,subtree:true});
+    }
+
+    const modalLanguageOptions = [["es","🇪🇸 Español"],["en","🇬🇧 English"],["fr","🇫🇷 Français"],["it","🇮🇹 Italiano"],["pt","🇵🇹 Português"]];
+    function buildModalLanguagePickers() {
+      document.querySelectorAll("[data-modal-lang-picker]").forEach(picker => {
+        const menu = picker.querySelector(".modal-lang-menu");
+        if (!menu || menu.dataset.ready === "1") return;
+        menu.innerHTML = modalLanguageOptions.map(([code,label]) => { const parts=label.split(" "); const flag=parts.shift(); const name=parts.join(" "); return '<button type="button" class="modal-lang-option" role="option" data-lang="'+code+'" onclick="chooseModalLanguage(this)" aria-selected="false" title="'+name+'"><span class="lang-flag">'+flag+'</span><span class="lang-code">'+code.toUpperCase()+'</span><span class="lang-name">'+name+'</span></button>'; }).join("");
+        menu.dataset.ready = "1";
+      });
+      syncModalLanguagePickers();
+    }
+    function syncModalLanguagePickers() {
+      const selected = modalLanguageOptions.find(([code]) => code === currentLang) || modalLanguageOptions[0];
+      document.querySelectorAll("[data-modal-lang-picker]").forEach(picker => {
+        const trigger = picker.querySelector(".modal-lang-trigger");
+        if (trigger) { const parts=selected[1].split(" "); trigger.innerHTML = '<span>'+parts[0]+' '+selected[0].toUpperCase()+'</span><span aria-hidden="true">⌄</span>'; }
+        picker.querySelectorAll(".modal-lang-option").forEach(option => option.setAttribute("aria-selected", option.dataset.lang === currentLang ? "true" : "false"));
+      });
+    }
+    function toggleModalLanguageMenu(trigger) {
+      const picker = trigger.closest("[data-modal-lang-picker]"), menu = picker?.querySelector(".modal-lang-menu");
+      const opening = menu?.classList.contains("hidden");
+      document.querySelectorAll(".modal-lang-menu").forEach(el => el.classList.add("hidden"));
+      document.querySelectorAll(".modal-lang-trigger").forEach(el => el.setAttribute("aria-expanded","false"));
+      if (opening && menu) { menu.classList.remove("hidden"); trigger.setAttribute("aria-expanded","true"); }
+    }
+    async function chooseModalLanguage(option) {
+      const lang = option.dataset.lang;
+      document.querySelectorAll(".modal-lang-menu").forEach(el => el.classList.add("hidden"));
+      document.querySelectorAll(".modal-lang-trigger").forEach(el => el.setAttribute("aria-expanded","false"));
+      await setLanguage(lang);
+      if (!document.getElementById("infoModal")?.classList.contains("hidden")) openInfoModal();
+    }
+    document.addEventListener("click", event => {
+      if (!event.target.closest("[data-modal-lang-picker]")) {
+        document.querySelectorAll(".modal-lang-menu").forEach(el => el.classList.add("hidden"));
+        document.querySelectorAll(".modal-lang-trigger").forEach(el => el.setAttribute("aria-expanded","false"));
+      }
+    });
 
     function switchTab(tab) {
       currentActiveTab = tab;
@@ -2293,8 +2815,10 @@
       $(targetVId)?.classList.remove('hidden');
       const activeBtn = $(`tab_${tab}`);
       if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
-      $("txtAdminBtn").textContent = translations[currentLang].adminBtn;
+      $("txtAdminBtn").textContent = (translations[currentLang] || translations.es).adminBtn;
       renderFeaturedPlayer();
+      renderGraphicBanner(tab);
+      applyMediaPositions();
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
 
@@ -2350,41 +2874,50 @@
       }
     });
 
-    function switchAdminTab(tab) {
-      const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], config: ['adminTabConfig', 'adminViewConfig'], spotify: ['adminTabSpotify', 'adminViewSpotify'], backups: ['adminTabBackups', 'adminViewBackups'] };
-      ADMIN_TABS.forEach(k => {
-        $(map[k][0]).className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
-        $(map[k][1]).classList.add('hidden');
-      });
-      $(map[tab][0]).className = "px-3 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold text-xs transition shadow whitespace-nowrap";
-      $(map[tab][1]).classList.remove('hidden');
-      if (tab === 'paises') loadAdminCountries();
-      else if (tab === 'mensajes') loadAdminMessages();
-      else if (tab === 'config') {
-        updateGithubTokenStatus();
-        loadGithubGallery();
-        loadHeaderMediaEditor();
-        updateDefaultTabSelectUI();
-        updateFeaturedAdminUI();
-        loadPlayerStyleForm();
-        renderAdminTabsManager();
-        loadButtonCustomForm();
-        loadSelectedTabNoticeToForm();
-        renderAllTabNotices();
-        loadAdminChatUsers();
+    window.toggleAdminSiteHeader = () => {
+      if (!document.body.classList.contains("admin-mode")) return;
+      const expanded = document.body.classList.toggle("admin-show-site");
+      const btn = $("adminShowSiteBtn");
+      if (btn) {
+        btn.textContent = expanded ? "⌃ Ocultar cabecera" : "⌄ Mostrar cabecera";
+        btn.setAttribute("aria-expanded", expanded ? "true" : "false");
       }
-      else if (tab === 'spotify') loadSpotifySyncSettings();
-      else if (tab === 'backups') loadAdminBackups();
+    };
+
+    function switchAdminTab(tab){
+      const tabs=getAdminTabsConfig(),item=tabs.find(t=>t.id===tab&&t.visible!==false);if(!item)tab=tabs.find(t=>t.visible!==false&&!t.custom)?.id||"principal";
+      tabs.forEach(t=>{const btn=$("adminTab"+t.id);if(btn)btn.classList.toggle("admin-tab-active",t.id===tab);const view=$("adminView"+t.id.charAt(0).toUpperCase()+t.id.slice(1));if(view)view.classList.toggle("hidden",t.id!==tab);const cv=$("adminCustomView"+t.id);if(cv)cv.classList.toggle("hidden",t.id!==tab);});
+      if(tab==="principal"){loadHeaderMediaEditor();loadGraphicBannerEditor();}else if(tab==="paises")loadAdminCountries();else if(tab==="mensajes")loadAdminMessages();else if(tab==="galeria"){updateGithubTokenStatus();loadGithubGallery();}else if(tab==="diseno"){renderAdminTabsManager();renderAdminAdminTabsManager();loadButtonCustomForm();loadSelectedTabNoticeToForm();renderAllTabNotices();}else if(tab==="ajustes"){updateDefaultTabSelectUI();updateFeaturedAdminUI();}else if(tab==="spotify")loadSpotifySyncSettings();else if(tab==="backups")renderBackupsPanel();
     }
 
     window.quickOpenConfig = () => {
       const adminView = $("adminView");
-      if (adminView.classList.contains("hidden")) {
-        adminView.classList.remove("hidden");
-        $("txtAdminBtn").textContent = translations[currentLang].backApp;
+      adminView.classList.remove("hidden");
+      document.body.classList.remove("admin-panel-closed");
+      switchAdminTab('ajustes');
+      const gear = $("topConfigBtn");
+      if (gear) { gear.classList.add("admin-gear-active"); gear.setAttribute("aria-pressed","true"); }
+    };
+    window.toggleQuickConfig = () => {
+      const adminView = $("adminView");
+      if (!adminView || adminView.classList.contains("hidden")) {
+        adminView?.classList.remove("hidden");
+        document.body.classList.remove("admin-panel-closed", "admin-show-site");
+        const strip = $("adminShowSiteBtn");
+        if (strip) { strip.textContent = "⌄ Mostrar cabecera"; strip.setAttribute("aria-expanded","false"); }
+        switchAdminTab('principal');
+        const gear = $("topConfigBtn");
+        gear?.classList.add("admin-gear-active");
+        gear?.setAttribute("aria-pressed","true");
+      } else {
+        adminView.classList.add("hidden");
+        document.body.classList.add("admin-panel-closed", "admin-show-site");
+        const strip = $("adminShowSiteBtn");
+        if (strip) { strip.textContent = "⌃ Ocultar cabecera"; strip.setAttribute("aria-expanded","true"); }
+        const gear = $("topConfigBtn");
+        gear?.classList.remove("admin-gear-active");
+        gear?.setAttribute("aria-pressed","false");
       }
-      switchAdminTab('config');
-      window.scrollTo({ top: adminView.offsetTop, behavior: 'smooth' });
     };
 
     // ==================== RESTAURACIÓN DESDE BACKUPS CON SELECCIÓN DE LISTAS ====================
@@ -2428,8 +2961,9 @@
       const doWeekly = document.getElementById(`rest_weekly_${backupId}`)?.checked || false;
       const doMonthly = document.getElementById(`rest_monthly_${backupId}`)?.checked || false;
       const doAnnual = document.getElementById(`rest_annual_${backupId}`)?.checked || false;
+      const doCountries = document.getElementById(`rest_countries_${backupId}`)?.checked || false;
 
-      if (!doActive && !doWeekly && !doMonthly && !doAnnual) {
+      if (!doActive && !doWeekly && !doMonthly && !doAnnual && !doCountries) {
         return alert("⚠️ Selecciona al menos una lista marcada para restaurar.");
       }
 
@@ -2438,6 +2972,7 @@
       if (doWeekly) summary.push("• Cola Semanal");
       if (doMonthly) summary.push("• Lista Mensual");
       if (doAnnual) summary.push("• Lista Anual");
+      if (doCountries) summary.push("• Países / artistas");
 
       if (!confirm(`⚠️ ATENCIÓN CRÍTICA:\nSe van a SUSTITUIR por completo las siguientes listas actuales con los datos de esta copia de seguridad:\n\n${summary.join('\n')}\n\nLas listas NO marcadas permanecerán intactas.\n¿Deseas confirmar la sustitución?`)) return;
 
@@ -2465,8 +3000,21 @@
         if (doWeekly) await clearAndReplace(b.weeklyTracks, 'submissions');
         if (doMonthly) await clearAndReplace(b.monthlyTracks, 'monthly_list');
         if (doAnnual) await clearAndReplace(b.annualTracks, 'annual_list');
+        if (doCountries) {
+          const snap = await db.collection('artist_countries').get();
+          for (let i = 0; i < snap.docs.length; i += 450) {
+            const batch = db.batch(); snap.docs.slice(i, i + 450).forEach(doc => batch.delete(doc.ref)); await batch.commit();
+          }
+          const rows = b.countriesList || [];
+          for (let i = 0; i < rows.length; i += 450) {
+            const batch = db.batch();
+            rows.slice(i, i + 450).forEach(row => { const clean = { ...row }; delete clean.id; batch.set(db.collection('artist_countries').doc(), clean); });
+            await batch.commit();
+          }
+        }
 
         await loadAllLists();
+        if (doCountries) await loadAdminCountries();
         alert("✅ Restauración y sustitución completada con éxito en las listas seleccionadas.");
       } catch (e) {
         alert("Error en la restauración: " + e.message);
@@ -2578,13 +3126,44 @@
       } catch (e) {}
     }
 
+    const DEFAULT_FIRESTORE_RULES_BACKUP = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    function isOwner() {\n      return request.auth != null\n        && request.auth.token.email == \"br3yda@gmail.com\";\n    }\n    match /active_list/{id} { allow read: if true; allow write: if isOwner(); }\n    match /monthly_list/{id} { allow read: if true; allow write: if isOwner(); }\n    match /annual_list/{id} { allow read: if true; allow write: if isOwner(); }\n    match /settings/{id} { allow read: if true; allow write: if isOwner(); }\n    match /submissions/{id} {\n      allow read: if isOwner();\n      allow create: if request.resource.data.keys().hasOnly([\"artist\",\"title\",\"url\",\"email\",\"timestamp\",\"dateString\",\"votes\",\"voters\"])\n        && request.resource.data.artist is string && request.resource.data.artist.size() > 0 && request.resource.data.artist.size() <= 100\n        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 200\n        && request.resource.data.url is string && request.resource.data.url.matches('https://open\\\\.spotify\\\\.com/track/[A-Za-z0-9]+.*')\n        && request.resource.data.email is string && request.resource.data.email.size() <= 254\n        && request.resource.data.timestamp is number && request.resource.data.dateString is string\n        && request.resource.data.votes == 0 && request.resource.data.voters is list && request.resource.data.voters.size() == 0;\n      allow update, delete: if isOwner();\n    }\n    match /weekly_public/{id} {\n      allow read: if true;\n      allow create: if request.resource.data.keys().hasOnly([\"artist\",\"title\",\"url\",\"timestamp\",\"dateString\"])\n        && request.resource.data.artist is string && request.resource.data.artist.size() > 0 && request.resource.data.artist.size() <= 100\n        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 200\n        && request.resource.data.url is string && request.resource.data.url.matches('https://open\\\\.spotify\\\\.com/track/[A-Za-z0-9]+.*')\n        && request.resource.data.timestamp is number && request.resource.data.dateString is string;\n      allow update, delete: if isOwner();\n    }\n    match /stats/visitors {\n      allow read: if true;\n      allow create: if request.resource.data.keys().hasOnly([\"total\"]) && request.resource.data.total is number && request.resource.data.total == 1;\n      allow update: if request.resource.data.keys().hasOnly([\"total\"]) && request.resource.data.total is number && request.resource.data.total == resource.data.total + 1;\n      allow delete: if false;\n    }\n    match /contact_messages/{id} {\n      allow read: if isOwner();\n      allow create: if request.resource.data.keys().hasOnly([\"name\",\"email\",\"message\",\"timestamp\",\"dateString\",\"read\"])\n        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100\n        && request.resource.data.email is string && request.resource.data.email.size() > 0 && request.resource.data.email.size() <= 254\n        && request.resource.data.message is string && request.resource.data.message.size() > 0 && request.resource.data.message.size() <= 3000\n        && request.resource.data.timestamp is number && request.resource.data.dateString is string && request.resource.data.read == false;\n      allow update, delete: if isOwner();\n    }\n    match /artist_countries/{id} { allow read, write: if isOwner(); }\n    match /backups/{id} { allow read, write: if isOwner(); }\n    match /voters_log/{id} { allow read, write: if isOwner(); }\n    match /chat_users/{id} { allow read, write: if isOwner(); }\n    match /chat_messages/{id} { allow read, write: if isOwner(); }\n    match /chat_presence/{id} { allow read, write: if isOwner(); }\n    match /stats/{id} { allow read, write: if isOwner(); }\n    match /{document=**} { allow read, write: if false; }\n  }\n}";
+    const FIRESTORE_RULES_BACKUP_ID = "_firestore_rules_current";
+    window.saveFirestoreRulesBackup = async () => {
+      const editor = $("firestoreRulesEditor"), status = $("firestoreRulesBackupStatus");
+      const rulesText = editor ? editor.value.trim() : "";
+      if (!rulesText) { if (status) status.textContent = "Pega las reglas antes de guardarlas."; return; }
+      try {
+        await db.collection("backups").doc(FIRESTORE_RULES_BACKUP_ID).set({ kind: "firestore_rules", edition: "Copia de reglas Firebase", rulesText, timestamp: Date.now(), dateString: madridStr() });
+        if (status) status.textContent = "✅ Reglas guardadas de forma privada en Firebase: " + madridStr();
+      } catch (e) { if (status) status.textContent = "❌ No se pudieron guardar: " + e.message; }
+    };
+    window.loadFirestoreRulesBackup = async (force = true) => {
+      const editor = $("firestoreRulesEditor"), status = $("firestoreRulesBackupStatus"); if (!editor) return;
+      try {
+        const snap = await db.collection("backups").doc(FIRESTORE_RULES_BACKUP_ID).get();
+        if (snap.exists && snap.data().rulesText) { if (force || !editor.value.trim()) editor.value = snap.data().rulesText; if (status) status.textContent = "✅ Copia guardada disponible · " + (snap.data().dateString || "") + "."; }
+        else if (!editor.value.trim()) { editor.value = DEFAULT_FIRESTORE_RULES_BACKUP; if (status) status.textContent = "Reglas precargadas. Pulsa «Guardar copia en Firebase» para conservarlas."; }
+      } catch (e) { if (!editor.value.trim()) editor.value = DEFAULT_FIRESTORE_RULES_BACKUP; if (status) status.textContent = "No se pudo consultar la copia guardada: " + e.message; }
+    };
+    window.copyFirestoreRulesBackup = async () => { const editor = $("firestoreRulesEditor"); if (!editor || !editor.value.trim()) return alert("No hay reglas para copiar."); try { await navigator.clipboard.writeText(editor.value); alert("Reglas copiadas."); } catch (e) { editor.focus(); editor.select(); alert("Selecciona y copia el texto manualmente."); } };
+    window.downloadFirestoreRulesBackup = () => { const editor = $("firestoreRulesEditor"); if (!editor || !editor.value.trim()) return alert("No hay reglas para descargar."); const blob = new Blob([editor.value], { type: "text/plain;charset=utf-8" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "firestore.rules"; a.click(); URL.revokeObjectURL(url); };
     async function loadAdminBackups() {
       const container = $("adminBackupsList"), badge = $("backupsCountBadge");
       try {
         const snap = await db.collection("backups").orderBy("timestamp", "desc").get();
         backupsCache = {};
-        const list = snap.docs.map(d => { const item = { id: d.id, ...d.data() }; backupsCache[d.id] = item; return item; });
+        const allItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const rulesBackup = allItems.find(item => item.kind === "firestore_rules");
+        const list = allItems.filter(item => item.kind !== "firestore_rules");
+        list.forEach(item => { backupsCache[item.id] = item; });
         if (badge) badge.textContent = list.length;
+        const rulesEditor = $("firestoreRulesEditor");
+        if (rulesEditor && !rulesEditor.dataset.initialized) {
+          rulesEditor.value = rulesBackup && rulesBackup.rulesText ? rulesBackup.rulesText : DEFAULT_FIRESTORE_RULES_BACKUP;
+          rulesEditor.dataset.initialized = "1";
+          const rulesStatus = $("firestoreRulesBackupStatus");
+          if (rulesStatus) rulesStatus.textContent = rulesBackup ? "✅ Copia privada guardada disponible · " + (rulesBackup.dateString || "") : "Reglas precargadas. Pulsa «Guardar copia en Firebase» para conservarlas.";
+        }
         if (!container) return;
         if (!list.length) { container.innerHTML = '<p class="text-zinc-400 text-center py-6">No hay copias de seguridad guardadas todavía.</p>'; return; }
 
@@ -2623,7 +3202,7 @@
               `).join('') + `</div>`;
           };
 
-          if (aT.length || wT.length || mT.length || anT.length) {
+          if (aT.length || wT.length || mT.length || anT.length || cT.length) {
             restoreRecordsHtml = `
               <div class="mt-3 pt-3 border-t border-purple-500/30 space-y-3 bg-purple-950/20 p-3 rounded-xl border">
                 <div class="flex flex-col gap-2">
@@ -2634,6 +3213,7 @@
                     ${wT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_weekly_${b.id}" checked class="accent-purple-500"> Cola Semanal (${wT.length})</label>` : ''}
                     ${mT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_monthly_${b.id}" checked class="accent-purple-500"> Lista Mensual (${mT.length})</label>` : ''}
                     ${anT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_annual_${b.id}" checked class="accent-purple-500"> Lista Anual (${anT.length})</label>` : ''}
+                    ${cT.length ? `<label class="flex items-center gap-1.5 text-[11px] text-zinc-200 cursor-pointer"><input type="checkbox" id="rest_countries_${b.id}" checked class="accent-purple-500"> Países (${cT.length})</label>` : ''}
                   </div>
                   <button type="button" onclick="restoreSelectedRecordsFromBackup('${b.id}')" class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow transition">⚡ Restaurar Listas Marcadas (Sustituir)</button>
                 </div>
@@ -2701,7 +3281,7 @@
     }
 
     window.deleteContactMsg = async id => { if (confirm("¿Eliminar este mensaje?")) { await db.collection("contact_messages").doc(id).delete(); loadAdminMessages(); } };
-    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { const batch = db.batch(); batch.delete(db.collection("submissions").doc(id)); batch.delete(db.collection("weekly_public").doc(id)); await batch.commit(); loadAllLists(); } };
+    window.deleteSubmissionTrack = async id => { if (confirm("¿Eliminar esta canción de la cola semanal?")) { const b=db.batch(); b.delete(db.collection("submissions").doc(id)); b.delete(db.collection("weekly_public").doc(id)); await b.commit(); loadAllLists(); } };
 
     async function loadAdminChatUsers() {
       const container = $("adminChatUsersList");
@@ -2857,7 +3437,8 @@
         if (hInd) {
           hInd.style = "";
           hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 shadow-sm flex items-center justify-center gap-1.5";
-          hInd.textContent = currentLang === 'es' ? "Votación activa" : "Voting active";
+          hInd.innerHTML = '<span aria-hidden="true" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>Votación</span>';
+          hInd.setAttribute("aria-label", "Votación activa");
           applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeActive);
         }
         if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Activa" : "Active"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold"; }
@@ -2868,13 +3449,111 @@
         if (hInd) {
           hInd.style = "";
           hInd.className = "px-3 h-9 rounded-xl text-xs font-bold border bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-sm flex items-center justify-center gap-1.5";
-          hInd.textContent = currentLang === 'es' ? "Votación inactiva" : "Voting inactive";
+          hInd.innerHTML = '<span aria-hidden="true" class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Votación</span>';
+          hInd.setAttribute("aria-label", "Votación inactiva");
           applyButtonStyleToElement(hInd, config.customButtons?.votingBadgeInactive);
         }
         if (vBadge) { vBadge.textContent = currentLang === 'es' ? "Desactivada" : "Disabled"; vBadge.className = "text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold"; }
         if (tVote) tVote.style.opacity = "0.6";
       }
     }
+
+    // Exportación e importación local de listas en JSON. La importación crea un backup, no modifica listas activas.
+    window.exportListsJson = async () => {
+      const status = $("listsJsonBackupStatus");
+      const scope = $("jsonBackupScope")?.value || "all";
+      const collections = { active: ["active_list", "activeTracks"], weekly: ["submissions", "weeklyTracks"], monthly: ["monthly_list", "monthlyTracks"], annual: ["annual_list", "annualTracks"], countries: ["artist_countries", "countriesList"] };
+      const payload = { app: "NEXT-WAVE-RISING-LISTS", schemaVersion: 1, scope, exportedAt: new Date().toISOString(),
+        activeTracks: [], weeklyTracks: [], monthlyTracks: [], annualTracks: [], countriesList: [] };
+      const selected = scope === "all" ? Object.values(collections) : [collections[scope]];
+      try {
+        for (const [collectionName, key] of selected) {
+          const snap = await db.collection(collectionName).get();
+          payload[key] = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            }
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob), a = document.createElement("a");
+        a.href = url; a.download = "next-wave-rising-listas-" + scope + "-" + new Date().toISOString().slice(0,10) + ".json";
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        if (status) status.textContent = "✅ JSON descargado. Registros: " + Object.values(payload).filter(Array.isArray).reduce((n, arr) => n + arr.length, 0) + ".";
+      } catch (e) { if (status) status.textContent = "Error al exportar: " + e.message; }
+    };
+
+    window.importListsJson = async event => {
+      const input = event?.target, file = input?.files?.[0], status = $("listsJsonBackupStatus");
+      if (!file) return;
+      try {
+        if (file.size > 10 * 1024 * 1024) throw new Error("El archivo supera el límite de 10 MB.");
+        const data = JSON.parse(await file.text());
+        if (data?.app !== "NEXT-WAVE-RISING-LISTS" || data?.schemaVersion !== 1) throw new Error("El archivo no es un JSON de listas válido de Next Wave Rising.");
+        const keys = ["activeTracks", "weeklyTracks", "monthlyTracks", "annualTracks", "countriesList"];
+        for (const key of keys) if (data[key] !== undefined && !Array.isArray(data[key])) throw new Error("Formato no válido en " + key + ".");
+        if (!keys.some(key => (data[key] || []).length)) throw new Error("El archivo no contiene registros para importar.");
+        const payload = {
+          scope: data.scope || "all", edition: "JSON importado - " + new Date().toLocaleString(),
+          dateString: madridStr(), dateOnly: madridDateOnly(), timestamp: Date.now(),
+          activeTracks: data.activeTracks || [], weeklyTracks: data.weeklyTracks || [],
+          monthlyTracks: data.monthlyTracks || [], annualTracks: data.annualTracks || [],
+          countriesList: data.countriesList || []
+        };
+        if (!confirm("Se añadirá este archivo al historial de backups. Las listas actuales NO se modificarán hasta que elijas restaurar la copia. ¿Continuar?")) return;
+        await db.collection("backups").add(payload);
+        await loadAdminBackups();
+        if (status) status.textContent = "✅ JSON importado como copia nueva. Busca la copia en el historial y pulsa «Restaurar» cuando quieras.";
+      } catch (e) { if (status) status.textContent = "Error al importar: " + e.message; }
+      finally { if (input) input.value = ""; }
+    };
+
+    // Copia local de ajustes visuales y funcionales (sin datos personales ni credenciales).
+    window.exportSiteConfiguration = () => {
+      try {
+        const payload = {
+          app: "NEXT-WAVE-RISING",
+          schemaVersion: 1,
+          exportedAt: new Date().toISOString(),
+          config: JSON.parse(JSON.stringify(config))
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "next-wave-rising-configuracion-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        const status = $("siteConfigBackupStatus");
+        if (status) status.textContent = "✅ Configuración exportada. Guarda el archivo en un lugar seguro.";
+      } catch (e) {
+        const status = $("siteConfigBackupStatus");
+        if (status) status.textContent = "No se pudo exportar: " + e.message;
+      }
+    };
+
+    window.importSiteConfiguration = async event => {
+      const input = event?.target;
+      const file = input?.files?.[0];
+      if (!file) return;
+      const status = $("siteConfigBackupStatus");
+      try {
+        if (file.size > 2 * 1024 * 1024) throw new Error("El archivo supera el límite de 2 MB.");
+        const payload = JSON.parse(await file.text());
+        if (payload?.app !== "NEXT-WAVE-RISING" || payload?.schemaVersion !== 1 ||
+            !payload.config || typeof payload.config !== "object" || Array.isArray(payload.config)) {
+          throw new Error("El archivo no es una copia de configuración válida de Next Wave Rising.");
+        }
+        const accepted = confirm("Se restaurarán los ajustes guardados en este archivo. Las listas, votos y usuarios no se modificarán. ¿Continuar?");
+        if (!accepted) return;
+        await db.collection("settings").doc("activeEdition").set(payload.config, { merge: true });
+        Object.assign(config, payload.config);
+        await loadConfig();
+        if (status) status.textContent = "✅ Configuración restaurada correctamente desde el archivo.";
+      } catch (e) {
+        if (status) status.textContent = "Error al importar: " + e.message;
+      } finally {
+        if (input) input.value = "";
+      }
+    };
 
     async function loadConfig() {
       try {
@@ -2894,8 +3573,12 @@
       $("adminEditionInput").value = config.edition;
       $("adminPlaylistInput").value = config.playlistUrl;
       $("adminTrackInput").value = config.trackUrl || "";
+      if ($("visitorPrestigeBonusInput")) $("visitorPrestigeBonusInput").value = Number(config.visitorPrestigeBonus ?? 1000);
+      renderVisitorPrestigeCount();
       applyHeaderMediaConfig();
       if ($("adminHeaderMediaType")) loadHeaderMediaEditor();
+      loadGraphicBannerEditor();
+      renderGraphicBanner(currentActiveTab);
 
       if (!initialTabApplied && config.defaultTab) {
         initialTabApplied = true;
@@ -2903,20 +3586,40 @@
       }
 
       renderNavigationAndCustomViews();
+      renderAdminNavigation();
+      renderAdminCustomViews();
       switchTab(currentActiveTab);
       updateVotingUI(config.votingActive !== false);
       applyAllCustomButtons();
     }
 
+    function adminTrackRowHtml(track, index, collection) {
+      const safeId = String(track.id || "");
+      return '<div class="p-3 bg-zinc-900 rounded-xl border border-white/5 flex flex-wrap justify-between items-center gap-2"><div class="min-w-0"><p class="font-bold text-white">' + (index+1) + '. ' + escapeHtml(track.artist || "Artista") + ' — <span class="text-emerald-400">' + escapeHtml(track.title || "Sin título") + '</span></p><p class="text-[10px] text-zinc-400 truncate">' + escapeHtml(track.url || "") + '</p></div><div class="flex gap-1.5"><a href="' + (track.url || "").split("?")[0] + '" target="_blank" rel="noopener noreferrer" class="px-2 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded">Escuchar</a><button type="button" onclick="editAdminTrack(\'' + collection + '\',\'' + safeId + '\')" class="px-2 py-1 bg-amber-500/20 text-amber-300 rounded">Editar</button><button type="button" onclick="deleteAdminTrack(\'' + collection + '\',\'' + safeId + '\')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">Eliminar</button></div></div>';
+    }
+    window.editAdminTrack = async (collection, id) => {
+      if (!["submissions","monthly_list","annual_list","top_annual"].includes(collection)) return;
+      try { const ref=db.collection(collection).doc(id), snap=await ref.get(); if(!snap.exists)return alert("El tema ya no existe."); const d=snap.data();
+        const artist=prompt("Artista:",d.artist||""); if(artist===null)return; const title=prompt("Título:",d.title||""); if(title===null)return; const url=prompt("Enlace Spotify:",d.url||""); if(url===null)return;
+        if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); const cleanUrl=url.trim().split("?")[0]; await ref.update({artist:artist.trim(),title:title.trim(),url:cleanUrl}); if(collection==="submissions") await db.collection("weekly_public").doc(id).set({artist:artist.trim(),title:title.trim(),url:cleanUrl},{merge:true}); await loadAllLists();
+      } catch(e){alert("No se pudo editar: "+e.message);}
+    };
+    window.deleteAdminTrack = async (collection,id) => {
+      if (!["submissions","monthly_list","annual_list","top_annual"].includes(collection)) return;
+      if(!confirm("¿Eliminar este tema?"))return; try{await db.collection(collection).doc(id).delete();await loadAllLists();}catch(e){alert("No se pudo eliminar: "+e.message);}
+    };
+    window.addTopAnnualTrack = async () => {
+      const artist=prompt("Artista:"); if(artist===null)return; const title=prompt("Título:"); if(title===null)return; const url=prompt("Enlace Spotify:"); if(url===null)return;
+      if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); try{await db.collection("top_annual").add({artist:artist.trim(),title:title.trim(),url:url.trim().split("?")[0],timestamp:Date.now()});await loadAllLists();}catch(e){alert("No se pudo añadir: "+e.message);}
+    };
     async function loadAllLists() {
-      const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
+      const [votersRes, activeRes, subRes, monthlyRes, annualRes, topRes] = await Promise.allSettled([
         db.collection("voters_log").get(),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
-        (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com"
-          ? db.collection("submissions")
-          : db.collection("weekly_public")).orderBy("timestamp", "asc").get(),
+        (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com" ? db.collection("submissions") : db.collection("weekly_public")).orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
-        db.collection("annual_list").orderBy("timestamp", "asc").get()
+        db.collection("annual_list").orderBy("timestamp", "asc").get(),
+        db.collection("top_annual").orderBy("timestamp", "asc").get()
       ]);
 
       if (votersRes.status === "fulfilled") $("statVotersCount").textContent = String(votersRes.value.size).padStart(2, '0');
@@ -2933,7 +3636,7 @@
         $("statTotalVotesCount").textContent = String(totalVotes).padStart(2, '0');
 
         if (!activeSubs.length) {
-          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang].activeListEmpty}</p>`;
+          pAct.innerHTML = vList.innerHTML = `<p class="text-zinc-400 text-xs text-center py-6">${(translations[currentLang] || translations.es).activeListEmpty}</p>`;
           aAct.innerHTML = '<p class="text-zinc-400 text-center py-4">No hay temas en la Lista Activa todavía.</p>';
         } else {
           pAct.innerHTML = activeSubs.map((s, i) => renderPlayableTrackHtml(s, i, 'active', 'On Air')).join("");
@@ -2985,8 +3688,6 @@
       const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
         subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
-        // El administrador migra a la colección pública únicamente los campos visibles,
-        // sin correo ni datos privados, para recuperar las propuestas históricas.
         if (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com") {
           try {
             const publicSnap = await db.collection("weekly_public").get();
@@ -3000,7 +3701,7 @@
               }));
               await batch.commit();
             }
-          } catch (e) { console.warn("No se pudo recuperar la cola pública:", e); }
+          } catch (mirrorError) { console.warn("No se pudo sincronizar la cola pública:", mirrorError); }
         }
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
         if (!subs.length) {
@@ -3013,17 +3714,27 @@
           }).join("");
           pSub.innerHTML = subs.map((s, i) => renderPlayableTrackHtml(s, i, 'weekly', 'Reg: ' + (s.dateString || ''))).join("");
         }
+      } else {
+        $("publicSubCount").textContent = "—";
+        pSub.innerHTML = '<p class="text-rose-300 text-xs text-center py-4">No se pudo cargar la cola semanal. Comprueba los permisos de Firestore.</p>';
+        if (aSub) aSub.innerHTML = '<p class="text-rose-300">Error al cargar la cola semanal.</p>';
       }
 
       // 3. MENSUAL & 4. ANUAL
-      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, colorClass) => {
+      const renderSimpleList = (res, listKey, countId, contId, emptyKey, prefixFn, adminCountId, adminContId, collection) => {
         if (res.status !== "fulfilled") return;
-        const items = res.value.docs.map(d => d.data());
+        const items = res.value.docs.map(d => ({ id: d.id, ...d.data() }));
         $(countId).textContent = items.length;
-        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${translations[currentLang][emptyKey]}</p>` : items.map((s, i) => renderPlayableTrackHtml(s, i, listKey, prefixFn(i))).join("");
+        $(contId).innerHTML = !items.length ? `<p class="text-zinc-400 text-xs text-center py-6">${(translations[currentLang] || translations.es)[emptyKey]}</p>` : items.map((x, i) => renderPlayableTrackHtml(x, i, listKey, prefixFn(i))).join("");
+        if (adminCountId && $(adminCountId)) $(adminCountId).textContent = items.length;
+        if (adminContId && $(adminContId)) $(adminContId).innerHTML = items.length ? items.map((x,i) => adminTrackRowHtml(x,i,collection)).join("") : '<p class="text-zinc-400 py-3">Esta lista está vacía.</p>';
       };
-      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "text-cyan-400");
-      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
+      renderSimpleList(monthlyRes, "monthly", "monthlyCount", "monthlyListContainer", "monthlyEmpty", i => `Bloque ${i + 1}`, "adminMonthlyCount", "adminMonthlyListContainer", "monthly_list");
+      renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "adminAnnualCount", "adminAnnualListContainer", "annual_list");
+      if (topRes.status === "fulfilled") {
+        const topItems = topRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        $("adminTopAnnualListContainer").innerHTML = topItems.length ? topItems.map((x,i) => adminTrackRowHtml(x,i,"top_annual")).join("") : '<p class="text-zinc-400 py-3">Aún no hay temas en el TOP anual.</p>';
+      } else $("adminTopAnnualListContainer").innerHTML = '<p class="text-rose-300 py-3">No se pudo cargar el TOP anual.</p>';
     }
 
     // ==================== VOTACIONES ====================
@@ -3081,6 +3792,8 @@
 
     // ==================== INICIO ====================
     document.addEventListener("DOMContentLoaded", () => {
+      buildModalLanguagePickers();
+      startAutomaticTranslationObserver();
       setLanguage(currentLang);
       initClientIp();
       listenActiveUsers();
@@ -3088,8 +3801,17 @@
 
       auth.onAuthStateChanged(user => {
         if (user) {
+          $("adminView").classList.remove("hidden");
           $("adminLoginBox").classList.add("hidden");
           $("adminDashboard").classList.remove("hidden");
+          document.body.classList.add("admin-mode");
+          document.body.classList.remove("admin-panel-closed");
+          switchAdminTab("principal");
+          const gear = $("topConfigBtn");
+          if (gear) { gear.classList.add("admin-gear-active"); gear.setAttribute("aria-pressed","true"); }
+          document.body.classList.remove("admin-show-site");
+          const showSiteBtn = $("adminShowSiteBtn");
+          if (showSiteBtn) { showSiteBtn.textContent = "⌄ Mostrar cabecera"; showSiteBtn.setAttribute("aria-expanded", "false"); }
           $("adminLoggedUserLabel").textContent = `● Curador: ${user.email}`;
           $("topConfigBtn").classList.remove("hidden");
           $("topConfigBtn").classList.add("flex");
@@ -3098,9 +3820,15 @@
           loadAdminBackups();
         } else {
           $("adminDashboard").classList.add("hidden");
+          $("adminView").classList.add("hidden");
+          $("adminTabsBar").style.display = "none";
+          const gear = $("topConfigBtn");
+          if (gear) { gear.classList.remove("admin-gear-active"); gear.setAttribute("aria-pressed","false"); }
+          document.body.classList.remove("admin-mode", "admin-show-site", "admin-panel-closed");
           $("adminLoginBox").classList.remove("hidden");
           $("topConfigBtn").classList.add("hidden");
           $("topConfigBtn").classList.remove("flex");
+          loadAllLists();
         }
       });
 
@@ -3116,7 +3844,8 @@
             localStorage.setItem("nwr_visited_unique", "true");
           }
           const s = await ref.get();
-          $("uniqueVisitorCount").textContent = s.exists ? (s.data().total || 1) : "1";
+          realUniqueVisitors = s.exists ? (Number(s.data().total) || 0) : 0;
+          renderVisitorPrestigeCount();
         } catch (e) { $("uniqueVisitorCount").textContent = "-"; }
       })();
 
@@ -3127,7 +3856,7 @@
           $(vId)?.classList.add('hidden');
         });
         av.classList.toggle("hidden", !hid);
-        $("txtAdminBtn").textContent = hid ? translations[currentLang].backApp : translations[currentLang].adminBtn;
+        $("txtAdminBtn").textContent = hid ? (translations[currentLang] || translations.es).backApp : (translations[currentLang] || translations.es).adminBtn;
       });
 
       $("toggleVotingBtn").addEventListener("click", async () => {
@@ -3176,7 +3905,7 @@
           if (day === 4 && h >= 22) updateVotingUI(false);
 
           if (day === 5 || day === 6) { 
-            document.getElementById("statusBadge").textContent = translations[currentLang].statusClosed; 
+            document.getElementById("statusBadge").textContent = (translations[currentLang] || translations.es).statusClosed; 
             document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
             updateVotingUI(config.votingActive);
             document.getElementById("cdDays").textContent = "00";
@@ -3209,11 +3938,11 @@
         receipt.classList.add("hidden"); fb.classList.add("hidden");
 
         try {
-          const snap = await db.collection("submissions").get();
+          const snap = await db.collection("weekly_public").get();
           let dupUser = false, dupTrack = false;
           snap.forEach(d => {
             const data = d.data();
-            if (data.artist.toLowerCase() === artist.toLowerCase() || data.email.toLowerCase() === email.toLowerCase()) dupUser = true;
+            if ((data.artist || "").toLowerCase() === artist.toLowerCase()) dupUser = true;
             if (data.url?.split("?")[0] === cleanUrl) dupTrack = true;
           });
           if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
@@ -3223,20 +3952,14 @@
           const submitGeo = await fetchGeoByIp("");
           const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
 
+          const submissionRef = db.collection("submissions").doc();
+          const publicSubmissionRef = db.collection("weekly_public").doc(submissionRef.id);
           const submittedAt = Date.now();
           const submittedDate = madridStr();
-          const privateRef = db.collection("submissions").doc();
-          const publicRef = db.collection("weekly_public").doc(privateRef.id);
-          const batch = db.batch();
-          batch.set(privateRef, {
-            artist, title, url: cleanUrl, email,
-            timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: []
-          });
-          batch.set(publicRef, {
-            artist, title, url: cleanUrl,
-            timestamp: submittedAt, dateString: submittedDate
-          });
-          await batch.commit();
+          const submissionBatch = db.batch();
+          submissionBatch.set(submissionRef, { artist, title, url: cleanUrl, email, timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: [] });
+          submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate });
+          await submissionBatch.commit();
           // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
           sessionStorage.removeItem("nwr_geo_self");
@@ -3246,7 +3969,7 @@
           $("submissionForm").classList.add("opacity-50", "pointer-events-none");
           loadAllLists();
         } catch (e) { err("Error de conexión.", "Connection error."); }
-        finally { btn.disabled = false; btn.textContent = translations[currentLang].submitBtn; }
+        finally { btn.disabled = false; btn.textContent = (translations[currentLang] || translations.es).submitBtn; }
       });
 
       $("saveConfigBtn").addEventListener("click", async () => {
