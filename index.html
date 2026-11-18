@@ -2905,7 +2905,7 @@
     }
 
     async function loadAllLists() {
-      const isCuratorSession = !!auth.currentUser && auth.currentUser.uid === ADMIN_UID;
+      const isCuratorSession = !!auth.currentUser && !$("adminDashboard").classList.contains("hidden");
       const [votersRes, activeRes, subRes, monthlyRes, annualRes] = await Promise.allSettled([
         isCuratorSession ? db.collection("voters_log").get() : Promise.resolve(null),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
