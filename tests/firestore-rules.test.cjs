@@ -66,6 +66,10 @@ test("save declaration is private and tied atomically to a real submission", asy
     artist: "Test Artist", title: "Test Song", url: TRACK_URL,
     timestamp: 1, dateString: "18/11/2026", votes: 0
   });
+  batch.set(doc(db, "private_artist_contacts/review-song"), {
+    email: EMAIL, artist: "Test Artist", source: "weekly", updatedAt: 1
+  });
+  batch.set(doc(db, "weekly_submitters", EMAIL), { email: EMAIL, timestamp: 1 });
   batch.set(doc(db, "weekly_save_reviews/review1234567890123456"), {
     submissionId: "review-song", email: EMAIL, artist: "Test Artist",
     title: "Test Song", edition: "Edición de prueba",
