@@ -5,10 +5,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Sustituye el acceso genérico de cualquier usuario autenticado
-    // por la identidad exacta del curador. El UID no es una contraseña.
     function isCurator() {
       return signedIn() && request.auth.uid == "tNohkBzhmBML0E4eqmhw74hncUf2";
+    }
+
+    function validEmail(email) {
+      return email is string
+        && email.size() >= 5
+        && email.size() <= 254
+        && email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+$');
     }
 
     function validTrack(data) {
@@ -27,7 +32,7 @@ service cloud.firestore {
 
     match /submissions/{document} {
       allow read: if true;
-      // Los correos se guardan en private_artist_contacts, no en la cola pública.
+      // Los correos se guardan por separado en private_artist_contacts.
       allow create: if validTrack(request.resource.data)
         && request.resource.data.keys().hasOnly([
           'artist', 'title', 'url', 'timestamp', 'dateString', 'votes'
@@ -38,7 +43,7 @@ service cloud.firestore {
     match /active_list/{document} {
       allow read: if true;
       allow create, delete: if isCurator();
-      // Los participantes solo pueden incrementar el contador, nunca añadir PII.
+      // Los participantes solo pueden incrementar el contador.
       allow update: if isCurator() || (
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes'])
         && resource.data.votes is number
@@ -57,15 +62,12 @@ service cloud.firestore {
     }
 
     match /private_artist_contacts/{document} {
-      // Los participantes pueden adjuntar el contacto a su envío, pero nunca leerlo.
+      // Se puede enviar un contacto, pero solo el curador puede consultarlo.
       allow read: if isCurator();
       allow create: if request.resource.data.keys().hasOnly([
           'email', 'artist', 'source', 'updatedAt'
         ])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+
+        && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.source in ['weekly', 'active']
         && request.resource.data.updatedAt is number;
@@ -73,31 +75,30 @@ service cloud.firestore {
     }
 
     match /weekly_submitters/{document} {
-      // ID = correo normalizado. Solo se permite crear; el segundo envío
-      // intenta actualizar el mismo documento y Firestore lo rechaza.
+      // Documento único por correo y edición; el participante solo puede crearlo.
       allow read: if isCurator();
       allow create: if document == request.resource.data.email
         && request.resource.data.keys().hasOnly(['email', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
+        && validEmail(request.resource.data.email)
         && request.resource.data.timestamp is number;
       allow update, delete: if isCurator();
     }
 
     match /voters_log/{document} {
-      // El correo es el ID del documento. Solo el curador puede leer los registros.
-      // Los participantes solo pueden crear su propio documento una vez.
+      // El correo es el ID. Los registros solo son visibles para el curador.
       allow read: if isCurator();
       allow create: if isCurator() || (
         document == request.resource.data.email
         && request.resource.data.keys().hasOnly(['email', 'votedTracks', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+
+        && validEmail(request.resource.data.email)
         && request.resource.data.votedTracks is list
         && request.resource.data.votedTracks.size() == 3
+        && request.resource.data.votedTracks[0] is string
+        && request.resource.data.votedTracks[1] is string
+        && request.resource.data.votedTracks[2] is string
+        && request.resource.data.votedTracks[0] != request.resource.data.votedTracks[1]
+        && request.resource.data.votedTracks[0] != request.resource.data.votedTracks[2]
+        && request.resource.data.votedTracks[1] != request.resource.data.votedTracks[2]
         && request.resource.data.timestamp is number
       );
       allow update: if isCurator();
@@ -105,15 +106,13 @@ service cloud.firestore {
     }
 
     match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
+      // La colección contiene correos: lectura solo para el curador.
       allow read, delete: if isCurator();
       allow create: if request.resource.data.keys().hasAll([
           'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
           'submissionsCount', 'country', 'city', 'flag'
         ])
-        && request.resource.data.email is string
+        && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.submissionsCount is number;
       allow update: if request.resource.data.diff(resource.data).affectedKeys()
@@ -133,7 +132,7 @@ service cloud.firestore {
           'name', 'email', 'message', 'timestamp'
         ])
         && request.resource.data.name is string
-        && request.resource.data.email is string
+        && validEmail(request.resource.data.email)
         && request.resource.data.message is string
         && request.resource.data.timestamp is number;
       allow read, update, delete: if isCurator();
@@ -153,7 +152,7 @@ service cloud.firestore {
     }
 
     match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
+      // Estos registros pueden contener IP; solo el curador puede consultarlos.
       allow read: if isCurator();
       allow create: if request.resource.data.keys().hasAll([
           'nick', 'ip', 'timestamp'
@@ -167,817 +166,7 @@ service cloud.firestore {
     }
 
     match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick'
-        ])
-        && request.resource.data.lastSeen is number
-        && request.resource.data.nick is string;
-      allow delete: if true;
-    }
-
-    match /stats/{document} {
-      allow read: if true;
-      allow create: if document == 'visitors'
-        && request.resource.data.keys().hasOnly(['total'])
-        && request.resource.data.total == 1;
-      allow update: if isCurator() || (
-        document == 'visitors'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
-        && request.resource.data.total is number
-        && request.resource.data.total == resource.data.total + 1
-      );
-      allow delete: if isCurator();
-    }
-
-    // Denegar por defecto cualquier colección no declarada.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
-        && request.resource.data.artist is string
-        && request.resource.data.source in ['weekly', 'active']
-        && request.resource.data.updatedAt is number;
-      allow update, delete: if isCurator();
-    }
-
-    match /weekly_submitters/{document} {
-      // ID = correo normalizado. Solo se permite crear; el segundo envío
-      // intenta actualizar el mismo documento y Firestore lo rechaza.
-      allow read: if isCurator();
-      allow create: if document == request.resource.data.email
-        && request.resource.data.keys().hasOnly(['email', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+
-        && request.resource.data.timestamp is number;
-      allow update, delete: if isCurator();
-    }
-
-    match /voters_log/{document} {
-      // El correo es el ID del documento. Solo el curador puede leer los registros.
-      // Los participantes solo pueden crear su propio documento una vez.
-      allow read: if isCurator();
-      allow create: if isCurator() || (
-        document == request.resource.data.email
-        && request.resource.data.keys().hasOnly(['email', 'votedTracks', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('.*@.*')
-        && request.resource.data.votedTracks is list
-        && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number
-      );
-      allow update: if isCurator();
-      allow delete: if isCurator();
-    }
-
-    match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
-      allow read, delete: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
-          'submissionsCount', 'country', 'city', 'flag'
-        ])
-        && request.resource.data.email is string
-        && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
-          'artist', 'flag', 'country', 'city', 'submissionsCount',
-          'lastSubmissionDate', 'ip', 'ipCapturedAt'
-        ])
-        && request.resource.data.submissionsCount is number;
-    }
-
-    match /backups/{document} {
-      allow read, write: if isCurator();
-    }
-
-    match /contact_messages/{document} {
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'email', 'message', 'timestamp'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string
-        && request.resource.data.timestamp is number;
-      allow read, update, delete: if isCurator();
-    }
-
-    match /chat_messages/{document} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'text', 'timestamp'
-        ])
-        && request.resource.data.nick is string
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 2000
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
-      allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'ip', 'timestamp'
-        ])
-        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
-        && request.resource.data.nick is string
-        && request.resource.data.ip is string
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick'
-        ])
-        && request.resource.data.lastSeen is number
-        && request.resource.data.nick is string;
-      allow delete: if true;
-    }
-
-    match /stats/{document} {
-      allow read: if true;
-      allow create: if document == 'visitors'
-        && request.resource.data.keys().hasOnly(['total'])
-        && request.resource.data.total == 1;
-      allow update: if isCurator() || (
-        document == 'visitors'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
-        && request.resource.data.total is number
-        && request.resource.data.total == resource.data.total + 1
-      );
-      allow delete: if isCurator();
-    }
-
-    // Denegar por defecto cualquier colección no declarada.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
-        && request.resource.data.timestamp is number;
-      allow update, delete: if isCurator();
-    }
-
-    match /voters_log/{document} {
-      // El correo es el ID del documento. Solo el curador puede leer los registros.
-      // Los participantes solo pueden crear su propio documento una vez.
-      allow read: if isCurator();
-      allow create: if isCurator() || (
-        document == request.resource.data.email
-        && request.resource.data.keys().hasOnly(['email', 'votedTracks', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+
-        && request.resource.data.email.matches('.*@.*')
-        && request.resource.data.votedTracks is list
-        && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number
-      );
-      allow update: if isCurator();
-      allow delete: if isCurator();
-    }
-
-    match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
-      allow read, delete: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
-          'submissionsCount', 'country', 'city', 'flag'
-        ])
-        && request.resource.data.email is string
-        && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
-          'artist', 'flag', 'country', 'city', 'submissionsCount',
-          'lastSubmissionDate', 'ip', 'ipCapturedAt'
-        ])
-        && request.resource.data.submissionsCount is number;
-    }
-
-    match /backups/{document} {
-      allow read, write: if isCurator();
-    }
-
-    match /contact_messages/{document} {
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'email', 'message', 'timestamp'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string
-        && request.resource.data.timestamp is number;
-      allow read, update, delete: if isCurator();
-    }
-
-    match /chat_messages/{document} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'text', 'timestamp'
-        ])
-        && request.resource.data.nick is string
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 2000
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
-      allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'ip', 'timestamp'
-        ])
-        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
-        && request.resource.data.nick is string
-        && request.resource.data.ip is string
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick'
-        ])
-        && request.resource.data.lastSeen is number
-        && request.resource.data.nick is string;
-      allow delete: if true;
-    }
-
-    match /stats/{document} {
-      allow read: if true;
-      allow create: if document == 'visitors'
-        && request.resource.data.keys().hasOnly(['total'])
-        && request.resource.data.total == 1;
-      allow update: if isCurator() || (
-        document == 'visitors'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
-        && request.resource.data.total is number
-        && request.resource.data.total == resource.data.total + 1
-      );
-      allow delete: if isCurator();
-    }
-
-    // Denegar por defecto cualquier colección no declarada.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
-        && request.resource.data.email.matches('.*@.*')
-        && request.resource.data.votedTracks is list
-        && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number
-      );
-      allow update: if isCurator();
-      allow delete: if isCurator();
-    }
-
-    match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
-      allow read, delete: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
-          'submissionsCount', 'country', 'city', 'flag'
-        ])
-        && request.resource.data.email is string
-        && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
-          'artist', 'flag', 'country', 'city', 'submissionsCount',
-          'lastSubmissionDate', 'ip', 'ipCapturedAt'
-        ])
-        && request.resource.data.submissionsCount is number;
-    }
-
-    match /backups/{document} {
-      allow read, write: if isCurator();
-    }
-
-    match /contact_messages/{document} {
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'email', 'message', 'timestamp'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string
-        && request.resource.data.timestamp is number;
-      allow read, update, delete: if isCurator();
-    }
-
-    match /chat_messages/{document} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'text', 'timestamp'
-        ])
-        && request.resource.data.nick is string
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 2000
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
-      allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'ip', 'timestamp'
-        ])
-        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
-        && request.resource.data.nick is string
-        && request.resource.data.ip is string
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick'
-        ])
-        && request.resource.data.lastSeen is number
-        && request.resource.data.nick is string;
-      allow delete: if true;
-    }
-
-    match /stats/{document} {
-      allow read: if true;
-      allow create: if document == 'visitors'
-        && request.resource.data.keys().hasOnly(['total'])
-        && request.resource.data.total == 1;
-      allow update: if isCurator() || (
-        document == 'visitors'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
-        && request.resource.data.total is number
-        && request.resource.data.total == resource.data.total + 1
-      );
-      allow delete: if isCurator();
-    }
-
-    // Denegar por defecto cualquier colección no declarada.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
-        && request.resource.data.votedTracks is list
-        && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number
-      );
-      allow update: if isCurator();
-      allow delete: if isCurator();
-    }
-
-    match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
-      allow read, delete: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
-          'submissionsCount', 'country', 'city', 'flag'
-        ])
-        && request.resource.data.email is string
-        && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
-          'artist', 'flag', 'country', 'city', 'submissionsCount',
-          'lastSubmissionDate', 'ip', 'ipCapturedAt'
-        ])
-        && request.resource.data.submissionsCount is number;
-    }
-
-    match /backups/{document} {
-      allow read, write: if isCurator();
-    }
-
-    match /contact_messages/{document} {
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'email', 'message', 'timestamp'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string
-        && request.resource.data.timestamp is number;
-      allow read, update, delete: if isCurator();
-    }
-
-    match /chat_messages/{document} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'text', 'timestamp'
-        ])
-        && request.resource.data.nick is string
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 2000
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
-      allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'ip', 'timestamp'
-        ])
-        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
-        && request.resource.data.nick is string
-        && request.resource.data.ip is string
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick'
-        ])
-        && request.resource.data.lastSeen is number
-        && request.resource.data.nick is string;
-      allow delete: if true;
-    }
-
-    match /stats/{document} {
-      allow read: if true;
-      allow create: if document == 'visitors'
-        && request.resource.data.keys().hasOnly(['total'])
-        && request.resource.data.total == 1;
-      allow update: if isCurator() || (
-        document == 'visitors'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
-        && request.resource.data.total is number
-        && request.resource.data.total == resource.data.total + 1
-      );
-      allow delete: if isCurator();
-    }
-
-    // Denegar por defecto cualquier colección no declarada.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
-        && request.resource.data.artist is string
-        && request.resource.data.source in ['weekly', 'active']
-        && request.resource.data.updatedAt is number;
-      allow update, delete: if isCurator();
-    }
-
-    match /weekly_submitters/{document} {
-      // ID = correo normalizado. Solo se permite crear; el segundo envío
-      // intenta actualizar el mismo documento y Firestore lo rechaza.
-      allow read: if isCurator();
-      allow create: if document == request.resource.data.email
-        && request.resource.data.keys().hasOnly(['email', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+
-        && request.resource.data.timestamp is number;
-      allow update, delete: if isCurator();
-    }
-
-    match /voters_log/{document} {
-      // El correo es el ID del documento. Solo el curador puede leer los registros.
-      // Los participantes solo pueden crear su propio documento una vez.
-      allow read: if isCurator();
-      allow create: if isCurator() || (
-        document == request.resource.data.email
-        && request.resource.data.keys().hasOnly(['email', 'votedTracks', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('.*@.*')
-        && request.resource.data.votedTracks is list
-        && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number
-      );
-      allow update: if isCurator();
-      allow delete: if isCurator();
-    }
-
-    match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
-      allow read, delete: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
-          'submissionsCount', 'country', 'city', 'flag'
-        ])
-        && request.resource.data.email is string
-        && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
-          'artist', 'flag', 'country', 'city', 'submissionsCount',
-          'lastSubmissionDate', 'ip', 'ipCapturedAt'
-        ])
-        && request.resource.data.submissionsCount is number;
-    }
-
-    match /backups/{document} {
-      allow read, write: if isCurator();
-    }
-
-    match /contact_messages/{document} {
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'email', 'message', 'timestamp'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string
-        && request.resource.data.timestamp is number;
-      allow read, update, delete: if isCurator();
-    }
-
-    match /chat_messages/{document} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'text', 'timestamp'
-        ])
-        && request.resource.data.nick is string
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 2000
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
-      allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'ip', 'timestamp'
-        ])
-        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
-        && request.resource.data.nick is string
-        && request.resource.data.ip is string
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick'
-        ])
-        && request.resource.data.lastSeen is number
-        && request.resource.data.nick is string;
-      allow delete: if true;
-    }
-
-    match /stats/{document} {
-      allow read: if true;
-      allow create: if document == 'visitors'
-        && request.resource.data.keys().hasOnly(['total'])
-        && request.resource.data.total == 1;
-      allow update: if isCurator() || (
-        document == 'visitors'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
-        && request.resource.data.total is number
-        && request.resource.data.total == resource.data.total + 1
-      );
-      allow delete: if isCurator();
-    }
-
-    // Denegar por defecto cualquier colección no declarada.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
-        && request.resource.data.timestamp is number;
-      allow update, delete: if isCurator();
-    }
-
-    match /voters_log/{document} {
-      // El correo es el ID del documento. Solo el curador puede leer los registros.
-      // Los participantes solo pueden crear su propio documento una vez.
-      allow read: if isCurator();
-      allow create: if isCurator() || (
-        document == request.resource.data.email
-        && request.resource.data.keys().hasOnly(['email', 'votedTracks', 'timestamp'])
-        && request.resource.data.email is string
-        && request.resource.data.email.size() >= 5
-        && request.resource.data.email.size() <= 254
-        && request.resource.data.email.matches('^[^/@ ]+@[^/@ ]+\\.[^/@ ]+
-        && request.resource.data.email.matches('.*@.*')
-        && request.resource.data.votedTracks is list
-        && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number
-      );
-      allow update: if isCurator();
-      allow delete: if isCurator();
-    }
-
-    match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
-      allow read, delete: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
-          'submissionsCount', 'country', 'city', 'flag'
-        ])
-        && request.resource.data.email is string
-        && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
-          'artist', 'flag', 'country', 'city', 'submissionsCount',
-          'lastSubmissionDate', 'ip', 'ipCapturedAt'
-        ])
-        && request.resource.data.submissionsCount is number;
-    }
-
-    match /backups/{document} {
-      allow read, write: if isCurator();
-    }
-
-    match /contact_messages/{document} {
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'email', 'message', 'timestamp'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string
-        && request.resource.data.timestamp is number;
-      allow read, update, delete: if isCurator();
-    }
-
-    match /chat_messages/{document} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'text', 'timestamp'
-        ])
-        && request.resource.data.nick is string
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 2000
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
-      allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'ip', 'timestamp'
-        ])
-        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
-        && request.resource.data.nick is string
-        && request.resource.data.ip is string
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
-          'lastSeen', 'nick'
-        ])
-        && request.resource.data.lastSeen is number
-        && request.resource.data.nick is string;
-      allow delete: if true;
-    }
-
-    match /stats/{document} {
-      allow read: if true;
-      allow create: if document == 'visitors'
-        && request.resource.data.keys().hasOnly(['total'])
-        && request.resource.data.total == 1;
-      allow update: if isCurator() || (
-        document == 'visitors'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
-        && request.resource.data.total is number
-        && request.resource.data.total == resource.data.total + 1
-      );
-      allow delete: if isCurator();
-    }
-
-    // Denegar por defecto cualquier colección no declarada.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-  }
-}
-)
-        && request.resource.data.email.matches('.*@.*')
-        && request.resource.data.votedTracks is list
-        && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number
-      );
-      allow update: if isCurator();
-      allow delete: if isCurator();
-    }
-
-    match /artist_countries/{document} {
-      // El registro de país se actualiza tras el envío público de una canción.
-      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
-      // adicional si se quiere impedir por completo la manipulación de metadatos.
-      allow read, delete: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
-          'submissionsCount', 'country', 'city', 'flag'
-        ])
-        && request.resource.data.email is string
-        && request.resource.data.artist is string
-        && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
-          'artist', 'flag', 'country', 'city', 'submissionsCount',
-          'lastSubmissionDate', 'ip', 'ipCapturedAt'
-        ])
-        && request.resource.data.submissionsCount is number;
-    }
-
-    match /backups/{document} {
-      allow read, write: if isCurator();
-    }
-
-    match /contact_messages/{document} {
-      allow create: if request.resource.data.keys().hasAll([
-          'name', 'email', 'message', 'timestamp'
-        ])
-        && request.resource.data.name is string
-        && request.resource.data.email is string
-        && request.resource.data.message is string
-        && request.resource.data.timestamp is number;
-      allow read, update, delete: if isCurator();
-    }
-
-    match /chat_messages/{document} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'text', 'timestamp'
-        ])
-        && request.resource.data.nick is string
-        && request.resource.data.text is string
-        && request.resource.data.text.size() <= 2000
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_users/{document} {
-      // Los registros pueden contener IP: solo el curador puede consultarlos.
-      allow read: if isCurator();
-      allow create: if request.resource.data.keys().hasAll([
-          'nick', 'ip', 'timestamp'
-        ])
-        && request.resource.data.keys().hasOnly(['nick', 'ip', 'timestamp'])
-        && request.resource.data.nick is string
-        && request.resource.data.ip is string
-        && request.resource.data.timestamp is number;
-      allow update: if false;
-      allow delete: if isCurator();
-    }
-
-    match /chat_presence/{document} {
-      // La presencia pública solo contiene nick y última actividad; nunca IP.
+      // Presencia pública sin IP ni correo.
       allow read: if true;
       allow create, update: if request.resource.data.keys().hasOnly([
           'lastSeen', 'nick'
