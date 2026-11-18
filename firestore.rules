@@ -241,3 +241,5 @@ service cloud.firestore {
     }
   }
 }
+
+// Test harness validates this exact rules file with the Firestore emulator.
