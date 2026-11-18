@@ -123,3 +123,15 @@ Cambios preparados en `index.html` y `docs/firestore.rules.proposed`:
 - **Todavía hay otros correos personales en documentos públicos:** `active_list.email` y `submissions.email`. Las reglas actuales propuestas dejan lectura pública de esas colecciones, por lo que los correos seguirían expuestos aunque se oculten los registros de votantes.
 - Antes de aplicar reglas nuevas hay que mover los correos de contacto de canciones a una colección privada (solo curador), actualizar altas, edición, backups, rotación y migración, y eliminar los campos de correo de los documentos públicos.
 - No aplicar todavía `firestore.rules.proposed`. No se ha probado con Firebase Emulator Suite ni contra una copia de datos.
+
+
+## Orden obligatorio para una futura migración
+1. No activar ni desplegar esta rama todavía.
+2. Preparar y comprobar un backup recuperable.
+3. En una ventana de mantenimiento, desactivar temporalmente las votaciones.
+4. Desplegar el código revisado en una fase controlada y ejecutar la migración como curador mientras las reglas antiguas todavía permiten leer los registros necesarios.
+5. Comprobar que los documentos de `active_list` ya no contienen el campo `voters` y que cada votante histórico tiene un documento con ID igual a su correo en `voters_log`.
+6. Aplicar las reglas nuevas solo cuando se hayan resuelto también los correos de artistas expuestos en `active_list` y `submissions`.
+7. Probar alta, voto repetido, reinicio y rotación con cuentas de prueba; después reabrir las votaciones.
+
+Este orden es una propuesta de mantenimiento, no una autorización para ejecutarlo. No se ha desplegado ni migrado ningún dato real.
