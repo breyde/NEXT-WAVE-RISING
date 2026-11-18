@@ -755,6 +755,20 @@
 
         <!-- SINCRONIZACIÓN SPOTIFY -->
         <div id="adminViewSpotify" class="hidden space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+            <div>
+              <h3 class="font-bold text-cyan-300 text-sm uppercase">🛠️ Actualizar copias temporales manualmente</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Copia los datos de Firebase a las playlists privadas temporales. No publica ni modifica tus listas originales.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button type="button" onclick="triggerSpotifyTempSync('weekly')" class="px-3 py-3 rounded-xl bg-cyan-500/15 text-cyan-200 border border-cyan-500/40 font-bold text-xs">↻ Active list → semanal_temp</button>
+              <button type="button" onclick="triggerSpotifyTempSync('monthly')" class="px-3 py-3 rounded-xl bg-cyan-500/15 text-cyan-200 border border-cyan-500/40 font-bold text-xs">↻ monthly_list → mensual_temp</button>
+              <button type="button" onclick="triggerSpotifyTempSync('annual')" class="px-3 py-3 rounded-xl bg-cyan-500/15 text-cyan-200 border border-cyan-500/40 font-bold text-xs">↻ annual_list → anual_temp</button>
+              <button type="button" onclick="triggerSpotifyTempSync('all')" class="px-3 py-3 rounded-xl bg-cyan-400 text-zinc-950 font-extrabold text-xs">⚡ Actualizar las tres copias</button>
+            </div>
+            <p id="spotifyTempSyncStatus" class="text-xs text-zinc-300 bg-zinc-900/70 rounded-xl p-3">Listo para ejecutar una actualización manual.</p>
+            <p class="text-[10px] text-amber-200/90 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">La operación sustituye el contenido de la copia temporal seleccionada por los datos actuales de Firebase. No toca las playlists públicas.</p>
+          </div>
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🎵 Sincronizar listas de Spotify</h3>
@@ -2884,6 +2898,32 @@
         }
       } catch (e) { if (status) status.textContent = "No se pudo leer el estado: " + e.message; }
     }
+
+    window.triggerSpotifyTempSync = async target => {
+      const token = getGithubToken();
+      if (!token) return alert("Primero guarda tu GitHub Token en Configuración.");
+      if (!["weekly", "monthly", "annual", "all"].includes(target)) return;
+      const labels = { weekly: "active_list → semanal_temp", monthly: "monthly_list → mensual_temp", annual: "annual_list → anual_temp", all: "las tres copias temporales" };
+      if (!confirm("¿Quieres actualizar " + labels[target] + "? Se reemplazará el contenido de la copia temporal seleccionada. Las listas públicas no se modificarán.")) return;
+      const status = $("spotifyTempSyncStatus");
+      if (status) status.textContent = "Enviando la orden para actualizar " + labels[target] + "...";
+      try {
+        const response = await fetch("https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/actions/workflows/automatizacion.yml/dispatches", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Content-Type": "application/json", "X-GitHub-Api-Version": "2022-11-28" },
+          body: JSON.stringify({ ref: "main", inputs: { publish_targets: "none", temp_sync_targets: target } })
+        });
+        if (response.status !== 204) {
+          let detail = ""; try { const data = await response.json(); detail = data.message || ""; } catch (_) {}
+          throw new Error(response.status === 403 ? "GitHub ha rechazado el permiso. El token necesita Actions: Read and write." : "GitHub respondió " + response.status + (detail ? ": " + detail : ""));
+        }
+        if (status) status.textContent = "Orden enviada. GitHub actualizará " + labels[target] + ". Consulta Actions para confirmar que terminó correctamente.";
+        alert("Orden enviada a GitHub Actions. La actualización puede tardar unos minutos.");
+      } catch (e) {
+        if (status) status.textContent = "No se pudo iniciar la actualización: " + e.message;
+        alert("No se pudo iniciar: " + e.message);
+      }
+    };
 
     window.triggerSpotifyPublish = async target => {
       const token = getGithubToken();
