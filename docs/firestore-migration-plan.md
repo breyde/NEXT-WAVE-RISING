@@ -18,7 +18,7 @@ Las reglas transitorias bloquean temporalmente la lectura pública de `submissio
 ## Secuencia obligatoria
 
 1. **Ensayo aislado:** probar frontend, reglas finales y reglas transitorias en Firestore Emulator y, antes de tocar producción, en un proyecto Firebase de pruebas separado con datos ficticios. No usar datos personales reales en el ensayo.
-2. **Backup:** desde el panel del curador, crear un backup completo previo. Comprobar que contiene las colecciones que se van a modificar y que el procedimiento de restauración puede leerlo. No continuar si el backup no se puede verificar.
+2. **Backup:** el backup actual del panel guarda las listas activa/semanal/mensual/anual y países, y recupera los correos asociados a temas en su copia. **No es todavía una copia completa de todas las colecciones privadas**: no incluye una copia independiente de `voters_log`, `chat_users`, `chat_presence` ni `weekly_submitters`. Por tanto, no se puede usar como único respaldo de toda la migración. Antes de producción hay que añadir y probar una copia recuperable de esas colecciones, o disponer de una exportación segura que no active facturación. No continuar mientras no exista y se haya probado esa copia.
 3. **Pausa de escrituras:** desactivar temporalmente envíos y votaciones desde la configuración de la edición.
 4. **Publicar el frontend nuevo:** debe escribir los correos solo en `private_artist_contacts`, usar `weekly_submitters` y crear las declaraciones en `weekly_save_reviews`. No debe escribir correos ni arrays de votantes en documentos públicos.
 5. **Ventana privada:** aplicar las reglas transitorias. La lectura pública de las listas semanal y activa queda bloqueada mientras se limpian los documentos antiguos.
@@ -31,7 +31,7 @@ Las reglas transitorias bloquean temporalmente la lectura pública de `submissio
 
 - Si falla el backup, una migración, la verificación de recuentos o una prueba de permisos, detener el proceso y mantener los envíos/votos desactivados.
 - No aplicar las reglas finales sobre documentos que aún contengan PII pública.
-- No borrar backups ni registros de origen hasta verificar el resultado y la restauración.
+- No llamar «backup completo» al backup actual: su cobertura es parcial. No borrar backups ni registros de origen hasta verificar el resultado y la restauración.
 - No improvisar cambios desde Firebase Console: usar los archivos versionados y revisar el proyecto/entorno antes de aplicar reglas.
 - Las declaraciones de guardado son declaraciones del participante; solo una comprobación externa manual permite marcar «Revisado manualmente».
 
