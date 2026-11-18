@@ -1,3 +1,4 @@
+const { test, before, after, beforeEach } = require("node:test");
 const fs = require("node:fs");
 const {
   initializeTestEnvironment,
@@ -20,14 +21,14 @@ const EMAIL = "participant@example.test";
 const TRACK_URL = "https://open.spotify.com/track/1234567890123456789012";
 let env;
 
-beforeAll(async () => {
+before(async () => {
   env = await initializeTestEnvironment({
     projectId: PROJECT_ID,
     firestore: { rules: fs.readFileSync("firestore.rules", "utf8") }
   });
 });
 
-afterAll(async () => {
+after(async () => {
   await env.cleanup();
 });
 
