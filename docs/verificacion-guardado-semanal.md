@@ -106,3 +106,20 @@ Cambios realizados solo en `free-weekly-save-review`:
 - No se debe activar el borrador de reglas mientras esos datos sigan expuestos. Hay que rediseñar el control de voto duplicado y separar los datos privados de votantes de los datos públicos de canciones.
 - El cambio del chat aún no se ha probado en Firebase real ni con Emulator Suite. La moderación por IP seguirá funcionando en el panel porque el registro `chat_users` conserva la IP, pero ahora solo el curador puede leerlo según el borrador.
 - Al activar en el futuro las reglas revisadas, los documentos antiguos de `chat_presence` que todavía tengan el campo `ip` deben eliminarse o sobrescribirse antes de exponer de nuevo esa colección. El código nuevo sobrescribe el documento de presencia sin `merge`, por lo que elimina campos antiguos en la siguiente actualización de esa sesión.
+
+
+## Rediseño de votaciones y privacidad (rama de pruebas)
+Cambios preparados en `index.html` y `docs/firestore.rules.proposed`:
+- El navegador deja de consultar la colección completa de votantes para comprobar duplicados.
+- Cada registro nuevo usa el correo normalizado como ID del documento de `voters_log`. Las reglas propuestas permiten crear ese documento una sola vez, exigen que el ID coincida con el correo y reservan su lectura al curador. Un segundo intento de escritura queda denegado por la regla de actualización.
+- El guardado de los tres votos y del registro del votante se realiza en un único batch, para que no queden votos parciales.
+- La lista pública solo necesita el contador de votos; los correos se consultan desde el panel del curador.
+- El contador público de participantes se calcula como total de votos dividido entre tres, ya que el formulario exige seleccionar tres temas.
+- Se ha añadido una herramienta de migración para trasladar registros antiguos al ID nuevo y retirar los arrays `voters` de `active_list`. No ejecutar hasta tener copia de seguridad y una secuencia de migración probada.
+
+## Limitaciones y bloqueos antes de aplicar reglas
+- El sistema no verifica que el participante controle el correo introducido. Una persona podría usar otro correo; por tanto, el ID único reduce duplicados accidentales, pero no prueba identidad ni impide fraude deliberado.
+- Se deja de usar la deduplicación por IP. Es preferible no recopilar ni consultar IP para intentar identificar votantes; además, una IP compartida puede representar a varias personas.
+- **Todavía hay otros correos personales en documentos públicos:** `active_list.email` y `submissions.email`. Las reglas actuales propuestas dejan lectura pública de esas colecciones, por lo que los correos seguirían expuestos aunque se oculten los registros de votantes.
+- Antes de aplicar reglas nuevas hay que mover los correos de contacto de canciones a una colección privada (solo curador), actualizar altas, edición, backups, rotación y migración, y eliminar los campos de correo de los documentos públicos.
+- No aplicar todavía `firestore.rules.proposed`. No se ha probado con Firebase Emulator Suite ni contra una copia de datos.
