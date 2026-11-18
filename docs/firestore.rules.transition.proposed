@@ -1,6 +1,7 @@
 // REGLAS TRANSITORIAS DE MIGRACIÓN.
 // Solo para una ventana corta mientras se despliega el código nuevo y se migran los datos.
-// Mantienen compatibilidad con el frontend anterior; NO son el estado final.
+// Durante la migración bloquean la lectura pública de listas que aún pueden contener correos o arrays de votantes.
+// La web perderá temporalmente la lectura de las listas semanal/activa hasta aplicar las reglas finales.
 // Después de migrar correos y votantes, sustituir por docs/firestore.rules.proposed.
 rules_version = '2';
 service cloud.firestore {
@@ -29,7 +30,7 @@ service cloud.firestore {
       allow write: if isCurator();
     }
     match /submissions/{document} {
-      allow read: if true;
+      allow read: if isCurator();
       allow create: if validTrack(request.resource.data)
         && request.resource.data.keys().hasOnly([
           'artist', 'title', 'url', 'email', 'timestamp', 'dateString', 'votes', 'voters'
@@ -37,7 +38,7 @@ service cloud.firestore {
       allow update, delete: if isCurator();
     }
     match /active_list/{document} {
-      allow read: if true;
+      allow read: if isCurator();
       allow create, delete: if isCurator();
       allow update: if isCurator() || (
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes'])
