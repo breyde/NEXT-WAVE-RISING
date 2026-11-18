@@ -22,7 +22,7 @@
 <body class="p-4 md:p-8 flex flex-col items-center justify-between">
   
   <header class="w-full max-w-2xl flex flex-col items-center mb-6 space-y-3">
-    <div id="headerTopControls" class="w-full flex justify-between items-center text-xs gap-2">
+    <div class="w-full flex justify-between items-center text-xs gap-2">
       <div class="flex items-center gap-2">
         <div class="flex bg-zinc-900/90 p-1 rounded-xl border border-white/10 shadow-md h-9 items-center">
           <button onclick="setLanguage('es')" id="langEsBtn" class="px-2.5 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold transition text-xs">🇪🇸 ES</button>
@@ -406,18 +406,7 @@
 
         <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
-<div class="sticky top-2 z-20 rounded-xl border border-white/10 bg-zinc-950/95 p-2 shadow-xl">
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
-    <button type="button" data-config-tab="galeria" onclick="switchConfigTab('galeria')" class="config-subtab px-2 py-2 rounded-lg bg-emerald-500 text-zinc-950 font-bold">🖼️ Galería</button>
-    <button type="button" data-config-tab="inicio" onclick="switchConfigTab('inicio')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🏠 Inicio</button>
-    <button type="button" data-config-tab="reproductores" onclick="switchConfigTab('reproductores')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🎵 Reproductores</button>
-    <button type="button" data-config-tab="pestanas" onclick="switchConfigTab('pestanas')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">📑 Pestañas</button>
-    <button type="button" data-config-tab="botones" onclick="switchConfigTab('botones')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🎨 Botones</button>
-    <button type="button" data-config-tab="avisos" onclick="switchConfigTab('avisos')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">📢 Avisos</button>
-    <button type="button" data-config-tab="cabecera" onclick="switchConfigTab('cabecera')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🖼️ Cabecera</button>
-    <button type="button" data-config-tab="chat" onclick="switchConfigTab('chat')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">💬 Chat</button>
-  </div></div>
-          <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40" data-config-panel="galeria" >
+          <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Biblioteca multimedia GitHub (Carpeta <code>img/</code>)</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Importa imágenes, GIF y vídeos al repositorio <strong>breyde/NEXT-WAVE-RISING</strong>. Después podrás copiar sus URL o seleccionarlos directamente para la cabecera. Límite de vídeo: 50 MB por archivo.</p>
@@ -449,7 +438,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30 hidden" data-config-panel="inicio" >
+          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web y configura la visibilidad del tema destacado.</p>
@@ -477,7 +466,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30 hidden" data-config-panel="reproductores" >
+          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
             <div>
               <h3 class="font-bold text-purple-400 text-sm uppercase">🎵 Diseño y Reproducción Spotify por Lista</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige una lista para configurar el estilo visual del reproductor, su altura en píxeles y el segundo de inicio de la muestra.</p>
@@ -523,7 +512,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30 hidden" data-config-panel="pestanas" >
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
@@ -546,7 +535,7 @@
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30 hidden" data-config-panel="botones" >
+          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
             <div>
               <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón o el indicador superior de <strong>Votación activa / inactiva</strong> para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
@@ -617,7 +606,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30 hidden" data-config-panel="avisos" >
+          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
             <div>
               <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, la web lo traducirá automáticamente cuando el usuario pulse 🇬🇧 EN o el botón Traducir.</p>
@@ -646,7 +635,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30 hidden" data-config-panel="cabecera" >
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">🎬 Cabecera multimedia personalizable</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige texto, imagen/GIF, vídeo de tu biblioteca o un vídeo de YouTube. Configura tamaño y reproducción aquí.</p>
@@ -697,37 +686,13 @@
             </div>
             <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2"><span class="text-[10px] text-zinc-400 uppercase">Vista previa del archivo:</span><img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg"></div>
             <div class="flex flex-wrap gap-2">
-
-            <div class="border-t border-white/10 pt-4 space-y-3">
-              <h4 class="text-xs font-bold text-cyan-300 uppercase">📍 Posición y visibilidad del logo</h4>
-              <div><label class="block text-[11px] text-zinc-300 mb-1">Altura / posición (1 a 10):</label>
-                <select id="adminLogoPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                  <option value="1">1 · Encima de los botones superiores</option><option value="2">2 · Debajo de los botones superiores</option><option value="3">3 · Encima del botón de información</option><option value="4">4 · Debajo del botón de información</option><option value="5">5 · Debajo de las pestañas</option><option value="6">6 · Encima del reproductor</option><option value="7">7 · Debajo del reproductor</option><option value="8">8 · Antes del contenido de listas</option><option value="9">9 · Después del contenido principal</option><option value="10">10 · Encima del pie de página</option>
-                </select>
-              </div>
-              <div><p class="text-[11px] text-zinc-300 mb-2">Mostrar logo en estas pestañas:</p><div id="adminLogoTabs" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div></div>
-            </div>
               <button type="button" onclick="saveHeaderMediaConfig()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar cabecera</button>
               <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar texto</button>
             </div>
             <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
-          <div class="mt-4 rounded-2xl border border-amber-500/30 bg-zinc-950/40 p-4 space-y-3">
-            <h4 class="text-xs font-bold text-amber-300 uppercase">🏷️ Banner independiente</h4>
-            <p class="text-[10px] text-zinc-400">Imagen o GIF con tamaño, posición y visibilidad independientes del logo.</p>
-            <div><label class="block text-[11px] text-zinc-300 mb-1">URL de imagen / GIF:</label><div class="flex gap-2"><input type="url" id="adminBannerUrl" placeholder="https://..." class="min-w-0 flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><label class="px-3 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold cursor-pointer">Examinar<input type="file" id="adminBannerFile" accept="image/*" onchange="handleBannerFileUpload(event)" class="hidden"></label></div></div>
-            <div class="grid grid-cols-2 gap-2"><div><label class="block text-[11px] text-zinc-300 mb-1">Ancho</label><input id="adminBannerWidth" value="100%" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div><div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input type="number" id="adminBannerHeight" min="30" max="1000" value="120" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div></div>
-            <div><label class="block text-[11px] text-zinc-300 mb-1">Ajuste</label><select id="adminBannerFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener</option><option value="cover">Cubrir</option><option value="fill">Estirar</option></select></div>
-            <div><label class="block text-[11px] text-zinc-300 mb-1">Altura / posición (1 a 10)</label><select id="adminBannerPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-              <option value="1">1 · Encima de los botones superiores</option><option value="2">2 · Debajo de los botones superiores</option><option value="3">3 · Encima del botón de información</option><option value="4">4 · Debajo del botón de información</option><option value="5">5 · Debajo de las pestañas</option><option value="6">6 · Encima del reproductor</option><option value="7">7 · Debajo del reproductor</option><option value="8">8 · Antes del contenido de listas</option><option value="9">9 · Después del contenido principal</option><option value="10">10 · Encima del pie de página</option>
-            </select></div>
-            <div><p class="text-[11px] text-zinc-300 mb-2">Mostrar banner en estas pestañas:</p><div id="adminBannerTabs" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div></div>
-            <div class="flex gap-2"><button type="button" onclick="saveBannerConfig()" class="flex-1 py-2.5 bg-amber-500 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar banner</button><button type="button" onclick="removeBanner()" class="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-xs">Quitar</button></div>
-            <div id="adminBannerPreview" class="hidden rounded-xl bg-black p-2"><img id="adminBannerPreviewImg" alt="Vista previa del banner" class="max-h-28 mx-auto object-contain"></div>
           </div>
 
-          </div>
-
-            <div class="glass rounded-2xl p-5 space-y-4 hidden" data-config-panel="chat" >
+            <div class="glass rounded-2xl p-5 space-y-4">
             <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
             <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat.</p>
             <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs"><p class="text-zinc-400 text-center py-4">Cargando usuarios de chat...</p></div>
@@ -1046,16 +1011,6 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    window.switchConfigTab = key => {
-      document.querySelectorAll('[data-config-panel]').forEach(panel => panel.classList.toggle('hidden', panel.dataset.configPanel !== key));
-      document.querySelectorAll('[data-config-tab]').forEach(btn => {
-        const active = btn.dataset.configTab === key;
-        btn.className = 'config-subtab px-2 py-2 rounded-lg ' + (active ? 'bg-emerald-500 text-zinc-950 font-bold' : 'bg-zinc-900 text-zinc-300 border border-white/10');
-      });
-      if (key === 'galeria') loadGithubGallery();
-    };
-    window.switchConfigTab('galeria');
-
     const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'spotify', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
@@ -2045,76 +2000,6 @@
       } catch (e) { return ""; }
     }
 
-
-    const PLACEMENT_SELECTORS = {
-      1: () => { const h=document.querySelector('header'); return [h,$('headerTopControls')]; },
-      2: () => { const h=document.querySelector('header'); const top=$('headerTopControls'); return [h,top ? top.nextElementSibling : null]; },
-      3: () => { const h=document.querySelector('header'); return [h,$('btnInfoHeader')]; },
-      4: () => { const h=document.querySelector('header'); return [h,$('mainNavBar')]; },
-      5: () => { const h=document.querySelector('header'); return [h,null]; },
-      6: () => { const m=document.querySelector('main'); return [m,$('playerSection')]; },
-      7: () => { const m=document.querySelector('main'); const p=$('playerSection'); return [m,p ? p.nextElementSibling : null]; },
-      8: () => { const m=document.querySelector('main'); return [m,m.firstElementChild]; },
-      9: () => { const m=document.querySelector('main'); return [document.body,m ? m.nextElementSibling : null]; },
-      10: () => { const f=document.querySelector('footer'); return [document.body,f]; }
-    };
-    function placeManagedElement(el, position) {
-      if(!el) return;
-      const resolver=PLACEMENT_SELECTORS[Math.max(1,Math.min(10,Number(position)||2))];
-      const result=resolver(); const parent=result[0], before=result[1];
-      if(parent) parent.insertBefore(el,before||null);
-    }
-    function renderVisibilityChecks(containerId, selected) {
-      const box=$(containerId); if(!box) return;
-      const tabs=(config.tabsConfig||defaultTabsList).filter(t=>t.visible!==false);
-      const chosen=Array.isArray(selected)?selected:tabs.map(t=>t.id);
-      box.innerHTML=tabs.map(t=>'<label class="flex items-center gap-1.5 rounded-lg bg-zinc-900 p-2"><input type="checkbox" value="'+escapeHtml(t.id)+'" '+(chosen.includes(t.id)?'checked':'')+' class="accent-emerald-500"> '+escapeHtml(t.labelEs||t.id)+'</label>').join('');
-    }
-    function readVisibilityChecks(containerId) {
-      return Array.from($(containerId)?.querySelectorAll('input:checked')||[]).map(x=>x.value);
-    }
-    function updateManagedVisibility() {
-      const tab=currentActiveTab;
-      const logoTabs=Array.isArray(config.logoVisibleTabs)?config.logoVisibleTabs:null;
-      const bannerTabs=Array.isArray(config.bannerVisibleTabs)?config.bannerVisibleTabs:null;
-      $('brandHeaderContainer')?.classList.toggle('hidden',!!logoTabs&&!logoTabs.includes(tab));
-      const banner=$('brandBannerContainer');
-      if(banner) banner.classList.toggle('hidden',!config.bannerUrl||(bannerTabs&&!bannerTabs.includes(tab)));
-    }
-    function ensureBannerElement() {
-      let el=$('brandBannerContainer');
-      if(!el){el=document.createElement('div');el.id='brandBannerContainer';el.className='w-full flex justify-center items-center my-3';el.innerHTML='<img id="brandBannerImg" alt="Banner" class="mx-auto rounded-lg">';}
-      return el;
-    }
-    function applyBannerConfig() {
-      if(!config.bannerUrl){$('brandBannerContainer')?.remove();return;}
-      const el=ensureBannerElement(), img=el.querySelector('img');
-      img.src=config.bannerUrl;img.style.width=validHeaderWidth(config.bannerWidth||'100%');
-      img.style.height=Math.max(30,Math.min(1000,Number(config.bannerHeight)||120))+'px';
-      img.style.maxWidth='100%';img.style.objectFit=config.bannerFit||'contain';
-      placeManagedElement(el,config.bannerPosition||5);updateManagedVisibility();
-    }
-    window.handleBannerFileUpload = e => {
-      const file=e.target.files && e.target.files[0];if(!file)return;
-      handleExamineToGithubOrLocal(file,url=>{$('adminBannerUrl').value=url;$('adminBannerPreviewImg').src=url;$('adminBannerPreview').classList.remove('hidden');e.target.value='';});
-    };
-    window.saveBannerConfig = async () => {
-      const url=normalizeUrl($('adminBannerUrl').value);
-      if(!url)return alert('Añade una imagen o GIF para el banner.');
-      const data={bannerUrl:url,bannerWidth:validHeaderWidth($('adminBannerWidth').value),bannerHeight:Math.max(30,Math.min(1000,Number($('adminBannerHeight').value)||120)),bannerFit:$('adminBannerFit').value,bannerPosition:Number($('adminBannerPosition').value),bannerVisibleTabs:readVisibilityChecks('adminBannerTabs')};
-      try{Object.assign(config,data);await db.collection('settings').doc('activeEdition').set(data,{merge:true});applyBannerConfig();alert('Banner guardado.');}catch(e){alert('No se pudo guardar el banner: '+e.message);}
-    };
-    window.removeBanner = async () => {
-      if(!confirm('¿Quitar el banner de la web?'))return;
-      const data={bannerUrl:'',bannerVisibleTabs:[]};Object.assign(config,data);
-      await db.collection('settings').doc('activeEdition').set(data,{merge:true});$('brandBannerContainer')?.remove();$('adminBannerUrl').value='';
-    };
-    function loadBannerEditor() {
-      $('adminBannerUrl').value=config.bannerUrl||'';$('adminBannerWidth').value=config.bannerWidth||'100%';$('adminBannerHeight').value=config.bannerHeight||120;$('adminBannerFit').value=config.bannerFit||'contain';$('adminBannerPosition').value=String(config.bannerPosition||5);
-      renderVisibilityChecks('adminBannerTabs',config.bannerVisibleTabs);
-      if(config.bannerUrl){$('adminBannerPreviewImg').src=config.bannerUrl;$('adminBannerPreview').classList.remove('hidden');}
-    }
-
     function applyHeaderMediaConfig() {
       const type = config.headerMediaType || (config.logoUrl ? "image" : "text");
       const url = config.headerMediaUrl || config.logoUrl || "";
@@ -2213,9 +2098,6 @@
       $("adminHeaderYoutubeLoop").checked = !!config.headerYoutubeLoop;
       $("adminHeaderYoutubeControls").checked = config.headerYoutubeControls !== false;
       $("adminHeaderYoutubeStart").value = config.headerYoutubeStart || 0;
-      $("adminLogoPosition").value = String(config.logoPosition || 2);
-      renderVisibilityChecks("adminLogoTabs", config.logoVisibleTabs);
-      loadBannerEditor();
       updateHeaderMediaEditor();
     }
 
@@ -2273,15 +2155,11 @@
         headerYoutubeMute: $("adminHeaderYoutubeMute").checked,
         headerYoutubeLoop: $("adminHeaderYoutubeLoop").checked,
         headerYoutubeControls: $("adminHeaderYoutubeControls").checked,
-        headerYoutubeStart: Math.max(0, Number($("adminHeaderYoutubeStart").value) || 0),
-        logoPosition: Number($("adminLogoPosition").value || 2),
-        logoVisibleTabs: readVisibilityChecks("adminLogoTabs")
+        headerYoutubeStart: Math.max(0, Number($("adminHeaderYoutubeStart").value) || 0)
       };
       try {
         Object.assign(config, data);
         await db.collection("settings").doc("activeEdition").set(data, { merge: true });
-        placeManagedElement($("brandHeaderContainer"), data.logoPosition);
-        updateManagedVisibility();
         applyHeaderMediaConfig();
         alert("✅ Cabecera multimedia guardada.");
       } catch (e) { alert("Error al guardar la cabecera: " + e.message); }
@@ -2426,7 +2304,6 @@
       if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
       $("txtAdminBtn").textContent = translations[currentLang].adminBtn;
       renderFeaturedPlayer();
-      updateManagedVisibility();
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
 
@@ -3028,8 +2905,6 @@
       $("adminTrackInput").value = config.trackUrl || "";
       applyHeaderMediaConfig();
       if ($("adminHeaderMediaType")) loadHeaderMediaEditor();
-      placeManagedElement($("brandHeaderContainer"), config.logoPosition || 2);
-      applyBannerConfig();
 
       if (!initialTabApplied && config.defaultTab) {
         initialTabApplied = true;
