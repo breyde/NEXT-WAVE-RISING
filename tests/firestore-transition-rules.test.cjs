@@ -4,7 +4,7 @@ const { initializeTestEnvironment } = require("@firebase/rules-unit-testing");
 
 test("transition Firestore rules compile in the emulator", async () => {
   const env = await initializeTestEnvironment({
-    projectId: "demo-next-wave-rising",
+    projectId: "demo-next-wave-rising-transition",
     firestore: {
       rules: fs.readFileSync("docs/firestore.rules.transition.proposed", "utf8")
     }
