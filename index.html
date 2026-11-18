@@ -3122,11 +3122,11 @@
         const weeklyEmails = new Set();
         records.forEach(({ doc, source }) => {
           const data = doc.data(), email = String(data.email || contactMap[doc.id]?.email || "").trim().toLowerCase();
-          if (email && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) {
+          if (email) {
             writes.push({ ref: db.collection("private_artist_contacts").doc(doc.id), data: {
               email, artist: data.artist || "Artista", source, updatedAt: Date.now()
             }});
-            if (source === "weekly") weeklyEmails.add(email);
+            if (source === "weekly" && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) weeklyEmails.add(email);
             writes.push({ ref: doc.ref, update: { email: firebase.firestore.FieldValue.delete() } });
           }
         });
