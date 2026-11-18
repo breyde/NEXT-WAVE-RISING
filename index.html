@@ -2784,6 +2784,96 @@
       try { await db.collection("backups").doc(id).delete(); loadAdminBackups(); } catch (e) { alert("Error al eliminar."); }
     };
 
+    // ==================== REVISIÓN PRIVADA DE GUARDADOS SEMANALES ====================
+    window.loadAdminSaveReviews = async () => {
+      const container = $("adminSaveReviewsList"), badge = $("saveReviewsCountBadge");
+      if (!container) return;
+      try {
+        container.innerHTML = '<p class="text-zinc-400 text-center py-5">Cargando revisiones...</p>';
+        const [reviewsSnap, historySnap] = await Promise.all([
+          db.collection("weekly_save_reviews").orderBy("updatedAt", "desc").get(),
+          db.collection("weekly_save_review_history").orderBy("changedAt", "desc").get()
+        ]);
+        const historyByReview = {};
+        historySnap.forEach(doc => {
+          const item = doc.data();
+          (historyByReview[item.reviewId] ||= []).push(item);
+        });
+        const reviews = reviewsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (badge) badge.textContent = reviews.length;
+        if (!reviews.length) {
+          container.innerHTML = '<p class="text-zinc-400 text-center py-6">Todavía no hay declaraciones de guardado registradas.</p>';
+          return;
+        }
+        const labels = {
+          declared: "Declarado por el participante",
+          pending: "Pendiente de revisión",
+          reviewed: "Revisado manualmente",
+          not_accredited: "No acreditado"
+        };
+        const styles = {
+          declared: "bg-zinc-800 text-zinc-200",
+          pending: "bg-amber-500/15 text-amber-300",
+          reviewed: "bg-emerald-500/15 text-emerald-300",
+          not_accredited: "bg-rose-500/15 text-rose-300"
+        };
+        const statuses = ["declared", "pending", "reviewed", "not_accredited"];
+        container.innerHTML = reviews.map(item => {
+          const history = historyByReview[item.id] || [];
+          const changed = Number(item.updatedAt || item.createdAt || 0);
+          const historyHtml = history.length ? history.map(event => {
+            const when = event.changedAt ? new Date(event.changedAt).toLocaleString("es-ES") : "Fecha no disponible";
+            return '<p class="text-[10px] text-zinc-400 py-1 border-b border-white/5">' +
+              escapeHtml(labels[event.fromStatus] || event.fromStatus || "—") + " → " +
+              escapeHtml(labels[event.toStatus] || event.toStatus || "—") + " · " + escapeHtml(when) + '</p>';
+          }).join("") : '<p class="text-[10px] text-zinc-500">Sin cambios de estado todavía.</p>';
+          return '<article class="p-3.5 bg-zinc-900 rounded-xl border border-white/10 space-y-2">' +
+            '<div class="flex flex-wrap justify-between gap-2"><div class="min-w-0">' +
+            '<p class="font-bold text-white">' + escapeHtml(item.artist || "Artista") + ' — ' + escapeHtml(item.title || "Tema") + '</p>' +
+            '<p class="text-[10px] text-zinc-400 break-all">' + escapeHtml(item.email || "") + '</p>' +
+            '<p class="text-[10px] text-zinc-500">Edición: ' + escapeHtml(item.edition || "Sin edición") +
+            ' · ' + escapeHtml(changed ? new Date(changed).toLocaleString("es-ES") : "Fecha no disponible") + '</p></div>' +
+            '<span class="self-start px-2 py-1 rounded text-[10px] ' + (styles[item.status] || styles.declared) + '">' +
+            escapeHtml(labels[item.status] || "Estado desconocido") + '</span></div>' +
+            '<div class="flex flex-wrap gap-1.5">' + statuses.map(status =>
+              '<button type="button" ' + (item.status === status ? 'disabled ' : '') +
+              'onclick="setWeeklySaveReviewStatus(\'' + item.id + '\',\'' + status + '\')" ' +
+              'class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold ' +
+              (item.status === status ? 'bg-zinc-700 text-zinc-500' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200') + '">' +
+              escapeHtml(labels[status]) + '</button>'
+            ).join("") + '</div>' +
+            '<details class="pt-1 border-t border-white/5"><summary class="cursor-pointer text-[10px] text-cyan-300">Historial de cambios (' + history.length + ')</summary>' +
+            '<div class="pt-2">' + historyHtml + '</div></details></article>';
+        }).join("");
+      } catch (e) {
+        container.innerHTML = '<p class="text-rose-400 text-center py-5">No se pudieron cargar las revisiones: ' + escapeHtml(e.message || "error") + '</p>';
+      }
+    };
+
+    window.setWeeklySaveReviewStatus = async (id, status) => {
+      const allowed = ["declared", "pending", "reviewed", "not_accredited"];
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID || !allowed.includes(status)) return;
+      try {
+        const reviewRef = db.collection("weekly_save_reviews").doc(id);
+        const snap = await reviewRef.get();
+        if (!snap.exists) return alert("La revisión ya no existe.");
+        const previous = snap.data();
+        if (previous.status === status) return;
+        const now = Date.now(), historyRef = db.collection("weekly_save_review_history").doc();
+        const batch = db.batch();
+        batch.update(reviewRef, { status, updatedAt: now, reviewedBy: ADMIN_UID });
+        batch.set(historyRef, {
+          reviewId: id, fromStatus: previous.status || "declared",
+          toStatus: status, changedAt: now, changedBy: ADMIN_UID,
+          edition: previous.edition || ""
+        });
+        await batch.commit();
+        await loadAdminSaveReviews();
+      } catch (e) {
+        alert("No se pudo actualizar la revisión: " + (e.message || "error"));
+      }
+    };
+
     // ==================== MENSAJES Y CHAT ADMIN ====================
     async function loadAdminMessages() {
       const container = $("adminMessagesList"), badge = $("msgCountBadge"), total = $("totalMsgCount");
