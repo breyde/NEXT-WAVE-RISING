@@ -85,6 +85,13 @@ service cloud.firestore {
         let submission = getAfter(/databases/$(database)/documents/submissions/$(submissionId));
         return submission.data.artist == artist && submission.data.title == title;
       }
+      function submitterExistsAfter(email) {
+        return existsAfter(/databases/$(database)/documents/weekly_submitters/$(email));
+      }
+      function submitterMatchesAfter(email) {
+        let submitter = getAfter(/databases/$(database)/documents/weekly_submitters/$(email));
+        return submitter.data.email == email;
+      }
       // El participante solo puede declarar un envío real en el mismo batch.
       allow create: if reviewId.matches('^[A-Za-z0-9_-]{10,80}$')
         && request.resource.data.keys().hasOnly([
@@ -100,7 +107,9 @@ service cloud.firestore {
         && request.resource.data.createdAt is number
         && request.resource.data.updatedAt is number
         && submissionExistsAfter(request.resource.data.submissionId)
-        && submissionMatchesAfter(request.resource.data.submissionId, request.resource.data.artist, request.resource.data.title);
+        && submissionMatchesAfter(request.resource.data.submissionId, request.resource.data.artist, request.resource.data.title)
+        && submitterExistsAfter(request.resource.data.email)
+        && submitterMatchesAfter(request.resource.data.email);
       allow update, delete: if isCurator();
     }
  
