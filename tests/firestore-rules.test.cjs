@@ -66,14 +66,14 @@ test("save declaration is private and tied atomically to a real submission", asy
     artist: "Test Artist", title: "Test Song", url: TRACK_URL,
     timestamp: 1, dateString: "18/11/2026", votes: 0
   });
-  batch.set(doc(db, "weekly_save_reviews/review1"), {
+  batch.set(doc(db, "weekly_save_reviews/review1234567890123456"), {
     submissionId: "review-song", email: EMAIL, artist: "Test Artist",
     title: "Test Song", edition: "Edición de prueba",
     status: "declared", createdAt: 1, updatedAt: 1
   });
   await assertSucceeds(batch.commit());
-  await assertFails(getDoc(doc(db, "weekly_save_reviews/review1")));
-  await assertSucceeds(getDoc(doc(curator(), "weekly_save_reviews/review1")));
+  await assertFails(getDoc(doc(db, "weekly_save_reviews/review1234567890123456")));
+  await assertSucceeds(getDoc(doc(curator(), "weekly_save_reviews/review1234567890123456")));
   await assertFails(setDoc(doc(db, "weekly_save_reviews/orphan"), {
     submissionId: "missing", email: EMAIL, artist: "Test Artist",
     title: "Test Song", edition: "Edición de prueba",
@@ -85,11 +85,11 @@ test("save declaration is private and tied atomically to a real submission", asy
     status: "reviewed", createdAt: 1, updatedAt: 1
   }));
   await assertFails(setDoc(doc(db, "weekly_save_review_history/event1"), {
-    reviewId: "review1", fromStatus: "declared", toStatus: "reviewed",
+    reviewId: "review1234567890123456", fromStatus: "declared", toStatus: "reviewed",
     changedAt: 2, changedBy: "participant"
   }));
   await assertSucceeds(setDoc(doc(curator(), "weekly_save_review_history/event1"), {
-    reviewId: "review1", fromStatus: "declared", toStatus: "reviewed",
+    reviewId: "review1234567890123456", fromStatus: "declared", toStatus: "reviewed",
     changedAt: 2, changedBy: CURATOR_UID
   }));
 });
