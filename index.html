@@ -3560,6 +3560,14 @@
           batch.set(db.collection("private_artist_contacts").doc(submissionRef.id), { email: email.toLowerCase(), artist, source: "weekly", updatedAt: Date.now() });
           // Un documento por correo y edición; create-only en Firestore evita duplicados sin exponer el listado.
           batch.set(db.collection("weekly_submitters").doc(email.toLowerCase()), { email: email.toLowerCase(), timestamp: Date.now() });
+          // La casilla confirma una declaración del participante, no una verificación de Spotify.
+          const reviewRef = db.collection("weekly_save_reviews").doc();
+          const declaredAt = Date.now();
+          batch.set(reviewRef, {
+            submissionId: submissionRef.id, email: email.toLowerCase(),
+            artist, title, edition: String(config.edition || "Sin edición"),
+            status: "declared", createdAt: declaredAt, updatedAt: declaredAt
+          });
           await batch.commit();
           // Guardar solo el país validado; eliminar la IP del registro de Países.
           await registerOrUpdateArtistCountry(artist, email, safeGeo);
