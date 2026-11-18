@@ -3111,7 +3111,7 @@
         const weeklyEmails = new Set();
         records.forEach(({ doc, source }) => {
           const data = doc.data(), email = String(data.email || "").trim().toLowerCase();
-          if (email) {
+          if (email && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) {
             writes.push({ ref: db.collection("private_artist_contacts").doc(doc.id), data: {
               email, artist: data.artist || "Artista", source, updatedAt: Date.now()
             }});
@@ -3145,7 +3145,7 @@
         const merged = new Map();
         const addVoter = (email, trackId) => {
           const key = String(email || "").trim().toLowerCase();
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) return;
+          if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(key)) return;
           if (!merged.has(key)) merged.set(key, new Set());
           if (trackId) merged.get(key).add(trackId);
         };
