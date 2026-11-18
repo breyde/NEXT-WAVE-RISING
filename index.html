@@ -774,6 +774,12 @@
                 </div>
                 <button type="button" onclick="inspectDatabaseLive()" class="px-3 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-bold text-xs border border-purple-500/40 transition">🔍 Ver Registros en Vivo</button>
               </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-white/10">
+                <button type="button" onclick="downloadFirestoreBackup()" class="px-4 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 font-bold text-xs transition">🗄️ Descargar datos de Firestore (JSON)</button>
+                <a href="https://github.com/breyde/NEXT-WAVE-RISING/archive/refs/heads/main.zip" target="_blank" rel="noopener noreferrer" class="px-4 py-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 font-bold text-xs transition text-center">🌐 Descargar copia de la web (ZIP)</a>
+              </div>
+              <p class="text-[10px] text-amber-300/90">La copia JSON solo incluye las colecciones indicadas que tu cuenta pueda leer; no incluye subcolecciones ni configuración/reglas/índices de Firebase. Si hay errores, quedará marcada como parcial. El ZIP contiene el código del repositorio en la rama principal, no los datos privados.</p>
+              <p id="localBackupStatus" class="text-[11px] text-zinc-300" aria-live="polite"></p>
               <div class="flex flex-col sm:flex-row gap-2">
                 <select id="backupTargetSelect" class="flex-1 px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white font-semibold focus:border-emerald-500 focus:outline-none">
                   <option value="all">📦 Copia Completa (Todas las pestañas)</option>
@@ -2619,6 +2625,95 @@
       if (!activeSubs.length) return alert("La Lista Activa está vacía.");
       navigator.clipboard.writeText(activeSubs.map((s, i) => `${i + 1}. ${s.artist} - ${s.title} | ${s.email || ''} (${s.url.split("?")[0]})`).join("\n"));
       alert("Lista Activa copiada.");
+    };
+
+    // ==================== RESPALDOS LOCALES ====================
+    const LOCAL_BACKUP_COLLECTIONS = [
+      "active_list", "submissions", "monthly_list", "annual_list",
+      "artist_countries", "voters_log", "chat_users", "chat_presence",
+      "private_artist_contacts", "weekly_submitters", "weekly_save_reviews",
+      "weekly_save_review_history", "contact_messages", "chat_messages",
+      "settings", "backups", "stats"
+    ];
+
+    function serializeFirestoreValue(value) {
+      if (value === null || value === undefined) return value === undefined ? null : null;
+      if (value instanceof firebase.firestore.Timestamp) return { __type: "Timestamp", seconds: value.seconds, nanoseconds: value.nanoseconds };
+      if (value instanceof firebase.firestore.GeoPoint) return { __type: "GeoPoint", latitude: value.latitude, longitude: value.longitude };
+      if (value instanceof firebase.firestore.DocumentReference) return { __type: "DocumentReference", path: value.path };
+      if (value instanceof Uint8Array) return { __type: "Bytes", base64: btoa(String.fromCharCode(...value)) };
+      if (Array.isArray(value)) return value.map(serializeFirestoreValue);
+      if (typeof value === "object") {
+        const out = {};
+        Object.keys(value).forEach(key => { out[key] = serializeFirestoreValue(value[key]); });
+        return out;
+      }
+      return value;
+    }
+
+    function downloadLocalJson(filename, payload) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    window.downloadFirestoreBackup = async () => {
+      const user = auth.currentUser;
+      if (!user || user.uid !== ADMIN_UID) return alert("Solo el propietario autorizado puede descargar estos datos.");
+      const status = $("localBackupStatus");
+      const confirmed = confirm("Se leerán las colecciones privadas y públicas enumeradas y se descargará un JSON en este dispositivo. El archivo puede contener datos personales. Guárdalo en un lugar privado. ¿Continuar?");
+      if (!confirmed) return;
+      const result = {
+        format: "next-wave-rising-firestore-json-v1",
+        projectId: firebaseConfig.projectId,
+        createdAt: new Date().toISOString(),
+        note: "Copia JSON desde el SDK web. No incluye subcolecciones, reglas, índices ni configuración del proyecto; no es una exportación nativa restaurable.",
+        collections: {},
+        summary: { complete: false, totalCollections: LOCAL_BACKUP_COLLECTIONS.length, successfulCollections: 0, failedCollections: 0, totalDocuments: 0 },
+        errors: []
+      };
+      status.textContent = "Preparando copia local… No cierres esta pestaña.";
+      try {
+        for (const name of LOCAL_BACKUP_COLLECTIONS) {
+          try {
+            const items = [];
+            let last = null;
+            while (true) {
+              let query = db.collection(name).orderBy(firebase.firestore.FieldPath.documentId()).limit(300);
+              if (last) query = query.startAfter(last);
+              const snap = await query.get();
+              snap.docs.forEach(doc => items.push({ id: doc.id, data: serializeFirestoreValue(doc.data()) }));
+              if (snap.size < 300) break;
+              last = snap.docs[snap.docs.length - 1];
+            }
+            result.collections[name] = { status: "ok", count: items.length, documents: items };
+            result.summary.successfulCollections++;
+            result.summary.totalDocuments += items.length;
+          } catch (err) {
+            result.collections[name] = { status: "error", count: null, documents: [] };
+            result.summary.failedCollections++;
+            result.errors.push({ collection: name, code: err.code || "unknown", message: err.message || String(err) });
+          }
+          status.textContent = "Leyendo colecciones: " + result.summary.successfulCollections + " correctas, " + result.summary.failedCollections + " con error…";
+        }
+        result.summary.complete = result.summary.failedCollections === 0;
+        result.summary.finishedAt = new Date().toISOString();
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        downloadLocalJson("NWR-Firestore-" + (result.summary.complete ? "copia-datos" : "PARCIAL") + "-" + stamp + ".json", result);
+        status.textContent = (result.summary.complete ? "Copia descargada. " : "Copia PARCIAL descargada. ") +
+          result.summary.totalDocuments + " documentos; " + result.summary.successfulCollections + "/" + result.summary.totalCollections +
+          " colecciones leídas. Revisa el resumen y los errores del JSON.";
+        alert((result.summary.complete ? "Copia JSON descargada." : "Atención: se descargó una copia PARCIAL.") +
+          "\nDocumentos: " + result.summary.totalDocuments +
+          "\nColecciones correctas: " + result.summary.successfulCollections +
+          "\nColecciones con error: " + result.summary.failedCollections +
+          "\nNo es una exportación nativa restaurable de Firestore.");
+      } catch (err) {
+        status.textContent = "No se pudo completar la copia: " + (err.message || String(err));
+        alert("No se pudo completar la copia: " + (err.message || String(err)));
+      }
     };
 
     // ==================== BACKUPS ====================
