@@ -2197,51 +2197,15 @@
       }
     }
 
-    function renderGraphicBanner(tab) {
-      const box = $("graphicBannerContainer"), b = config.graphicBanner || {};
-      const img = $("graphicBannerImage"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube"), link = $("graphicBannerLink");
-      if (!box || !img || !video || !yt || !link) return;
-      const tabs = Array.isArray(b.tabs) ? b.tabs : [];
-      const allowed = b.tabsAll === true || tabs.includes(tab);
-      const type = b.type || "image";
-      const visible = b.enabled === true && !!b.url && allowed;
-      box.classList.toggle("hidden", !visible);
-      applyMediaPositions();
-      video.pause(); video.removeAttribute("src"); video.load();
-      [img, video, yt].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
-      link.classList.add("hidden"); link.removeAttribute("href"); link.textContent = "";
-      if (!visible) return;
-      const width = validHeaderWidth(b.width || "100%");
-      const height = Math.max(40, Math.min(1200, Number(b.height) || 150));
-      if (type === "image") {
-        img.src = b.url; img.style.width = width; img.style.height = height + "px";
-        img.style.maxWidth = "100%"; img.style.objectFit = b.objectFit || "contain"; img.classList.remove("hidden");
-      } else if (type === "video") {
-        video.src = b.url; video.style.width = width; video.style.height = height + "px";
-        video.style.maxWidth = "100%"; video.style.objectFit = b.objectFit || "contain";
-        video.autoplay = !!b.videoAutoplay; video.muted = b.videoMuted !== false;
-        video.loop = b.videoLoop !== false; video.controls = b.videoControls !== false;
-        video.playsInline = true; video.classList.remove("hidden");
-        if (video.autoplay) video.play().catch(() => {});
-      } else if (type === "link") {
-        if (!/^https?:\/\//i.test(b.url)) return;
-        link.href = b.url; link.textContent = b.linkText || "Visitar enlace";
-        link.style.width = width; link.style.minHeight = height + "px";
-        link.classList.remove("hidden");
-      } else if (type === "youtube") {
-        const id = getYoutubeVideoId(b.url);
-        if (!id) return;
-        const params = new URLSearchParams({
-          autoplay: b.youtubeAutoplay ? "1" : "0", mute: b.youtubeMute !== false ? "1" : "0",
-          loop: b.youtubeLoop ? "1" : "0", controls: b.youtubeControls === false ? "0" : "1",
-          start: String(Math.max(0, Number(b.youtubeStart) || 0)), rel: "0", playsinline: "1"
-        });
-        if (b.youtubeLoop) params.set("playlist", id);
-        yt.src = `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
-        yt.style.width = width; yt.style.height = height + "px"; yt.style.maxWidth = "100%";
-        yt.classList.remove("hidden");
-      }
-    }
+    let editingGraphicBannerId = null;
+    function getGraphicBanners(){ if(Array.isArray(config.graphicBanners)) return config.graphicBanners; const old=config.graphicBanner; return old&&old.url?[{...old,id:old.id||"banner-legacy",name:old.name||"Banner principal"}]:[]; }
+    function refreshGraphicBannerManager(){ const bs=getGraphicBanners(),sel=$("adminBannerSelect"),list=$("adminBannerList");if(!sel)return;if(!editingGraphicBannerId||!bs.some(b=>b.id===editingGraphicBannerId))editingGraphicBannerId=bs[0]?.id||null;sel.innerHTML=bs.map((b,i)=>"<option value=\""+escapeHtml(b.id)+"\">"+(i+1)+". "+escapeHtml(b.name||("Banner "+(i+1)))+" · "+(b.enabled?"ACTIVO":"INACTIVO")+"</option>").join("")||"<option value=\"\">Sin banners creados</option>";sel.value=editingGraphicBannerId||"";if(list)list.innerHTML=bs.map((b,i)=>"<div class=\"flex justify-between\"><span>"+escapeHtml(b.name||("Banner "+(i+1)))+"</span><span>"+(b.enabled?"Activo":"Desactivado")+"</span></div>").join("");}
+    function renderGraphicBanner(tab){const host=$("graphicBannersHost");if(!host)return;host.innerHTML="";getGraphicBanners().forEach((b,i)=>{const tabs=Array.isArray(b.tabs)?b.tabs:[],allowed=b.tabsAll===true||tabs.includes(tab);if(b.enabled!==true||!b.url||!allowed)return;const type=b.type||"image",w=validHeaderWidth(b.width||"100%"),h=Math.max(40,Math.min(1200,Number(b.height)||150)),box=document.createElement("div");box.id="graphicBanner_"+(b.id||i);box.dataset.position=String(b.position??1);box.className="w-full flex justify-center items-center px-2 py-2";
+      if(type==="image"){const el=document.createElement("img");el.src=b.url;el.alt=b.name||"Banner";el.className="max-w-full rounded-xl";el.style.width=w;el.style.height=h+"px";el.style.objectFit=b.objectFit||"contain";box.appendChild(el);}
+      else if(type==="video"){const el=document.createElement("video");el.src=b.url;el.className="max-w-full rounded-xl";el.style.width=w;el.style.height=h+"px";el.style.objectFit=b.objectFit||"contain";el.autoplay=!!b.videoAutoplay;el.muted=b.videoMuted!==false;el.loop=b.videoLoop!==false;el.controls=b.videoControls!==false;el.playsInline=true;el.preload="metadata";box.appendChild(el);if(el.autoplay)el.play().catch(()=>{});}
+      else if(type==="youtube"){const id=getYoutubeVideoId(b.url);if(!id)return;const el=document.createElement("iframe");el.src="https://www.youtube-nocookie.com/embed/"+id+"?controls="+(b.youtubeControls===false?"0":"1")+"&rel=0";el.title="Vídeo del banner";el.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";el.allowFullscreen=true;el.loading="lazy";el.style.width=w;el.style.height=h+"px";el.className="max-w-full border-0 rounded-xl";box.appendChild(el);}
+      else if(type==="link"&&/^https?:\/\//i.test(b.url)){const mode=b.linkMode||"text";if(mode==="embed"){const el=document.createElement("iframe");el.src=b.url;el.title=b.name||"Contenido web";el.loading="lazy";el.referrerPolicy="strict-origin-when-cross-origin";el.style.width=w;el.style.height=h+"px";el.className="max-w-full border rounded-xl bg-white";box.appendChild(el);}else{const el=document.createElement("a");el.href=b.url;el.target="_blank";el.rel="noopener noreferrer";el.style.width=w;el.className="block max-w-full rounded-xl overflow-hidden";if(mode==="image"&&b.linkImageUrl){const im=document.createElement("img");im.src=b.linkImageUrl;im.alt=b.linkText||b.name||"Abrir enlace";im.style.width="100%";im.style.height=h+"px";im.style.objectFit=b.objectFit||"contain";im.className="rounded-xl";el.appendChild(im);}else{el.textContent=b.linkText||"Visitar enlace";el.style.minHeight=h+"px";el.className+=" border border-fuchsia-400/40 bg-gradient-to-r from-fuchsia-500/20 to-cyan-500/20 px-5 py-4 text-center font-bold text-white";}box.appendChild(el);}}
+      host.appendChild(box);});applyMediaPositions();}
     function renderBannerTabCheckboxes(selectedTabs, allLegacy) {
       const host = $("adminBannerTabsList");
       if (!host) return;
