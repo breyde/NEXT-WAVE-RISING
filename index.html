@@ -1330,6 +1330,7 @@
               <div class="flex gap-1 w-full">
                 <button type="button" onclick="copyGithubAssetUrl('${directUrl}')" class="flex-1 py-1 px-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold rounded text-[10px] transition">📋 URL</button>
                 <button type="button" onclick="selectGithubAssetForHeader('${directUrl}','${mediaType}')" class="flex-1 py-1 px-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 font-bold rounded text-[10px] transition">Usar cabecera</button>
+                ${!isVideo ? `<button type="button" onclick="selectGithubAssetForBanner(this.getAttribute('data-url'))" data-url="${escapeHtml(directUrl)}" class="flex-1 py-1 px-1.5 bg-fuchsia-500/20 text-fuchsia-200 font-bold rounded text-[10px] transition">Usar en banner</button>` : ""}
                 <button type="button" onclick="deleteGithubAsset('${file.path}', '${file.sha}', '${escapeHtml(file.name)}')" class="py-1 px-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded text-[10px] transition">🗑️</button>
               </div>
             </div>
@@ -2382,6 +2383,8 @@
       $("adminHeaderYoutubeStart").value = config.headerYoutubeStart || 0;
       updateHeaderMediaEditor();
     }
+
+    window.selectGithubAssetForBanner = url => { $("adminBannerLinkImage").value=url; $("adminBannerMediaType").value="link"; $("adminBannerLinkMode").value="image"; updateBannerMediaEditor(); alert("Imagen elegida. Guarda el banner para aplicar."); };
 
     window.selectGithubAssetForHeader = (url, type) => {
       $("adminHeaderMediaType").value = type;
