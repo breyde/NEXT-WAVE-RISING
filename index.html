@@ -3027,7 +3027,7 @@
         const merged = new Map();
         const addVoter = (email, trackId) => {
           const key = String(email || "").trim().toLowerCase();
-          if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(key)) return;
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key)) return;
           if (!merged.has(key)) merged.set(key, new Set());
           if (trackId) merged.get(key).add(trackId);
         };
@@ -3124,7 +3124,6 @@
 
       // Control de interfaz: solo muestra el panel a la cuenta curadora prevista.
       // La seguridad real debe reforzarse también en las reglas de Firestore.
-      const ADMIN_UID = "tNohkBzhmBML0E4eqmhw74hncUf2";
       auth.onAuthStateChanged(user => {
         const isCurator = !!user && user.uid === ADMIN_UID;
         if (isCurator) {
