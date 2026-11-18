@@ -43,7 +43,9 @@
 ## Archivos de reglas
 - \`docs/firestore.rules.transition.proposed\`: reglas transitorias de compatibilidad para habilitar las dos nuevas colecciones y permitir que el frontend antiguo siga funcionando durante la ventana de migración. Mantienen temporalmente algunas lecturas públicas heredadas, por lo que deben utilizarse solo durante una ventana corta y controlada.
 - \`docs/firestore.rules.proposed\`: reglas finales propuestas. Restringen al curador la lectura de contactos, votantes, usuarios de chat, países, mensajes de contacto y backups; y eliminan el correo de los documentos públicos de canciones.
-- Ambos archivos son borradores. No se han validado con Firebase Emulator Suite ni contra una copia real de la base de datos. No copiarlos a Firebase Console todavía.
+- `firestore.rules` y `firebase.json` se han añadido para ejecutar pruebas aisladas del emulador; no apuntan a un proyecto Firebase real.
+- Se ha añadido un conjunto de pruebas automatizadas y un workflow de GitHub Actions. El workflow está incluido en el PR de borrador y todavía no ha podido ejecutarse desde la rama base.
+- Los archivos siguen siendo borradores. No se han validado todavía con el emulador ni contra una copia real de la base de datos. No copiarlos a Firebase Console todavía.
 
 ## Orden de despliegue obligatorio
 1. Crear y comprobar un backup completo recuperable con las reglas y el código actuales.
@@ -54,15 +56,15 @@
 6. Ejecutar desde el panel, como curador, la migración de contactos y después la migración de votantes.
 7. Verificar que \`active_list\` y \`submissions\` ya no contienen \`email\` ni arrays \`voters\`; verificar que los contactos están en \`private_artist_contacts\`, que la cola actual está reflejada en \`weekly_submitters\`, y que el historial de votos está en \`voters_log\`.
 8. Aplicar las reglas finales solo después de esa verificación.
-9. Probar con cuentas de prueba: nuevo envío, segundo envío con el mismo correo, edición/borrado, voto completo, voto repetido, reinicio, backup, restauración y rotación. Reabrir las votaciones solo tras superar las pruebas.
+9. Probar con cuentas de prueba: nuevo envío, segundo envío con el mismo correo, edición/borrado, declaración de guardado, cambio de estado e historial, voto completo, voto repetido, reinicio, backup, restauración y rotación. Reabrir las votaciones solo tras superar las pruebas.
 
 ## Limitaciones que siguen vigentes
 - El sistema no verifica que una persona controle el correo que escribe. La unicidad del documento evita duplicados accidentales, pero no acredita identidad ni impide que alguien use el correo de otra persona.
 - Sin un backend confiable (por ejemplo, Cloud Functions, que requeriría Blaze), el contador público de votos sigue siendo susceptible a manipulación directa: las reglas pueden limitar cada actualización a +1, pero no pueden demostrar que cada incremento corresponde a una persona real sin una identidad autenticada y un proceso de servidor.
 - La colección \`artist_countries\` conserva correos, pero las reglas finales reservan su lectura al curador. \`backups\` también pueden contener copias históricas de correos y quedan reservados al curador.
 - Los registros de \`chat_users\` conservan IP para la moderación; su lectura queda restringida al curador. La presencia pública no conserva IP.
-- Los cambios aún no han sido probados con Firebase Emulator Suite ni con una copia real. Las reglas transitorias y finales deben revisarse antes de cualquier publicación.
-- El flujo manual de revisión de guardados semanales todavía requiere definir el canal privado de recepción de pruebas y completar el panel/historial correspondiente; no se ha creado ninguna colección de historial ni se han almacenado pruebas.
+- Las pruebas automatizadas están preparadas, pero todavía no hay resultado de ejecución. Los cambios tampoco se han probado con una copia real. Las reglas transitorias y finales deben revisarse antes de cualquier publicación.
+- El panel privado de revisión semanal ya registra la declaración inicial, permite pasar a pendiente, revisado manualmente o no acreditado y conserva el historial de cambios. No almacena capturas ni enlaces de pruebas. El curador debe revisar la evidencia recibida por un canal privado acordado fuera de la web; ese canal aún debe definirse.
 
 ## Estado
 Trabajo preparado en una rama aislada, pendiente de pruebas técnicas y aprobación explícita antes de integrar o desplegar. La rama de producción, Firebase activo, las playlists y la sincronización programada permanecen intactos.
