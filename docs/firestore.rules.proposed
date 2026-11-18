@@ -121,8 +121,11 @@ service cloud.firestore {
           'artist', 'flag', 'country', 'city', 'submissionsCount',
           'lastSubmissionDate', 'ip', 'ipCapturedAt'
         ])
-        && resource.data.submissionsCount is number
-        && request.resource.data.submissionsCount == resource.data.submissionsCount + 1
+        && (
+          (!(resource.data.submissionsCount is number) && request.resource.data.submissionsCount == 1)
+          || (resource.data.submissionsCount is number
+            && request.resource.data.submissionsCount == resource.data.submissionsCount + 1)
+        )
       );
     }
 
