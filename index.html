@@ -3016,6 +3016,9 @@
       renderSimpleList(annualRes, "annual", "annualCount", "annualListContainer", "annualEmpty", i => `Disco Anual #${i + 1}`, "text-amber-400");
     }
 
+    // UID del único curador autorizado; las reglas Firestore aplican el mismo control.
+    const ADMIN_UID = "tNohkBzhmBML0E4eqmhw74hncUf2";
+
     window.migrateLegacyVotePrivacy = async () => {
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert("Solo el curador puede realizar esta operación.");
       if (!confirm("Se migrarán los registros antiguos de votantes a documentos privados y se eliminarán los correos de votantes de la lista activa. No se modificarán las canciones ni sus contadores. ¿Continuar?")) return;
