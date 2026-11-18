@@ -36,6 +36,7 @@
 - \`weekly_submitters/{email}\` usa el correo normalizado como ID y solo permite creación pública. Un segundo intento de crear el mismo documento queda rechazado por las reglas.
 - El panel administrativo une las canciones públicas con los contactos privados por ID de documento.
 - Se han actualizado las altas manuales, edición y borrado de temas, exportación, backups, restauración, sincronización de países y rotación semanal para conservar el contacto privado.
+- El registro de países ya no necesita leer públicamente un documento que contiene correo: crea el registro sin lectura y, si ya existe, incrementa el contador mediante una actualización limitada por reglas.
 - Se ha añadido una herramienta manual para migrar los correos históricos de \`active_list\` y \`submissions\` a la colección privada y eliminar el campo de las listas públicas.
 - La migración no se ejecuta automáticamente. Requiere backup y reglas transitorias habilitadas primero.
 
