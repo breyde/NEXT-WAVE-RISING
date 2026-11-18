@@ -44,8 +44,8 @@
 - \`docs/firestore.rules.transition.proposed\`: reglas transitorias de compatibilidad para habilitar las dos nuevas colecciones y permitir que el frontend antiguo siga funcionando durante la ventana de migración. Mantienen temporalmente algunas lecturas públicas heredadas, por lo que deben utilizarse solo durante una ventana corta y controlada.
 - \`docs/firestore.rules.proposed\`: reglas finales propuestas. Restringen al curador la lectura de contactos, votantes, usuarios de chat, países, mensajes de contacto y backups; y eliminan el correo de los documentos públicos de canciones.
 - `firestore.rules` y `firebase.json` se han añadido para ejecutar pruebas aisladas del emulador; no apuntan a un proyecto Firebase real.
-- Se ha añadido un conjunto de pruebas automatizadas y un workflow de GitHub Actions. El workflow está incluido en el PR de borrador y todavía no ha podido ejecutarse desde la rama base.
-- Los archivos siguen siendo borradores. No se han validado todavía con el emulador ni contra una copia real de la base de datos. No copiarlos a Firebase Console todavía.
+- Se ha añadido un conjunto de pruebas automatizadas y un workflow de GitHub Actions. La ejecución del emulador Firestore ha terminado correctamente: 10 pruebas aprobadas y 0 fallidas.
+- Los archivos siguen siendo borradores. Las reglas finales sí han pasado las pruebas automatizadas; las transitorias y una copia real de datos aún requieren validación. No copiarlos a Firebase Console todavía.
 
 ## Orden de despliegue obligatorio
 1. Crear y comprobar un backup completo recuperable con las reglas y el código actuales.
