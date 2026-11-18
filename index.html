@@ -2249,30 +2249,11 @@
       }
       preview?.classList.remove("hidden");
     };
-    function loadGraphicBannerEditor() {
-      const b = config.graphicBanner || {};
-      const type = b.type || "image";
-      if ($("adminBannerMediaType")) $("adminBannerMediaType").value = type;
-      if ($("adminBannerUrl")) $("adminBannerUrl").value = b.url || "";
-      if ($("adminBannerLinkText")) $("adminBannerLinkText").value = b.linkText || "Visitar enlace";
-      if ($("adminBannerWidth")) $("adminBannerWidth").value = b.width || "100%";
-      if ($("adminBannerHeight")) $("adminBannerHeight").value = b.height || 150;
-      if ($("adminBannerPosition")) $("adminBannerPosition").value = String(b.position ?? 1);
-      if ($("adminBannerObjectFit")) $("adminBannerObjectFit").value = b.objectFit || "contain";
-      if ($("adminBannerEnabled")) $("adminBannerEnabled").checked = b.enabled === true;
-      if ($("adminBannerVideoAutoplay")) $("adminBannerVideoAutoplay").checked = !!b.videoAutoplay;
-      if ($("adminBannerVideoMuted")) $("adminBannerVideoMuted").checked = b.videoMuted !== false;
-      if ($("adminBannerVideoLoop")) $("adminBannerVideoLoop").checked = b.videoLoop !== false;
-      if ($("adminBannerVideoControls")) $("adminBannerVideoControls").checked = b.videoControls !== false;
-      if ($("adminBannerYoutubeAutoplay")) $("adminBannerYoutubeAutoplay").checked = !!b.youtubeAutoplay;
-      if ($("adminBannerYoutubeMute")) $("adminBannerYoutubeMute").checked = b.youtubeMute !== false;
-      if ($("adminBannerYoutubeLoop")) $("adminBannerYoutubeLoop").checked = !!b.youtubeLoop;
-      if ($("adminBannerYoutubeControls")) $("adminBannerYoutubeControls").checked = b.youtubeControls !== false;
-      if ($("adminBannerYoutubeStart")) $("adminBannerYoutubeStart").value = b.youtubeStart || 0;
-      const legacyAll = b.tabsAll === true || (b.tabsAll === undefined && (!Array.isArray(b.tabs) || b.tabs.length === 0));
-      renderBannerTabCheckboxes(b.tabs, legacyAll);
-      updateBannerMediaEditor();
-    }
+    function loadGraphicBannerEditor(){const bs=getGraphicBanners(),b=bs.find(x=>x.id===editingGraphicBannerId)||bs[0]||{};if(!editingGraphicBannerId&&b.id)editingGraphicBannerId=b.id;refreshGraphicBannerManager();
+      $("adminBannerMediaType").value=b.type||"image";$("adminBannerUrl").value=b.url||"";$("adminBannerLinkText").value=b.linkText||"Visitar enlace";$("adminBannerLinkMode").value=b.linkMode||"text";$("adminBannerLinkImage").value=b.linkImageUrl||"";$("adminBannerWidth").value=b.width||"100%";$("adminBannerHeight").value=b.height||150;$("adminBannerPosition").value=String(b.position??1);$("adminBannerObjectFit").value=b.objectFit||"contain";$("adminBannerEnabled").checked=b.enabled===true;
+      $("adminBannerVideoAutoplay").checked=!!b.videoAutoplay;$("adminBannerVideoMuted").checked=b.videoMuted!==false;$("adminBannerVideoLoop").checked=b.videoLoop!==false;$("adminBannerVideoControls").checked=b.videoControls!==false;$("adminBannerYoutubeAutoplay").checked=!!b.youtubeAutoplay;$("adminBannerYoutubeMute").checked=b.youtubeMute!==false;$("adminBannerYoutubeLoop").checked=!!b.youtubeLoop;$("adminBannerYoutubeControls").checked=b.youtubeControls!==false;$("adminBannerYoutubeStart").value=b.youtubeStart||0;const all=b.tabsAll===true||(b.tabsAll===undefined&&(!Array.isArray(b.tabs)||!b.tabs.length));renderBannerTabCheckboxes(b.tabs,all);updateBannerMediaEditor();}
+    window.selectGraphicBanner=id=>{editingGraphicBannerId=id||null;loadGraphicBannerEditor();};
+    window.newGraphicBanner=()=>{const bs=getGraphicBanners(),id="banner-"+Date.now();bs.push({id,name:"Banner "+(bs.length+1),enabled:false,type:"image",url:"",width:"100%",height:150,position:1,tabs:[],tabsAll:false,objectFit:"contain"});config.graphicBanners=bs;editingGraphicBannerId=id;loadGraphicBannerEditor();$("adminBannerUrl").value="";$("adminBannerEnabled").checked=false;};
     window.handleBannerFileUpload = e => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
@@ -2285,42 +2266,12 @@
         e.target.value = "";
       });
     };
-    window.saveGraphicBanner = async () => {
-      const type = $("adminBannerMediaType").value;
-      const url = normalizeUrl($("adminBannerUrl").value);
-      if (!url) return alert("Introduce una URL o importa un archivo para el banner.");
-      if (type === "link" && !/^https?:\/\//i.test(url)) return alert("Introduce un enlace web completo que empiece por https:// o http://.");
-      if (type === "youtube" && !getYoutubeVideoId(url)) return alert("El enlace de YouTube no parece válido.");
-      if (type === "video" && !/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url) && !confirm("La URL no termina en una extensión de vídeo habitual. ¿Quieres guardarla de todos modos?")) return;
-      const tabs = selectedBannerTabs();
-      const data = { graphicBanner: {
-        enabled: $("adminBannerEnabled").checked, type, url,
-        linkText: ($("adminBannerLinkText")?.value || "Visitar enlace").trim().slice(0, 100),
-        width: validHeaderWidth($("adminBannerWidth").value),
-        height: Math.max(40, Math.min(1200, Number($("adminBannerHeight").value) || 150)),
-        position: Math.max(0, Math.min(10, Number($("adminBannerPosition").value) || 0)),
-        tabs, tabsAll: false, objectFit: $("adminBannerObjectFit").value,
-        videoAutoplay: $("adminBannerVideoAutoplay").checked, videoMuted: $("adminBannerVideoMuted").checked,
-        videoLoop: $("adminBannerVideoLoop").checked, videoControls: $("adminBannerVideoControls").checked,
-        youtubeAutoplay: $("adminBannerYoutubeAutoplay").checked, youtubeMute: $("adminBannerYoutubeMute").checked,
-        youtubeLoop: $("adminBannerYoutubeLoop").checked, youtubeControls: $("adminBannerYoutubeControls").checked,
-        youtubeStart: Math.max(0, Number($("adminBannerYoutubeStart").value) || 0)
-      }};
-      try {
-        await db.collection("settings").doc("activeEdition").set(data, { merge: true });
-        config.graphicBanner = data.graphicBanner;
-        renderGraphicBanner(currentActiveTab); loadGraphicBannerEditor();
-        alert("Banner multimedia guardado correctamente.");
-      } catch (e) { alert("No se pudo guardar el banner: " + e.message); }
-    };
-    window.clearGraphicBanner = async () => {
-      if (!confirm("¿Quitar el banner multimedia?")) return;
-      const data = { graphicBanner: { enabled: false, type: "image", url: "", width: "100%", height: 150, position: 1, tabs: [], tabsAll: false, objectFit: "contain" } };
-      try {
-        await db.collection("settings").doc("activeEdition").set(data, { merge: true });
-        config.graphicBanner = data.graphicBanner; loadGraphicBannerEditor(); renderGraphicBanner(currentActiveTab);
-      } catch (e) { alert("No se pudo quitar: " + e.message); }
-    };
+    window.saveGraphicBanner=async()=>{const type=$("adminBannerMediaType").value,url=normalizeUrl($("adminBannerUrl").value),mode=$("adminBannerLinkMode").value||"text",imageUrl=normalizeUrl($("adminBannerLinkImage").value||"");
+      if(!url)return alert("Introduce una URL o importa un archivo.");if(type==="link"&&!/^https?:\/\//i.test(url))return alert("Introduce un enlace web completo.");if(type==="youtube"&&!getYoutubeVideoId(url))return alert("El enlace de YouTube no parece válido.");if(type==="link"&&mode==="image"&&!/^https?:\/\//i.test(imageUrl))return alert("Selecciona una imagen de tu biblioteca.");
+      if(type==="video"&&!/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url)&&!confirm("La URL no termina en una extensión de vídeo habitual. ¿Quieres guardarla de todos modos?"))return;
+      const bs=getGraphicBanners(),id=editingGraphicBannerId||("banner-"+Date.now()),old=bs.find(x=>x.id===id)||{},data={...old,id,name:old.name||("Banner "+(bs.length+1)),enabled:$("adminBannerEnabled").checked,type,url,linkMode:mode,linkImageUrl:imageUrl,linkText:($("adminBannerLinkText").value||"Visitar enlace").trim().slice(0,100),width:validHeaderWidth($("adminBannerWidth").value),height:Math.max(40,Math.min(1200,Number($("adminBannerHeight").value)||150)),position:Math.max(0,Math.min(10,Number($("adminBannerPosition").value)||0)),tabs:selectedBannerTabs(),tabsAll:false,objectFit:$("adminBannerObjectFit").value,videoAutoplay:$("adminBannerVideoAutoplay").checked,videoMuted:$("adminBannerVideoMuted").checked,videoLoop:$("adminBannerVideoLoop").checked,videoControls:$("adminBannerVideoControls").checked,youtubeAutoplay:$("adminBannerYoutubeAutoplay").checked,youtubeMute:$("adminBannerYoutubeMute").checked,youtubeLoop:$("adminBannerYoutubeLoop").checked,youtubeControls:$("adminBannerYoutubeControls").checked,youtubeStart:Math.max(0,Number($("adminBannerYoutubeStart").value)||0)};
+      const ix=bs.findIndex(x=>x.id===id);if(ix>=0)bs[ix]=data;else bs.push(data);try{await db.collection("settings").doc("activeEdition").set({graphicBanners:bs,graphicBanner:data},{merge:true});config.graphicBanners=bs;config.graphicBanner=data;editingGraphicBannerId=id;refreshGraphicBannerManager();renderGraphicBanner(currentActiveTab);loadGraphicBannerEditor();alert("Banner guardado correctamente.");}catch(e){alert("No se pudo guardar el banner: "+e.message);}};
+    window.clearGraphicBanner=async()=>{if(!editingGraphicBannerId)return alert("No hay banner seleccionado.");if(!confirm("¿Eliminar este banner?"))return;const bs=getGraphicBanners().filter(b=>b.id!==editingGraphicBannerId);try{await db.collection("settings").doc("activeEdition").set({graphicBanners:bs,graphicBanner:bs[0]||{enabled:false,url:""}},{merge:true});config.graphicBanners=bs;config.graphicBanner=bs[0]||{enabled:false,url:""};editingGraphicBannerId=bs[0]?.id||null;loadGraphicBannerEditor();renderGraphicBanner(currentActiveTab);}catch(e){alert("No se pudo eliminar: "+e.message);}};
 
     function applyHeaderMediaConfig() {
       const type = config.headerMediaType || (config.logoUrl ? "image" : "text");
