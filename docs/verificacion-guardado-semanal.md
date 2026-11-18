@@ -47,7 +47,7 @@
 
 ## Orden de despliegue obligatorio
 1. Crear y comprobar un backup completo recuperable con las reglas y el código actuales.
-2. Preparar una ventana de mantenimiento y pausar temporalmente las votaciones.
+2. Preparar una ventana de mantenimiento y pausar temporalmente tanto los envíos semanales como las votaciones para evitar altas mientras se migran los registros.
 3. Revisar y validar las reglas transitorias en un proyecto/copia de pruebas.
 4. Aplicar las reglas transitorias solo durante la ventana controlada.
 5. Desplegar el frontend de esta rama mediante una integración revisada; comprobar que envíos, chat, votos y panel siguen funcionando.
