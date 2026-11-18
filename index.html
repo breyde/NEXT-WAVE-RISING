@@ -129,7 +129,7 @@
       <video id="brandHeaderVideo" class="hidden mx-auto" playsinline preload="metadata"></video>
       <iframe id="brandHeaderYoutube" class="hidden mx-auto border-0" title="Vídeo de cabecera de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
     </div>
-    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="hidden max-w-full object-contain rounded-xl"><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>
+    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="hidden max-w-full object-contain rounded-xl"><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe><a id="graphicBannerLink" class="hidden max-w-full rounded-xl border border-fuchsia-400/40 bg-gradient-to-r from-fuchsia-500/20 to-cyan-500/20 px-5 py-4 text-center font-bold text-white shadow-lg hover:brightness-110 transition" target="_blank" rel="noopener noreferrer"></a></div>
 
     <span id="mediaPositionSlot1" class="hidden" aria-hidden="true"></span>
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
@@ -482,17 +482,18 @@
             <div>
               <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Contenido del banner:</label>
               <select id="adminBannerMediaType" onchange="updateBannerMediaEditor()" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
-                <option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option>
+                <option value="image">Imagen / GIF</option><option value="video">Vídeo de mi biblioteca</option><option value="youtube">Vídeo de YouTube</option><option value="link">Enlace web (Spotify, promociones...)</option>
               </select>
             </div>
             <div id="adminBannerUrlGroup" class="space-y-2">
-              <label class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
+              <label id="adminBannerUrlLabel" class="block text-[11px] text-zinc-300 font-semibold">URL del archivo multimedia o enlace de YouTube:</label>
               <div class="flex gap-2">
                 <input type="url" id="adminBannerUrl" placeholder="URL directa o enlace de YouTube" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
                 <label class="px-3 py-2 rounded-xl bg-fuchsia-500/20 text-fuchsia-200 text-xs cursor-pointer whitespace-nowrap">📁 Importar<input id="adminBannerFile" type="file" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" class="hidden" onchange="handleBannerFileUpload(event)"></label>
               </div>
-              <p class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen, GIF o vídeo puedes importar un archivo o usar una URL.</p>
+              <p id="adminBannerUrlHelp" class="text-[10px] text-zinc-500">Para YouTube pega el enlace normal. Para imagen, GIF o vídeo puedes importar un archivo o usar una URL.</p>
             </div>
+            <div id="adminBannerLinkTextGroup" class="hidden"><label class="block text-[11px] text-zinc-300 mb-1">Texto que verá el visitante:</label><input id="adminBannerLinkText" maxlength="100" value="Visitar enlace" placeholder="Ej. Escucha / Apoya en Spotify" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><p class="text-[10px] text-zinc-500 mt-1">Al pulsarlo, el enlace se abrirá en otra pestaña.</p></div>
             <div class="grid grid-cols-2 gap-2">
               <div class="col-span-2"><label class="block text-[11px] text-cyan-200 font-bold mb-1">Posición en la página (0–10)</label><select id="adminBannerPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="0">0 · Encima de la botonera superior</option><option value="1">1 · Posición normal</option><option value="2">2 · Debajo del recuadro informativo</option><option value="3">3 · Debajo de la botonera de navegación</option><option value="4">4 · Debajo del reproductor destacado</option><option value="5">5 · Debajo del primer bloque de la pestaña</option><option value="6">6 · Debajo del segundo bloque de la pestaña</option><option value="7">7 · Debajo del tercer bloque de la pestaña</option><option value="8">8 · Debajo del cuarto bloque de la pestaña</option><option value="9">9 · Debajo del quinto bloque de la pestaña</option><option value="10">10 · Debajo del sexto bloque de la pestaña</option></select></div>
               <div><label class="block text-[11px] text-zinc-300 mb-1">Ancho (px o %)</label><input id="adminBannerWidth" value="100%" placeholder="100% o 900px" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div>
@@ -529,7 +530,7 @@
             <div id="adminBannerPreview" class="hidden rounded-xl bg-zinc-950 p-2 flex justify-center items-center min-h-16">
               <img id="adminBannerPreviewImage" alt="Vista previa del banner" class="hidden max-w-full object-contain">
               <video id="adminBannerPreviewVideo" class="hidden max-w-full" playsinline muted controls></video>
-              <iframe id="adminBannerPreviewYoutube" class="hidden max-w-full border-0" title="Vista previa de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+              <iframe id="adminBannerPreviewYoutube" class="hidden max-w-full border-0" title="Vista previa de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><a id="adminBannerPreviewLink" class="hidden rounded-xl border border-fuchsia-400/40 bg-fuchsia-500/10 px-5 py-4 text-center font-bold text-white" target="_blank" rel="noopener noreferrer"></a>
             </div>
             <div class="flex gap-2"><button type="button" onclick="saveGraphicBanner()" class="flex-1 py-2.5 bg-fuchsia-500 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar banner</button><button type="button" onclick="clearGraphicBanner()" class="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-xs">Quitar</button></div>
           </div>
@@ -2160,8 +2161,8 @@
 
     function renderGraphicBanner(tab) {
       const box = $("graphicBannerContainer"), b = config.graphicBanner || {};
-      const img = $("graphicBannerImage"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube");
-      if (!box || !img || !video || !yt) return;
+      const img = $("graphicBannerImage"), video = $("graphicBannerVideo"), yt = $("graphicBannerYoutube"), link = $("graphicBannerLink");
+      if (!box || !img || !video || !yt || !link) return;
       const tabs = Array.isArray(b.tabs) ? b.tabs : [];
       const allowed = b.tabsAll === true || tabs.includes(tab);
       const type = b.type || "image";
@@ -2170,6 +2171,7 @@
       applyMediaPositions();
       video.pause(); video.removeAttribute("src"); video.load();
       [img, video, yt].forEach(el => { el.classList.add("hidden"); el.removeAttribute("src"); });
+      link.classList.add("hidden"); link.removeAttribute("href"); link.textContent = "";
       if (!visible) return;
       const width = validHeaderWidth(b.width || "100%");
       const height = Math.max(40, Math.min(1200, Number(b.height) || 150));
@@ -2183,6 +2185,11 @@
         video.loop = b.videoLoop !== false; video.controls = b.videoControls !== false;
         video.playsInline = true; video.classList.remove("hidden");
         if (video.autoplay) video.play().catch(() => {});
+      } else if (type === "link") {
+        if (!/^https?:\/\//i.test(b.url)) return;
+        link.href = b.url; link.textContent = b.linkText || "Visitar enlace";
+        link.style.width = width; link.style.minHeight = height + "px";
+        link.classList.remove("hidden");
       } else if (type === "youtube") {
         const id = getYoutubeVideoId(b.url);
         if (!id) return;
@@ -2215,13 +2222,16 @@
     }
     window.updateBannerMediaEditor = () => {
       const type = $("adminBannerMediaType")?.value || "image";
-      $("adminBannerFitGroup")?.classList.toggle("hidden", type === "youtube");
+      $("adminBannerFitGroup")?.classList.toggle("hidden", type === "youtube" || type === "link");
+      $("adminBannerLinkTextGroup")?.classList.toggle("hidden", type !== "link");
+      $("adminBannerUrlLabel").textContent = type === "link" ? "Dirección web que se abrirá al pulsar:" : "URL del archivo multimedia o enlace de YouTube:";
+      $("adminBannerUrlHelp").textContent = type === "link" ? "Pega enlaces completos de Spotify, páginas web, campañas o promociones (https://...). No hace falta que sea un archivo multimedia." : "Para YouTube pega el enlace normal. Para imagen, GIF o vídeo puedes importar un archivo o usar una URL.";
       $("adminBannerVideoOptions")?.classList.toggle("hidden", type !== "video");
       $("adminBannerYoutubeOptions")?.classList.toggle("hidden", type !== "youtube");
       const url = normalizeUrl($("adminBannerUrl")?.value || "");
       const preview = $("adminBannerPreview");
-      const img = $("adminBannerPreviewImage"), video = $("adminBannerPreviewVideo"), yt = $("adminBannerPreviewYoutube");
-      [img, video, yt].forEach(el => { if (el) { el.classList.add("hidden"); if (el !== video) el.removeAttribute("src"); } });
+      const img = $("adminBannerPreviewImage"), video = $("adminBannerPreviewVideo"), yt = $("adminBannerPreviewYoutube"), link = $("adminBannerPreviewLink");
+      [img, video, yt, link].forEach(el => { if (el) { el.classList.add("hidden"); if (el !== video) el.removeAttribute("src"); } });
       if (video) { video.pause(); video.removeAttribute("src"); video.load(); }
       if (!url) { preview?.classList.add("hidden"); return; }
       const width = validHeaderWidth($("adminBannerWidth")?.value || "100%");
@@ -2231,6 +2241,9 @@
       else if (type === "youtube" && yt) {
         const id=getYoutubeVideoId(url);
         if (id) { yt.src=`https://www.youtube-nocookie.com/embed/${id}?controls=1&rel=0`; yt.style.width=width; yt.style.height=height+"px"; yt.classList.remove("hidden"); }
+      } else if (type === "link" && link && /^https?:\/\//i.test(url)) {
+        link.href = url; link.textContent = $("adminBannerLinkText")?.value || "Visitar enlace";
+        link.style.width = width; link.style.minHeight = height + "px"; link.classList.remove("hidden");
       }
       preview?.classList.remove("hidden");
     };
@@ -2239,6 +2252,7 @@
       const type = b.type || "image";
       if ($("adminBannerMediaType")) $("adminBannerMediaType").value = type;
       if ($("adminBannerUrl")) $("adminBannerUrl").value = b.url || "";
+      if ($("adminBannerLinkText")) $("adminBannerLinkText").value = b.linkText || "Visitar enlace";
       if ($("adminBannerWidth")) $("adminBannerWidth").value = b.width || "100%";
       if ($("adminBannerHeight")) $("adminBannerHeight").value = b.height || 150;
       if ($("adminBannerPosition")) $("adminBannerPosition").value = String(b.position ?? 1);
@@ -2273,11 +2287,13 @@
       const type = $("adminBannerMediaType").value;
       const url = normalizeUrl($("adminBannerUrl").value);
       if (!url) return alert("Introduce una URL o importa un archivo para el banner.");
+      if (type === "link" && !/^https?:\/\//i.test(url)) return alert("Introduce un enlace web completo que empiece por https:// o http://.");
       if (type === "youtube" && !getYoutubeVideoId(url)) return alert("El enlace de YouTube no parece válido.");
       if (type === "video" && !/\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url) && !confirm("La URL no termina en una extensión de vídeo habitual. ¿Quieres guardarla de todos modos?")) return;
       const tabs = selectedBannerTabs();
       const data = { graphicBanner: {
         enabled: $("adminBannerEnabled").checked, type, url,
+        linkText: ($("adminBannerLinkText")?.value || "Visitar enlace").trim().slice(0, 100),
         width: validHeaderWidth($("adminBannerWidth").value),
         height: Math.max(40, Math.min(1200, Number($("adminBannerHeight").value) || 150)),
         position: Math.max(0, Math.min(10, Number($("adminBannerPosition").value) || 0)),
