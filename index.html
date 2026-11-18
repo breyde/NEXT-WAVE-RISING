@@ -2431,7 +2431,7 @@
         batch.set(newRef, { ...cleanItem, timestamp: Date.now(), dateString: cleanItem.dateString || madridStr() });
         if (email && (targetCol === "active_list" || targetCol === "submissions")) {
           batch.set(db.collection("private_artist_contacts").doc(newRef.id), { email, artist: cleanItem.artist || "Artista", source: targetCol === "active_list" ? "active" : "weekly", updatedAt: Date.now() });
-          if (targetCol === "submissions") batch.set(db.collection("weekly_submitters").doc(email), { email, timestamp: Date.now() });
+          if (targetCol === "submissions" && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) batch.set(db.collection("weekly_submitters").doc(email), { email, timestamp: Date.now() });
         }
         await batch.commit();
         await loadAllLists();
@@ -2495,7 +2495,7 @@
                 addBatch.set(newRef, { ...cleanT, timestamp: Date.now(), dateString: t.dateString || madridStr() });
                 if (email && isContactList) {
                   addBatch.set(db.collection("private_artist_contacts").doc(newRef.id), { email, artist: cleanT.artist || "Artista", source: colName === "active_list" ? "active" : "weekly", updatedAt: Date.now() });
-                  if (colName === "submissions" && !addedSubmitters.has(email)) {
+                  if (colName === "submissions" && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email) && !addedSubmitters.has(email)) {
                     addBatch.set(db.collection("weekly_submitters").doc(email), { email, timestamp: Date.now() });
                     addedSubmitters.add(email);
                   }
@@ -2782,7 +2782,7 @@
         const batch = db.batch();
         batch.delete(db.collection("submissions").doc(id));
         batch.delete(contactRef);
-        if (email) batch.delete(db.collection("weekly_submitters").doc(email));
+        if (email && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) batch.delete(db.collection("weekly_submitters").doc(email));
         await batch.commit();
         await loadAllLists();
       } catch (e) { alert("Error al eliminar: " + e.message); }
