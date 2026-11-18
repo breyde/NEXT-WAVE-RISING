@@ -2045,6 +2045,76 @@
       } catch (e) { return ""; }
     }
 
+
+    const PLACEMENT_SELECTORS = {
+      1: () => { const h=document.querySelector('header'); return [h,h.firstElementChild]; },
+      2: () => { const h=document.querySelector('header'); return [h,$('brandHeaderContainer')]; },
+      3: () => { const h=document.querySelector('header'); return [h,$('btnInfoHeader')]; },
+      4: () => { const h=document.querySelector('header'); return [h,$('mainNavBar')]; },
+      5: () => { const h=document.querySelector('header'); return [h,null]; },
+      6: () => { const m=document.querySelector('main'); return [m,$('playerSection')]; },
+      7: () => { const m=document.querySelector('main'); const p=$('playerSection'); return [m,p ? p.nextElementSibling : null]; },
+      8: () => { const m=document.querySelector('main'); return [m,m.firstElementChild]; },
+      9: () => { const m=document.querySelector('main'); return [document.body,m ? m.nextElementSibling : null]; },
+      10: () => { const f=document.querySelector('footer'); return [document.body,f]; }
+    };
+    function placeManagedElement(el, position) {
+      if(!el) return;
+      const resolver=PLACEMENT_SELECTORS[Math.max(1,Math.min(10,Number(position)||2))];
+      const result=resolver(); const parent=result[0], before=result[1];
+      if(parent) parent.insertBefore(el,before||null);
+    }
+    function renderVisibilityChecks(containerId, selected) {
+      const box=$(containerId); if(!box) return;
+      const tabs=(config.tabsConfig||defaultTabsList).filter(t=>t.visible!==false);
+      const chosen=Array.isArray(selected)?selected:tabs.map(t=>t.id);
+      box.innerHTML=tabs.map(t=>'<label class="flex items-center gap-1.5 rounded-lg bg-zinc-900 p-2"><input type="checkbox" value="'+escapeHtml(t.id)+'" '+(chosen.includes(t.id)?'checked':'')+' class="accent-emerald-500"> '+escapeHtml(t.labelEs||t.id)+'</label>').join('');
+    }
+    function readVisibilityChecks(containerId) {
+      return Array.from($(containerId)?.querySelectorAll('input:checked')||[]).map(x=>x.value);
+    }
+    function updateManagedVisibility() {
+      const tab=currentActiveTab;
+      const logoTabs=Array.isArray(config.logoVisibleTabs)?config.logoVisibleTabs:null;
+      const bannerTabs=Array.isArray(config.bannerVisibleTabs)?config.bannerVisibleTabs:null;
+      $('brandHeaderContainer')?.classList.toggle('hidden',!!logoTabs&&!logoTabs.includes(tab));
+      const banner=$('brandBannerContainer');
+      if(banner) banner.classList.toggle('hidden',!config.bannerUrl||(bannerTabs&&!bannerTabs.includes(tab)));
+    }
+    function ensureBannerElement() {
+      let el=$('brandBannerContainer');
+      if(!el){el=document.createElement('div');el.id='brandBannerContainer';el.className='w-full flex justify-center items-center my-3';el.innerHTML='<img id="brandBannerImg" alt="Banner" class="mx-auto rounded-lg">';}
+      return el;
+    }
+    function applyBannerConfig() {
+      if(!config.bannerUrl){$('brandBannerContainer')?.remove();return;}
+      const el=ensureBannerElement(), img=el.querySelector('img');
+      img.src=config.bannerUrl;img.style.width=validHeaderWidth(config.bannerWidth||'100%');
+      img.style.height=Math.max(30,Math.min(1000,Number(config.bannerHeight)||120))+'px';
+      img.style.maxWidth='100%';img.style.objectFit=config.bannerFit||'contain';
+      placeManagedElement(el,config.bannerPosition||5);updateManagedVisibility();
+    }
+    window.handleBannerFileUpload = e => {
+      const file=e.target.files && e.target.files[0];if(!file)return;
+      handleExamineToGithubOrLocal(file,url=>{$('adminBannerUrl').value=url;$('adminBannerPreviewImg').src=url;$('adminBannerPreview').classList.remove('hidden');e.target.value='';});
+    };
+    window.saveBannerConfig = async () => {
+      const url=normalizeUrl($('adminBannerUrl').value);
+      if(!url)return alert('Añade una imagen o GIF para el banner.');
+      const data={bannerUrl:url,bannerWidth:validHeaderWidth($('adminBannerWidth').value),bannerHeight:Math.max(30,Math.min(1000,Number($('adminBannerHeight').value)||120)),bannerFit:$('adminBannerFit').value,bannerPosition:Number($('adminBannerPosition').value),bannerVisibleTabs:readVisibilityChecks('adminBannerTabs')};
+      try{Object.assign(config,data);await db.collection('settings').doc('activeEdition').set(data,{merge:true});applyBannerConfig();alert('Banner guardado.');}catch(e){alert('No se pudo guardar el banner: '+e.message);}
+    };
+    window.removeBanner = async () => {
+      if(!confirm('¿Quitar el banner de la web?'))return;
+      const data={bannerUrl:'',bannerVisibleTabs:[]};Object.assign(config,data);
+      await db.collection('settings').doc('activeEdition').set(data,{merge:true});$('brandBannerContainer')?.remove();$('adminBannerUrl').value='';
+    };
+    function loadBannerEditor() {
+      $('adminBannerUrl').value=config.bannerUrl||'';$('adminBannerWidth').value=config.bannerWidth||'100%';$('adminBannerHeight').value=config.bannerHeight||120;$('adminBannerFit').value=config.bannerFit||'contain';$('adminBannerPosition').value=String(config.bannerPosition||5);
+      renderVisibilityChecks('adminBannerTabs',config.bannerVisibleTabs);
+      if(config.bannerUrl){$('adminBannerPreviewImg').src=config.bannerUrl;$('adminBannerPreview').classList.remove('hidden');}
+    }
+
     function applyHeaderMediaConfig() {
       const type = config.headerMediaType || (config.logoUrl ? "image" : "text");
       const url = config.headerMediaUrl || config.logoUrl || "";
@@ -2143,6 +2213,9 @@
       $("adminHeaderYoutubeLoop").checked = !!config.headerYoutubeLoop;
       $("adminHeaderYoutubeControls").checked = config.headerYoutubeControls !== false;
       $("adminHeaderYoutubeStart").value = config.headerYoutubeStart || 0;
+      $("adminLogoPosition").value = String(config.logoPosition || 2);
+      renderVisibilityChecks("adminLogoTabs", config.logoVisibleTabs);
+      loadBannerEditor();
       updateHeaderMediaEditor();
     }
 
@@ -2200,11 +2273,15 @@
         headerYoutubeMute: $("adminHeaderYoutubeMute").checked,
         headerYoutubeLoop: $("adminHeaderYoutubeLoop").checked,
         headerYoutubeControls: $("adminHeaderYoutubeControls").checked,
-        headerYoutubeStart: Math.max(0, Number($("adminHeaderYoutubeStart").value) || 0)
+        headerYoutubeStart: Math.max(0, Number($("adminHeaderYoutubeStart").value) || 0),
+        logoPosition: Number($("adminLogoPosition").value || 2),
+        logoVisibleTabs: readVisibilityChecks("adminLogoTabs")
       };
       try {
         Object.assign(config, data);
         await db.collection("settings").doc("activeEdition").set(data, { merge: true });
+        placeManagedElement($("brandHeaderContainer"), data.logoPosition);
+        updateManagedVisibility();
         applyHeaderMediaConfig();
         alert("✅ Cabecera multimedia guardada.");
       } catch (e) { alert("Error al guardar la cabecera: " + e.message); }
@@ -2349,6 +2426,7 @@
       if (activeBtn) { activeBtn.classList.add('active', tab === 'chat' ? 'text-cyan-400' : 'text-emerald-400', 'border-emerald-500/40'); activeBtn.classList.remove('text-zinc-400', 'border-white/10'); }
       $("txtAdminBtn").textContent = translations[currentLang].adminBtn;
       renderFeaturedPlayer();
+      updateManagedVisibility();
       if (tab === 'chat' && currentChatNick) initChatRealtime();
     }
 
@@ -2950,6 +3028,8 @@
       $("adminTrackInput").value = config.trackUrl || "";
       applyHeaderMediaConfig();
       if ($("adminHeaderMediaType")) loadHeaderMediaEditor();
+      placeManagedElement($("brandHeaderContainer"), config.logoPosition || 2);
+      applyBannerConfig();
 
       if (!initialTabApplied && config.defaultTab) {
         initialTabApplied = true;
