@@ -406,7 +406,18 @@
 
         <!-- CONFIGURACIÓN AVANZADA -->
         <div id="adminViewConfig" class="hidden space-y-5 mb-8">
-          <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40">
+<div class="sticky top-2 z-20 rounded-xl border border-white/10 bg-zinc-950/95 p-2 shadow-xl">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
+    <button type="button" data-config-tab="galeria" onclick="switchConfigTab('galeria')" class="config-subtab px-2 py-2 rounded-lg bg-emerald-500 text-zinc-950 font-bold">🖼️ Galería</button>
+    <button type="button" data-config-tab="inicio" onclick="switchConfigTab('inicio')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🏠 Inicio</button>
+    <button type="button" data-config-tab="reproductores" onclick="switchConfigTab('reproductores')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🎵 Reproductores</button>
+    <button type="button" data-config-tab="pestanas" onclick="switchConfigTab('pestanas')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">📑 Pestañas</button>
+    <button type="button" data-config-tab="botones" onclick="switchConfigTab('botones')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🎨 Botones</button>
+    <button type="button" data-config-tab="avisos" onclick="switchConfigTab('avisos')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">📢 Avisos</button>
+    <button type="button" data-config-tab="cabecera" onclick="switchConfigTab('cabecera')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">🖼️ Cabecera</button>
+    <button type="button" data-config-tab="chat" onclick="switchConfigTab('chat')" class="config-subtab px-2 py-2 rounded-lg bg-zinc-900 text-zinc-300">💬 Chat</button>
+  </div></div>
+          <div class="glass rounded-2xl p-5 space-y-4 border border-sky-500/40" data-config-panel="galeria" >
             <div>
               <h3 class="font-bold text-sky-400 text-sm uppercase">🐙 Biblioteca multimedia GitHub (Carpeta <code>img/</code>)</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Importa imágenes, GIF y vídeos al repositorio <strong>breyde/NEXT-WAVE-RISING</strong>. Después podrás copiar sus URL o seleccionarlos directamente para la cabecera. Límite de vídeo: 50 MB por archivo.</p>
@@ -438,7 +449,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30" data-config-panel="inicio" class="hidden glass rounded-2xl p-5 space-y-4" >
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web y configura la visibilidad del tema destacado.</p>
@@ -466,7 +477,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30" data-config-panel="reproductores" class="hidden glass rounded-2xl p-5 space-y-4" >
             <div>
               <h3 class="font-bold text-purple-400 text-sm uppercase">🎵 Diseño y Reproducción Spotify por Lista</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige una lista para configurar el estilo visual del reproductor, su altura en píxeles y el segundo de inicio de la muestra.</p>
@@ -512,7 +523,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30" data-config-panel="pestanas" class="hidden glass rounded-2xl p-5 space-y-4" >
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">📑 Ordenar, Renombrar, Ocultar o Crear Pestañas</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Todas las pestañas visibles se reparten el ancho al 100 % por igual. Si dejas el nombre vacío y pones un GIF/icono, el icono llenará todo el recuadro de la pestaña.</p>
@@ -535,7 +546,7 @@
             <button type="button" onclick="saveTabsConfiguration()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Orden y Cambios de Pestañas</button>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-pink-500/30" data-config-panel="botones" class="hidden glass rounded-2xl p-5 space-y-4" >
             <div>
               <h3 class="font-bold text-pink-400 text-sm uppercase">🎨 Personalizar Botones e Indicador de Votación</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige cualquier botón o el indicador superior de <strong>Votación activa / inactiva</strong> para cambiar su texto, colores, tamaño o añadirle un GIF animado.</p>
@@ -606,7 +617,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30" data-config-panel="avisos" class="hidden glass rounded-2xl p-5 space-y-4" >
             <div>
               <h3 class="font-bold text-amber-400 text-sm uppercase">📢 Avisos Importantes en Cabecera de Pestañas</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Selecciona una pestaña y escribe el aviso. Si dejas la versión en inglés vacía, la web lo traducirá automáticamente cuando el usuario pulse 🇬🇧 EN o el botón Traducir.</p>
@@ -635,7 +646,7 @@
             </div>
           </div>
 
-          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-cyan-500/30" data-config-panel="cabecera" class="hidden glass rounded-2xl p-5 space-y-4" >
             <div>
               <h3 class="font-bold text-cyan-400 text-sm uppercase">🎬 Cabecera multimedia personalizable</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige texto, imagen/GIF, vídeo de tu biblioteca o un vídeo de YouTube. Configura tamaño y reproducción aquí.</p>
@@ -692,7 +703,7 @@
             <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
           </div>
 
-            <div class="glass rounded-2xl p-5 space-y-4">
+            <div class="glass rounded-2xl p-5 space-y-4" data-config-panel="chat" class="hidden glass rounded-2xl p-5 space-y-4" >
             <h3 class="font-bold text-emerald-400 text-sm uppercase">⚙️ Gestión de Usuarios del Chat</h3>
             <p class="text-xs text-zinc-300">Listado de nicks y direcciones IP registradas en la sala de chat.</p>
             <div id="adminChatUsersList" class="space-y-2.5 pt-2 text-xs"><p class="text-zinc-400 text-center py-4">Cargando usuarios de chat...</p></div>
@@ -1011,6 +1022,15 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
+    window.switchConfigTab = key => {
+      document.querySelectorAll('[data-config-panel]').forEach(panel => panel.classList.toggle('hidden', panel.dataset.configPanel !== key));
+      document.querySelectorAll('[data-config-tab]').forEach(btn => {
+        const active = btn.dataset.configTab === key;
+        btn.className = 'config-subtab px-2 py-2 rounded-lg ' + (active ? 'bg-emerald-500 text-zinc-950 font-bold' : 'bg-zinc-900 text-zinc-300 border border-white/10');
+      });
+      if (key === 'galeria') loadGithubGallery();
+    };
+
     const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'spotify', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
