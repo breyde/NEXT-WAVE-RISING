@@ -2749,7 +2749,7 @@
     // ==================== CHAT PÚBLICO ====================
     async function updateChatPresence() {
       if (!currentChatNick || !clientIp) return;
-      try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick, ip: clientIp }, { merge: true }); } catch (e) {}
+      try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick }, { merge: true }); } catch (e) {}
     }
 
     function listenActiveUsers() {
@@ -2784,12 +2784,9 @@
       if (nick.length < 2) { err.textContent = currentLang === 'es' ? "Mínimo 2 caracteres." : "Min 2 chars."; err.classList.remove('hidden'); return; }
       err.classList.add('hidden');
       try {
-        const usersRef = db.collection('chat_users');
-        if (clientIp && clientIp !== "unknown_ip") {
-          const q = await usersRef.where('ip', '==', clientIp).get();
-          if (!q.empty) { currentChatNick = q.docs[0].data().nick; localStorage.setItem('nwr_chat_nick', currentChatNick); return initChatRealtime(); }
-        }
-        await usersRef.add({ nick, ip: clientIp || "unknown_ip", timestamp: Date.now() });
+        // No consultar públicamente los registros de usuarios (pueden contener IP).
+        // El nick se conserva localmente en este dispositivo; cada entrada crea un registro.
+        await db.collection('chat_users').add({ nick, ip: clientIp || "unknown_ip", timestamp: Date.now() });
         currentChatNick = nick; localStorage.setItem('nwr_chat_nick', currentChatNick);
         initChatRealtime();
       } catch (e) { err.textContent = "Error al entrar."; err.classList.add('hidden'); }
