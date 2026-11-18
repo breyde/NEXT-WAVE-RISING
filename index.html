@@ -3199,7 +3199,7 @@
       if (isVotingCutoffReached()) { sessionPendingVotes = []; updateVotingUI(false); loadAllLists(); return alert(currentLang === 'es' ? "El plazo terminó a las 22:00. Estos votos no se han guardado." : "Voting closed at 22:00. These votes were not saved."); }
       const inp = $("globalVoterEmail"), em = inp.value.trim().toLowerCase();
       try {
-        if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) throw new Error("EMAIL_INVALID");
+        if (!em || !/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(em)) throw new Error("EMAIL_INVALID");
         const trackDocs = await Promise.all(sessionPendingVotes.map(tid => db.collection("active_list").doc(tid).get()));
         if (trackDocs.some(d => !d.exists)) throw new Error("TRACK_MISSING");
         const batch = db.batch();
@@ -3358,7 +3358,7 @@
 
         if (!$("confirmSaveCheckbox").checked) return err("Confirma que has guardado la playlist primero.", "Please confirm you saved the playlist first.");
         if (!artist || !title || !rawUrl || !email) return err("Rellena todos los campos (*).", "Fill in all required fields (*).");
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("Correo electrónico no válido.", "Please enter a valid email address.");
+        if (!/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(email)) return err("Correo electrónico no válido.", "Please enter a valid email address.");
         const cleanUrl = rawUrl.split("?")[0].trim();
         if (!/^https?:\/\/(open\.)?spotify\.com\/(intl-[a-z]{2}\/)?track\/[a-zA-Z0-9]{22}\/?$/.test(cleanUrl)) return err("Enlace no válido. Pega el enlace directo de la CANCIÓN en Spotify.", "Invalid link. Paste the direct Spotify TRACK link.");
 
