@@ -1984,14 +1984,36 @@
       const container = $("adminCountriesList"), badge = $("countriesCountBadge");
       try {
         const snap = await db.collection("artist_countries").get();
-        let visitorSnap = null;
+        let visitorSnap = null, weeklyPublicSnap = null;
         try { visitorSnap = await db.collection("visitor_countries").get(); } catch (visitorError) { console.warn("No se pudieron leer visitantes por país:", visitorError); }
+        try { weeklyPublicSnap = await db.collection("weekly_public").get(); } catch (weeklyError) { console.warn("No se pudieron leer envíos semanales por país:", weeklyError); }
         const visitorTotals = {};
+        const weeklyArtistTotals = {};
         if (visitorSnap) visitorSnap.forEach(doc => { const v = doc.data(), code = String(v.countryCode || "").toUpperCase(); if (!/^[A-Z]{2}$/.test(code)) return; if (!visitorTotals[code]) visitorTotals[code] = { country: v.country || code, flag: v.flag || flagFromCode(code), count: 0 }; visitorTotals[code].count++; });
+        if (weeklyPublicSnap) weeklyPublicSnap.forEach(doc => {
+          const w = doc.data(), code = String(w.countryCode || "").toUpperCase();
+          if (!/^[A-Z]{2}$/.test(code) || !w.country) return;
+          const key = String(w.artist || "Artista").trim().toLowerCase();
+          if (!weeklyArtistTotals[key]) weeklyArtistTotals[key] = {
+            artist: String(w.artist || "Artista"),
+            country: String(w.country),
+            flag: String(w.flag || flagFromCode(code)),
+            countryCode: code,
+            count: 0
+          };
+          weeklyArtistTotals[key].count++;
+        });
         const visitorSummary = $("visitorCountriesSummary");
         if (visitorSummary) {
           const rows = Object.entries(visitorTotals).sort((a,b) => b[1].count-a[1].count);
-          visitorSummary.innerHTML = rows.length ? '<div class="flex flex-wrap gap-2">' + rows.map(([code,v]) => '<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10">' + v.flag + ' <strong>' + escapeHtml(v.country) + '</strong> <span class="text-emerald-300">· ' + v.count + '</span></span>').join('') + '</div><p class="text-[10px] text-zinc-500">Visitantes únicos por navegador/dispositivo; puede haber duplicados entre dispositivos.</p>' : '<p class="text-zinc-400">Aún no hay visitantes geolocalizados. Recarga la web para probar.</p>';
+          const visitorHtml = rows.length
+            ? '<div class="flex flex-wrap gap-2">' + rows.map(([code,v]) => '<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10">' + v.flag + ' <strong>' + escapeHtml(v.country) + '</strong> <span class="text-emerald-300">· ' + v.count + '</span></span>').join('') + '</div><p class="text-[10px] text-zinc-500">Visitantes únicos por navegador/dispositivo; puede haber duplicados entre dispositivos.</p>'
+            : '<p class="text-zinc-400">Aún no hay visitantes geolocalizados.</p>';
+          const artistRows = Object.values(weeklyArtistTotals).sort((a,b) => b.count-a.count || a.artist.localeCompare(b.artist));
+          const artistHtml = artistRows.length
+            ? '<div class="pt-2 mt-2 border-t border-white/10"><h5 class="text-emerald-300 font-bold text-[11px] mb-2">🎵 Artistas que han enviado temas</h5><div class="flex flex-wrap gap-2">' + artistRows.map(v => '<span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10">' + v.flag + ' <strong>' + escapeHtml(v.artist) + '</strong> <span class="text-zinc-400">· ' + escapeHtml(v.country) + '</span> <span class="text-emerald-300">· ' + v.count + ' temas</span></span>').join('') + '</div><p class="text-[10px] text-zinc-500 mt-1">País detectado al enviar cada tema. Los envíos anteriores a esta actualización no incluyen ese dato.</p></div>'
+            : '<div class="pt-2 mt-2 border-t border-white/10"><h5 class="text-emerald-300 font-bold text-[11px] mb-1">🎵 Artistas que han enviado temas</h5><p class="text-zinc-400">Todavía no hay nuevos envíos con país registrado.</p></div>';
+          visitorSummary.innerHTML = visitorHtml + artistHtml;
         }
         countriesCache = [];
         snap.forEach(d => { const data = d.data(); if (data.email?.trim()) countriesCache.push({ id: d.id, ...data }); });
@@ -3974,9 +3996,20 @@
           if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya enviaste 1 canción en esta edición." : "⚠️ Already submitted 1 track."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
           if (dupTrack) { fb.textContent = currentLang === 'es' ? "⚠️ Esta canción ya está en la cola." : "⚠️ Track already in queue."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
 
-          // La IP se usa solo durante esta consulta; no se conserva en el registro de países.
-          const submitGeo = await fetchGeoByIp("");
-          const safeGeo = submitGeo || { country: "", city: "", flag: "🌐" };
+          // Reutilizar la geolocalización ya detectada para los visitantes.
+          // Solo consultar de nuevo si clientGeo todavía no contiene un país válido.
+          let safeGeo = clientGeo || null;
+          if (!safeGeo || !/^[A-Z]{2}$/.test(String(safeGeo.countryCode || "").toUpperCase()) || !safeGeo.country) {
+            await initClientIp();
+            safeGeo = clientGeo || null;
+          }
+          const countryCode = String(safeGeo?.countryCode || "").toUpperCase();
+          const hasCountry = /^[A-Z]{2}$/.test(countryCode) && !!String(safeGeo?.country || "").trim();
+          const publicCountry = hasCountry ? {
+            country: String(safeGeo.country).slice(0, 80),
+            countryCode,
+            flag: String(safeGeo.flag || flagFromCode(countryCode)).slice(0, 16)
+          } : {};
 
           const submissionRef = db.collection("submissions").doc();
           const publicSubmissionRef = db.collection("weekly_public").doc(submissionRef.id);
@@ -3984,10 +4017,9 @@
           const submittedDate = madridStr();
           const submissionBatch = db.batch();
           submissionBatch.set(submissionRef, { artist, title, url: cleanUrl, email, timestamp: submittedAt, dateString: submittedDate, votes: 0, voters: [] });
-          submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate });
+          submissionBatch.set(publicSubmissionRef, { artist, title, url: cleanUrl, timestamp: submittedAt, dateString: submittedDate, ...publicCountry });
           await submissionBatch.commit();
-          // Guardar solo el país validado; eliminar la IP del registro de Países.
-          await registerOrUpdateArtistCountry(artist, email, safeGeo);
+          // El país se guarda en el espejo público semanal, nunca el correo ni la IP.
           sessionStorage.removeItem("nwr_geo_self");
 
           $("receiptArtist").textContent = artist; $("receiptTitle").textContent = title; $("receiptEmail").textContent = email;
