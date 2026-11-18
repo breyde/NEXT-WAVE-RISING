@@ -306,6 +306,7 @@
           <button onclick="switchAdminTab('activa')" id="adminTabActiva" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">📻 Lista Activa (<span id="adminActiveCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('paises')" id="adminTabPaises" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🌍 Países (<span id="countriesCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('mensajes')" id="adminTabMensajes" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Mensajes (<span id="msgCountBadge">0</span>)</button>
+          <button onclick="switchAdminTab('guardados')" id="adminTabGuardados" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🔖 Guardados (<span id="saveReviewsCountBadge">0</span>)</button>
           <button onclick="switchAdminTab('config')" id="adminTabConfig" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Configuración</button>
           <button onclick="switchAdminTab('spotify')" id="adminTabSpotify" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">🎵 Sincronizar listas</button>
           <button onclick="switchAdminTab('backups')" id="adminTabBackups" class="px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap">Backups (<span id="backupsCountBadge">0</span>)</button>
@@ -413,6 +414,25 @@
               <span class="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-0.5 rounded-full font-bold">Total: <strong id="totalMsgCount">0</strong></span>
             </div>
             <div id="adminMessagesList" class="space-y-3 text-xs"><p class="text-zinc-400 text-center py-6">Cargando mensajes...</p></div>
+          </div>
+        </div>
+        <!-- REVISIÓN DE GUARDADOS SEMANALES -->
+        <div id="adminViewGuardados" class="hidden space-y-4">
+          <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/20">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div>
+                <h3 class="font-bold text-emerald-400 text-sm uppercase">🔖 Revisión de guardados semanales</h3>
+                <p class="text-[11px] text-zinc-400 mt-1">La declaración inicial solo indica que la persona marcó la casilla. «Revisado manualmente» significa que comprobaste la evidencia fuera de esta web.</p>
+              </div>
+              <button type="button" onclick="loadAdminSaveReviews()" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-200 text-[11px] font-bold">Actualizar</button>
+            </div>
+            <div class="flex flex-wrap gap-2 text-[10px] text-zinc-300">
+              <span class="px-2 py-1 rounded bg-zinc-800">Declarado</span>
+              <span class="px-2 py-1 rounded bg-amber-500/15 text-amber-300">Pendiente</span>
+              <span class="px-2 py-1 rounded bg-emerald-500/15 text-emerald-300">Revisado manualmente</span>
+              <span class="px-2 py-1 rounded bg-rose-500/15 text-rose-300">No acreditado</span>
+            </div>
+            <div id="adminSaveReviewsList" class="space-y-3 text-xs"><p class="text-zinc-400 text-center py-6">Cargando revisiones...</p></div>
           </div>
         </div>
 
@@ -1022,7 +1042,7 @@
     ];
 
     const backupScopeLabels = { all: "📦 Copia Completa (Todas las pestañas)", active: "📻 Lista Activa (On Air)", weekly: "🔥 Cola Semanal", monthly: "🗓️ Lista Mensual", annual: "📀 Lista Anual", countries: "🌍 Países (Artistas geolocalizados)" };
-    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'config', 'spotify', 'backups'];
+    const ADMIN_TABS = ['principal', 'activa', 'paises', 'mensajes', 'guardados', 'config', 'spotify', 'backups'];
     const presetHeights = { ultracompact: 80, compact: 152, standard: 232, large: 352, podcast: 152 };
 
     let currentLang = 'es', currentActiveTab = 'active', initialTabApplied = false, globalVotingActive = true, clientIp = "", clientGeo = { country: "", city: "", flag: "🌐" };
@@ -2376,7 +2396,7 @@
     });
 
     function switchAdminTab(tab) {
-      const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], config: ['adminTabConfig', 'adminViewConfig'], spotify: ['adminTabSpotify', 'adminViewSpotify'], backups: ['adminTabBackups', 'adminViewBackups'] };
+      const map = { principal: ['adminTabPrincipal', 'adminViewPrincipal'], activa: ['adminTabActiva', 'adminViewActiva'], paises: ['adminTabPaises', 'adminViewPaises'], mensajes: ['adminTabMensajes', 'adminViewMensajes'], guardados: ['adminTabGuardados', 'adminViewGuardados'], config: ['adminTabConfig', 'adminViewConfig'], spotify: ['adminTabSpotify', 'adminViewSpotify'], backups: ['adminTabBackups', 'adminViewBackups'] };
       ADMIN_TABS.forEach(k => {
         $(map[k][0]).className = "px-3 py-2 rounded-xl bg-zinc-900 text-zinc-300 font-bold text-xs transition border border-white/10 hover:bg-zinc-800 whitespace-nowrap";
         $(map[k][1]).classList.add('hidden');
@@ -2385,6 +2405,7 @@
       $(map[tab][1]).classList.remove('hidden');
       if (tab === 'paises') loadAdminCountries();
       else if (tab === 'mensajes') loadAdminMessages();
+      else if (tab === 'guardados') loadAdminSaveReviews();
       else if (tab === 'config') {
         updateGithubTokenStatus();
         loadGithubGallery();
