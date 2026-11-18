@@ -73,7 +73,7 @@ service cloud.firestore {
 
     // Compatibilidad temporal: el frontend antiguo consulta estos registros.
     match /voters_log/{document} {
-      allow read: if true;
+      allow read: if isCurator();
       allow create: if request.resource.data.keys().hasAll(['email', 'votedTracks', 'timestamp'])
         && request.resource.data.email is string
         && request.resource.data.votedTracks is list
@@ -106,13 +106,14 @@ service cloud.firestore {
       allow delete: if isCurator();
     }
     match /chat_users/{document} {
-      allow read: if true;
+      allow read: if isCurator();
       allow create: if request.resource.data.keys().hasAll(['nick', 'ip', 'timestamp']);
       allow update: if false;
       allow delete: if isCurator();
     }
     match /chat_presence/{document} {
-      allow read: if true;
+      // Se bloquea temporalmente la lectura pública hasta limpiar sesiones antiguas con IP.
+      allow read: if isCurator();
       allow create, update: if request.resource.data.keys().hasOnly(['lastSeen', 'nick', 'ip'])
         && request.resource.data.lastSeen is number
         && request.resource.data.nick is string;
