@@ -1,0 +1,164 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Sustituye el acceso genérico de cualquier usuario autenticado
+    // por la identidad exacta del curador. El UID no es una contraseña.
+    function isCurator() {
+      return signedIn() && request.auth.uid == "tNohkBzhmBML0E4eqmhw74hncUf2";
+    }
+
+    function validTrack(data) {
+      return data.keys().hasAll(['artist', 'title', 'url', 'timestamp'])
+        && data.artist is string
+        && data.title is string
+        && data.url is string
+        && data.url.matches('https?://(open\\.)?spotify\\.com/(intl-[a-z]{2}/)?track/[A-Za-z0-9]{22}/?')
+        && data.timestamp is number;
+    }
+
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+
+    match /submissions/{document} {
+      allow read: if true;
+      allow create: if validTrack(request.resource.data)
+        && request.resource.data.keys().hasOnly([
+          'artist', 'title', 'url', 'email', 'timestamp',
+          'dateString', 'votes', 'voters'
+        ]);
+      allow update, delete: if isCurator();
+    }
+
+    match /active_list/{document} {
+      allow read: if true;
+      allow create, delete: if isCurator();
+      // La web pública solo puede incrementar un voto y añadir un votante.
+      allow update: if isCurator() || (
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['votes', 'voters'])
+        && request.resource.data.votes == resource.data.votes + 1
+        && request.resource.data.voters is list
+        && resource.data.voters is list
+        && request.resource.data.voters.size() == resource.data.voters.size() + 1
+        && request.resource.data.voters.hasAll(resource.data.voters)
+      );
+    }
+
+    match /monthly_list/{document} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+
+    match /annual_list/{document} {
+      allow read: if true;
+      allow write: if isCurator();
+    }
+
+    match /voters_log/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll([
+          'email', 'votedTracks', 'timestamp'
+        ])
+        && request.resource.data.email is string
+        && request.resource.data.votedTracks is list
+        && request.resource.data.votedTracks.size() == 3
+        && request.resource.data.timestamp is number;
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+
+    match /artist_countries/{document} {
+      // El registro de país se actualiza tras el envío público de una canción.
+      // Estos permisos conservan el flujo actual, pero requieren endurecimiento
+      // adicional si se quiere impedir por completo la manipulación de metadatos.
+      allow read, delete: if isCurator();
+      allow create: if request.resource.data.keys().hasAll([
+          'email', 'artist', 'firstPublishedDate', 'lastSubmissionDate',
+          'submissionsCount', 'country', 'city', 'flag'
+        ])
+        && request.resource.data.email is string
+        && request.resource.data.artist is string
+        && request.resource.data.submissionsCount is number;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly([
+          'artist', 'flag', 'country', 'city', 'submissionsCount',
+          'lastSubmissionDate', 'ip', 'ipCapturedAt'
+        ])
+        && request.resource.data.submissionsCount is number;
+    }
+
+    match /backups/{document} {
+      allow read, write: if isCurator();
+    }
+
+    match /contact_messages/{document} {
+      allow create: if request.resource.data.keys().hasAll([
+          'name', 'email', 'message', 'timestamp'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.message is string
+        && request.resource.data.timestamp is number;
+      allow read, update, delete: if isCurator();
+    }
+
+    match /chat_messages/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll([
+          'nick', 'text', 'timestamp'
+        ])
+        && request.resource.data.nick is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 2000
+        && request.resource.data.timestamp is number;
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+
+    match /chat_users/{document} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll([
+          'nick', 'ip', 'timestamp'
+        ])
+        && request.resource.data.nick is string
+        && request.resource.data.timestamp is number;
+      allow update: if false;
+      allow delete: if isCurator();
+    }
+
+    match /chat_presence/{document} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly([
+          'lastSeen', 'nick', 'ip'
+        ])
+        && request.resource.data.lastSeen is number
+        && request.resource.data.nick is string;
+      allow delete: if true;
+    }
+
+    match /stats/{document} {
+      allow read: if true;
+      allow create: if document == 'visitors'
+        && request.resource.data.keys().hasOnly(['total'])
+        && request.resource.data.total == 1;
+      allow update: if isCurator() || (
+        document == 'visitors'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total'])
+        && request.resource.data.total is number
+        && request.resource.data.total == resource.data.total + 1
+      );
+      allow delete: if isCurator();
+    }
+
+    // Denegar por defecto cualquier colección no declarada.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
