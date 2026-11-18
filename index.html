@@ -2048,7 +2048,7 @@
 
     const PLACEMENT_SELECTORS = {
       1: () => { const h=document.querySelector('header'); return [h,h.firstElementChild]; },
-      2: () => { const h=document.querySelector('header'); return [h,$('brandHeaderContainer')]; },
+      2: () => { const h=document.querySelector('header'); const first=h.firstElementChild; return [h,first ? first.nextElementSibling : null]; },
       3: () => { const h=document.querySelector('header'); return [h,$('btnInfoHeader')]; },
       4: () => { const h=document.querySelector('header'); return [h,$('mainNavBar')]; },
       5: () => { const h=document.querySelector('header'); return [h,null]; },
