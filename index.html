@@ -2748,8 +2748,8 @@
 
     // ==================== CHAT PÚBLICO ====================
     async function updateChatPresence() {
-      if (!currentChatNick || !clientIp) return;
-      try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick }, { merge: true }); } catch (e) {}
+      if (!currentChatNick) return;
+      try { await db.collection('chat_presence').doc(chatSessionId).set({ lastSeen: Date.now(), nick: currentChatNick }); } catch (e) {}
     }
 
     function listenActiveUsers() {
