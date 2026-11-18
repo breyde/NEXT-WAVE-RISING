@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Migrar personalización · Next Wave Rising</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px;background:#09090b;color:#f4f4f5;font:16px system-ui;display:grid;place-items:center;min-height:100vh}
+main{width:min(100%,560px);background:#18181b;border:1px solid #3f3f46;border-radius:20px;padding:24px}
+h1{font-size:22px;margin:0 0 8px;color:#6ee7b7}p{color:#d4d4d8;line-height:1.5;font-size:14px}
+label{display:block;margin:16px 0 6px;font-size:13px;color:#a1a1aa}
+input{width:100%;padding:12px;border-radius:10px;background:#09090b;color:white;border:1px solid #52525b;font-size:16px}
+button{width:100%;padding:13px;margin-top:20px;border:0;border-radius:11px;background:linear-gradient(120deg,#10b981,#06b6d4);font-weight:800;color:#052e2b;font-size:15px}
+#status{margin-top:16px;padding:12px;border-radius:10px;background:#27272a;font-size:13px;white-space:pre-wrap}
+.small{font-size:12px;color:#a1a1aa}
+</style></head>
+<body><main>
+<h1>Recuperar personalizaciones antiguas</h1>
+<p>Esta herramienta copia únicamente el documento <b>settings / activeEdition</b> del Firebase antiguo al nuevo. Conserva vídeo de YouTube, logo, cabecera, pestañas, botones, avisos y opciones del reproductor. No modifica ni borra datos de las listas.</p>
+<p class="small">Inicia sesión en ambos proyectos con tu cuenta propietaria. La contraseña se envía directamente a Firebase Authentication; esta página no la guarda ni la envía a ningún otro servicio.</p>
+<label for="email">Correo de la cuenta propietaria</label><input id="email" type="email" autocomplete="username" value="br3yda@gmail.com">
+<label for="password">Contraseña de Firebase</label><input id="password" type="password" autocomplete="current-password">
+<button id="go">Copiar configuración antigua al proyecto nuevo</button>
+<div id="status" role="status">Preparado. No se cambiará nada hasta pulsar el botón.</div>
+</main>
+<script>
+const oldConfig={apiKey:"AIzaSyAW6xzueg8mEm5ArJkJT1CvqiFxsYRuYSQ",authDomain:"next-wave-rising-3ab56.firebaseapp.com",projectId:"next-wave-rising-3ab56",storageBucket:"next-wave-rising-3ab56.firebasestorage.app",messagingSenderId:"690671071183",appId:"1:690671071183:web:5e2d0db666c8c9bab86cba"};
+const newConfig={apiKey:"AIzaSyDW7_KYd_WuxAueeiFJnzemtOvjA_jL4us",authDomain:"pruebas-73346.firebaseapp.com",projectId:"pruebas-73346",storageBucket:"pruebas-73346.firebasestorage.app",messagingSenderId:"290779662064",appId:"1:290779662064:web:ecad6562b101f16b832435",measurementId:"G-S2BQXSVX1Y"};
+const oldApp=firebase.initializeApp(oldConfig,"old-project");
+const newApp=firebase.initializeApp(newConfig,"new-project");
+const oldAuth=oldApp.auth(),newAuth=newApp.auth();
+const oldDb=oldApp.firestore(),newDb=newApp.firestore();
+const status=document.getElementById("status"),button=document.getElementById("go");
+button.addEventListener("click",async()=>{
+ const email=document.getElementById("email").value.trim().toLowerCase();
+ const password=document.getElementById("password").value;
+ if(email!=="br3yda@gmail.com"||!password){status.textContent="Comprueba el correo propietario y la contraseña.";return;}
+ button.disabled=true;status.textContent="Conectando con Firebase antiguo y nuevo…";
+ try{
+  await oldAuth.signInWithEmailAndPassword(email,password);
+  status.textContent="Leyendo settings/activeEdition del proyecto antiguo…";
+  const snap=await oldDb.collection("settings").doc("activeEdition").get();
+  if(!snap.exists)throw new Error("No existe settings/activeEdition en el proyecto antiguo.");
+  const data=snap.data();
+  const keys=Object.keys(data||{});
+  if(!keys.length)throw new Error("El documento antiguo está vacío.");
+  status.textContent="Configuración encontrada ("+keys.length+" campos). Guardando una copia JSON en el proyecto nuevo…";
+  await newAuth.signInWithEmailAndPassword(email,password);
+  await newDb.collection("settings").doc("activeEdition").set(data,{merge:true});
+  const check=await newDb.collection("settings").doc("activeEdition").get();
+  if(!check.exists)throw new Error("No se pudo verificar el documento en el proyecto nuevo.");
+  const copied=Object.keys(check.data()||{});
+  status.textContent="✅ Migración completada y verificada.\nCampos del documento antiguo: "+keys.length+"\nCampos presentes en el nuevo: "+copied.length+"\n\nYa puedes volver a https://breyde.github.io/NEXT-WAVE-RISING/ y recargar. No se ha borrado ni modificado el proyecto antiguo.";
+ }catch(e){
+  const code=e&&e.code?e.code+" — ":"";
+  status.textContent="❌ No se pudo completar: "+code+(e&&e.message?e.message:"Error desconocido")+".\nNo se ha borrado ningún dato.";
+ }finally{button.disabled=false;}
+});
+</script></body></html>
