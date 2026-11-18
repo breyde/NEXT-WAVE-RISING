@@ -111,11 +111,17 @@ async function replacePlaylist(token, playlistId, uris) {
   const token = await getAccessToken();
   const saved = await getPlaylistConfig();
   const config = { ...saved.data, _ref: saved.ref };
-  const definitions = [
-    { key: "weeklyPlaylistId", name: "semanal_temp", source: "active_list", description: "Copia privada automática de la lista semanal de Next Wave Rising." },
-    { key: "monthlyPlaylistId", name: "mensual_temp", source: "monthly_list", description: "Copia privada automática de la lista mensual de Next Wave Rising." },
-    { key: "annualPlaylistId", name: "anual_temp", source: "annual_list", description: "Copia privada automática de la lista anual de Next Wave Rising." }
+  const allDefinitions = [
+    { target: "weekly", key: "weeklyPlaylistId", name: "semanal_temp", source: "active_list", description: "Copia privada automática de la lista semanal de Next Wave Rising." },
+    { target: "monthly", key: "monthlyPlaylistId", name: "mensual_temp", source: "monthly_list", description: "Copia privada automática de la lista mensual de Next Wave Rising." },
+    { target: "annual", key: "annualPlaylistId", name: "anual_temp", source: "annual_list", description: "Copia privada automática de la lista anual de Next Wave Rising." }
   ];
+  const requested = String(process.env.SYNC_TARGETS || "none").toLowerCase();
+  const publishRequested = String(process.env.PUBLISH_TARGETS || "none").toLowerCase();
+  const targets = requested === "none" ? (publishRequested !== "none" ? "all" : "all") : requested;
+  const allowed = targets === "all" ? ["weekly", "monthly", "annual"] : targets.split(",").map(x => x.trim());
+  const definitions = allDefinitions.filter(item => allowed.includes(item.target));
+  if (!definitions.length) throw new Error("No se ha seleccionado ninguna copia temporal válida.");
 
   for (const item of definitions) {
     const playlistId = await ensurePlaylist(token, config, item.key, item.name, item.description);
