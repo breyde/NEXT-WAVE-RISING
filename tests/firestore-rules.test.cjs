@@ -76,6 +76,20 @@ test("save declaration is private and tied atomically to a real submission", asy
     status: "declared", createdAt: 1, updatedAt: 1
   });
   await assertSucceeds(batch.commit());
+
+  // A declaration must be coupled to the unique email/edition claim.
+  const incompleteBatch = writeBatch(db);
+  incompleteBatch.set(doc(db, "submissions/review-song-without-claim"), {
+    artist: "Other Artist", title: "Other Song", url: TRACK_URL,
+    timestamp: 2, dateString: "18/11/2026", votes: 0
+  });
+  incompleteBatch.set(doc(db, "weekly_save_reviews/review-without-claim-123"), {
+    submissionId: "review-song-without-claim", email: "other@example.test",
+    artist: "Other Artist", title: "Other Song", edition: "Edición de prueba",
+    status: "declared", createdAt: 2, updatedAt: 2
+  });
+  await assertFails(incompleteBatch.commit());
+
   await assertFails(getDoc(doc(db, "weekly_save_reviews/review1234567890123456")));
   await assertSucceeds(getDoc(doc(curator(), "weekly_save_reviews/review1234567890123456")));
   await assertFails(setDoc(doc(db, "weekly_save_reviews/orphan"), {
