@@ -92,7 +92,7 @@ service cloud.firestore {
           'status', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.submissionId is string
-        && request.resource.data.email is string
+        && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.title is string
         && request.resource.data.edition is string
