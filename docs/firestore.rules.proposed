@@ -116,12 +116,14 @@ service cloud.firestore {
         && validEmail(request.resource.data.email)
         && request.resource.data.artist is string
         && request.resource.data.submissionsCount is number;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly([
+      allow update: if isCurator() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'artist', 'flag', 'country', 'city', 'submissionsCount',
           'lastSubmissionDate', 'ip', 'ipCapturedAt'
         ])
-        && request.resource.data.submissionsCount is number;
+        && resource.data.submissionsCount is number
+        && request.resource.data.submissionsCount == resource.data.submissionsCount + 1
+      );
     }
 
     match /backups/{document} {
