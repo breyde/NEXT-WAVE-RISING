@@ -1789,18 +1789,21 @@
       try {
         // Leer todas las listas sin orderBy: así también entran documentos antiguos
         // que no tengan timestamp, y se recuperan artistas tras las rotaciones.
-        const [snapW, snapA, snapM, snapY, snapC] = await Promise.all([
+        const [snapW, snapA, snapM, snapY, snapC, snapContacts] = await Promise.all([
           db.collection("submissions").get(),
           db.collection("active_list").get(),
           db.collection("monthly_list").get(),
           db.collection("annual_list").get(),
-          db.collection("artist_countries").get()
+          db.collection("artist_countries").get(),
+          db.collection("private_artist_contacts").get()
         ]);
         const existingMap = {};
         snapC.forEach(d => existingMap[d.id] = d.data());
+        const contactMap = {};
+        snapContacts.forEach(d => contactMap[d.id] = d.data());
         const grouped = {};
         const addDoc = doc => {
-          const d = doc.data(), em = (d.email || "").trim().toLowerCase();
+          const d = doc.data(), em = String(d.email || contactMap[doc.id]?.email || "").trim().toLowerCase();
           if (!em) return;
           const id = em.replace(/[.#$\/\[\]]/g, "_"), dt = d.dateString || madridStr();
           if (!grouped[id]) {
