@@ -1677,7 +1677,27 @@
       renderFeaturedPlayer();
     }
 
-    function getAdminTabsConfig(){if(!Array.isArray(config.adminTabsConfig)||!config.adminTabsConfig.length)config.adminTabsConfig=JSON.parse(JSON.stringify(DEFAULT_ADMIN_TABS));return config.adminTabsConfig;}
+    function getAdminTabsConfig(){
+      if(!Array.isArray(config.adminTabsConfig)||!config.adminTabsConfig.length){
+        config.adminTabsConfig=JSON.parse(JSON.stringify(DEFAULT_ADMIN_TABS));
+        return config.adminTabsConfig;
+      }
+      const tabs=config.adminTabsConfig;
+      // Compatibilidad con la pestaña antigua "config": ahora se llama "ajustes".
+      const legacyConfigIndex=tabs.findIndex(t=>t&&t.id==="config");
+      if(legacyConfigIndex>=0&&!tabs.some(t=>t&&t.id==="ajustes")){
+        tabs[legacyConfigIndex]={...tabs[legacyConfigIndex],id:"ajustes",label:tabs[legacyConfigIndex].label||"⚙️ AJUSTES"};
+      }
+      // Recupera pestañas integradas que falten sin alterar el orden ya personalizado.
+      const existingIds=new Set(tabs.filter(Boolean).map(t=>t.id));
+      DEFAULT_ADMIN_TABS.forEach(def=>{
+        if(!existingIds.has(def.id)){
+          tabs.push({...def});
+          existingIds.add(def.id);
+        }
+      });
+      return tabs;
+    }
     function renderAdminNavigation(){const bar=$("adminTabsBar");if(!bar)return;bar.innerHTML=getAdminTabsConfig().filter(t=>t.visible!==false).map(t=>{const img=t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-5 w-5 object-contain inline-block mr-1">':"";let badge="";if(t.id==="activa")badge=' (<span id="adminActiveCountBadge">0</span>)';if(t.id==="paises")badge=' (<span id="countriesCountBadge">0</span>)';if(t.id==="mensajes")badge=' (<span id="msgCountBadge">0</span>)';if(t.id==="backups")badge=' (<span id="backupsCountBadge">0</span>)';return '<button type="button" onclick="switchAdminTab(\'' + t.id + '\')" id="adminTab' + t.id + '" class="' + (t.id==="principal"?"admin-tab-active":"") + '">' + img + escapeHtml(t.label||t.id.toUpperCase()) + badge + '</button>';}).join("");}
     function renderAdminCustomViews(){const host=$("adminView");if(!host)return;let area=$("adminCustomViews");if(!area){area=document.createElement("div");area.id="adminCustomViews";host.appendChild(area);}area.innerHTML=getAdminTabsConfig().filter(t=>t.custom).map(t=>'<div id="adminCustomView' + t.id + '" class="hidden glass rounded-2xl p-5 space-y-3"><h3 class="font-bold text-violet-300">' + escapeHtml(t.label) + '</h3>' + (t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-10 w-10 object-contain">':"") + '<div class="text-sm text-zinc-200 whitespace-pre-line">' + escapeHtml(t.content||"") + '</div></div>').join("");}
     function renderAdminAdminTabsManager(){const box=$("adminAdminTabsManagerList");if(!box)return;box.innerHTML=getAdminTabsConfig().map((t,i)=>{const img=t.iconUrl?'<img src="' + escapeHtml(normalizeUrl(t.iconUrl)) + '" class="h-6 w-6 object-contain">':"";return '<div class="p-3 bg-zinc-950 rounded-xl border border-white/10 space-y-2"><div class="flex justify-between items-center gap-2"><label class="flex items-center gap-2"><input type="checkbox" ' + (t.visible!==false?"checked":"") + ' onchange="updateAdminTab(' + i + ',\'visible\',this.checked)" class="accent-emerald-500">' + img + '<b>' + escapeHtml(t.label||t.id) + '</b></label><div class="flex gap-1"><button onclick="moveAdminTab(' + i + ',-1)" class="px-2 py-1 bg-zinc-800 rounded">⬆️</button><button onclick="moveAdminTab(' + i + ',1)" class="px-2 py-1 bg-zinc-800 rounded">⬇️</button>' + (t.custom?'<button onclick="deleteAdminCustomTab(' + i + ')" class="px-2 py-1 bg-rose-500/20 text-rose-300 rounded">🗑️</button>':"") + '</div></div><input value="' + escapeHtml(t.label||"") + '" onchange="updateAdminTab(' + i + ',\'label\',this.value)" placeholder="Nombre" class="w-full px-2 py-1.5 rounded bg-zinc-900 border border-zinc-700 text-white"><div class="flex gap-2"><input value="' + escapeHtml(t.iconUrl||"") + '" onchange="updateAdminTab(' + i + ',\'iconUrl\',this.value)" placeholder="URL del icono" class="flex-1 min-w-0 px-2 py-1.5 rounded bg-zinc-900 border border-zinc-700 text-white"><label class="px-2 py-1 bg-violet-500/20 rounded cursor-pointer">📁<input type="file" accept="image/*" class="hidden" onchange="handleExistingAdminTabIcon(event,' + i + ')"></label></div></div>';}).join("");}
