@@ -1,0 +1,32 @@
+name: Firestore rules tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "firestore.rules"
+      - "firebase.json"
+      - "tests/**"
+      - ".github/workflows/firestore-rules-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  firestore-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install isolated test dependencies
+        run: npm install --no-save firebase-tools @firebase/rules-unit-testing firebase
+      - name: Run Firestore emulator tests
+        run: npx firebase emulators:exec --only firestore --project demo-next-wave-rising "node --test tests/firestore-rules.test.cjs"
