@@ -51,6 +51,9 @@ test("public submissions contain no contact email; private contact is unreadable
   await assertSucceeds(setDoc(doc(db, "private_artist_contacts/song1"), {
     email: EMAIL, artist: "Test Artist", source: "weekly", updatedAt: 1
   }));
+  await assertFails(setDoc(doc(db, "private_artist_contacts/bad"), {
+    email: "not-an-email", artist: "Test Artist", source: "weekly", updatedAt: 1
+  }));
   await assertFails(getDoc(doc(db, "private_artist_contacts/song1")));
   await assertSucceeds(getDoc(doc(curator(), "private_artist_contacts/song1")));
 });
@@ -110,9 +113,10 @@ test("artist country data is private and public counter only increments", async 
 
 test("contact messages and chat-user records are private", async () => {
   const db = anon();
-  await assertSucceeds(addDoc(collection(db, "contact_messages"), {
+  const contact = await addDoc(collection(db, "contact_messages"), {
     name: "Participant", email: EMAIL, message: "Hello", timestamp: 1
-  }));
+  });
+  await assertFails(getDoc(doc(db, "contact_messages", contact.id)));
   const msg = await addDoc(collection(db, "chat_users"), {
     nick: "Participant", ip: "192.0.2.1", timestamp: 1
   });
