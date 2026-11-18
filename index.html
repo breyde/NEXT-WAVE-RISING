@@ -129,7 +129,7 @@
       <video id="brandHeaderVideo" class="hidden mx-auto" playsinline preload="metadata"></video>
       <iframe id="brandHeaderYoutube" class="hidden mx-auto border-0" title="Vídeo de cabecera de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
     </div>
-    <div id="graphicBannerContainer" class="hidden w-full flex justify-center items-center px-2 py-2"><img id="graphicBannerImage" alt="Banner promocional" class="hidden max-w-full object-contain rounded-xl"><video id="graphicBannerVideo" class="hidden max-w-full rounded-xl" playsinline preload="metadata"></video><iframe id="graphicBannerYoutube" class="hidden max-w-full border-0 rounded-xl" title="Vídeo del banner de YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe><a id="graphicBannerLink" class="hidden max-w-full rounded-xl border border-fuchsia-400/40 bg-gradient-to-r from-fuchsia-500/20 to-cyan-500/20 px-5 py-4 text-center font-bold text-white shadow-lg hover:brightness-110 transition" target="_blank" rel="noopener noreferrer"></a></div>
+    <div id="graphicBannersHost" class="w-full"></div>
 
     <span id="mediaPositionSlot1" class="hidden" aria-hidden="true"></span>
     <button id="btnInfoHeader" onclick="openInfoModal()" class="w-full py-2 px-3 rounded-full bg-zinc-900/85 hover:bg-zinc-800/90 border border-emerald-500/30 hover:border-emerald-400/60 text-emerald-300 font-semibold text-[10px] sm:text-xs tracking-wide flex items-center justify-center gap-1.5 shadow-sm transition whitespace-nowrap overflow-hidden">
@@ -476,8 +476,10 @@
           </div>
           <div class="glass rounded-2xl p-5 space-y-4 border border-fuchsia-500/30">
             <div>
-              <h3 class="font-bold text-fuchsia-300 text-sm uppercase">🖼️ Banner multimedia independiente</h3>
-              <p class="text-[11px] text-zinc-400">Admite imagen/GIF, vídeo de tu biblioteca y YouTube, igual que la cabecera. Configura dónde lo verá el público.</p>
+              <h3 class="font-bold text-fuchsia-300 text-sm uppercase">🖼️ Banners multimedia</h3>
+              <p class="text-[11px] text-zinc-400">Crea varios banners independientes, cada uno con sus propias pestañas y ajustes.</p>
+            </div>
+            <div class="rounded-xl bg-zinc-950/70 border border-fuchsia-500/20 p-3 space-y-2"><label class="block text-[11px] text-zinc-200 font-bold">Gestionar banners</label><div class="flex gap-2"><select id="adminBannerSelect" onchange="selectGraphicBanner(this.value)" class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></select><button type="button" onclick="newGraphicBanner()" class="px-3 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-bold">＋ Nuevo</button></div><div id="adminBannerList" class="space-y-1 text-[10px] text-zinc-400"></div></div>
             </div>
             <div>
               <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Contenido del banner:</label>
@@ -2166,7 +2168,7 @@
       const viewId = tab?.custom ? "view_" + currentActiveTab : "view" + currentActiveTab.charAt(0).toUpperCase() + currentActiveTab.slice(1);
       const view = document.getElementById(viewId);
       if (!view) return;
-      const excluded = new Set(["brandHeaderContainer", "graphicBannerContainer"]);
+      const excluded = new Set(["brandHeaderContainer", "graphicBannersHost"]);
       const children = Array.from(view.children).filter(el => !excluded.has(el.id) && !/^mediaPositionSlot/.test(el.id || "") && !el.classList.contains("hidden") && (el.children.length > 0 || (el.textContent || "").trim().length > 0));
       for (let n = 5; n <= 10; n++) {
         const target = children[n - 5];
@@ -2182,7 +2184,7 @@
       ensureDynamicMediaPositionSlots();
       const items = [
         { el: $("brandHeaderContainer"), pos: Math.max(0, Math.min(10, Number(config.headerPosition ?? 1))) },
-        { el: $("graphicBannerContainer"), pos: Math.max(0, Math.min(10, Number(config.graphicBanner?.position ?? 1))) }
+        ...Array.from($("graphicBannersHost")?.children || []).map(el => ({ el, pos: Math.max(0, Math.min(10, Number(el.dataset.position ?? 1))) }))
       ];
       for (let n = 0; n <= 10; n++) {
         const marker = $("mediaPositionSlot" + n);
