@@ -697,10 +697,34 @@
             </div>
             <div id="adminLogoPreviewBox" class="hidden p-3 bg-zinc-950 rounded-xl border border-white/10 flex flex-col items-center gap-2"><span class="text-[10px] text-zinc-400 uppercase">Vista previa del archivo:</span><img id="adminLogoPreviewImg" src="" alt="Vista previa" class="max-h-24 w-full object-contain rounded-lg"></div>
             <div class="flex flex-wrap gap-2">
+
+            <div class="border-t border-white/10 pt-4 space-y-3">
+              <h4 class="text-xs font-bold text-cyan-300 uppercase">📍 Posición y visibilidad del logo</h4>
+              <div><label class="block text-[11px] text-zinc-300 mb-1">Altura / posición (1 a 10):</label>
+                <select id="adminLogoPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+                  <option value="1">1 · Encima de los botones superiores</option><option value="2">2 · Debajo de los botones superiores</option><option value="3">3 · Encima del botón de información</option><option value="4">4 · Debajo del botón de información</option><option value="5">5 · Debajo de las pestañas</option><option value="6">6 · Encima del reproductor</option><option value="7">7 · Debajo del reproductor</option><option value="8">8 · Antes del contenido de listas</option><option value="9">9 · Después del contenido principal</option><option value="10">10 · Encima del pie de página</option>
+                </select>
+              </div>
+              <div><p class="text-[11px] text-zinc-300 mb-2">Mostrar logo en estas pestañas:</p><div id="adminLogoTabs" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div></div>
+            </div>
               <button type="button" onclick="saveHeaderMediaConfig()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar cabecera</button>
               <button type="button" onclick="resetBrandLogoToText()" class="px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl text-xs border border-white/10 transition">Restaurar texto</button>
             </div>
             <div id="adminHeaderMediaPreview" class="w-full rounded-xl border border-white/10 bg-zinc-950 p-2 text-center text-[10px] text-zinc-500">La cabecera se actualizará al guardar los cambios.</div>
+          <div class="mt-4 rounded-2xl border border-amber-500/30 bg-zinc-950/40 p-4 space-y-3">
+            <h4 class="text-xs font-bold text-amber-300 uppercase">🏷️ Banner independiente</h4>
+            <p class="text-[10px] text-zinc-400">Imagen o GIF con tamaño, posición y visibilidad independientes del logo.</p>
+            <div><label class="block text-[11px] text-zinc-300 mb-1">URL de imagen / GIF:</label><div class="flex gap-2"><input type="url" id="adminBannerUrl" placeholder="https://..." class="min-w-0 flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><label class="px-3 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold cursor-pointer">Examinar<input type="file" id="adminBannerFile" accept="image/*" onchange="handleBannerFileUpload(event)" class="hidden"></label></div></div>
+            <div class="grid grid-cols-2 gap-2"><div><label class="block text-[11px] text-zinc-300 mb-1">Ancho</label><input id="adminBannerWidth" value="100%" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div><div><label class="block text-[11px] text-zinc-300 mb-1">Alto (px)</label><input type="number" id="adminBannerHeight" min="30" max="1000" value="120" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"></div></div>
+            <div><label class="block text-[11px] text-zinc-300 mb-1">Ajuste</label><select id="adminBannerFit" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white"><option value="contain">Contener</option><option value="cover">Cubrir</option><option value="fill">Estirar</option></select></div>
+            <div><label class="block text-[11px] text-zinc-300 mb-1">Altura / posición (1 a 10)</label><select id="adminBannerPosition" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-xs text-white">
+              <option value="1">1 · Encima de los botones superiores</option><option value="2">2 · Debajo de los botones superiores</option><option value="3">3 · Encima del botón de información</option><option value="4">4 · Debajo del botón de información</option><option value="5">5 · Debajo de las pestañas</option><option value="6">6 · Encima del reproductor</option><option value="7">7 · Debajo del reproductor</option><option value="8">8 · Antes del contenido de listas</option><option value="9">9 · Después del contenido principal</option><option value="10">10 · Encima del pie de página</option>
+            </select></div>
+            <div><p class="text-[11px] text-zinc-300 mb-2">Mostrar banner en estas pestañas:</p><div id="adminBannerTabs" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div></div>
+            <div class="flex gap-2"><button type="button" onclick="saveBannerConfig()" class="flex-1 py-2.5 bg-amber-500 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar banner</button><button type="button" onclick="removeBanner()" class="px-3 py-2.5 bg-zinc-800 text-zinc-300 rounded-xl text-xs">Quitar</button></div>
+            <div id="adminBannerPreview" class="hidden rounded-xl bg-black p-2"><img id="adminBannerPreviewImg" alt="Vista previa del banner" class="max-h-28 mx-auto object-contain"></div>
+          </div>
+
           </div>
 
             <div class="glass rounded-2xl p-5 space-y-4" data-config-panel="chat" class="hidden glass rounded-2xl p-5 space-y-4" >
