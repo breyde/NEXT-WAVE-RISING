@@ -60,7 +60,8 @@ service cloud.firestore {
       // El correo es el ID del documento. Solo el curador puede leer los registros.
       // Los participantes solo pueden crear su propio documento una vez.
       allow read: if isCurator();
-      allow create: if document == request.resource.data.email
+      allow create: if isCurator() || (
+        document == request.resource.data.email
         && request.resource.data.keys().hasOnly(['email', 'votedTracks', 'timestamp'])
         && request.resource.data.email is string
         && request.resource.data.email.size() >= 5
@@ -68,8 +69,9 @@ service cloud.firestore {
         && request.resource.data.email.matches('.*@.*')
         && request.resource.data.votedTracks is list
         && request.resource.data.votedTracks.size() == 3
-        && request.resource.data.timestamp is number;
-      allow update: if false;
+        && request.resource.data.timestamp is number
+      );
+      allow update: if isCurator();
       allow delete: if isCurator();
     }
 
