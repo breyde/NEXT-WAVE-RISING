@@ -3030,7 +3030,7 @@
       if (isVotingCutoffReached()) { sessionPendingVotes = []; updateVotingUI(false); loadAllLists(); return alert(currentLang === 'es' ? "El plazo terminó a las 22:00. Estos votos no se han guardado." : "Voting closed at 22:00. These votes were not saved."); }
       const inp = $("globalVoterEmail"), em = inp.value.trim().toLowerCase();
       try {
-        if (!em || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(em)) throw new Error("EMAIL_INVALID");
+        if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) throw new Error("EMAIL_INVALID");
         const trackDocs = await Promise.all(sessionPendingVotes.map(tid => db.collection("active_list").doc(tid).get()));
         if (trackDocs.some(d => !d.exists)) throw new Error("TRACK_MISSING");
         const batch = db.batch();
