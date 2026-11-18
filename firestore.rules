@@ -76,6 +76,31 @@ service cloud.firestore {
       allow update, delete: if isCurator();
     }
 
+    match /weekly_save_reviews/{reviewId} {
+      allow read: if isCurator();
+      // El participante solo puede declarar su propio envío en el mismo batch.
+      allow create: if request.resource.data.keys().hasOnly([
+          'submissionId', 'email', 'artist', 'title', 'edition',
+          'status', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.submissionId is string
+        && validEmail(request.resource.data.email)
+        && request.resource.data.artist is string
+        && request.resource.data.title is string
+        && request.resource.data.edition is string
+        && request.resource.data.status == 'declared'
+        && request.resource.data.createdAt is number
+        && request.resource.data.updatedAt is number
+        && existsAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId))
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId)).data.artist == request.resource.data.artist
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.submissionId)).data.title == request.resource.data.title;
+      allow update, delete: if isCurator();
+    }
+
+    match /weekly_save_review_history/{eventId} {
+      allow read, create, update, delete: if isCurator();
+    }
+
     match /weekly_submitters/{document} {
       // Documento único por correo y edición; el participante solo puede crearlo.
       allow read: if isCurator();
