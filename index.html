@@ -3451,7 +3451,7 @@
             }
             const deleteRefs = snapActive.docs.flatMap(doc => [
               doc.ref,
-              ...(winner && doc.id !== winner.ref.id ? [db.collection("private_artist_contacts").doc(doc.id)] : [])
+              ...((winner && (winner.data.votes || 0) > 0 && doc.id === winner.ref.id) ? [] : [db.collection("private_artist_contacts").doc(doc.id)])
             ]);
             for (let i = 0; i < deleteRefs.length; i += 400) {
               const batch = db.batch();
@@ -3487,7 +3487,11 @@
           }
 
           const sVot = await db.collection("voters_log").get();
-          if (!sVot.empty) { const bV = db.batch(); sVot.docs.forEach(d => bV.delete(d.ref)); await bV.commit(); }
+          for (let i = 0; i < sVot.docs.length; i += 400) {
+            const bV = db.batch();
+            sVot.docs.slice(i, i + 400).forEach(d => bV.delete(d.ref));
+            await bV.commit();
+          }
           sessionPendingVotes = []; lockedRandomOrder = null;
           config.votingActive = true;
           await db.collection("settings").doc("activeEdition").set({ votingActive: true, ...(winner ? { trackUrl: winner.data.url } : {}) }, { merge: true });
@@ -3498,13 +3502,14 @@
               artist: winner.data.artist, title: winner.data.title, url: winner.data.url,
               timestamp: Date.now(), dateString: madridStr(), votes: 0
             });
-            if (winner.email) {
+            if (winner.email && /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(winner.email.trim())) {
+              const winnerEmail = winner.email.trim().toLowerCase();
               const batch = db.batch();
               batch.set(db.collection("private_artist_contacts").doc(winner.ref.id), {
-                email: winner.email.trim().toLowerCase(), artist: winner.data.artist || "Artista", source: "weekly", updatedAt: Date.now()
+                email: winnerEmail, artist: winner.data.artist || "Artista", source: "weekly", updatedAt: Date.now()
               }, { merge: true });
-              batch.set(db.collection("weekly_submitters").doc(winner.email.trim().toLowerCase()), {
-                email: winner.email.trim().toLowerCase(), timestamp: Date.now()
+              batch.set(db.collection("weekly_submitters").doc(winnerEmail), {
+                email: winnerEmail, timestamp: Date.now()
               });
               await batch.commit();
             }
