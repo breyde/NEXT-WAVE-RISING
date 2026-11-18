@@ -1756,31 +1756,33 @@
       try {
         const docId = cleanEmail.replace(/[.#$\\/\\[\\]]/g, "_");
         const docRef = db.collection("artist_countries").doc(docId);
-        const snap = await docRef.get();
         const nowStr = madridStr();
         const cleanGeo = {
           country: countryKnown ? country : "Desconocido",
           city: countryKnown ? (geo.city || "") : "",
           flag: countryKnown ? (geo.flag || "🌐") : "🌐"
         };
-
-        if (snap.exists) {
-          const prev = snap.data();
+        const initialRecord = {
+          email: cleanEmail,
+          artist: artistName || "Artista",
+          firstPublishedDate: nowStr,
+          lastSubmissionDate: nowStr,
+          submissionsCount: 1,
+          ...cleanGeo
+        };
+        try {
+          // La creación pública no necesita leer el documento (que contiene email).
+          await docRef.set(initialRecord);
+        } catch (createError) {
+          if (createError.code !== "permission-denied") throw createError;
+          // Si ya existe, solo incrementa el contador sin leer ni exponer el correo.
           await docRef.update({
-            submissionsCount: (prev.submissionsCount || 1) + 1,
+            artist: artistName || "Artista",
+            submissionsCount: firebase.firestore.FieldValue.increment(1),
             lastSubmissionDate: nowStr,
             ...cleanGeo,
             ip: firebase.firestore.FieldValue.delete(),
             ipCapturedAt: firebase.firestore.FieldValue.delete()
-          });
-        } else {
-          await docRef.set({
-            email: cleanEmail,
-            artist: artistName || "Artista",
-            firstPublishedDate: nowStr,
-            lastSubmissionDate: nowStr,
-            submissionsCount: 1,
-            ...cleanGeo
           });
         }
         return cleanGeo;
