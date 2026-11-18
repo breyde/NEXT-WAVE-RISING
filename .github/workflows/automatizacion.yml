@@ -20,6 +20,17 @@ on:
           - annual
           - all
         default: none
+      temp_sync_targets:
+        description: "Copias temporales que se actualizarán manualmente"
+        required: false
+        type: choice
+        options:
+          - none
+          - weekly
+          - monthly
+          - annual
+          - all
+        default: none
 
 permissions:
   contents: read
@@ -63,7 +74,10 @@ jobs:
         run: npm run automation
 
       - name: Sincronizar playlists privadas de Spotify
-        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.FIREBASE_SERVICE_ACCOUNT != '' && env.SPOTIFY_REFRESH_TOKEN != ''
+        if: (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.temp_sync_targets != 'none' || inputs.publish_targets != 'none'))) && env.FIREBASE_SERVICE_ACCOUNT != '' && env.SPOTIFY_REFRESH_TOKEN != ''
+        env:
+          SYNC_TARGETS: ${{ inputs.temp_sync_targets }}
+          PUBLISH_TARGETS: ${{ inputs.publish_targets }}
         run: npm run spotify-sync
 
       - name: Publicar en playlists publicas por solicitud manual
