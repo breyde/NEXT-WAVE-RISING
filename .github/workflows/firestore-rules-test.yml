@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "firestore.rules"
+      - "index.html"
+      - "docs/**"
       - "firebase.json"
       - "tests/**"
       - ".github/workflows/firestore-rules-test.yml"
