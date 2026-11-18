@@ -2985,6 +2985,23 @@
       const aSub = $("submissionsList"), pSub = $("publicSubmissionsList");
       if (subRes.status === "fulfilled") {
         subs = subRes.value.docs.map(d => ({ id: d.id, ...d.data() }));
+        // El administrador migra a la colección pública únicamente los campos visibles,
+        // sin correo ni datos privados, para recuperar las propuestas históricas.
+        if (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com") {
+          try {
+            const publicSnap = await db.collection("weekly_public").get();
+            const publicIds = new Set(publicSnap.docs.map(d => d.id));
+            const missing = subs.filter(x => !publicIds.has(x.id));
+            for (let i = 0; i < missing.length; i += 450) {
+              const batch = db.batch();
+              missing.slice(i, i + 450).forEach(x => batch.set(db.collection("weekly_public").doc(x.id), {
+                artist: x.artist || "", title: x.title || "", url: x.url || "",
+                timestamp: Number(x.timestamp) || Date.now(), dateString: x.dateString || ""
+              }));
+              await batch.commit();
+            }
+          } catch (e) { console.warn("No se pudo recuperar la cola pública:", e); }
+        }
         $("subCount").textContent = $("publicSubCount").textContent = subs.length;
         if (!subs.length) {
           aSub.innerHTML = '<p class="text-zinc-400">Sin propuestas en la cola semanal.</p>';
