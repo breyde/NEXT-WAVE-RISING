@@ -3,7 +3,7 @@ const admin = require("firebase-admin");
 const SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT;
 const ACTION = String(process.env.MANUAL_LIST_ACTION || "none").toLowerCase();
 if (!SERVICE_ACCOUNT) throw new Error("Falta FIREBASE_SERVICE_ACCOUNT.");
-if (!["active_to_monthly", "queue_to_active"].includes(ACTION)) {
+if (!["active_to_monthly", "queue_to_active", "featured_to_queue"].includes(ACTION)) {
   throw new Error("Acción de rotación manual no válida: " + ACTION);
 }
 admin.initializeApp({ credential: admin.credential.cert(JSON.parse(SERVICE_ACCOUNT)) });
@@ -101,6 +101,56 @@ async function activeToMonthly() {
   }
   console.log("Correcto: " + active.length + " temas movidos de active_list a monthly_list. active_list queda vacía.");
 }
+
+async function featuredToQueue() {
+  const editionSnap = await db.collection("settings").doc("activeEdition").get();
+  const edition = editionSnap.exists ? editionSnap.data() : {};
+  const url = String(edition.trackUrl || "").trim().split("?")[0];
+  const match = url.match(/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?track\/([A-Za-z0-9]{22})/);
+  if (!match) throw new Error("No hay un enlace válido guardado en Tema Destacado.");
+  const trackId = match[1];
+  const [queueSnap, publicSnap] = await Promise.all([
+    db.collection("submissions").get(), db.collection("weekly_public").get()
+  ]);
+  if ([...queueSnap.docs, ...publicSnap.docs].some(d => String(d.data().url || "").split("?")[0].includes(trackId))) {
+    throw new Error("El Tema Destacado ya está en la cola semanal. No se ha duplicado.");
+  }
+  const backupRef = db.collection("backups").doc("featured_queue_" + suffix);
+  await backupRef.set({
+    scope: "featured_track_to_weekly_queue", action: ACTION, timestamp: now,
+    collections: {
+      submissions: queueSnap.docs.map(d => ({id:d.id,...d.data()})),
+      weekly_public: publicSnap.docs.map(d => ({id:d.id,...d.data()})),
+      activeEdition: edition
+    }
+  });
+  const backup = await backupRef.get();
+  if (!backup.exists || backup.data().collections.submissions.length !== queueSnap.size ||
+      backup.data().collections.weekly_public.length !== publicSnap.size) {
+    throw new Error("No se pudo verificar la copia de seguridad. No se añadirá el tema.");
+  }
+  const data = {
+    artist: String(edition.featuredArtist || edition.trackArtist || "Tema destacado").trim(),
+    title: String(edition.featuredTitle || edition.trackTitle || "Tema destacado").trim(),
+    url, email: "", timestamp: now,
+    dateString: new Date(now).toLocaleString("es-ES", {timeZone:"Europe/Madrid"}),
+    votes: 0, voters: [], source: "featured_track"
+  };
+  const id = "featured_" + trackId;
+  const batch = db.batch();
+  batch.set(db.collection("submissions").doc(id), data);
+  batch.set(db.collection("weekly_public").doc(id), {
+    artist:data.artist,title:data.title,url,timestamp:now,source:"featured_track"
+  });
+  await batch.commit();
+  const [q,p] = await Promise.all([
+    db.collection("submissions").doc(id).get(),
+    db.collection("weekly_public").doc(id).get()
+  ]);
+  if (!q.exists || !p.exists) throw new Error("No se pudo verificar la incorporación.");
+  console.log("Tema destacado añadido a la cola semanal interna. Spotify no se ha modificado.");
+}
+
 async function queueToActive() {
   const data = await snapshotCollections(["submissions", "active_list"]);
   const queue = data.submissions;
@@ -140,7 +190,8 @@ async function queueToActive() {
 
 (async () => {
   if (ACTION === "active_to_monthly") await activeToMonthly();
-  else await queueToActive();
+  else if (ACTION === "queue_to_active") await queueToActive();
+  else await featuredToQueue();
   await db.collection("settings").doc("manualListRotation").set({
     lastAction: ACTION, lastRunAt: now, lastStatus: "success"
   }, { merge: true });
