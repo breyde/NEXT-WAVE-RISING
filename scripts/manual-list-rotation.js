@@ -153,11 +153,25 @@ async function featuredToQueue() {
 }
 
 async function queueToActive() {
-  const data = await snapshotCollections(["submissions", "active_list"]);
+  const data = await snapshotCollections(["submissions", "active_list", "weekly_public"]);
   const queue = data.submissions;
   const active = data.active_list;
-  if (!queue.length) throw new Error("La cola semanal está vacía. No hay temas que pasar a activa.");
-  if (active.length) throw new Error("La lista activa todavía contiene " + active.length + " temas. Primero pásala a mensual para evitar sobrescribir canciones.");
+  const publicWeekly = data.weekly_public;
+
+  // La web pública lee weekly_public, mientras el administrador autenticado lee submissions.
+  // Limpiamos también el espejo público de los temas que ya están en active_list.
+  const activeUrls = new Set(active.map(x => String(x.url || "").split("?")[0]).filter(Boolean));
+  const activeIds = new Set(active.map(x => x.id));
+  const stalePublic = publicWeekly.filter(x =>
+    activeIds.has(x.id) || (x.url && activeUrls.has(String(x.url).split("?")[0]))
+  );
+
+  if (!queue.length && !stalePublic.length) {
+    throw new Error("La cola semanal ya está vacía y su espejo público está sincronizado.");
+  }
+  if (queue.length && active.length) {
+    throw new Error("La lista activa todavía contiene " + active.length + " temas. Primero pásala a mensual para evitar sobrescribir canciones.");
+  }
   await saveVerifiedBackup(data);
 
   const ops = [];
@@ -173,20 +187,42 @@ async function queueToActive() {
     }});
     ops.push({ type: "delete", ref: db.collection("submissions").doc(item.id) });
   }
+  for (const item of publicWeekly) {
+    const matchesMovedQueue = queue.some(q =>
+      q.id === item.id || (q.url && item.url && String(q.url).split("?")[0] === String(item.url).split("?")[0])
+    );
+    if (matchesMovedQueue || stalePublic.some(x => x.id === item.id)) {
+      ops.push({ type: "delete", ref: db.collection("weekly_public").doc(item.id) });
+    }
+  }
   await commitOperations(ops);
 
-  const [activeCheck, queueCheck] = await Promise.all([
-    db.collection("active_list").get(), db.collection("submissions").get()
+  const [activeCheck, queueCheck, publicCheck] = await Promise.all([
+    db.collection("active_list").get(),
+    db.collection("submissions").get(),
+    db.collection("weekly_public").get()
   ]);
-  if (activeCheck.size !== queue.length || !queueCheck.empty) {
+  if (queue.length && (activeCheck.size !== active.length + queue.length || queueCheck.size !== 0)) {
     throw new Error("La verificación posterior no coincide. Conserva la copia de seguridad manual y revisa Firebase.");
   }
-  await db.collection("settings").doc("activeEdition").set({
-    votingActive: true,
-    votingReopenedAt: new Date(now).toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
-    lastManualRotationAt: now
-  }, { merge: true });
-  console.log("Correcto: " + queue.length + " temas movidos de submissions a active_list. Los votos se han reiniciado.");
+  const remainingPublicStale = publicCheck.docs.filter(d => {
+    const x = d.data(), url = String(x.url || "").split("?")[0];
+    return activeIds.has(d.id) || (url && activeUrls.has(url));
+  });
+  if (remainingPublicStale.length) {
+    throw new Error("La cola interna se movió, pero quedan entradas antiguas en weekly_public. Revisa Firebase.");
+  }
+
+  if (queue.length) {
+    await db.collection("settings").doc("activeEdition").set({
+      votingActive: true,
+      votingReopenedAt: new Date(now).toLocaleString("es-ES", { timeZone: "Europe/Madrid" }),
+      lastManualRotationAt: now
+    }, { merge: true });
+    console.log("Correcto: " + queue.length + " temas movidos de submissions a active_list y retirados de weekly_public.");
+  } else {
+    console.log("Correcto: " + stalePublic.length + " entradas antiguas retiradas de weekly_public. La lista activa se conserva intacta.");
+  }
 }
 
 (async () => {
