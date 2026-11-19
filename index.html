@@ -772,6 +772,18 @@
             <p id="spotifyTempSyncStatus" class="text-xs text-zinc-300 bg-zinc-900/70 rounded-xl p-3">Listo para ejecutar una actualización manual.</p>
             <p class="text-[10px] text-amber-200/90 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">La operación sustituye el contenido de la copia temporal seleccionada por los datos actuales de Firebase. No toca las playlists públicas.</p>
           </div>
+          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
+            <div>
+              <h3 class="font-bold text-amber-300 text-sm uppercase">🔁 Rotación manual de listas internas</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Estas acciones modifican las colecciones de tu app Firebase. No publican ni modifican playlists de Spotify.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button type="button" onclick="triggerManualListRotation('active_to_monthly')" class="px-3 py-3 rounded-xl bg-amber-500/15 text-amber-200 border border-amber-500/40 font-bold text-xs">📦 Pasar lista activa → mensual</button>
+              <button type="button" onclick="triggerManualListRotation('queue_to_active')" class="px-3 py-3 rounded-xl bg-amber-500/15 text-amber-200 border border-amber-500/40 font-bold text-xs">⬆️ Pasar cola semanal → activa</button>
+            </div>
+            <p id="manualListRotationStatus" class="text-xs text-zinc-300 bg-zinc-900/70 rounded-xl p-3">Listo para realizar la rotación manual en la app.</p>
+            <p class="text-[10px] text-amber-100/90 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">Primero pasa la lista activa a mensual. Después pasa la cola semanal a activa. Se guarda una copia de seguridad antes de cada operación.</p>
+          </div>
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🎵 Sincronizar listas de Spotify</h3>
@@ -2850,6 +2862,42 @@
         alert("Orden enviada a GitHub Actions. La actualización puede tardar unos minutos.");
       } catch (e) {
         if (status) status.textContent = "No se pudo iniciar la actualización: " + e.message;
+        alert("No se pudo iniciar: " + e.message);
+      }
+    };
+
+    window.triggerManualListRotation = async action => {
+      const token = getGithubToken();
+      if (!token) return alert("Primero guarda tu GitHub Token en Configuración.");
+      const definitions = {
+        active_to_monthly: {
+          label: "pasar todos los temas de la LISTA ACTIVA a la lista MENSUAL de la app",
+          confirm: "Se moverán los temas de active_list a monthly_list y se vaciará active_list. Se guardará una copia de seguridad. No se tocará Spotify."
+        },
+        queue_to_active: {
+          label: "pasar toda la COLA SEMANAL a la LISTA ACTIVA de la app",
+          confirm: "Se moverán los temas de submissions a active_list, reiniciando sus votos. Esta acción requiere que la lista activa esté vacía. Se guardará una copia de seguridad. No se tocará Spotify."
+        }
+      };
+      const item = definitions[action];
+      if (!item) return;
+      if (!confirm("¿Confirmas " + item.label + "?\n\n" + item.confirm)) return;
+      const status = $("manualListRotationStatus");
+      if (status) status.textContent = "Enviando la orden: " + item.label + "...";
+      try {
+        const response = await fetch("https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/actions/workflows/automatizacion.yml/dispatches", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Content-Type": "application/json", "X-GitHub-Api-Version": "2022-11-28" },
+          body: JSON.stringify({ ref: "main", inputs: { publish_targets: "none", temp_sync_targets: "none", manual_list_action: action } })
+        });
+        if (response.status !== 204) {
+          let detail = ""; try { const data = await response.json(); detail = data.message || ""; } catch (_) {}
+          throw new Error(response.status === 403 ? "GitHub ha rechazado el permiso. El token necesita Actions: Read and write." : "GitHub respondió " + response.status + (detail ? ": " + detail : ""));
+        }
+        if (status) status.textContent = "Orden enviada. GitHub realizará la operación en Firebase. Comprueba el resultado en Actions antes de lanzar la siguiente rotación.";
+        alert("Orden enviada. La operación modifica las listas internas de la app, no Spotify. Espera a que termine en GitHub Actions antes de ejecutar la segunda.");
+      } catch (e) {
+        if (status) status.textContent = "No se pudo iniciar la rotación: " + e.message;
         alert("No se pudo iniciar: " + e.message);
       }
     };
