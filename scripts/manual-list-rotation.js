@@ -1,12 +1,19 @@
 const admin = require("firebase-admin");
 
 const SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT;
+const EXPECTED_FIREBASE_PROJECT = "pruebas-73346";
 const ACTION = String(process.env.MANUAL_LIST_ACTION || "none").toLowerCase();
 if (!SERVICE_ACCOUNT) throw new Error("Falta FIREBASE_SERVICE_ACCOUNT.");
 if (!["active_to_monthly", "queue_to_active", "featured_to_queue"].includes(ACTION)) {
   throw new Error("Acción de rotación manual no válida: " + ACTION);
 }
-admin.initializeApp({ credential: admin.credential.cert(JSON.parse(SERVICE_ACCOUNT)) });
+const serviceAccount = JSON.parse(SERVICE_ACCOUNT);
+const actualProject = String(serviceAccount.project_id || "").trim();
+console.log("Firebase destino: " + (actualProject || "SIN project_id") + " | esperado: " + EXPECTED_FIREBASE_PROJECT);
+if (actualProject !== EXPECTED_FIREBASE_PROJECT) {
+  throw new Error("El secreto FIREBASE_SERVICE_ACCOUNT apunta a otro proyecto. No se ha modificado ninguna lista.");
+}
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount), projectId: EXPECTED_FIREBASE_PROJECT });
 const db = admin.firestore();
 const now = Date.now();
 const suffix = new Date(now).toISOString().replace(/[-:.TZ]/g, "");
@@ -96,8 +103,11 @@ async function activeToMonthly() {
   const [activeCheck, monthlyCheck] = await Promise.all([
     db.collection("active_list").get(), db.collection("monthly_list").get()
   ]);
-  if (!activeCheck.empty || monthlyCheck.size !== monthly.length) {
-    throw new Error("La verificación posterior no coincide. Conserva la copia de seguridad manual y revisa Firebase.");
+  const expectedMonthlyIds = new Set(monthly.map(item => item.id));
+  const actualMonthlyIds = new Set(monthlyCheck.docs.map(doc => doc.id));
+  const missingMonthly = [...expectedMonthlyIds].filter(id => !actualMonthlyIds.has(id));
+  if (!activeCheck.empty || monthlyCheck.size !== monthly.length || missingMonthly.length) {
+    throw new Error("La verificación posterior no coincide: activa=" + activeCheck.size + ", mensual=" + monthlyCheck.size + "/" + monthly.length + ", faltan=" + missingMonthly.length + ". Conserva la copia de seguridad y revisa Firebase.");
   }
   console.log("Correcto: " + active.length + " temas movidos de active_list a monthly_list. active_list queda vacía.");
 }
