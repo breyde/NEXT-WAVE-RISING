@@ -109,8 +109,8 @@ async function featuredToQueue() {
   const match = url.match(/open\.spotify\.com\/(?:intl-[a-z]{2}\/)?track\/([A-Za-z0-9]{22})/);
   if (!match) throw new Error("No hay un enlace válido guardado en Tema Destacado.");
   const trackId = match[1];
-  const [queueSnap, publicSnap] = await Promise.all([
-    db.collection("submissions").get(), db.collection("weekly_public").get()
+  const [queueSnap, publicSnap, activeSnap] = await Promise.all([
+    db.collection("submissions").get(), db.collection("weekly_public").get(), db.collection("active_list").get()
   ]);
   if ([...queueSnap.docs, ...publicSnap.docs].some(d => String(d.data().url || "").split("?")[0].includes(trackId))) {
     throw new Error("El Tema Destacado ya está en la cola semanal. No se ha duplicado.");
@@ -121,7 +121,8 @@ async function featuredToQueue() {
     collections: {
       submissions: queueSnap.docs.map(d => ({id:d.id,...d.data()})),
       weekly_public: publicSnap.docs.map(d => ({id:d.id,...d.data()})),
-      activeEdition: edition
+      activeEdition: edition,
+      active_list: activeSnap.docs.map(d => ({id:d.id,...d.data()}))
     }
   });
   const backup = await backupRef.get();
@@ -130,8 +131,8 @@ async function featuredToQueue() {
     throw new Error("No se pudo verificar la copia de seguridad. No se añadirá el tema.");
   }
   const data = {
-    artist: String(edition.featuredArtist || edition.trackArtist || "Tema destacado").trim(),
-    title: String(edition.featuredTitle || edition.trackTitle || "Tema destacado").trim(),
+    artist: String(edition.featuredArtist || edition.trackArtist || activeSnap.docs.find(d => String(d.data().url || "").split("?")[0] === url)?.data().artist || "Tema destacado").trim(),
+    title: String(edition.featuredTitle || edition.trackTitle || activeSnap.docs.find(d => String(d.data().url || "").split("?")[0] === url)?.data().title || "Tema destacado").trim(),
     url, email: "", timestamp: now,
     dateString: new Date(now).toLocaleString("es-ES", {timeZone:"Europe/Madrid"}),
     votes: 0, voters: [], source: "featured_track"
