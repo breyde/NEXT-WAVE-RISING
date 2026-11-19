@@ -73,6 +73,22 @@ jobs:
           echo "Añadelo en Settings > Secrets and variables > Actions."
           echo "La ejecucion queda omitida hasta configurar Firebase."
 
+      - name: Verificar destino de Firebase sin revelar credenciales
+        if: env.FIREBASE_SERVICE_ACCOUNT != ''
+        run: |
+          node - <<'NODE'
+          const account = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+          const actual = String(account.project_id || '');
+          const expected = 'pruebas-73346';
+          console.log('Proyecto Firebase del secreto: ' + (actual || 'SIN project_id'));
+          console.log('Proyecto Firebase de la web: ' + expected);
+          if (actual !== expected) {
+            console.error('ERROR: FIREBASE_SERVICE_ACCOUNT apunta a otro proyecto. No se ejecutarán rotaciones.');
+            process.exit(1);
+          }
+          console.log('Correcto: GitHub Actions y la web apuntan al mismo proyecto.');
+          NODE
+
       - name: Instalar dependencias
         if: env.FIREBASE_SERVICE_ACCOUNT != ''
         run: npm install --omit=dev
