@@ -39,6 +39,7 @@ on:
           - none
           - active_to_monthly
           - queue_to_active
+          - featured_to_queue
         default: none
 
 permissions:
