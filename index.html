@@ -2868,8 +2868,7 @@
     };
 
     window.triggerManualListRotation = async action => {
-      const token = getGithubToken();
-      if (!token) return alert("Primero guarda tu GitHub Token en Configuración.");
+      const status = $("manualListRotationStatus");
       const definitions = {
         active_to_monthly: {
           label: "pasar todos los temas de la LISTA ACTIVA a la lista MENSUAL de la app",
@@ -2877,13 +2876,28 @@
         },
         queue_to_active: {
           label: "pasar toda la COLA SEMANAL a la LISTA ACTIVA de la app",
-          confirm: "Se moverán los temas de submissions a active_list, reiniciando sus votos. Esta acción requiere que la lista activa esté vacía. Se guardará una copia de seguridad. No se tocará Spotify."
+          confirm: "Se moverán los temas de submissions a active_list, reiniciando sus votos. La lista activa debe estar vacía. Se limpiará también la cola pública semanal. Se guardará una copia de seguridad. No se tocará Spotify."
+        },
+        featured_to_queue: {
+          label: "añadir el TEMA DESTACADO a la COLA SEMANAL de la app",
+          confirm: "Se añadirá el enlace guardado en Tema Destacado a submissions y weekly_public. Si ya está en la cola, no se duplicará. Se guardará una copia de seguridad. No se tocará Spotify."
         }
       };
       const item = definitions[action];
-      if (!item) return;
-      if (!confirm("¿Confirmas " + item.label + "?\n\n" + item.confirm)) return;
-      const status = $("manualListRotationStatus");
+      if (!item) {
+        if (status) status.textContent = "Acción no reconocida: " + action;
+        return;
+      }
+      const token = getGithubToken();
+      if (!token) {
+        if (status) status.textContent = "No se ha enviado: falta guardar el GitHub Token en Configuración.";
+        alert("Primero guarda tu GitHub Token en Configuración.");
+        return;
+      }
+      if (!confirm("¿Confirmas " + item.label + "?\n\n" + item.confirm)) {
+        if (status) status.textContent = "Operación cancelada. No se han modificado las listas.";
+        return;
+      }
       if (status) status.textContent = "Enviando la orden: " + item.label + "...";
       try {
         const response = await fetch("https://api.github.com/repos/" + GH_OWNER + "/" + GH_REPO + "/actions/workflows/automatizacion.yml/dispatches", {
