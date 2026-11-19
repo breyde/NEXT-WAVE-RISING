@@ -8,7 +8,8 @@
     "automation": "node scripts/weekly-rotation.js",
     "spotify-sync": "node scripts/spotify-sync.js",
     "spotify-publish": "node scripts/spotify-publish.js",
-    "spotify-auto-publish": "node scripts/spotify-auto-publish.js"
+    "spotify-auto-publish": "node scripts/spotify-auto-publish.js",
+    "manual-list-rotation": "node scripts/manual-list-rotation.js"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0"
