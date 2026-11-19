@@ -31,6 +31,15 @@ on:
           - annual
           - all
         default: none
+      manual_list_action:
+        description: "Rotación manual de las listas internas de Firebase"
+        required: false
+        type: choice
+        options:
+          - none
+          - active_to_monthly
+          - queue_to_active
+        default: none
 
 permissions:
   contents: read
@@ -72,6 +81,12 @@ jobs:
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: npm run automation
+
+      - name: Rotar listas internas manualmente en Firebase
+        if: github.event_name == 'workflow_dispatch' && inputs.manual_list_action != 'none' && env.FIREBASE_SERVICE_ACCOUNT != ''
+        env:
+          MANUAL_LIST_ACTION: ${{ inputs.manual_list_action }}
+        run: npm run manual-list-rotation
 
       - name: Sincronizar playlists privadas de Spotify
         if: (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.temp_sync_targets != 'none' || inputs.publish_targets != 'none'))) && env.FIREBASE_SERVICE_ACCOUNT != '' && env.SPOTIFY_REFRESH_TOKEN != ''
