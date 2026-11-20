@@ -132,7 +132,10 @@ async function annualToMonthly() {
   const monthlyIds = new Set(monthly.map(item => item.id));
   const moved = annual.map(item => ({
     id: "annual_to_monthly_" + suffix + "_" + item.id,
-    data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id"))
+    data: {
+      ...Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id")),
+      weekKey: item.weekKey || isoWeekKeyFromTimestamp(item.timestamp)
+    }
   }));
   const monthlyRef = db.collection("monthly_list");
   const annualRef = db.collection("annual_list");
