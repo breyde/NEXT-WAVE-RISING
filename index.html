@@ -657,6 +657,34 @@
           </div>
         </div>
         <div id="adminViewDiseno" class="hidden space-y-5 mb-8">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
+            <div>
+              <h3 class="font-bold text-amber-300 text-sm uppercase">📢 Avisos públicos de texto</h3>
+              <p class="text-[11px] text-zinc-400 mt-1">Aquí puedes recuperar, editar o quitar los mensajes de aviso que aparecen en la web. Selecciona una sola pestaña cada vez; los avisos que ya están publicados se conservan.</p>
+            </div>
+            <div class="space-y-2">
+              <label for="adminNoticeTabSelect" class="block text-[11px] text-zinc-300 font-semibold">Pestaña donde se mostrará el aviso:</label>
+              <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></select>
+            </div>
+            <div class="space-y-1.5">
+              <label for="adminNoticeTextInput" class="block text-[11px] text-zinc-300 font-semibold">Texto del aviso (español):</label>
+              <textarea id="adminNoticeTextInput" rows="4" placeholder="Escribe el mensaje que aparecerá en la pestaña seleccionada..." class="w-full px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white resize-y"></textarea>
+            </div>
+            <div class="space-y-1.5">
+              <label for="adminNoticeTextEnInput" class="block text-[11px] text-zinc-300 font-semibold">Texto del aviso (inglés, opcional):</label>
+              <textarea id="adminNoticeTextEnInput" rows="3" placeholder="Optional English version..." class="w-full px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white resize-y"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="saveTabNotice()" class="py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar aviso</button>
+              <button type="button" onclick="deleteTabNotice(document.getElementById('adminNoticeTabSelect').value)" class="py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/30 font-bold rounded-xl text-xs">🗑️ Quitar de esta pestaña</button>
+            </div>
+            <div class="pt-3 border-t border-white/10 space-y-2">
+              <h4 class="text-xs font-bold text-amber-200">Avisos que siguen publicados</h4>
+              <div id="adminActiveNoticesList" class="space-y-2 text-xs">
+                <p class="text-zinc-500 italic text-[11px]">Cargando avisos...</p>
+              </div>
+            </div>
+          </div>
           <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
             <div><h3 class="font-bold text-emerald-400 text-sm uppercase">✨ Contador de prestigio</h3><p class="text-[11px] text-zinc-400 mt-1">Añade un bonus visual al contador público. Las visitas reales se conservan por separado.</p></div>
             <label class="block text-xs text-zinc-300" for="visitorPrestigeBonusInput">Bonus de prestigio</label>
@@ -2529,6 +2557,17 @@
       }
     }
 
+    function renderNoticeEditorTabOptions() {
+      const select = $("adminNoticeTabSelect");
+      if (!select) return;
+      const tabs = config.tabsConfig || defaultTabsList;
+      const previous = select.value;
+      select.innerHTML = tabs.map(t => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.labelEs || t.id.toUpperCase())}</option>`).join("");
+      if (previous && tabs.some(t => t.id === previous)) select.value = previous;
+      else if (tabs.length) select.value = tabs[0].id;
+      window.loadSelectedTabNoticeToForm();
+    }
+
     window.loadSelectedTabNoticeToForm = () => {
       const k = $("adminNoticeTabSelect").value;
       $("adminNoticeTextInput").value = (config.tabNotices || {})[k] || "";
@@ -2967,7 +3006,7 @@
     function switchAdminTab(tab){
       const tabs=getAdminTabsConfig(),item=tabs.find(t=>t.id===tab&&t.visible!==false);if(!item)tab=tabs.find(t=>t.visible!==false&&!t.custom)?.id||"principal";
       tabs.forEach(t=>{const btn=$("adminTab"+t.id);if(btn)btn.classList.toggle("admin-tab-active",t.id===tab);const view=$("adminView"+t.id.charAt(0).toUpperCase()+t.id.slice(1));if(view)view.classList.toggle("hidden",t.id!==tab);const cv=$("adminCustomView"+t.id);if(cv)cv.classList.toggle("hidden",t.id!==tab);});
-      if(tab==="principal"){loadHeaderMediaEditor();loadGraphicBannerEditor();}else if(tab==="paises")loadAdminCountries();else if(tab==="mensajes")loadAdminMessages();else if(tab==="galeria"){updateGithubTokenStatus();loadGithubGallery();}else if(tab==="diseno"){renderAdminTabsManager();renderAdminAdminTabsManager();loadButtonCustomForm();loadSelectedTabNoticeToForm();renderAllTabNotices();}else if(tab==="ajustes"){updateDefaultTabSelectUI();updateFeaturedAdminUI();}else if(tab==="spotify")loadSpotifySyncSettings();else if(tab==="backups")renderBackupsPanel();
+      if(tab==="principal"){loadHeaderMediaEditor();loadGraphicBannerEditor();}else if(tab==="paises")loadAdminCountries();else if(tab==="mensajes")loadAdminMessages();else if(tab==="galeria"){updateGithubTokenStatus();loadGithubGallery();}else if(tab==="diseno"){renderAdminTabsManager();renderNoticeEditorTabOptions();loadButtonCustomForm();renderAllTabNotices();}else if(tab==="ajustes"){updateDefaultTabSelectUI();updateFeaturedAdminUI();}else if(tab==="spotify")loadSpotifySyncSettings();else if(tab==="backups")renderBackupsPanel();
     }
 
     window.quickOpenConfig = () => {
