@@ -669,6 +669,13 @@
         </div>
 
         <div id="adminViewAjustes" class="hidden space-y-5 mb-8">
+          <section class="glass rounded-2xl p-5 space-y-3 border border-rose-500/40">
+            <div>
+              <h3 class="font-black text-rose-300 text-sm uppercase tracking-wide">🗳️ Restablecer panel de votos</h3>
+              <p class="text-[11px] text-zinc-300 mt-1">Pone a cero los votos de todas las canciones de la Lista Activa y elimina los registros de votantes para iniciar una nueva ronda. No elimina canciones ni modifica las demás listas.</p>
+            </div>
+            <button type="button" id="resetVotesBtn" class="w-full py-3 rounded-xl text-xs font-black transition bg-rose-600 hover:bg-rose-500 text-white border border-rose-300/30 shadow-lg">↻ RESTABLECER VOTOS</button>
+          </section>
           <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
             <div>
               <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
@@ -765,13 +772,6 @@
                 <p id="votingIndicatorText" class="text-[10px] font-bold">Cargando...</p>
               </div>
               <button type="button" id="toggleVotingBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow">...</button>
-            </div>
-            <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
-              <div>
-                <p class="font-bold text-white text-xs">Poner a Cero Votos</p>
-                <p class="text-[10px] text-zinc-400">Reinicia los contadores de votos de la Lista Activa y registros de votantes.</p>
-              </div>
-              <button type="button" id="resetVotesBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30">Resetear Votos</button>
             </div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Nombre Edición (Cola Semanal)</label><input type="text" id="adminEditionInput" value="Edición Semanal #1" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
             <div><label class="block text-[11px] text-zinc-400 mb-1">Playlist Spotify</label><input type="url" id="adminPlaylistInput" value="https://open.spotify.com/playlist/0MAX34xiCSEGAIiQ9VwpQF" class="w-full px-3 py-2 rounded bg-zinc-900 border border-zinc-700 text-sm"></div>
@@ -4066,16 +4066,39 @@
       });
 
       $("resetVotesBtn").addEventListener("click", async () => {
-        if (!confirm("¿Poner a cero los votos de la Lista Activa y los registros de votantes?")) return;
+        if (!confirm("⚠️ RESTABLECER PANEL DE VOTOS\n\nSe pondrán a cero los contadores de TODAS las canciones de la Lista Activa y se borrarán los registros de votantes.\n\nNo se eliminarán canciones ni se modificarán las listas mensual, anual o semanal.\n\n¿Continuar?")) return;
+        const btn = $("resetVotesBtn");
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "RESTABLECIENDO...";
         try {
-          const [sAct, sVot] = await Promise.all([db.collection("active_list").get(), db.collection("voters_log").get()]);
-          const b1 = db.batch(); sAct.docs.forEach(d => b1.update(d.ref, { votes: 0, voters: [] }));
-          const b2 = db.batch(); sVot.docs.forEach(d => b2.delete(d.ref));
-          await Promise.all([b1.commit(), b2.commit()]);
-          sessionPendingVotes = []; lockedRandomOrder = null;
-          loadAllLists();
-          alert("¡Votos reseteados!");
-        } catch (e) { alert("Error al resetear."); }
+          const [sAct, sVot] = await Promise.all([
+            db.collection("active_list").get(),
+            db.collection("voters_log").get()
+          ]);
+          const operations = [
+            ...sAct.docs.map(d => ({ type: "update", ref: d.ref })),
+            ...sVot.docs.map(d => ({ type: "delete", ref: d.ref }))
+          ];
+          for (let i = 0; i < operations.length; i += 450) {
+            const batch = db.batch();
+            operations.slice(i, i + 450).forEach(op => {
+              if (op.type === "update") batch.update(op.ref, { votes: 0, voters: [] });
+              else batch.delete(op.ref);
+            });
+            await batch.commit();
+          }
+          sessionPendingVotes = [];
+          lockedRandomOrder = null;
+          await loadAllLists();
+          alert("✅ Panel de votos restablecido. Los contadores están a cero y los registros de votantes se han limpiado.");
+        } catch (e) {
+          console.error("Error al restablecer el panel de votos:", e);
+          alert("No se pudo restablecer el panel de votos: " + (e.message || e));
+        } finally {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
       });
 
       $("adminLoginBtn").addEventListener("click", async () => {
