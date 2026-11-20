@@ -3820,8 +3820,7 @@
           } else sorted.sort((a, b) => (b.votes || 0) - (a.votes || 0));
 
           vList.innerHTML = sorted.map((s, i) => {
-            const em = getEmbedUrl(s.url, 'active');
-            if (!em) return '';
+            // La votación no debe depender de que Spotify permita generar un reproductor.
             const sel = sessionPendingVotes.includes(s.id);
             const rank = totalVotes > 0 ? (["🥇", "🥈", "🥉"][i] || `#${i + 1}`) : `#${i + 1}`;
             const thumbId = 'vote_thumb_' + String(s.id).replace(/[^a-zA-Z0-9_-]/g,'');
@@ -3922,7 +3921,7 @@
           loadAllLists();
           toggleModal('voteConfirmModal', true);
         } else loadAllLists();
-      } catch (e) { sessionPendingVotes = []; loadAllLists(); }
+      } catch (e) { console.error("Error al preparar la votación:", e); sessionPendingVotes = []; loadAllLists(); alert(currentLang === "es" ? "No se pudo comprobar la votación. Comprueba tu conexión e inténtalo de nuevo." : "Could not verify voting. Check your connection and try again."); }
     };
 
     window.acceptVoteConfirmation = async () => {
