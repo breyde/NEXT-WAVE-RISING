@@ -3773,8 +3773,9 @@
       if(!artist.trim()||!title.trim()||!url.trim())return alert("Completa los tres campos."); try{await db.collection("top_annual").add({artist:artist.trim(),title:title.trim(),url:url.trim().split("?")[0],timestamp:Date.now()});await loadAllLists();}catch(e){alert("No se pudo añadir: "+e.message);}
     };
     async function loadAllLists() {
+      const isCurator = auth.currentUser && auth.currentUser.email === "br3yda@gmail.com";
       const [votersRes, activeRes, subRes, monthlyRes, annualRes, topRes] = await Promise.allSettled([
-        db.collection("voters_log").get(),
+        isCurator ? db.collection("voters_log").get() : Promise.resolve({ size: 0, docs: [] }),
         db.collection("active_list").orderBy("timestamp", "asc").get(),
         (auth.currentUser && auth.currentUser.email === "br3yda@gmail.com" ? db.collection("submissions") : db.collection("weekly_public")).orderBy("timestamp", "asc").get(),
         db.collection("monthly_list").orderBy("timestamp", "asc").get(),
@@ -3901,6 +3902,13 @@
       } else $("adminTopAnnualListContainer").innerHTML = '<p class="text-rose-300 py-3">No se pudo cargar el TOP anual.</p>';
     }
 
+    async function hashVoteIdentity(email) {
+      if (!window.crypto || !crypto.subtle) throw new Error("Este navegador no permite verificar el correo de forma segura. Actualiza el navegador e inténtalo de nuevo.");
+      const bytes = new TextEncoder().encode(String(email).trim().toLowerCase());
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, "0")).join("");
+    }
+
     // ==================== VOTACIONES ====================
     window.handleVoteClick = async id => {
       if (isVotingCutoffReached()) { updateVotingUI(false); return alert(currentLang === 'es' ? "Las votaciones terminaron el jueves a las 22:00 (hora de Madrid)." : "Voting closed Thursday at 22:00 Madrid time."); }
@@ -3909,9 +3917,8 @@
       if (!em || !em.includes("@") || em.length < 5) { inp.focus(); inp.style.borderColor = "#ef4444"; return alert(currentLang === 'es' ? "Introduce un correo válido." : "Enter a valid email."); }
       inp.style.borderColor = "#3f3f46";
       try {
-        const vRef = db.collection("voters_log");
-        if (!(await vRef.where("email", "==", em).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
-        if (clientIp && clientIp !== "unknown_ip" && !(await vRef.where("ip", "==", clientIp).get()).empty) return alert(currentLang === 'es' ? "Ya has votado." : "You already voted.");
+        // La comprobación se realiza al confirmar con un ID determinista SHA-256.
+        // No se consulta públicamente el registro privado de votantes.
         if (sessionPendingVotes.includes(id)) { sessionPendingVotes = sessionPendingVotes.filter(x => x !== id); return loadAllLists(); }
         if (sessionPendingVotes.length >= 3) return alert(currentLang === 'es' ? "Ya seleccionaste 3 temas." : "Already selected 3 tracks.");
         sessionPendingVotes.push(id);
@@ -3929,17 +3936,25 @@
       if (isVotingCutoffReached()) { sessionPendingVotes = []; updateVotingUI(false); loadAllLists(); return alert(currentLang === 'es' ? "El plazo terminó a las 22:00. Estos votos no se han guardado." : "Voting closed at 22:00. These votes were not saved."); }
       const inp = $("globalVoterEmail"), em = inp.value.trim().toLowerCase();
       try {
-        const vRef = db.collection("voters_log");
-        if (!(await vRef.where("email", "==", em).get()).empty) { sessionPendingVotes = []; lockedRandomOrder = null; loadAllLists(); return alert("Ya has votado."); }
+        if (sessionPendingVotes.length !== 3) throw new Error("Debes seleccionar exactamente tres canciones.");
+        const emailHash = await hashVoteIdentity(em);
+        const voterRef = db.collection("voters_log").doc(emailHash);
+        try {
+          await voterRef.create({ emailHash, votedTracks: [...sessionPendingVotes], timestamp: Date.now() });
+        } catch (voteCreateError) {
+          if (voteCreateError && (voteCreateError.code === 6 || voteCreateError.code === "already-exists")) {
+            sessionPendingVotes = []; lockedRandomOrder = null; loadAllLists();
+            return alert(currentLang === 'es' ? "Este correo ya ha votado." : "This email has already voted.");
+          }
+          throw voteCreateError;
+        }
         for (const tid of sessionPendingVotes) {
           const ref = db.collection("active_list").doc(tid), doc = await ref.get();
-          if (doc.exists) {
-            const vList = doc.data().voters || [];
-            if (!vList.includes(em)) vList.push(em);
-            await ref.update({ votes: (doc.data().votes || 0) + 1, voters: vList });
-          }
+          if (!doc.exists) throw new Error("Una de las canciones seleccionadas ya no está en la lista activa.");
+          const vList = doc.data().voters || [];
+          if (!vList.includes(em)) vList.push(em);
+          await ref.update({ votes: (doc.data().votes || 0) + 1, voters: vList });
         }
-        await vRef.add({ email: em, ip: clientIp || "unknown_ip", votedTracks: sessionPendingVotes, timestamp: Date.now() });
         alert(currentLang === 'es' ? "¡Votos guardados!" : "Votes saved!");
         sessionPendingVotes = []; lockedRandomOrder = null; inp.value = "";
         loadAllLists();
