@@ -3940,7 +3940,7 @@
         const emailHash = await hashVoteIdentity(em);
         const voterRef = db.collection("voters_log").doc(emailHash);
         try {
-          await voterRef.create({ emailHash, votedTracks: [...sessionPendingVotes], timestamp: Date.now() });
+          await voterRef.set({ emailHash, votedTracks: [...sessionPendingVotes], timestamp: Date.now() });
         } catch (voteCreateError) {
           if (voteCreateError && (voteCreateError.code === 6 || voteCreateError.code === "already-exists")) {
             sessionPendingVotes = []; lockedRandomOrder = null; loadAllLists();
@@ -3952,7 +3952,7 @@
           const ref = db.collection("active_list").doc(tid), doc = await ref.get();
           if (!doc.exists) throw new Error("Una de las canciones seleccionadas ya no está en la lista activa.");
           const vList = doc.data().voters || [];
-          if (!vList.includes(em)) vList.push(em);
+          if (!vList.includes(emailHash)) vList.push(emailHash);
           await ref.update({ votes: (doc.data().votes || 0) + 1, voters: vList });
         }
         alert(currentLang === 'es' ? "¡Votos guardados!" : "Votes saved!");
