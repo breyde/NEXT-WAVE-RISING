@@ -992,17 +992,25 @@
     </div>
   </div>
 
-  <div id="voteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="glass rounded-2xl p-6 max-w-sm w-full space-y-4 border border-emerald-500/40 text-center shadow-2xl">
-      <div class="flex justify-between items-center">
-        <span class="text-[10px] text-zinc-500 uppercase font-bold">Next Wave Rising</span>
-        
-      </div>
-      <h3 class="font-bold text-emerald-400 text-sm uppercase tracking-wider" data-i18n="confirmVoteTitle">Confirmar Votación</h3>
-      <p class="text-xs text-zinc-300 leading-relaxed" data-i18n="confirmVoteDesc">Va a emitir sus votos. No se podrán anular si acepta.</p>
-      <div class="flex gap-2 pt-2">
-        <button onclick="cancelVoteConfirmation()" class="flex-1 py-2.5 bg-zinc-800 text-zinc-300 font-bold rounded-xl text-xs hover:bg-zinc-700 transition" data-i18n="btnCancel">Cancelar</button>
-        <button onclick="acceptVoteConfirmation()" class="flex-1 py-2.5 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition shadow" data-i18n="btnAccept">Aceptar</button>
+  <div id="voteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="relative overflow-hidden rounded-3xl max-w-md w-full border border-rose-400/40 bg-gradient-to-br from-zinc-900 via-zinc-950 to-rose-950/70 shadow-[0_24px_90px_rgba(0,0,0,.75)]">
+      <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-600 via-fuchsia-500 to-amber-400"></div>
+      <div class="p-5 sm:p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] tracking-[.22em] font-black text-rose-300 uppercase">NEXT WAVE RISING</span>
+          <span class="rounded-full bg-rose-500/15 border border-rose-400/30 px-3 py-1 text-[10px] font-bold text-rose-200">3 / 3 VOTOS</span>
+        </div>
+        <div class="text-center space-y-2 py-1">
+          <div class="mx-auto w-14 h-14 rounded-2xl bg-rose-500/15 border border-rose-400/30 flex items-center justify-center text-3xl">🏆</div>
+          <h3 class="font-black text-white text-lg tracking-wide" data-i18n="confirmVoteTitle">¡Tus tres elegidos!</h3>
+          <p class="text-xs text-zinc-300 leading-relaxed" data-i18n="confirmVoteDesc">Revisa tu selección antes de confirmar la votación.</p>
+        </div>
+        <div id="voteConfirmTracks" class="space-y-2"></div>
+        <div class="rounded-xl bg-black/30 border border-white/10 p-3 text-[11px] text-zinc-300 text-center">Una vez confirmados, tus votos quedarán registrados y no podrás cambiarlos.</div>
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <button onclick="cancelVoteConfirmation()" class="py-3 bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-zinc-200 font-bold rounded-xl text-xs transition" data-i18n="btnCancel">Cancelar</button>
+          <button onclick="acceptVoteConfirmation()" class="py-3 bg-gradient-to-r from-rose-600 to-fuchsia-600 hover:brightness-110 text-white font-black rounded-xl text-xs shadow-lg transition" data-i18n="btnAccept">Confirmar mis votos ✓</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3816,20 +3824,25 @@
             if (!em) return '';
             const sel = sessionPendingVotes.includes(s.id);
             const rank = totalVotes > 0 ? (["🥇", "🥈", "🥉"][i] || `#${i + 1}`) : `#${i + 1}`;
-            return `<div class="track-card-container glass rounded-2xl p-4 border border-white/10 space-y-3">
-              <div class="flex justify-between items-center text-xs">
-                <span class="font-bold text-white text-sm flex items-center gap-1.5"><span class="text-base">${rank}</span> ${escapeHtml(s.artist)} — <span class="text-emerald-400">${escapeHtml(s.title)}</span></span>
-                <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold">Votos: ${String(s.votes || 0).padStart(2, '0')}</span>
+            const thumbId = 'vote_thumb_' + String(s.id).replace(/[^a-zA-Z0-9_-]/g,'');
+            setTimeout(() => loadTrackThumbnail(s.url, thumbId), 30);
+            return `<div class="track-card-container glass rounded-2xl p-3 border ${sel ? 'border-rose-500 bg-rose-950/35 ring-1 ring-rose-500/50 shadow-[0_0_18px_rgba(244,63,94,.16)]' : 'border-white/10'} transition-all duration-200">
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-zinc-950 border border-white/10 relative flex items-center justify-center">
+                  <img id="${thumbId}" src="" alt="Carátula" loading="lazy" decoding="async" class="w-full h-full object-cover" style="display:none">
+                  <span class="text-emerald-400 text-lg">🎵</span>
+                  <span class="absolute top-1 left-1 text-[10px] font-black bg-black/75 rounded-md px-1.5 py-0.5">${rank}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="font-bold text-white text-xs truncate">${escapeHtml(s.artist)}</p>
+                  <p class="text-[11px] ${sel ? 'text-rose-300' : 'text-emerald-400'} truncate">${escapeHtml(s.title)}</p>
+                  <p class="text-[9px] text-zinc-400 mt-1">Votos: ${String(s.votes || 0).padStart(2, '0')}</p>
+                </div>
+                <button type="button" aria-label="Reproducir ${escapeHtml(s.title)}" onclick="playTrackCard(this, ${jsAttr(s.url)}, 'active')" class="w-8 h-8 shrink-0 rounded-full bg-emerald-500/90 hover:bg-emerald-400 text-zinc-950 text-[10px] font-black shadow flex items-center justify-center">▶</button>
               </div>
-              <div class="flex items-center justify-between gap-3 bg-zinc-950 p-2.5 rounded-xl border border-white/5">
-                <span class="text-[11px] text-zinc-400">Reproducir muestra de Spotify:</span>
-                <button type="button" onclick="playTrackCard(this, ${jsAttr(s.url)}, 'active')" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition flex items-center gap-1 cursor-pointer">
-                  <span>▶</span> Play
-                </button>
-              </div>
-              <div class="flex justify-between items-center text-xs text-zinc-400 pt-1">
-                <span>${currentLang === 'es' ? 'Seleccionados' : 'Selected'}: <strong>${sessionPendingVotes.length}/3</strong></span>
-                <button onclick="handleVoteClick('${s.id}')" class="${sel ? 'px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white' : 'px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950'} font-bold rounded-xl text-xs shadow transition cursor-pointer">${sel ? (currentLang === 'es' ? '❌ Anular Voto' : '❌ Cancel Vote') : (currentLang === 'es' ? '🗳️ Añadir Voto' : '🗳️ Add Vote')}</button>
+              <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-white/10">
+                <span class="text-[10px] ${sel ? 'text-rose-300 font-bold' : 'text-zinc-400'}">${sel ? '✓ ' : ''}${currentLang === 'es' ? 'Tu selección' : 'Your selection'} · ${sessionPendingVotes.length}/3</span>
+                <button type="button" onclick="handleVoteClick('${s.id}')" class="px-3 py-1.5 ${sel ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-500 hover:bg-emerald-400 text-zinc-950'} font-bold rounded-lg text-[10px] shadow transition">${sel ? (currentLang === 'es' ? '✓ Elegida' : '✓ Selected') : (currentLang === 'es' ? '+ Votar' : '+ Vote')}</button>
               </div>
             </div>`;
           }).join("");
@@ -3903,8 +3916,12 @@
         if (sessionPendingVotes.includes(id)) { sessionPendingVotes = sessionPendingVotes.filter(x => x !== id); return loadAllLists(); }
         if (sessionPendingVotes.length >= 3) return alert(currentLang === 'es' ? "Ya seleccionaste 3 temas." : "Already selected 3 tracks.");
         sessionPendingVotes.push(id);
-        if (sessionPendingVotes.length === 3) toggleModal('voteConfirmModal', true);
-        else loadAllLists();
+        if (sessionPendingVotes.length === 3) {
+          const chosen = sessionPendingVotes.map(tid => activeSubs.find(track => track.id === tid)).filter(Boolean);
+          $("voteConfirmTracks").innerHTML = chosen.map((track, index) => `<div class="flex items-center gap-3 rounded-xl border border-rose-400/25 bg-rose-500/10 p-3 text-left"><span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-200 flex items-center justify-center text-xs font-black">${index + 1}</span><div class="min-w-0"><p class="text-xs font-bold text-white truncate">${escapeHtml(track.artist)}</p><p class="text-[11px] text-rose-200 truncate">${escapeHtml(track.title)}</p></div><span class="ml-auto text-rose-300">♥</span></div>`).join("");
+          loadAllLists();
+          toggleModal('voteConfirmModal', true);
+        } else loadAllLists();
       } catch (e) { sessionPendingVotes = []; loadAllLists(); }
     };
 
