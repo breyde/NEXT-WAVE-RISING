@@ -1619,6 +1619,18 @@
       const embedUrl = getEmbedUrl(url, listKey);
       const h = getPlayerHeight(listKey);
       if (!embedUrl) return alert("Enlace de Spotify no válido.");
+
+      // En las tarjetas de votación, el reproductor se inserta en su propio
+      // espacio y nunca sustituye la tarjeta: los botones Votar siguen visibles.
+      if (container && container.classList.contains('vote-track-card')) {
+        const slot = container.querySelector('.vote-player-slot');
+        if (!slot) return alert("No se encontró el espacio del reproductor.");
+        slot.innerHTML = `<iframe style="border-radius:12px;display:block" src="${embedUrl}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        slot.classList.remove('hidden');
+        btn.classList.add('hidden');
+        return;
+      }
+
       container.innerHTML = `<iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="${h}" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
     };
 
@@ -3826,7 +3838,7 @@
             const rank = totalVotes > 0 ? (["🥇", "🥈", "🥉"][i] || `#${i + 1}`) : `#${i + 1}`;
             const thumbId = 'vote_thumb_' + String(s.id).replace(/[^a-zA-Z0-9_-]/g,'');
             setTimeout(() => loadTrackThumbnail(s.url, thumbId), 30);
-            return `<div class="track-card-container glass rounded-2xl p-3 border ${sel ? 'border-rose-500 bg-rose-950/35 ring-1 ring-rose-500/50 shadow-[0_0_18px_rgba(244,63,94,.16)]' : 'border-white/10'} transition-all duration-200">
+            return `<div class="track-card-container vote-track-card glass rounded-2xl p-3 border ${sel ? 'border-rose-500 bg-rose-950/35 ring-1 ring-rose-500/50 shadow-[0_0_18px_rgba(244,63,94,.16)]' : 'border-white/10'} transition-all duration-200">
               <div class="flex items-center gap-3">
                 <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-zinc-950 border border-white/10 relative flex items-center justify-center">
                   <img id="${thumbId}" src="" alt="Carátula" loading="lazy" decoding="async" class="w-full h-full object-cover" style="display:none">
@@ -3838,8 +3850,9 @@
                   <p class="text-[11px] ${sel ? 'text-rose-300' : 'text-emerald-400'} truncate">${escapeHtml(s.title)}</p>
                   <p class="text-[9px] text-zinc-400 mt-1">Votos: ${String(s.votes || 0).padStart(2, '0')}</p>
                 </div>
-                <button type="button" aria-label="Reproducir ${escapeHtml(s.title)}" onclick="playTrackCard(this, ${jsAttr(s.url)}, 'active')" class="w-8 h-8 shrink-0 rounded-full bg-emerald-500/90 hover:bg-emerald-400 text-zinc-950 text-[10px] font-black shadow flex items-center justify-center">▶</button>
+                <button type="button" aria-label="Reproducir ${escapeHtml(s.title)}" onclick="playTrackCard(this, ${jsAttr(s.url)}, 'active')" class="vote-play-button w-8 h-8 shrink-0 rounded-full bg-emerald-500/90 hover:bg-emerald-400 text-zinc-950 text-[10px] font-black shadow flex items-center justify-center">▶</button>
               </div>
+              <div class="vote-player-slot hidden mt-3"></div>
               <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-white/10">
                 <span class="text-[10px] ${sel ? 'text-rose-300 font-bold' : 'text-zinc-400'}">${sel ? '✓ ' : ''}${currentLang === 'es' ? 'Tu selección' : 'Your selection'} · ${sessionPendingVotes.length}/3</span>
                 <button type="button" onclick="handleVoteClick('${s.id}')" class="px-3 py-1.5 ${sel ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-500 hover:bg-emerald-400 text-zinc-950'} font-bold rounded-lg text-[10px] shadow transition">${sel ? (currentLang === 'es' ? '✓ Elegida' : '✓ Selected') : (currentLang === 'es' ? '+ Votar' : '+ Vote')}</button>
