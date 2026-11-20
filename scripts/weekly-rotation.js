@@ -24,6 +24,17 @@ function isoWeekKey(dateText) {
   const week = 1 + Math.round((d - first) / 604800000);
   return d.getUTCFullYear() + "-W" + String(week).padStart(2, "0");
 }
+function weekKeyForTrack(item) {
+  if (item.weekKey && /^\\d{4}-W\\d{2}$/.test(String(item.weekKey))) return String(item.weekKey);
+  const idMatch = String(item.id || "").match(/(?:auto|auto_archive|manual_archive)_?(\\d{4}_W\\d{2})_/);
+  if (idMatch) return idMatch[1].replace("_", "-");
+  const stamp = Number(item.timestamp || 0);
+  if (!stamp) return weekKey;
+  const local = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit"
+  }).format(new Date(stamp));
+  return isoWeekKey(local);
+}
 function madridString() {
   return new Intl.DateTimeFormat("es-ES", { timeZone: TZ, dateStyle: "short", timeStyle: "medium" }).format(new Date());
 }
@@ -95,22 +106,48 @@ async function rotateLists(backupRef, stateRef) {
   const winner = active.length ? active.reduce((best, item) =>
     (Number(item.votes || 0) > Number(best.votes || 0) ? item : best), active[0]) : null;
 
-  const monthlyResult = monthly.map(item => ({ id: item.id, data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id")) }));
+  const monthlyResult = monthly.map(item => ({
+    id: item.id,
+    data: {
+      ...Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id")),
+      weekKey: weekKeyForTrack(item)
+    }
+  }));
   for (const item of active) {
     monthlyResult.push({
       id: "auto_" + weekKey.replace(/[^a-zA-Z0-9]/g, "_") + "_" + item.id,
-      data: { artist: item.artist || "", title: item.title || "", url: item.url || "", timestamp: Number(item.timestamp || Date.now()) }
+      data: {
+        artist: item.artist || "", title: item.title || "", url: item.url || "",
+        timestamp: Number(item.timestamp || Date.now()), weekKey
+      }
     });
   }
   monthlyResult.sort((a, b) => Number(a.data.timestamp || 0) - Number(b.data.timestamp || 0));
   const annualResult = annual.map(item => ({ id: item.id, data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id")) }));
-  while (monthlyResult.length > 4) {
-    const old = monthlyResult.shift();
-    annualResult.push({
-      id: "auto_archive_" + weekKey.replace(/[^a-zA-Z0-9]/g, "_") + "_" + old.id,
-      data: { artist: old.data.artist || "", title: old.data.title || "", url: old.data.url || "", timestamp: Date.now() }
-    });
+
+  // Mantener cuatro SEMANAS completas, no cuatro canciones.
+  const weekGroups = new Map();
+  for (const item of monthlyResult) {
+    const key = item.data.weekKey || weekKeyForTrack({ ...item.data, id: item.id });
+    item.data.weekKey = key;
+    if (!weekGroups.has(key)) weekGroups.set(key, []);
+    weekGroups.get(key).push(item);
   }
+  const orderedWeeks = [...weekGroups.keys()].sort((a, b) => a.localeCompare(b));
+  const weeksToArchive = new Set(orderedWeeks.slice(0, Math.max(0, orderedWeeks.length - 4)));
+  const keptMonthly = [];
+  for (const item of monthlyResult) {
+    if (weeksToArchive.has(item.data.weekKey)) {
+      annualResult.push({
+        id: "auto_archive_" + weekKey.replace(/[^a-zA-Z0-9]/g, "_") + "_" + item.id,
+        data: { ...item.data }
+      });
+    } else {
+      keptMonthly.push(item);
+    }
+  }
+  monthlyResult.length = 0;
+  monthlyResult.push(...keptMonthly);
   const ops = [];
   const monthlyRef = db.collection("monthly_list");
   const annualRef = db.collection("annual_list");
