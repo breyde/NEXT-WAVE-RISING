@@ -107,7 +107,7 @@
         <div class="modal-lang-menu hidden" role="listbox" aria-label="Idiomas disponibles"></div>
       </div>
       <button id="btnContactHeader" onclick="toggleModal('contactModal')" class="h-9 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5"><span>✉️</span> <span data-i18n="contactBtn">Contacto</span></button>
-      <div id="headerVotingStatus" class="h-9 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"></div>
+      <button type="button" id="headerVotingStatus" onclick="switchTab('vote')" title="Ir a la pestaña Votación" class="h-9 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer" aria-label="Ir a la pestaña Votación"></button>
       <button id="topConfigBtn" type="button" onclick="toggleQuickConfig()" aria-label="Configuración" aria-pressed="false" class="hidden h-9 w-9 rounded-xl text-lg transition items-center justify-center">⚙</button>
     </nav>
     <button type="button" id="adminShowSiteBtn" class="admin-top-action" onclick="toggleAdminSiteHeader()" aria-expanded="false">⌄ Mostrar cabecera</button>
