@@ -3921,7 +3921,7 @@
           loadAllLists();
           toggleModal('voteConfirmModal', true);
         } else loadAllLists();
-      } catch (e) { console.error("Error al preparar la votación:", e); sessionPendingVotes = []; loadAllLists(); alert(currentLang === "es" ? "No se pudo comprobar la votación. Comprueba tu conexión e inténtalo de nuevo." : "Could not verify voting. Check your connection and try again."); }
+      } catch (e) { console.error("Error al comprobar disponibilidad de voto:", e); const code = e?.code || "error"; const detail = e?.message || String(e); alert(currentLang === "es" ? `No se pudo comprobar la votación (${code}). ${detail}` : `Could not verify voting (${code}). ${detail}`); }
     };
 
     window.acceptVoteConfirmation = async () => {
@@ -3943,7 +3943,7 @@
         alert(currentLang === 'es' ? "¡Votos guardados!" : "Votes saved!");
         sessionPendingVotes = []; lockedRandomOrder = null; inp.value = "";
         loadAllLists();
-      } catch (e) { alert("Error al guardar votos."); sessionPendingVotes = []; loadAllLists(); }
+      } catch (e) { console.error("Error al guardar la votación:", e); const code = e?.code || "error"; const detail = e?.message || String(e); alert(currentLang === "es" ? `No se pudieron guardar los votos (${code}). ${detail}` : `Could not save votes (${code}). ${detail}`); }
     };
 
     window.cancelVoteConfirmation = () => { toggleModal('voteConfirmModal', false); sessionPendingVotes = []; alert(currentLang === 'es' ? "Votos anulados." : "Votes cancelled."); loadAllLists(); };
