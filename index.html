@@ -658,39 +658,48 @@
           </div>
         </div>
         <div id="adminViewDiseno" class="hidden space-y-5 mb-8">
-          <div class="glass rounded-2xl p-5 space-y-4 border border-amber-500/30">
-            <div>
-              <h3 class="font-bold text-amber-300 text-sm uppercase">📢 Avisos públicos de texto</h3>
-              <p class="text-[11px] text-zinc-400 mt-1">Aquí puedes recuperar, editar o quitar los mensajes de aviso que aparecen en la web. Selecciona una sola pestaña cada vez; los avisos que ya están publicados se conservan.</p>
-            </div>
-            <div class="space-y-2">
-              <label for="adminNoticeTabSelect" class="block text-[11px] text-zinc-300 font-semibold">Pestaña donde se mostrará el aviso:</label>
-              <select id="adminNoticeTabSelect" onchange="loadSelectedTabNoticeToForm()" class="w-full px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></select>
-            </div>
-            <div class="space-y-1.5">
-              <label for="adminNoticeTextInput" class="block text-[11px] text-zinc-300 font-semibold">Texto del aviso (español):</label>
-              <textarea id="adminNoticeTextInput" rows="4" placeholder="Escribe el mensaje que aparecerá en la pestaña seleccionada..." class="w-full px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white resize-y"></textarea>
-            </div>
-            <div class="space-y-1.5">
-              <label for="adminNoticeTextEnInput" class="block text-[11px] text-zinc-300 font-semibold">Texto del aviso (inglés, opcional):</label>
-              <textarea id="adminNoticeTextEnInput" rows="3" placeholder="Optional English version..." class="w-full px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white resize-y"></textarea>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="saveTabNotice()" class="py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar aviso</button>
-              <button type="button" onclick="deleteTabNotice(document.getElementById('adminNoticeTabSelect').value)" class="py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-500/30 font-bold rounded-xl text-xs">🗑️ Quitar de esta pestaña</button>
-            </div>
-            <div class="pt-3 border-t border-white/10 space-y-2">
-              <h4 class="text-xs font-bold text-amber-200">Avisos que siguen publicados</h4>
-              <div id="adminActiveNoticesList" class="space-y-2 text-xs">
-                <p class="text-zinc-500 italic text-[11px]">Cargando avisos...</p>
-              </div>
-            </div>
-          </div>
+
           <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
             <div><h3 class="font-bold text-emerald-400 text-sm uppercase">✨ Contador de prestigio</h3><p class="text-[11px] text-zinc-400 mt-1">Añade un bonus visual al contador público. Las visitas reales se conservan por separado.</p></div>
             <label class="block text-xs text-zinc-300" for="visitorPrestigeBonusInput">Bonus de prestigio</label>
             <input id="visitorPrestigeBonusInput" type="number" min="0" max="1000000" step="1" value="1000" class="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-700 text-white text-sm">
-          ext-purple-400 text-sm uppercase">🎵 Diseño y Reproducción Spotify por Lista</h3>
+            <button type="button" onclick="saveVisitorPrestigeBonus()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs">💾 Guardar bonus</button>
+          </div>
+        </div>
+
+        <div id="adminViewAjustes" class="hidden space-y-5 mb-8">
+          <div class="glass rounded-2xl p-5 space-y-4 border border-emerald-500/30">
+            <div>
+              <h3 class="font-bold text-emerald-400 text-sm uppercase">🏠 Pestaña Inicial &amp; Tema Destacado</h3>
+              <p class="text-[11px] text-zinc-400 mt-0.5">Elige qué pestaña se abre por defecto al entrar a la web y configura la visibilidad del tema destacado.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end bg-zinc-900/80 p-3.5 rounded-xl border border-white/10">
+              <div class="flex-1">
+                <label class="block text-[11px] text-zinc-300 font-semibold mb-1">Pestaña activa al abrir la página:</label>
+                <select id="adminDefaultTabSelect" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white"></select>
+              </div>
+              <button type="button" onclick="saveDefaultTabSetting()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition">💾 Guardar Inicio</button>
+            </div>
+
+            <div class="bg-zinc-900/80 p-3.5 rounded-xl border border-white/10 flex justify-between items-center">
+              <div>
+                <p class="font-bold text-white text-xs">Reproductor Tema Destacado</p>
+                <p class="text-[10px] text-zinc-400">Activa o desactiva su aparición en las pestañas seleccionadas.</p>
+              </div>
+              <button type="button" id="toggleFeaturedBtn" onclick="toggleFeaturedEnabled()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow">...</button>
+            </div>
+            <div class="space-y-2 pt-1">
+              <p class="text-[11px] text-zinc-300 font-semibold">Mostrar Tema Destacado en:</p>
+              <div id="featuredTabsCheckboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div>
+              <button type="button" onclick="saveFeaturedSettings()" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs shadow transition mt-2">💾 Guardar Visibilidad Destacado</button>
+            </div>
+          </div>
+
+
+          <div class="glass rounded-2xl p-5 space-y-4 border border-purple-500/30">
+            <div>
+              <h3 class="font-bold text-purple-400 text-sm uppercase">🎵 Diseño y Reproducción Spotify por Lista</h3>
               <p class="text-[11px] text-zinc-400 mt-0.5">Elige una lista para configurar el estilo visual del reproductor, su altura en píxeles y el segundo de inicio de la muestra.</p>
             </div>
             <div class="space-y-3">
