@@ -17,6 +17,17 @@ admin.initializeApp({ credential: admin.credential.cert(serviceAccount), project
 const db = admin.firestore();
 const now = Date.now();
 const suffix = new Date(now).toISOString().replace(/[-:.TZ]/g, "");
+function isoWeekKeyFromTimestamp(value) {
+  const d = new Date(Number(value || now));
+  const dateText = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+  const x = new Date(dateText + "T12:00:00Z");
+  const day = (x.getUTCDay() + 6) % 7;
+  x.setUTCDate(x.getUTCDate() - day + 3);
+  const first = new Date(Date.UTC(x.getUTCFullYear(), 0, 4));
+  const firstDay = (first.getUTCDay() + 6) % 7;
+  first.setUTCDate(first.getUTCDate() - firstDay + 3);
+  return x.getUTCFullYear() + "-W" + String(1 + Math.round((x - first) / 604800000)).padStart(2, "0");
+}
 
 async function snapshotCollections(names) {
   const snapshots = await Promise.all(names.map(name => db.collection(name).get()));
@@ -69,7 +80,10 @@ async function activeToMonthly() {
   for (const item of active) {
     monthly.push({
       id: "manual_" + suffix + "_" + item.id,
-      data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id"))
+      data: {
+        ...Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id")),
+        weekKey: isoWeekKeyFromTimestamp(now)
+      }
     });
   }
   monthly.sort((a, b) => Number(a.data.timestamp || 0) - Number(b.data.timestamp || 0));
@@ -77,13 +91,6 @@ async function activeToMonthly() {
     id: item.id,
     data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id"))
   }));
-  while (monthly.length > 4) {
-    const oldest = monthly.shift();
-    annual.push({
-      id: "manual_archive_" + suffix + "_" + oldest.id,
-      data: Object.fromEntries(Object.entries(oldest.data).filter(([key]) => key !== "id"))
-    });
-  }
 
   const ops = [];
   const monthlyRef = db.collection("monthly_list");
@@ -109,7 +116,7 @@ async function activeToMonthly() {
   if (!activeCheck.empty || monthlyCheck.size !== monthly.length || missingMonthly.length) {
     throw new Error("La verificación posterior no coincide: activa=" + activeCheck.size + ", mensual=" + monthlyCheck.size + "/" + monthly.length + ", faltan=" + missingMonthly.length + ". Conserva la copia de seguridad y revisa Firebase.");
   }
-  console.log("Correcto: " + active.length + " temas movidos de active_list a monthly_list. active_list queda vacía.");
+  console.log("Correcto: " + active.length + " temas movidos a monthly_list. La lista activa queda vacía; el límite se controla por semanas, no por canciones.");
 }
 
 
