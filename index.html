@@ -3940,6 +3940,10 @@
         const emailHash = await hashVoteIdentity(em);
         const voterRef = db.collection("voters_log").doc(emailHash);
         try {
+          if ((await voterRef.get()).exists) {
+            sessionPendingVotes = []; lockedRandomOrder = null; loadAllLists();
+            return alert(currentLang === 'es' ? "Este correo ya ha votado." : "This email has already voted.");
+          }
           await voterRef.set({ emailHash, votedTracks: [...sessionPendingVotes], timestamp: Date.now() });
         } catch (voteCreateError) {
           if (voteCreateError && (voteCreateError.code === 6 || voteCreateError.code === "already-exists")) {
