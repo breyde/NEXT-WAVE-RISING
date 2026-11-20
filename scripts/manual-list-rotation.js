@@ -4,7 +4,7 @@ const SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT;
 const EXPECTED_FIREBASE_PROJECT = "pruebas-73346";
 const ACTION = String(process.env.MANUAL_LIST_ACTION || "none").toLowerCase();
 if (!SERVICE_ACCOUNT) throw new Error("Falta FIREBASE_SERVICE_ACCOUNT.");
-if (!["active_to_monthly", "queue_to_active", "featured_to_queue"].includes(ACTION)) {
+if (!["active_to_monthly", "queue_to_active", "featured_to_queue", "annual_to_monthly"].includes(ACTION)) {
   throw new Error("Acción de rotación manual no válida: " + ACTION);
 }
 const serviceAccount = JSON.parse(SERVICE_ACCOUNT);
@@ -110,6 +110,47 @@ async function activeToMonthly() {
     throw new Error("La verificación posterior no coincide: activa=" + activeCheck.size + ", mensual=" + monthlyCheck.size + "/" + monthly.length + ", faltan=" + missingMonthly.length + ". Conserva la copia de seguridad y revisa Firebase.");
   }
   console.log("Correcto: " + active.length + " temas movidos de active_list a monthly_list. active_list queda vacía.");
+}
+
+
+async function annualToMonthly() {
+  const data = await snapshotCollections(["monthly_list", "annual_list"]);
+  const monthly = data.monthly_list;
+  const annual = data.annual_list;
+  if (!annual.length) throw new Error("La lista anual está vacía. No hay temas que incorporar a mensual.");
+  await saveVerifiedBackup(data);
+
+  // Los temas que ya están en mensual conservan sus IDs. Los de anual reciben
+  // IDs nuevos para impedir colisiones y garantizar que no se sobrescriba nada.
+  const monthlyIds = new Set(monthly.map(item => item.id));
+  const moved = annual.map(item => ({
+    id: "annual_to_monthly_" + suffix + "_" + item.id,
+    data: Object.fromEntries(Object.entries(item).filter(([key]) => key !== "id"))
+  }));
+  const monthlyRef = db.collection("monthly_list");
+  const annualRef = db.collection("annual_list");
+  const ops = [];
+  for (const item of moved) {
+    if (monthlyIds.has(item.id)) throw new Error("Colisión inesperada de ID al combinar mensual y anual: " + item.id);
+    ops.push({ type: "set", ref: monthlyRef.doc(item.id), data: item.data });
+  }
+  for (const item of annual) ops.push({ type: "delete", ref: annualRef.doc(item.id) });
+  await commitOperations(ops);
+
+  const [monthlyCheck, annualCheck] = await Promise.all([
+    monthlyRef.get(), annualRef.get()
+  ]);
+  const expectedCount = monthly.length + annual.length;
+  const expectedIds = new Set([...monthly.map(item => item.id), ...moved.map(item => item.id)]);
+  const actualIds = new Set(monthlyCheck.docs.map(doc => doc.id));
+  const missing = [...expectedIds].filter(id => !actualIds.has(id));
+  if (monthlyCheck.size !== expectedCount || !annualCheck.empty || missing.length) {
+    throw new Error("Verificación fallida: mensual=" + monthlyCheck.size + "/" + expectedCount +
+      ", anual restante=" + annualCheck.size + ", faltan=" + missing.length +
+      ". La copia de seguridad está guardada; revisa Firebase.");
+  }
+  console.log("Correcto: " + annual.length + " temas de annual_list incorporados a monthly_list. Total mensual: " +
+    monthlyCheck.size + ". annual_list queda vacía. Spotify no se ha modificado.");
 }
 
 async function featuredToQueue() {
@@ -237,8 +278,9 @@ async function queueToActive() {
 
 (async () => {
   if (ACTION === "active_to_monthly") await activeToMonthly();
+  else if (ACTION === "annual_to_monthly") await annualToMonthly();
   else if (ACTION === "queue_to_active") await queueToActive();
-  else await featuredToQueue();
+  else if (ACTION === "featured_to_queue") await featuredToQueue();
   await db.collection("settings").doc("manualListRotation").set({
     lastAction: ACTION, lastRunAt: now, lastStatus: "success"
   }, { merge: true });
