@@ -1,4 +1,4 @@
-name: Build BREYDE REMOTE Android Client
+name: Build Breyde Remote mobile client
 
 on:
   push:
@@ -7,20 +7,24 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
+    name: Build Breyde Remote Client 1.1.0
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - name: Check private repository token
+      - name: Check private source token
         env:
-          TVSCREEN_REPO_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          SOURCE_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
         run: |
-          test -n "$TVSCREEN_REPO_TOKEN" || { echo "::error::Missing TVSCREEN_REPO_TOKEN"; exit 1; }
+          if [ -z "$SOURCE_TOKEN" ]; then
+            echo "::error::Falta el secreto TVSCREEN_REPO_TOKEN."
+            exit 1
+          fi
 
-      - name: Checkout private source
+      - name: Checkout private Android client source
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
@@ -43,26 +47,50 @@ jobs:
       - name: Install Android SDK platform
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Install Breyde launcher icon
+        working-directory: source
+        run: |
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          src = Path("tvbox-screen/branding/breyde-remote-icon.png.b64")
+          dst = Path("client-app/app/src/main/res/mipmap-nodpi/ic_launcher.png")
+          encoded = b"".join(src.read_bytes().split())
+          dst.parent.mkdir(parents=True, exist_ok=True)
+          dst.write_bytes(base64.b64decode(encoded + b"=" * (-len(encoded) % 4), validate=True))
+          assert dst.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
+          PY
+
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v3
         with:
           gradle-version: '8.9'
 
-      - name: Compile client APK
+      - name: Compile Android client APK
         working-directory: source/client-app
         run: gradle --no-daemon :app:assembleDebug
 
-      - name: Verify APK
+      - name: Verify APK and calculate checksum
         run: |
           APK="source/client-app/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
-          ls -lh "$APK"
-          sha256sum "$APK"
+          mkdir -p release
+          cp "$APK" release/breyde-remote-client.apk
+          sha256sum release/breyde-remote-client.apk | tee release/SHA256SUMS.txt
+          aapt dump badging release/breyde-remote-client.apk | head -n 5
 
-      - name: Upload client APK
-        uses: actions/upload-artifact@v4
+      - name: Publish mobile client release
+        uses: softprops/action-gh-release@v2
         with:
-          name: breyde-remote-android-client-1.0.0
-          path: source/client-app/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 14
+          tag_name: remote-client-v1.1.0
+          name: BREYDE REMOTE CLIENT v1.1.0
+          body: |
+            Cliente Android independiente para la web de Breyde Remote.
+            Incluye selector de archivos para cargas desde la web y descargas autenticadas.
+            Se instala junto a la versión cliente anterior sin sustituirla.
+          files: |
+            release/breyde-remote-client.apk
+            release/SHA256SUMS.txt
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
