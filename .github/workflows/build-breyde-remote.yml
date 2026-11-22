@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # independent node service
+name: Build and publish Breyde TVScreen APK # multi-node identity compile retry
 
 on:
   push:
