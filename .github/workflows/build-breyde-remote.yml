@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # updater build retry
+name: Build and publish Breyde TVScreen APK # independent node service
 
 on:
   push:
@@ -7,20 +7,20 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Versión (por ejemplo 2.4.0)"
+        description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.5.0"
+        default: "2.6.0"
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "7"
+        default: "8"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.5.0' }}
+    name: Build TVScreen ${{ inputs.version || '2.6.0' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -80,7 +80,7 @@ jobs:
         working-directory: private-source/tvbox-screen
         env:
           APP_VERSION: ${{ inputs.version || '2.5.0' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '7' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '8' }}
         run: |
           python3 - <<'PY'
           import os, re
