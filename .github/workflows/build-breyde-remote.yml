@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.8.4' }}
+    name: Build TVScreen ${{ inputs.version || '2.8.5' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -79,8 +79,8 @@ jobs:
       - name: Set requested version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.8.4' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '14' }}
+          APP_VERSION: ${{ inputs.version || '2.8.5' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '15' }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -112,8 +112,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.8.4' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.8.4' }}
+          tag_name: v${{ inputs.version || '2.8.5' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.8.5' }}
           generate_release_notes: true
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
