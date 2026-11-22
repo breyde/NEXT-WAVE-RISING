@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.8.0' }}
+    name: Build TVScreen ${{ inputs.version || '2.8.1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -80,7 +80,7 @@ jobs:
         working-directory: private-source/tvbox-screen
         env:
           APP_VERSION: ${{ inputs.version || '2.8.0' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '10' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '11' }}
         run: |
           python3 - <<'PY'
           import os, re
