@@ -12,10 +12,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: next-wave-android-test
-  cancel-in-progress: true
-
 jobs:
   build:
     name: Build WebView APK
