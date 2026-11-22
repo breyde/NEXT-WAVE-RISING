@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # multi-node identity compile retry 2
+name: Build and publish Breyde TVScreen APK # multi-node identity compile retry 3 with TV Box labels
 
 on:
   push:
