@@ -13,7 +13,7 @@ on:
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "18"
+        default: "19"
 
 permissions:
   contents: write
@@ -80,7 +80,7 @@ jobs:
         working-directory: private-source/tvbox-screen
         env:
           APP_VERSION: ${{ inputs.version || '2.8.8' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '18' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '19' }}
         run: |
           python3 - <<'PY'
           import os, re
