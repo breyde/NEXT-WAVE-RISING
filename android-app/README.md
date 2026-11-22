@@ -7,3 +7,5 @@ This is an isolated APK build test on the public repository branch `test-next-wa
 It does not replace or modify the website's main branch or its existing automation.
 
 Build output: `app/build/outputs/apk/debug/app-debug.apk`.
+
+SDK setup note: use platform-tools only; legacy SDK 'tools' package is no longer available.
