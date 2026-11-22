@@ -1,6 +1,9 @@
 name: Build BREYDE REMOTE Android Client
 
 on:
+  push:
+    paths:
+      - '.github/workflows/build-breyde-remote-client.yml'
   workflow_dispatch:
 
 permissions:
