@@ -1,14 +1,23 @@
-name: Build Breyde Remote TVScreen APK (private source)
+name: Build and publish Breyde TVScreen APK
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión (por ejemplo 2.4.0)"
+        required: true
+        default: "2.4.0"
+      version_code:
+        description: "Código interno de versión (siempre mayor que el anterior)"
+        required: true
+        default: "6"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
-    name: Compile Breyde Remote 2.3.0
+    name: Build TVScreen ${{ inputs.version }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -17,7 +26,7 @@ jobs:
           TVSCREEN_REPO_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
         run: |
           if [ -z "$TVSCREEN_REPO_TOKEN" ]; then
-            echo "::error::Falta el secreto TVSCREEN_REPO_TOKEN en NEXT-WAVE-RISING."
+            echo "::error::Falta el secreto TVSCREEN_REPO_TOKEN."
             exit 1
           fi
 
@@ -62,7 +71,22 @@ jobs:
           target.parent.mkdir(parents=True, exist_ok=True)
           target.write_bytes(base64.b64decode(encoded + b"=" * (-len(encoded) % 4), validate=True))
           assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
-          print(f"Launcher icon restored: {target} ({target.stat().st_size} bytes)")
+          PY
+
+      - name: Set requested version
+        working-directory: private-source/tvbox-screen
+        env:
+          APP_VERSION: ${{ inputs.version }}
+          APP_VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          p=Path("app/build.gradle")
+          s=p.read_text()
+          s=re.sub(r"versionCode\\s+\\d+", "versionCode "+os.environ["APP_VERSION_CODE"], s, count=1)
+          s=re.sub(r"versionName\\s+'[^']+'", "versionName '"+os.environ["APP_VERSION"]+"'", s, count=1)
+          p.write_text(s)
           PY
 
       - name: Set up Gradle
@@ -70,11 +94,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Set version 2.3.0
-        working-directory: private-source/tvbox-screen
-        run: |
-          sed -i 's/versionCode 4/versionCode 5/; s/versionName "2.2.0"/versionName "2.3.0"/' app/build.gradle
-      - name: Compile Breyde Remote APK
+      - name: Compile signed APK
         working-directory: private-source/tvbox-screen
         run: gradle --no-daemon :app:assembleDebug
 
@@ -82,13 +102,17 @@ jobs:
         run: |
           APK="private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
-          ls -lh "$APK"
-          sha256sum "$APK"
+          mkdir -p release
+          cp "$APK" release/breyde-tv-screen.apk
+          sha256sum release/breyde-tv-screen.apk
 
-      - name: Upload Breyde Remote APK
-        uses: actions/upload-artifact@v4
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: breyde-remote-tvscreen-2.3.0-root-persistent
-          path: private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 14
+          tag_name: v${{ inputs.version }}
+          name: BREYDE TV SCREEN v${{ inputs.version }}
+          generate_release_notes: true
+          files: release/breyde-tv-screen.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
