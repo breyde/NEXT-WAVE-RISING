@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # VPN diagnostics release 2.8.4
+name: Build and publish Breyde TVScreen APK # Root capture and connection diagnostics 2.8.5
 
 on:
   push:
@@ -9,11 +9,11 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.8.4"
+        default: "2.8.5"
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "14"
+        default: "15"
 
 permissions:
   contents: write
