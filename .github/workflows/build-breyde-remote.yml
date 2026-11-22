@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # multi-node identity compile retry 4 final
+name: Build and publish Breyde TVScreen APK # VPN diagnostics build 2.8.1
 
 on:
   push:
