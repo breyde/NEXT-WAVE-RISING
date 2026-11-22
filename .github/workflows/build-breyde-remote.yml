@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build:
-    name: Compile Breyde Remote 2.2.0
+    name: Compile Breyde Remote 2.3.0
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -57,11 +57,12 @@ jobs:
           import base64
           from pathlib import Path
           source = Path("tvbox-screen/branding/breyde-remote-icon.png.b64")
-          target = Path("tvbox-screen/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png")
+          target = Path("tvbox-screen/app/src/main/res/mipmap-nodpi/ic_launcher.png")
           encoded = b"".join(source.read_bytes().split())
           target.parent.mkdir(parents=True, exist_ok=True)
           target.write_bytes(base64.b64decode(encoded + b"=" * (-len(encoded) % 4), validate=True))
           assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
+          print(f"Launcher icon restored: {target} ({target.stat().st_size} bytes)")
           PY
 
       - name: Set up Gradle
@@ -69,6 +70,10 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Set version 2.3.0
+        working-directory: private-source/tvbox-screen
+        run: |
+          sed -i 's/versionCode 4/versionCode 5/; s/versionName "2.2.0"/versionName "2.3.0"/' app/build.gradle
       - name: Compile Breyde Remote APK
         working-directory: private-source/tvbox-screen
         run: gradle --no-daemon :app:assembleDebug
@@ -83,7 +88,7 @@ jobs:
       - name: Upload Breyde Remote APK
         uses: actions/upload-artifact@v4
         with:
-          name: breyde-remote-tvscreen-2.2.0-root-dual
+          name: breyde-remote-tvscreen-2.3.0-root-persistent
           path: private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
