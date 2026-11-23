@@ -11,18 +11,18 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.23"
+        default: "2.9.24"
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "44"
+        default: "46"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.9.23' }} retry
+    name: Build TVScreen ${{ inputs.version || '2.9.24' }} retry
     runs-on: ubuntu-latest
     timeout-minutes: 32
     steps:
@@ -117,7 +117,7 @@ jobs:
         working-directory: private-source/tvbox-screen
         env:
           APP_VERSION: ${{ inputs.version || '2.9.23' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '45' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '46' }}
         run: |
           python3 - <<'PY'
           import os, re
