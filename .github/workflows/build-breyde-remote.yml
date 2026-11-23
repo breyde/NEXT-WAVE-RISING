@@ -50,14 +50,13 @@ jobs:
         run: |
           set -euo pipefail
           SOURCE_BRANCH="feat/browser-media-detection"
-          git fetch --no-tags origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/$SOURCE_BRANCH"
           CHECKED_OUT="$(git rev-parse HEAD)"
-          BRANCH_HEAD="$(git rev-parse "refs/remotes/origin/$SOURCE_BRANCH")"
+          CHECKED_BRANCH="$(git branch --show-current)"
           echo "TVScreen source branch: $SOURCE_BRANCH"
+          echo "Checked out branch: $CHECKED_BRANCH"
           echo "Checked out commit: $CHECKED_OUT"
-          echo "Latest branch commit: $BRANCH_HEAD"
-          if [ "$CHECKED_OUT" != "$BRANCH_HEAD" ]; then
-            echo "::error::La APK no se compilará: el código descargado no es el último commit de $SOURCE_BRANCH."
+          if [ "$CHECKED_BRANCH" != "$SOURCE_BRANCH" ]; then
+            echo "::error::La APK no se compilará: se ha descargado una rama distinta de $SOURCE_BRANCH."
             exit 1
           fi
           MAIN="tvbox-screen/app/src/main/java/com/breyde/tvscreen/MainActivity.java"
