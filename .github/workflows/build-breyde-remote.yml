@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # Focus D-pad and updater fixes 2.9.7
+name: Build and publish Breyde TVScreen APK # Retry after adding missing Log import to 2.9.7
 
 on:
   push:
@@ -80,7 +80,7 @@ jobs:
         working-directory: private-source/tvbox-screen
         env:
           APP_VERSION: ${{ inputs.version || '2.9.7' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '27' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '28' }}
         run: |
           python3 - <<'PY'
           import os, re
