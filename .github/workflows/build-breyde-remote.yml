@@ -1,6 +1,11 @@
 name: Build and publish Breyde TVScreen APK with Root capture, media panel and auto-reconnect
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-breyde-remote.yml"
   workflow_dispatch:
     inputs:
       version:
