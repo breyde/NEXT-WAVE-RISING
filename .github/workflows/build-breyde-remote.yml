@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # Root capture diagnostics 2.9.2 build retry
+name: Build and publish Breyde TVScreen APK # Remote input and touch fixes 2.9.4
 
 on:
   push:
@@ -9,18 +9,18 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.3"
+        default: "2.9.4"
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "24"
+        default: "25"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.9.3' }}
+    name: Build TVScreen ${{ inputs.version || '2.9.4' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -79,7 +79,7 @@ jobs:
       - name: Set requested version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.3' }}
+          APP_VERSION: ${{ inputs.version || '2.9.4' }}
           APP_VERSION_CODE: ${{ inputs.version_code || '24' }}
         run: |
           python3 - <<'PY'
@@ -112,8 +112,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.9.3' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.3' }}
+          tag_name: v${{ inputs.version || '2.9.4' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.4' }}
           generate_release_notes: true
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
