@@ -1,4 +1,4 @@
-name: Build and publish Breyde TVScreen APK # Root capture and connection diagnostics 2.9.1
+name: Build and publish Breyde TVScreen APK # Root capture diagnostics 2.9.1 build retry
 
 on:
   push:
