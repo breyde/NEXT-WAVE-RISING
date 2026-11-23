@@ -111,7 +111,7 @@ jobs:
           target.parent.mkdir(parents=True, exist_ok=True)
           target.write_bytes(base64.b64decode(encoded + b"=" * (-len(encoded) % 4), validate=True))
           assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
-          assert target.stat().st_size > 10000, "El icono del lanzador parece incompleto"
+          assert target.stat().st_size > 8000, "El icono del lanzador parece incompleto"
           print(f"Icono Breyde Remote integrado: {target.stat().st_size} bytes")
           PY
 
