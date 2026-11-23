@@ -9,18 +9,18 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.7"
+        default: "2.9.8"
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "28"
+        default: "29"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.9.7' }} retry
+    name: Build TVScreen ${{ inputs.version || '2.9.8' }} retry
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
-          ref: feature/tvscreen-root-dual-capture
+          ref: feature/remote-light-control
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
@@ -79,8 +79,8 @@ jobs:
       - name: Set requested version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.7' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '28' }}
+          APP_VERSION: ${{ inputs.version || '2.9.8' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '29' }}
         run: |
           python3 - <<'PY'
           import os, re
