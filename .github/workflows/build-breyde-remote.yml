@@ -13,7 +13,7 @@ on:
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "21"
+        default: "22"
 
 permissions:
   contents: write
