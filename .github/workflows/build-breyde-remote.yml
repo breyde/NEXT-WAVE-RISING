@@ -11,7 +11,7 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.22"
+        default: "2.9.23"
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.9.22' }} retry
+    name: Build TVScreen ${{ inputs.version || '2.9.23' }} retry
     runs-on: ubuntu-latest
     timeout-minutes: 32
     steps:
@@ -69,10 +69,10 @@ jobs:
             echo "::error::La APK no se compilará: los archivos principales parecen una versión antigua o incompleta."
             exit 1
           fi
-          for marker in "VOLVER A LA VERSIÓN ANTERIOR" "REINICIAR TV BOX" "BUSCAR ACTUALIZACIONES" "CONECTAR Y COMPARTIR PANTALLA" "ACTIVAR DETECCIÓN DE NAVEGADOR ABIERTO"; do
+          for marker in "VOLVER A LA VERSIÓN ANTERIOR" "REINICIAR TV BOX" "BUSCAR ACTUALIZACIONES" "CONECTAR Y COMPARTIR PANTALLA" "ACTIVAR DETECCIÓN DE NAVEGADOR ABIERTO" "DETECCIÓN MULTIMEDIA"; do
             grep -Fq "$marker" "$MAIN" || { echo "::error::Falta función de interfaz: $marker"; exit 1; }
           done
-          for marker in "/api/apps" "/api/launch" "/api/status" "/api/media-activity" "/api/multi-audio-focus" "/api/reboot"; do
+          for marker in "/api/apps" "/api/launch" "/api/status" "/api/media-activity" "/api/multi-audio-focus" "/api/reboot" "/api/install-apk"; do
             grep -Fq "$marker" "$SERVICE" || { echo "::error::Falta endpoint obligatorio: $marker"; exit 1; }
           done
           grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
@@ -116,8 +116,8 @@ jobs:
       - name: Set requested version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.22' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '44' }}
+          APP_VERSION: ${{ inputs.version || '2.9.23' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '45' }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -149,8 +149,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.9.22' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.22' }}
+          tag_name: v${{ inputs.version || '2.9.23' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.23' }}
           generate_release_notes: true
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
