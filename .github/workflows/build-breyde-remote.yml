@@ -1,26 +1,23 @@
 name: Build and publish Breyde TVScreen APK with Root capture, media panel and auto-reconnect
 
 on:
-  push:
-    paths:
-      - '.github/workflows/build-breyde-remote.yml'
   workflow_dispatch:
     inputs:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.21"
+        default: "2.9.22"
       version_code:
         description: "Código interno de versión (siempre mayor que el anterior)"
         required: true
-        default: "42"
+        default: "44"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.9.21' }} retry
+    name: Build TVScreen ${{ inputs.version || '2.9.22' }} retry
     runs-on: ubuntu-latest
     timeout-minutes: 32
     steps:
@@ -41,6 +38,42 @@ jobs:
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
+
+      - name: Verify full and current TVScreen source
+        working-directory: private-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_BRANCH="feat/browser-media-detection"
+          git fetch --no-tags origin "refs/heads/$SOURCE_BRANCH:refs/remotes/origin/$SOURCE_BRANCH"
+          CHECKED_OUT="$(git rev-parse HEAD)"
+          BRANCH_HEAD="$(git rev-parse "refs/remotes/origin/$SOURCE_BRANCH")"
+          echo "TVScreen source branch: $SOURCE_BRANCH"
+          echo "Checked out commit: $CHECKED_OUT"
+          echo "Latest branch commit: $BRANCH_HEAD"
+          if [ "$CHECKED_OUT" != "$BRANCH_HEAD" ]; then
+            echo "::error::La APK no se compilará: el código descargado no es el último commit de $SOURCE_BRANCH."
+            exit 1
+          fi
+          MAIN="tvbox-screen/app/src/main/java/com/breyde/tvscreen/MainActivity.java"
+          SERVICE="tvbox-screen/app/src/main/java/com/breyde/tvscreen/ScreenCaptureService.java"
+          MEDIA="tvbox-screen/app/src/main/java/com/breyde/tvscreen/MediaActivityListener.java"
+          test -s "$MAIN" && test -s "$SERVICE" && test -s "$MEDIA"
+          MAIN_LINES="$(wc -l < "$MAIN")"
+          SERVICE_LINES="$(wc -l < "$SERVICE")"
+          if [ "$MAIN_LINES" -lt 400 ] || [ "$SERVICE_LINES" -lt 400 ]; then
+            echo "::error::La APK no se compilará: los archivos principales parecen una versión antigua o incompleta."
+            exit 1
+          fi
+          for marker in "VOLVER A LA VERSIÓN ANTERIOR" "REINICIAR TV BOX" "BUSCAR ACTUALIZACIONES" "CONECTAR Y COMPARTIR PANTALLA" "ACTIVAR DETECCIÓN DE NAVEGADOR ABIERTO"; do
+            grep -Fq "$marker" "$MAIN" || { echo "::error::Falta función de interfaz: $marker"; exit 1; }
+          done
+          for marker in "/api/apps" "/api/launch" "/api/status" "/api/media-activity" "/api/multi-audio-focus" "/api/reboot"; do
+            grep -Fq "$marker" "$SERVICE" || { echo "::error::Falta endpoint obligatorio: $marker"; exit 1; }
+          done
+          grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
+          echo "Validación correcta: versión completa, funciones requeridas y último commit de la rama."
+          echo "MainActivity: $MAIN_LINES líneas; ScreenCaptureService: $SERVICE_LINES líneas."
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -79,8 +112,8 @@ jobs:
       - name: Set requested version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.21' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '43' }}
+          APP_VERSION: ${{ inputs.version || '2.9.22' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '44' }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -112,8 +145,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.9.21' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.21' }}
+          tag_name: v${{ inputs.version || '2.9.22' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.22' }}
           generate_release_notes: true
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
