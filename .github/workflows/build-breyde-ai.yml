@@ -52,6 +52,9 @@ jobs:
           test -s breyde-ai/app/build.gradle
           test -s breyde-ai/app/src/main/AndroidManifest.xml
           test -s breyde-ai/app/src/main/java/com/breyde/ai/MainActivity.java
+          test -s breyde-ai/app/src/main/java/com/breyde/ai/SpotifySkill.java
+          test -s breyde-ai/app/src/main/java/com/breyde/ai/BreydeSpotifyCatalog.java
+          grep -q "0XDnt0WHEf6891a3ZhGySC" breyde-ai/app/src/main/java/com/breyde/ai/BreydeSpotifyCatalog.java
           grep -q "applicationId 'com.breyde.ai'" breyde-ai/app/build.gradle
           echo "Proyecto independiente BREYDE AI verificado."
 
