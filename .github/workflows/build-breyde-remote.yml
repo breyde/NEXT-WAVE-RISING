@@ -1,4 +1,5 @@
 name: Build and publish Breyde TVScreen APK with Root capture, media panel and auto-reconnect
+# Rebuild trigger: TVScreen source update on feat/browser-media-detection.
 
 on:
   push:
