@@ -1,0 +1,114 @@
+name: Build BREYDE AI APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-breyde-ai.yml"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión de BREYDE AI"
+        required: true
+        default: "0.1.0"
+      version_code:
+        description: "Código interno de versión"
+        required: true
+        default: "1"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build BREYDE AI ${{ inputs.version || '0.1.0' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check private repository token
+        env:
+          SOURCE_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+        run: |
+          if [ -z "$SOURCE_TOKEN" ]; then
+            echo "::error::Falta el secreto TVSCREEN_REPO_TOKEN."
+            exit 1
+          fi
+
+      - name: Checkout BREYDE AI source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: feature/breyde-ai-foundation
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-source
+          persist-credentials: false
+
+      - name: Verify isolated AI project
+        working-directory: private-source
+        run: |
+          set -euo pipefail
+          test -s breyde-ai/settings.gradle
+          test -s breyde-ai/app/build.gradle
+          test -s breyde-ai/app/src/main/AndroidManifest.xml
+          test -s breyde-ai/app/src/main/java/com/breyde/ai/MainActivity.java
+          grep -q "applicationId 'com.breyde.ai'" breyde-ai/app/build.gradle
+          echo "Proyecto independiente BREYDE AI verificado."
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set requested version
+        working-directory: private-source/breyde-ai
+        env:
+          APP_VERSION: ${{ inputs.version || '0.1.0' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '1' }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          p = Path("app/build.gradle")
+          s = p.read_text()
+          s = re.sub(r"versionCode\\s+\\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
+          s = re.sub(r"versionName\\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
+          p.write_text(s)
+          PY
+
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.9'
+
+      - name: Compile BREYDE AI APK
+        working-directory: private-source/breyde-ai
+        run: gradle --no-daemon assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK="private-source/breyde-ai/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          mkdir -p release
+          cp "$APK" release/breyde-ai.apk
+          sha256sum release/breyde-ai.apk
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: breyde-ai-v${{ inputs.version || '0.1.0' }}
+          name: BREYDE AI v${{ inputs.version || '0.1.0' }}
+          generate_release_notes: true
+          files: release/breyde-ai.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
