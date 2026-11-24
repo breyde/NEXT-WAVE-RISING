@@ -11,18 +11,18 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.1"
+        default: "0.1.2"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "2"
+        default: "3"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build BREYDE AI ${{ inputs.version || '0.1.1' }}
+    name: Build BREYDE AI ${{ inputs.version || '0.1.2' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -72,7 +72,7 @@ jobs:
       - name: Set requested version
         working-directory: private-source/breyde-ai
         env:
-          APP_VERSION: ${{ inputs.version || '0.1.1' }}
+          APP_VERSION: ${{ inputs.version || '0.1.2' }}
           APP_VERSION_CODE: ${{ inputs.version_code || '2' }}
         run: |
           python3 - <<'PY'
@@ -105,8 +105,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-ai-v${{ inputs.version || '0.1.1' }}
-          name: BREYDE AI v${{ inputs.version || '0.1.1' }}
+          tag_name: breyde-ai-v${{ inputs.version || '0.1.2' }}
+          name: BREYDE AI v${{ inputs.version || '0.1.2' }}
           generate_release_notes: true
           files: release/breyde-ai.apk
           fail_on_unmatched_files: true
