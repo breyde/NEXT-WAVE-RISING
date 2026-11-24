@@ -1,6 +1,11 @@
 name: Build BREYDE CLIPBOARD APK
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-breyde-clipboard.yml"
   workflow_dispatch:
     inputs:
       version:
