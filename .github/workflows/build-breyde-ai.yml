@@ -11,18 +11,18 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.7"
+        default: "0.1.8"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "8"
+        default: "9"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build BREYDE AI ${{ inputs.version || '0.1.7' }}
+    name: Build BREYDE AI ${{ inputs.version || '0.1.8' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -77,19 +77,44 @@ jobs:
       - name: Install Android SDK platform
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Prepare dedicated BREYDE AI signing key
+        env:
+          BREYDE_AI_KEYSTORE_BASE64: ${{ secrets.BREYDE_AI_KEYSTORE_BASE64 }}
+          BREYDE_AI_STORE_PASSWORD: ${{ secrets.BREYDE_AI_STORE_PASSWORD }}
+          BREYDE_AI_KEY_ALIAS: ${{ secrets.BREYDE_AI_KEY_ALIAS }}
+          BREYDE_AI_KEY_PASSWORD: ${{ secrets.BREYDE_AI_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in BREYDE_AI_KEYSTORE_BASE64 BREYDE_AI_STORE_PASSWORD BREYDE_AI_KEY_ALIAS BREYDE_AI_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Falta el secreto $name en NEXT-WAVE-RISING."
+              exit 1
+            fi
+          done
+          KEYSTORE_PATH="$RUNNER_TEMP/breyde-ai-release.jks"
+          printf '%s' "$BREYDE_AI_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          test -s "$KEYSTORE_PATH"
+          chmod 600 "$KEYSTORE_PATH"
+          echo "BREYDE_AI_KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+          echo "BREYDE_AI_STORE_PASSWORD=$BREYDE_AI_STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "BREYDE_AI_KEY_ALIAS=$BREYDE_AI_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "BREYDE_AI_KEY_PASSWORD=$BREYDE_AI_KEY_PASSWORD" >> "$GITHUB_ENV"
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$BREYDE_AI_STORE_PASSWORD" -alias "$BREYDE_AI_KEY_ALIAS" >/dev/null
+          echo "Firma exclusiva de BREYDE AI verificada."
+
       - name: Set requested version
         working-directory: private-source/breyde-ai
         env:
-          APP_VERSION: ${{ inputs.version || '0.1.7' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '8' }}
+          APP_VERSION: ${{ inputs.version || '0.1.8' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '9' }}
         run: |
           python3 - <<'PY'
           import os, re
           from pathlib import Path
           p = Path("app/build.gradle")
           s = p.read_text()
-          s = re.sub(r"versionCode\s+\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
-          s = re.sub(r"versionName\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
+          s = re.sub(r"versionCode\\s+\\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
+          s = re.sub(r"versionName\\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
           p.write_text(s)
           PY
 
@@ -98,13 +123,13 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Compile BREYDE AI APK
+      - name: Compile signed BREYDE AI APK
         working-directory: private-source/breyde-ai
-        run: gradle --no-daemon assembleDebug
+        run: gradle --no-daemon assembleRelease
 
       - name: Verify APK
         run: |
-          APK="private-source/breyde-ai/app/build/outputs/apk/debug/app-debug.apk"
+          APK="private-source/breyde-ai/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
           mkdir -p release
           cp "$APK" release/breyde-ai.apk
@@ -113,8 +138,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-ai-v${{ inputs.version || '0.1.7' }}
-          name: BREYDE AI v${{ inputs.version || '0.1.7' }}
+          tag_name: breyde-ai-v${{ inputs.version || '0.1.8' }}
+          name: BREYDE AI v${{ inputs.version || '0.1.8' }}
           generate_release_notes: true
           files: release/breyde-ai.apk
           fail_on_unmatched_files: true
