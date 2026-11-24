@@ -1,0 +1,71 @@
+name: Generate BREYDE AI signing key (encrypted handoff)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Generate dedicated BREYDE AI release keystore
+        shell: bash
+        env:
+          HANDOFF_PASSWORD: ${{ secrets.BREYDE_AI_HANDOFF_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${HANDOFF_PASSWORD:-}" ]; then
+            echo "::error::Falta el secreto BREYDE_AI_HANDOFF_PASSWORD en NEXT-WAVE-RISING."
+            exit 1
+          fi
+
+          mkdir -p handoff
+          STORE_PASS="$(openssl rand -hex 24)"
+          KEY_PASS="$(openssl rand -hex 24)"
+          ALIAS="breyde-ai-release"
+
+          keytool -genkeypair -v \
+            -keystore handoff/breyde-ai-release.jks \
+            -storetype JKS \
+            -storepass "$STORE_PASS" \
+            -keypass "$KEY_PASS" \
+            -alias "$ALIAS" \
+            -keyalg RSA -keysize 3072 -validity 10000 \
+            -dname "CN=BREYDE AI, OU=Android, O=BREYDE, L=NA, ST=NA, C=ES"
+
+          base64 -w 0 handoff/breyde-ai-release.jks > handoff/BREYDE_AI_KEYSTORE_BASE64.txt
+          cat > handoff/secretos-github.txt <<EOF
+          BREYDE_AI_KEYSTORE_BASE64:
+          $(cat handoff/BREYDE_AI_KEYSTORE_BASE64.txt)
+
+          BREYDE_AI_STORE_PASSWORD:
+          $STORE_PASS
+
+          BREYDE_AI_KEY_ALIAS:
+          $ALIAS
+
+          BREYDE_AI_KEY_PASSWORD:
+          $KEY_PASS
+          EOF
+
+          chmod 600 handoff/*
+          keytool -list -keystore handoff/breyde-ai-release.jks -storepass "$STORE_PASS" -alias "$ALIAS" >/dev/null
+
+          tar -czf handoff.tar.gz -C handoff breyde-ai-release.jks secretos-github.txt
+          openssl enc -aes-256-cbc -salt -pbkdf2 -iter 600000 \
+            -pass env:HANDOFF_PASSWORD \
+            -in handoff.tar.gz -out breyde-ai-signing-handoff.tar.gz.enc
+
+          rm -rf handoff handoff.tar.gz
+          echo "Firma BREYDE AI generada y verificada. Solo se publica un paquete cifrado."
+
+      - name: Upload encrypted handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: breyde-ai-signing-handoff-encrypted
+          path: breyde-ai-signing-handoff.tar.gz.enc
+          retention-days: 1
+          if-no-files-found: error
