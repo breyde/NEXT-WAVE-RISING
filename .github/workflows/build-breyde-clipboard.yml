@@ -11,18 +11,18 @@ on:
       version:
         description: "Versión de BREYDE CLIPBOARD"
         required: true
-        default: "1.1.0"
+        default: "1.1.1"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "2"
+        default: "3"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build BREYDE CLIPBOARD ${{ inputs.version || '1.1.0' }}
+    name: Build BREYDE CLIPBOARD ${{ inputs.version || '1.1.1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -78,7 +78,7 @@ jobs:
       - name: Set requested version
         working-directory: private-source/breyde-clipboard
         env:
-          APP_VERSION: ${{ inputs.version || '1.1.0' }}
+          APP_VERSION: ${{ inputs.version || '1.1.1' }}
           APP_VERSION_CODE: ${{ inputs.version_code || '2' }}
         run: |
           python3 - <<'PY'
@@ -86,7 +86,7 @@ jobs:
           from pathlib import Path
           p = Path("app/build.gradle")
           s = p.read_text()
-          s = re.sub(r"versionCode\\s+\\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
+          s = re.sub(r"versionCode\s+\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
           s = re.sub(r"versionName\\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
           p.write_text(s)
           PY
@@ -107,8 +107,8 @@ jobs:
       - name: Publish test release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-clipboard-v${{ inputs.version || '1.1.0' }}-test
-          name: BREYDE CLIPBOARD v${{ inputs.version || '1.1.0' }} (prueba)
+          tag_name: breyde-clipboard-v${{ inputs.version || '1.1.1' }}-test
+          name: BREYDE CLIPBOARD v${{ inputs.version || '1.1.1' }} (prueba)
           prerelease: true
           generate_release_notes: true
           files: release/breyde-clipboard-test.apk
