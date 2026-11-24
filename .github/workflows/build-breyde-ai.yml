@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   build:
-    name: Build BREYDE AI ${{ inputs.version || '0.1.0' }}
+    name: Build BREYDE AI ${{ inputs.version || '0.1.1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -72,16 +72,16 @@ jobs:
       - name: Set requested version
         working-directory: private-source/breyde-ai
         env:
-          APP_VERSION: ${{ inputs.version || '0.1.0' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '1' }}
+          APP_VERSION: ${{ inputs.version || '0.1.1' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '2' }}
         run: |
           python3 - <<'PY'
           import os, re
           from pathlib import Path
           p = Path("app/build.gradle")
           s = p.read_text()
-          s = re.sub(r"versionCode\s+\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
-          s = re.sub(r"versionName\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
+          s = re.sub(r"versionCode\\s+\\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
+          s = re.sub(r"versionName\\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
           p.write_text(s)
           PY
 
@@ -105,8 +105,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-ai-v${{ inputs.version || '0.1.0' }}
-          name: BREYDE AI v${{ inputs.version || '0.1.0' }}
+          tag_name: breyde-ai-v${{ inputs.version || '0.1.1' }}
+          name: BREYDE AI v${{ inputs.version || '0.1.1' }}
           generate_release_notes: true
           files: release/breyde-ai.apk
           fail_on_unmatched_files: true
