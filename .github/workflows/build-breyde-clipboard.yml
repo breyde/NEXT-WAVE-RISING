@@ -1,0 +1,112 @@
+name: Build BREYDE CLIPBOARD APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión de BREYDE CLIPBOARD"
+        required: true
+        default: "1.0.0"
+      version_code:
+        description: "Código interno de versión"
+        required: true
+        default: "1"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build BREYDE CLIPBOARD ${{ inputs.version || '1.0.0' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check source access
+        env:
+          SOURCE_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+        run: |
+          if [ -z "$SOURCE_TOKEN" ]; then
+            echo "::error::Falta el secreto TVSCREEN_REPO_TOKEN."
+            exit 1
+          fi
+
+      - name: Checkout isolated clipboard source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: feature/breyde-clipboard
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-source
+          persist-credentials: false
+
+      - name: Verify standalone app
+        working-directory: private-source
+        run: |
+          set -euo pipefail
+          test -s breyde-clipboard/settings.gradle
+          test -s breyde-clipboard/app/build.gradle
+          test -s breyde-clipboard/app/src/main/AndroidManifest.xml
+          test -s breyde-clipboard/app/src/main/java/com/breyde/clipboard/MainActivity.java
+          grep -q "applicationId 'com.breyde.clipboard'" breyde-clipboard/app/build.gradle
+          grep -q 'android:name=".MainActivity"' breyde-clipboard/app/src/main/AndroidManifest.xml
+          echo "BREYDE CLIPBOARD independiente verificada."
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.9'
+
+      - name: Set requested version
+        working-directory: private-source/breyde-clipboard
+        env:
+          APP_VERSION: ${{ inputs.version || '1.0.0' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '1' }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          p = Path("app/build.gradle")
+          s = p.read_text()
+          s = re.sub(r"versionCode\\s+\\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
+          s = re.sub(r"versionName\\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
+          p.write_text(s)
+          PY
+
+      - name: Compile universal test APK
+        working-directory: private-source/breyde-clipboard
+        run: gradle --no-daemon assembleDebug
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK="private-source/breyde-clipboard/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          mkdir -p release
+          cp "$APK" release/breyde-clipboard-test.apk
+          sha256sum release/breyde-clipboard-test.apk
+
+      - name: Publish test release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: breyde-clipboard-v${{ inputs.version || '1.0.0' }}-test
+          name: BREYDE CLIPBOARD v${{ inputs.version || '1.0.0' }} (prueba)
+          prerelease: true
+          generate_release_notes: true
+          files: release/breyde-clipboard-test.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
