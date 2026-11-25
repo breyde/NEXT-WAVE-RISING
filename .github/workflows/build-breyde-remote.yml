@@ -74,6 +74,7 @@ jobs:
           grep -Fq 'if("2.9.30".equals(version)) return -1;' "$UPDATER"
           grep -Fq "am force-stop com.breyde.tvscreen" "$MAIN"
           grep -Fq "am force-stop com.breyde.tvscreen" "$UPDATER"
+          grep -Fq "if(!ok) Log.w(TAG" "$UPDATER"
           grep -Fq "android:icon=\"@mipmap/ic_launcher\"" "$MANIFEST"
           echo "Fuente completa verificada: MainActivity $MAIN_LINES líneas; ScreenCaptureService $SERVICE_LINES líneas."
 
