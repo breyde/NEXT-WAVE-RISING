@@ -15,7 +15,7 @@ on:
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "10"
+        default: "11"
 
 permissions:
   contents: write
@@ -106,7 +106,7 @@ jobs:
         working-directory: private-source/breyde-ai
         env:
           APP_VERSION: ${{ inputs.version || '0.1.9' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '9' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '11' }}
         run: |
           python3 - <<'PY'
           import os, re
