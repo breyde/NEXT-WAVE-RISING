@@ -1,4 +1,4 @@
-# Trigger release workflow for BREYDE AI v0.1.26
+# Build isolated BREYDE AI v0.1.27 from the verified cumulative private APK branch
 name: Release BREYDE AI APK
 
 on:
@@ -11,15 +11,15 @@ on:
       source_ref:
         description: "Rama privada que se va a compilar"
         required: true
-        default: "main"
+        default: "fix/breyde-ai-cumulative-recovery-20261125"
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.26"
+        default: "0.1.27"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "28"
+        default: "29"
 
 permissions:
   contents: write
@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'main' }}
-      APP_VERSION: ${{ inputs.version || '0.1.26' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '28' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'fix/breyde-ai-cumulative-recovery-20261125' }}
+      APP_VERSION: ${{ inputs.version || '0.1.27' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '29' }}
     steps:
       - name: Check private repository token
         env:
@@ -135,19 +135,21 @@ jobs:
           mkdir -p "$RUNNER_TEMP/previous-apks"
           curl -fsSL "https://github.com/breyde/NEXT-WAVE-RISING/releases/download/breyde-ai-v0.1.10/breyde-ai.apk" -o "$RUNNER_TEMP/previous-apks/v0.1.10.apk"
           curl -fsSL "https://github.com/breyde/NEXT-WAVE-RISING/releases/download/breyde-ai-v0.1.11/breyde-ai.apk" -o "$RUNNER_TEMP/previous-apks/v0.1.11.apk"
+          curl -fsSL "https://github.com/breyde/NEXT-WAVE-RISING/releases/download/breyde-ai-v0.1.22/breyde-ai.apk" -o "$RUNNER_TEMP/previous-apks/v0.1.22.apk"
           cert_digest() {
             "$TOOLS/apksigner" verify --print-certs "$1" | sed -n 's/.*certificate SHA-256 digest: *//p' | head -n 1 | tr 'A-F' 'a-f'
           }
           OLD_010="$(cert_digest "$RUNNER_TEMP/previous-apks/v0.1.10.apk")"
           OLD_011="$(cert_digest "$RUNNER_TEMP/previous-apks/v0.1.11.apk")"
+          OLD_022="$(cert_digest "$RUNNER_TEMP/previous-apks/v0.1.22.apk")"
           NEW_CERT="$(cert_digest "private-source/breyde-ai/app/build/outputs/apk/release/app-release.apk")"
-          test -n "$OLD_010" && test -n "$OLD_011" && test -n "$NEW_CERT"
+          test -n "$OLD_010" && test -n "$OLD_011" && test -n "$OLD_022" && test -n "$NEW_CERT"
           echo "Comparando huellas SHA-256 de certificados (sin mostrar claves privadas)."
-          if [ "$OLD_010" != "$OLD_011" ] || [ "$OLD_010" != "$NEW_CERT" ]; then
+          if [ "$OLD_010" != "$OLD_011" ] || [ "$OLD_010" != "$OLD_022" ] || [ "$OLD_022" != "$NEW_CERT" ]; then
             echo "::error::El certificado nuevo no coincide con las versiones anteriores. Se bloquea la publicación para proteger la instalación y sus datos."
             exit 1
           fi
-          echo "Certificado compatible con 0.1.10 y 0.1.11."
+          echo "Certificado compatible con 0.1.10, 0.1.11 y 0.1.22."
 
       - name: Verify APK
         run: |
