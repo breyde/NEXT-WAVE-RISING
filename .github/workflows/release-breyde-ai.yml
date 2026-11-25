@@ -31,8 +31,8 @@ jobs:
     timeout-minutes: 60
     env:
       SOURCE_REF: ${{ inputs.source_ref || 'main' }}
-      APP_VERSION: ${{ inputs.version || '0.1.25' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '27' }}
+      APP_VERSION: ${{ inputs.version || '0.1.26' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '28' }}
     steps:
       - name: Check private repository token
         env:
