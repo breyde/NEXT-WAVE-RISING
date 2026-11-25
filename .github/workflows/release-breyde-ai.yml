@@ -1,4 +1,4 @@
-# Build isolated BREYDE AI v0.1.27 from the verified cumulative private APK branch
+# Build isolated BREYDE AI v0.1.28 from the verified cumulative private APK branch
 name: Release BREYDE AI APK
 
 on:
@@ -15,11 +15,11 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.27"
+        default: "0.1.28"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "29"
+        default: "30"
 
 permissions:
   contents: write
