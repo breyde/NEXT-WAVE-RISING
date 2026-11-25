@@ -122,14 +122,14 @@ jobs:
           from pathlib import Path
           version = os.environ["APP_VERSION"]
           code = int(os.environ["APP_VERSION_CODE"])
-          if not re.fullmatch(r"\\d+\\.\\d+\\.\\d+", version):
+          if not re.fullmatch("[0-9]+[.][0-9]+[.][0-9]+", version):
               raise SystemExit("Versión semántica no válida")
           if code <= 52:
               raise SystemExit("Bloqueado: el versionCode debe ser superior a 52")
           p = Path("app/build.gradle")
           source = p.read_text()
-          source = re.sub(r"versionCode\\s+\\d+", "versionCode " + str(code), source, count=1)
-          source = re.sub(r"versionName\\s+'[^']+'", "versionName '" + version + "'", source, count=1)
+          source = re.sub("versionCode[ ]+[0-9]+", "versionCode " + str(code), source, count=1)
+          source = re.sub("versionName[ ]+'[^']+'", "versionName '" + version + "'", source, count=1)
           if "versionCode " + str(code) not in source or "versionName '" + version + "'" not in source:
               raise SystemExit("No se pudo fijar la versión solicitada")
           p.write_text(source)
