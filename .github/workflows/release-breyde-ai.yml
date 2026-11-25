@@ -1,4 +1,4 @@
-# Build isolated BREYDE AI v0.1.29 with explicit Qwen-vs-system attribution and local conversation panel
+# Build BREYDE AI v0.1.32 with Qwen native batch-overflow crash fix
 name: Release BREYDE AI APK
 
 on:
@@ -15,11 +15,11 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.31"
+        default: "0.1.32"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "33"
+        default: "34"
 
 permissions:
   contents: write
@@ -31,8 +31,8 @@ jobs:
     timeout-minutes: 60
     env:
       SOURCE_REF: ${{ inputs.source_ref || 'fix/breyde-ai-cumulative-recovery-20261125' }}
-      APP_VERSION: ${{ inputs.version || '0.1.31' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '33' }}
+      APP_VERSION: ${{ inputs.version || '0.1.32' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '34' }}
     steps:
       - name: Check private repository token
         env:
