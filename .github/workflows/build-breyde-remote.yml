@@ -1,5 +1,5 @@
-name: Build and publish Breyde TVScreen APK 2.9.30 with dynamic app discovery
-# Rebuild trigger: TVScreen source update on main.
+name: Build and publish full BREYDE TV SCREEN 2.9.31
+# Build from the verified full source branch used by the working 2.9.29 / code 50 APK.
 
 on:
   push:
@@ -12,18 +12,18 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.30"
+        default: "2.9.31"
       version_code:
-        description: "Código interno de versión (siempre mayor que el anterior)"
+        description: "Código interno monotónico; debe ser superior a 52"
         required: true
-        default: "52"
+        default: "53"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build TVScreen ${{ inputs.version || '2.9.30' }}
+    name: Build full TVScreen ${{ inputs.version || '2.9.31' }}
     runs-on: ubuntu-latest
     timeout-minutes: 32
     steps:
@@ -36,32 +36,45 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout private TVScreen source
+      - name: Checkout verified full TVScreen source
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
-          ref: main
+          ref: feat/browser-media-detection
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
 
-      - name: Verify current TVScreen app and dynamic package discovery
+      - name: Verify full TVScreen source and required features
         working-directory: private-source
         shell: bash
         run: |
           set -euo pipefail
           MAIN="tvbox-screen/app/src/main/java/com/breyde/tvscreen/MainActivity.java"
           SERVICE="tvbox-screen/app/src/main/java/com/breyde/tvscreen/ScreenCaptureService.java"
+          UPDATER="tvbox-screen/app/src/main/java/com/breyde/tvscreen/UpdateJobService.java"
           MANIFEST="tvbox-screen/app/src/main/AndroidManifest.xml"
-          test -s "$MAIN" && test -s "$SERVICE" && test -s "$MANIFEST"
-          grep -Fq '"/api/apps"' "$SERVICE"
-          grep -Fq '"/api/launch"' "$SERVICE"
-          grep -Fq 'Intent.CATEGORY_LAUNCHER' "$SERVICE"
-          grep -Fq 'Intent.CATEGORY_LEANBACK_LAUNCHER' "$SERVICE"
-          grep -Fq 'queryIntentActivities' "$SERVICE"
-          grep -Fq 'android.intent.category.LAUNCHER' "$MANIFEST"
-          grep -Fq 'android.intent.category.LEANBACK_LAUNCHER' "$MANIFEST"
-          echo "Fuente actual verificada: catálogo dinámico de apps launcher y Android TV."
+          test -s "$MAIN" && test -s "$SERVICE" && test -s "$UPDATER" && test -s "$MANIFEST"
+          MAIN_LINES="$(wc -l < "$MAIN")"
+          SERVICE_LINES="$(wc -l < "$SERVICE")"
+          if [ "$MAIN_LINES" -lt 500 ] || [ "$SERVICE_LINES" -lt 500 ]; then
+            echo "::error::Fuente antigua o incompleta; se cancela la compilación."
+            exit 1
+          fi
+          for marker in "VOLVER A LA VERSIÓN ANTERIOR" "REINICIAR TV BOX" "BUSCAR ACTUALIZACIONES" "CONECTAR Y COMPARTIR PANTALLA" "ACTIVAR DETECCIÓN DE NAVEGADOR ABIERTO" "DETECCIÓN MULTIMEDIA"; do
+            grep -Fq "$marker" "$MAIN" || { echo "::error::Falta función de interfaz: $marker"; exit 1; }
+          done
+          for marker in '"/api/apps"' '"/api/launch"' '"/api/status"' '"/api/media-activity"' '"/api/multi-audio-focus"' '"/api/reboot"' '"/api/install-apk"' '"/api/media-search"' 'spotify:search:'; do
+            grep -Fq "$marker" "$SERVICE" || { echo "::error::Falta función remota: $marker"; exit 1; }
+          done
+          grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
+          grep -Fq "releaseVersionCode" "$MAIN"
+          grep -Fq "releaseVersionCode" "$UPDATER"
+          grep -Fq "am force-stop com.breyde.tvscreen" "$MAIN"
+          grep -Fq "am force-stop com.breyde.tvscreen" "$UPDATER"
+          grep -Fq "android:icon=\"@mipmap/ic_launcher\"" "$MANIFEST"
+          echo "Fuente completa verificada: MainActivity $MAIN_LINES líneas; ScreenCaptureService $SERVICE_LINES líneas."
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -82,7 +95,7 @@ jobs:
           mkdir -p tvbox-screen/signing
           base64 --decode tvbox-screen/signing/breyde-tv-release.keystore.b64 > tvbox-screen/signing/breyde-tv-release.keystore
 
-      - name: Install Breyde Remote launcher icon
+      - name: Install Breyde launcher icon
         working-directory: private-source
         run: |
           python3 - <<'PY'
@@ -94,24 +107,33 @@ jobs:
           target.parent.mkdir(parents=True, exist_ok=True)
           target.write_bytes(base64.b64decode(encoded + b"=" * (-len(encoded) % 4), validate=True))
           assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
-          assert target.stat().st_size > 8000, "El icono del lanzador parece incompleto"
-          print(f"Icono Breyde Remote integrado: {target.stat().st_size} bytes")
+          assert target.stat().st_size > 8000, "El icono corporativo parece incompleto"
+          print(f"Icono Breyde integrado: {target.stat().st_size} bytes")
           PY
 
-      - name: Set requested version
+      - name: Set requested monotonic version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.30' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '52' }}
+          APP_VERSION: ${{ inputs.version || '2.9.31' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '53' }}
         run: |
           python3 - <<'PY'
           import os, re
           from pathlib import Path
-          p=Path("app/build.gradle")
-          s=p.read_text()
-          s=re.sub(r"versionCode\s+\d+", "versionCode "+os.environ["APP_VERSION_CODE"], s, count=1)
-          s=re.sub(r"versionName\s+'[^']+'", "versionName '"+os.environ["APP_VERSION"]+"'", s, count=1)
-          p.write_text(s)
+          version = os.environ["APP_VERSION"]
+          code = int(os.environ["APP_VERSION_CODE"])
+          if not re.fullmatch(r"\\d+\\.\\d+\\.\\d+", version):
+              raise SystemExit("Versión semántica no válida")
+          if code <= 52:
+              raise SystemExit("Bloqueado: el versionCode debe ser superior a 52")
+          p = Path("app/build.gradle")
+          source = p.read_text()
+          source = re.sub(r"versionCode\\s+\\d+", "versionCode " + str(code), source, count=1)
+          source = re.sub(r"versionName\\s+'[^']+'", "versionName '" + version + "'", source, count=1)
+          if "versionCode " + str(code) not in source or "versionName '" + version + "'" not in source:
+              raise SystemExit("No se pudo fijar la versión solicitada")
+          p.write_text(source)
+          print("Compilando BREYDE TV SCREEN", version, "código", code)
           PY
 
       - name: Set up Gradle
@@ -123,19 +145,34 @@ jobs:
         working-directory: private-source/tvbox-screen
         run: gradle --no-daemon :app:assembleDebug
 
-      - name: Verify APK
+      - name: Verify package, version and signature
+        env:
+          APP_VERSION: ${{ inputs.version || '2.9.31' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '53' }}
         run: |
+          set -euo pipefail
           APK="private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          BADGING="$("$AAPT" dump badging "$APK")"
+          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='$APP_VERSION_CODE' versionName='$APP_VERSION'"
+          "$APKSIGNER" verify --verbose "$APK"
           mkdir -p release
           cp "$APK" release/breyde-tv-screen.apk
           sha256sum release/breyde-tv-screen.apk
+          stat -c "APK size: %s bytes" release/breyde-tv-screen.apk
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.9.30' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.30' }}
+          tag_name: v${{ inputs.version || '2.9.31' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.31' }}
+          body: |
+            VersionCode: ${{ inputs.version_code || '53' }}
+            Base funcional: BREYDE TV SCREEN 2.9.29 (código 50).
+            Fuente completa: feat/browser-media-detection.
+            Incluye comprobación de actualización por versionCode, bloqueo de retrocesos, parada de procesos antes de instalar y búsqueda multimedia nativa.
           generate_release_notes: true
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
