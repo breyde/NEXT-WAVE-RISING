@@ -1,4 +1,4 @@
-name: Build and publish full BREYDE TV SCREEN 2.9.31
+name: Build and publish full BREYDE TV SCREEN 2.9.32
 # Build from the verified full source branch used by the working 2.9.29 / code 50 APK.
 
 on:
@@ -12,9 +12,9 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.31"
+        default: "2.9.32"
       version_code:
-        description: "Código interno monotónico; debe ser superior a 52"
+        description: "Código interno monotónico; debe ser superior a 53"
         required: true
         default: "53"
 
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    name: Build full TVScreen ${{ inputs.version || '2.9.31' }}
+    name: Build full TVScreen ${{ inputs.version || '2.9.32' }}
     runs-on: ubuntu-latest
     timeout-minutes: 32
     steps:
@@ -70,6 +70,8 @@ jobs:
           grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
           grep -Fq "releaseVersionCode" "$MAIN"
           grep -Fq "releaseVersionCode" "$UPDATER"
+          grep -Fq 'if("2.9.30".equals(version)) return -1;' "$MAIN"
+          grep -Fq 'if("2.9.30".equals(version)) return -1;' "$UPDATER"
           grep -Fq "am force-stop com.breyde.tvscreen" "$MAIN"
           grep -Fq "am force-stop com.breyde.tvscreen" "$UPDATER"
           grep -Fq "android:icon=\"@mipmap/ic_launcher\"" "$MANIFEST"
@@ -114,8 +116,8 @@ jobs:
       - name: Set requested monotonic version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.31' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '53' }}
+          APP_VERSION: ${{ inputs.version || '2.9.32' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '54' }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -124,8 +126,8 @@ jobs:
           code = int(os.environ["APP_VERSION_CODE"])
           if not re.fullmatch("[0-9]+[.][0-9]+[.][0-9]+", version):
               raise SystemExit("Versión semántica no válida")
-          if code <= 52:
-              raise SystemExit("Bloqueado: el versionCode debe ser superior a 52")
+          if code <= 53:
+              raise SystemExit("Bloqueado: el versionCode debe ser superior a 53")
           p = Path("app/build.gradle")
           source = p.read_text()
           source = re.sub("versionCode[ ]+[0-9]+", "versionCode " + str(code), source, count=1)
@@ -147,8 +149,8 @@ jobs:
 
       - name: Verify package, version and signature
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.31' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '53' }}
+          APP_VERSION: ${{ inputs.version || '2.9.32' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '54' }}
         run: |
           set -euo pipefail
           APK="private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk"
@@ -166,10 +168,10 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.9.31' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.31' }}
+          tag_name: v${{ inputs.version || '2.9.32' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.32' }}
           body: |
-            VersionCode: ${{ inputs.version_code || '53' }}
+            VersionCode: ${{ inputs.version_code || '54' }}
             Base funcional: BREYDE TV SCREEN 2.9.29 (código 50).
             Fuente completa: feat/browser-media-detection.
             Incluye comprobación de actualización por versionCode, bloqueo de retrocesos, parada de procesos antes de instalar y búsqueda multimedia nativa.
