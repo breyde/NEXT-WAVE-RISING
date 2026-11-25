@@ -1,4 +1,4 @@
-# Build isolated BREYDE AI v0.1.29 with local conversation panel, bounded transcript and lower-load local inference
+# Build isolated BREYDE AI v0.1.29 with explicit Qwen-vs-system attribution and local conversation panel
 name: Release BREYDE AI APK
 
 on:
