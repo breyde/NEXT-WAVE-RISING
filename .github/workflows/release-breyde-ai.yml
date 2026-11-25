@@ -14,11 +14,11 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.24"
+        default: "0.1.25"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "26"
+        default: "27"
 
 permissions:
   contents: write
@@ -30,8 +30,8 @@ jobs:
     timeout-minutes: 60
     env:
       SOURCE_REF: ${{ inputs.source_ref || 'main' }}
-      APP_VERSION: ${{ inputs.version || '0.1.24' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '26' }}
+      APP_VERSION: ${{ inputs.version || '0.1.25' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '27' }}
     steps:
       - name: Check private repository token
         env:
