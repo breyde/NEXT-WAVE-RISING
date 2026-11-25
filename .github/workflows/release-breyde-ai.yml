@@ -31,8 +31,8 @@ jobs:
     timeout-minutes: 60
     env:
       SOURCE_REF: ${{ inputs.source_ref || 'fix/breyde-ai-cumulative-recovery-20261125' }}
-      APP_VERSION: ${{ inputs.version || '0.1.27' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '29' }}
+      APP_VERSION: ${{ inputs.version || '0.1.28' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '30' }}
     steps:
       - name: Check private repository token
         env:
