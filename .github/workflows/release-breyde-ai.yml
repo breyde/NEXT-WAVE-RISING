@@ -10,15 +10,15 @@ on:
       source_ref:
         description: "Rama privada que se va a compilar"
         required: true
-        default: "feature/breyde-ai-local-core"
+        default: "feature/breyde-ai-integrated-20261125"
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.14"
+        default: "0.1.15"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "16"
+        default: "17"
 
 permissions:
   contents: write
@@ -29,9 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-local-core' }}
-      APP_VERSION: ${{ inputs.version || '0.1.14' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '16' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-integrated-20261125' }}
+      APP_VERSION: ${{ inputs.version || '0.1.15' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '17' }}
     steps:
       - name: Check private repository token
         env:
