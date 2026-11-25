@@ -14,24 +14,24 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.13"
+        default: "0.1.14"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "14"
+        default: "16"
 
 permissions:
   contents: write
 
 jobs:
   release:
-    name: Build and release BREYDE AI v0.1.13
+    name: Build and release BREYDE AI (multi-ABI)
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
       SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-local-core' }}
-      APP_VERSION: ${{ inputs.version || '0.1.13' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '15' }}
+      APP_VERSION: ${{ inputs.version || '0.1.14' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '16' }}
     steps:
       - name: Check private repository token
         env:
