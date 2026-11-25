@@ -1,0 +1,141 @@
+name: Release BREYDE AI APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Rama privada que se va a compilar"
+        required: true
+        default: "feature/breyde-ai-local-core"
+      version:
+        description: "Versión de BREYDE AI"
+        required: true
+        default: "0.1.12"
+      version_code:
+        description: "Código interno de versión"
+        required: true
+        default: "14"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and release BREYDE AI ${{ inputs.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check private repository token
+        env:
+          SOURCE_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+        run: |
+          if [ -z "$SOURCE_TOKEN" ]; then
+            echo "::error::Falta el secreto TVSCREEN_REPO_TOKEN."
+            exit 1
+          fi
+
+      - name: Checkout BREYDE AI source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: ${{ inputs.source_ref }}
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-source
+          persist-credentials: false
+
+      - name: Verify isolated AI project
+        working-directory: private-source
+        run: |
+          set -euo pipefail
+          test -s breyde-ai/settings.gradle
+          test -s breyde-ai/app/build.gradle
+          test -s breyde-ai/app/src/main/AndroidManifest.xml
+          test -s breyde-ai/app/src/main/java/com/breyde/ai/MainActivity.java
+          grep -q "applicationId 'com.breyde.ai'" breyde-ai/app/build.gradle
+          echo "Proyecto BREYDE AI verificado."
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK, NDK and CMake
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK native toolchain
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+
+      - name: Prepare dedicated BREYDE AI signing key
+        env:
+          BREYDE_AI_KEYSTORE_BASE64: ${{ secrets.BREYDE_AI_KEYSTORE_BASE64 }}
+          BREYDE_AI_STORE_PASSWORD: ${{ secrets.BREYDE_AI_STORE_PASSWORD }}
+          BREYDE_AI_KEY_ALIAS: ${{ secrets.BREYDE_AI_KEY_ALIAS }}
+          BREYDE_AI_KEY_PASSWORD: ${{ secrets.BREYDE_AI_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in BREYDE_AI_KEYSTORE_BASE64 BREYDE_AI_STORE_PASSWORD BREYDE_AI_KEY_ALIAS BREYDE_AI_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Falta el secreto $name en NEXT-WAVE-RISING."
+              exit 1
+            fi
+          done
+          KEYSTORE_PATH="$RUNNER_TEMP/breyde-ai-release.jks"
+          printf '%s' "$BREYDE_AI_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          test -s "$KEYSTORE_PATH"
+          chmod 600 "$KEYSTORE_PATH"
+          echo "BREYDE_AI_KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+          echo "BREYDE_AI_STORE_PASSWORD=$BREYDE_AI_STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "BREYDE_AI_KEY_ALIAS=$BREYDE_AI_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "BREYDE_AI_KEY_PASSWORD=$BREYDE_AI_KEY_PASSWORD" >> "$GITHUB_ENV"
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$BREYDE_AI_STORE_PASSWORD" -alias "$BREYDE_AI_KEY_ALIAS" >/dev/null
+          echo "Firma exclusiva de BREYDE AI verificada."
+
+      - name: Set requested version
+        working-directory: private-source/breyde-ai
+        env:
+          APP_VERSION: ${{ inputs.version }}
+          APP_VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          p = Path("app/build.gradle")
+          s = p.read_text()
+          s = re.sub(r"versionCode\\s+\\d+", "versionCode " + os.environ["APP_VERSION_CODE"], s, count=1)
+          s = re.sub(r"versionName\\s+'[^']+'", "versionName '" + os.environ["APP_VERSION"] + "'", s, count=1)
+          p.write_text(s)
+          PY
+
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.9'
+
+      - name: Compile signed BREYDE AI APK
+        working-directory: private-source/breyde-ai
+        run: gradle --no-daemon assembleRelease --stacktrace
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK="private-source/breyde-ai/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -E "package: name='com.breyde.ai'|versionCode='${{ inputs.version_code }}'|versionName='${{ inputs.version }}'"
+          mkdir -p release
+          cp "$APK" release/breyde-ai.apk
+          sha256sum release/breyde-ai.apk
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: breyde-ai-v${{ inputs.version }}
+          name: BREYDE AI v${{ inputs.version }}
+          generate_release_notes: true
+          files: release/breyde-ai.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
