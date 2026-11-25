@@ -10,15 +10,15 @@ on:
       source_ref:
         description: "Rama privada que se va a compilar"
         required: true
-        default: "fix/breyde-ai-0.1.22-update-checker"
+        default: "fix/breyde-ai-core-auto-wake-0.1.23"
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.22"
+        default: "0.1.23"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "23"
+        default: "25"
 
 permissions:
   contents: write
@@ -29,9 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'fix/breyde-ai-0.1.22-update-checker' }}
-      APP_VERSION: ${{ inputs.version || '0.1.22' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '24' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'fix/breyde-ai-core-auto-wake-0.1.23' }}
+      APP_VERSION: ${{ inputs.version || '0.1.23' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '25' }}
     steps:
       - name: Check private repository token
         env:
