@@ -71,6 +71,8 @@ jobs:
           grep -Fq "CHECK UPDATE" "$MAIN"
           grep -Fq \"/api/mouse\" "$SERVICE"
           grep -Fq \"/api/adb/status\" "$SERVICE"
+          grep -Fq 'case "tab"' "$SERVICE"
+          grep -Fq 'case "space"' "$SERVICE"
           grep -Fq "releaseVersionCode" "$MAIN"
           grep -Fq "releaseVersionCode" "$UPDATER"
           grep -Fq 'if("2.9.30".equals(version)) return -1;' "$MAIN"
