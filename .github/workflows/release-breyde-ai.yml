@@ -1,4 +1,4 @@
-# Trigger release workflow for BREYDE AI v0.1.25
+# Trigger release workflow for BREYDE AI v0.1.26
 name: Release BREYDE AI APK
 
 on:
@@ -15,11 +15,11 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.25"
+        default: "0.1.26"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "27"
+        default: "28"
 
 permissions:
   contents: write
