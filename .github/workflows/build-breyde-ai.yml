@@ -11,18 +11,18 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.9"
+        default: "0.1.10"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "11"
+        default: "12"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build BREYDE AI ${{ inputs.version || '0.1.9' }}
+    name: Build BREYDE AI ${{ inputs.version || '0.1.10' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -106,7 +106,7 @@ jobs:
         working-directory: private-source/breyde-ai
         env:
           APP_VERSION: ${{ inputs.version || '0.1.9' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '11' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '12' }}
         run: |
           python3 - <<'PY'
           import os, re
