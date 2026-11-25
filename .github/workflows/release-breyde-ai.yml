@@ -10,15 +10,15 @@ on:
       source_ref:
         description: "Rama privada que se va a compilar"
         required: true
-        default: "feature/breyde-ai-main-integration-20261125"
+        default: "feature/breyde-ai-updater-button-20261125"
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.15"
+        default: "0.1.16"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "17"
+        default: "18"
 
 permissions:
   contents: write
@@ -29,9 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-main-integration-20261125' }}
-      APP_VERSION: ${{ inputs.version || '0.1.15' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '17' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-updater-button-20261125' }}
+      APP_VERSION: ${{ inputs.version || '0.1.16' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '18' }}
     steps:
       - name: Check private repository token
         env:
