@@ -1,4 +1,4 @@
-# Build BREYDE AI v0.1.33 with 32-bit Qwen inference diagnostics and memory tuning
+# Build BREYDE AI v0.1.34 with isolated BREYDE and Qwen test channels
 name: Release BREYDE AI APK
 
 on:
@@ -15,11 +15,11 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.33"
+        default: "0.1.34"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "35"
+        default: "36"
 
 permissions:
   contents: write
