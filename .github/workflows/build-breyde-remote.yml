@@ -120,7 +120,7 @@ jobs:
       - name: Set requested monotonic version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.32' }}
+          APP_VERSION: ${{ inputs.version || '2.9.33' }}
           APP_VERSION_CODE: ${{ inputs.version_code || '55' }}
         run: |
           python3 - <<'PY'
@@ -153,8 +153,8 @@ jobs:
 
       - name: Verify package, version and signature
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.32' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '54' }}
+          APP_VERSION: ${{ inputs.version || '2.9.33' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '55' }}
         run: |
           set -euo pipefail
           APK="private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk"
@@ -172,12 +172,13 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.9.32' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.32' }}
+          tag_name: v${{ inputs.version || '2.9.33' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.33' }}
           body: |
-            VersionCode: ${{ inputs.version_code || '54' }}
+            VersionCode: ${{ inputs.version_code || '55' }}
             Base funcional: BREYDE TV SCREEN 2.9.29 (código 50).
-            Fuente completa: feat/2.9.33-breyde-remote-ai.\n            Incluye CHECK UPDATE persistente, gestos de ratón por accesibilidad y diagnóstico ADB de solo lectura.
+            Fuente completa: feat/2.9.33-breyde-remote-ai.
+            Incluye CHECK UPDATE persistente, gestos de ratón por accesibilidad y diagnóstico ADB de solo lectura.
             Incluye comprobación de actualización por versionCode, bloqueo de retrocesos, parada de procesos antes de instalar y búsqueda multimedia nativa.
           generate_release_notes: true
           files: release/breyde-tv-screen.apk
