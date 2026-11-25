@@ -1,4 +1,4 @@
-# Build isolated BREYDE AI v0.1.28 from the verified cumulative private APK branch
+# Build isolated BREYDE AI v0.1.28 with local conversation panel, bounded transcript and lower-load local inference
 name: Release BREYDE AI APK
 
 on:
