@@ -1,4 +1,4 @@
-# Build BREYDE AI v0.1.36 with isolated BREYDE and Qwen test channels
+# Build BREYDE AI v0.1.37 with guarded APK installer
 name: Release BREYDE AI APK
 
 on:
@@ -11,15 +11,15 @@ on:
       source_ref:
         description: "Rama privada que se va a compilar"
         required: true
-        default: "feature/breyde-ai-engine-routing-20261126"
+        default: "feature/breyde-ai-apk-installer-20261126"
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.36"
+        default: "0.1.37"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "38"
+        default: "39"
 
 permissions:
   contents: write
@@ -60,6 +60,9 @@ jobs:
           test -s breyde-ai/app/build.gradle
           test -s breyde-ai/app/src/main/AndroidManifest.xml
           test -s breyde-ai/app/src/main/java/com/breyde/ai/MainActivity.java
+          test -s breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
+          grep -q \.ApkInstallerActivity breyde-ai/app/src/main/AndroidManifest.xml
+          grep -q "INSTALAR APK" breyde-ai/app/src/main/java/com/breyde/ai/MainActivity.java
           grep -q "applicationId 'com.breyde.ai'" breyde-ai/app/build.gradle
           echo "Proyecto BREYDE AI verificado."
 
