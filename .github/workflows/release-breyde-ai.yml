@@ -1,4 +1,5 @@
 # Build BREYDE AI v0.1.38 with multi-app APK installer, GitHub links and Drive picker
+# Re-trigger build after installer source updates.
 name: Release BREYDE AI APK
 
 on:
@@ -26,6 +27,7 @@ permissions:
 
 jobs:
   release:
+
     name: Build and release BREYDE AI (multi-ABI)
     runs-on: ubuntu-latest
     timeout-minutes: 60
