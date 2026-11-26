@@ -1,4 +1,4 @@
-# Build BREYDE AI v0.1.37 with guarded APK installer and Drive document picker
+# Build BREYDE AI v0.1.38 with multi-app APK installer, GitHub links and Drive picker
 name: Release BREYDE AI APK
 
 on:
@@ -15,11 +15,11 @@ on:
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.37"
+        default: "0.1.38"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "39"
+        default: "40"
 
 permissions:
   contents: write
@@ -31,8 +31,8 @@ jobs:
     timeout-minutes: 60
     env:
       SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-apk-installer-20261126' }}
-      APP_VERSION: ${{ inputs.version || '0.1.37' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '39' }}
+      APP_VERSION: ${{ inputs.version || '0.1.38' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '40' }}
     steps:
       - name: Check private repository token
         env:
@@ -64,7 +64,8 @@ jobs:
           grep -q \.ApkInstallerActivity breyde-ai/app/src/main/AndroidManifest.xml
           grep -q "INSTALAR APK" breyde-ai/app/src/main/java/com/breyde/ai/MainActivity.java
           grep -q "ACTION_OPEN_DOCUMENT" breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
-          grep -q "com.breyde.ai" breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
+          grep -q "github.com" breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
+          grep -q "ACTION_INSTALL_PACKAGE" breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
           grep -q "applicationId 'com.breyde.ai'" breyde-ai/app/build.gradle
           echo "Proyecto BREYDE AI verificado."
 
