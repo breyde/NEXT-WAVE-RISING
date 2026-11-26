@@ -1,4 +1,4 @@
-# Build BREYDE AI v0.1.38 with multi-app APK installer, GitHub links and Drive picker
+# Build BREYDE AI v0.1.39/41 with remote local-execution bridge
 # Re-trigger build after fixing APK installer Java syntax and arbitrary-package handling.
 name: Release BREYDE AI APK
 
