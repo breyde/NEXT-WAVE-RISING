@@ -12,15 +12,15 @@ on:
       source_ref:
         description: "Rama privada que se va a compilar"
         required: true
-        default: "feature/breyde-ai-apk-installer-20261126"
+        default: "fix/breyde-ai-remote-local-execution-20261126"
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.38"
+        default: "0.1.39"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "40"
+        default: "41"
 
 permissions:
   contents: write
@@ -32,9 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-apk-installer-20261126' }}
-      APP_VERSION: ${{ inputs.version || '0.1.38' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '40' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'fix/breyde-ai-remote-local-execution-20261126' }}
+      APP_VERSION: ${{ inputs.version || '0.1.39' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '41' }}
     steps:
       - name: Check private repository token
         env:
