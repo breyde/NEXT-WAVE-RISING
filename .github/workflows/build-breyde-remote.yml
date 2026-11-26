@@ -12,18 +12,18 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.33"
+        default: "2.9.34"
       version_code:
         description: "Código interno monotónico; debe ser superior a 54"
         required: true
-        default: "55"
+        default: "56"
 
 permissions:
   contents: write
 
 jobs:
   build:
-    name: Build full TVScreen ${{ inputs.version || '2.9.33' }}
+    name: Build full TVScreen ${{ inputs.version || '2.9.34' }}
     runs-on: ubuntu-latest
     timeout-minutes: 32
     steps:
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
-          ref: feat/2.9.33-breyde-remote-ai
+          ref: feature/2.9.34-apk-install-verified-20261126
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
@@ -67,6 +67,10 @@ jobs:
           for marker in '"/api/apps"' '"/api/launch"' '"/api/status"' '"/api/media-activity"' '"/api/multi-audio-focus"' '"/api/reboot"' '"/api/install-apk"' '"/api/media-search"' 'spotify:search:'; do
             grep -Fq "$marker" "$SERVICE" || { echo "::error::Falta función remota: $marker"; exit 1; }
           done
+          grep -Fq 'verifyRemoteBreydeAiApk(apk)' "$SERVICE"
+          grep -Fq 'REMOTE_AI_PACKAGE="com.breyde.ai"' "$SERVICE"
+          grep -Fq 'INSTALAR BREYDE AI · APK' public/index.html
+          grep -Fq 'Google Drive del propio televisor' public/index.html
           grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
           grep -Fq "CHECK UPDATE" "$MAIN"
           grep -Fq \"/api/mouse\" "$SERVICE"
@@ -123,7 +127,7 @@ jobs:
         working-directory: private-source/tvbox-screen
         env:
           APP_VERSION: ${{ inputs.version || '2.9.33' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '55' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '56' }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -178,10 +182,11 @@ jobs:
           name: BREYDE TV SCREEN v${{ inputs.version || '2.9.33' }}
           body: |
             VersionCode: ${{ inputs.version_code || '55' }}
-            Base funcional: BREYDE TV SCREEN 2.9.29 (código 50).
+            Base funcional: BREYDE TV SCREEN 2.9.33 (código 55).
             Fuente completa: feat/2.9.33-breyde-remote-ai.
             Incluye CHECK UPDATE persistente, gestos de ratón por accesibilidad y diagnóstico ADB de solo lectura.
             Incluye comprobación de actualización por versionCode, bloqueo de retrocesos, parada de procesos antes de instalar y búsqueda multimedia nativa.
+            Instalación remota de BREYDE AI: subida desde móvil o selección desde Google Drive en el TV Box; verificación de paquete, firma y versión.
           generate_release_notes: true
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
