@@ -1,4 +1,4 @@
-# Build BREYDE AI v0.1.35 with isolated BREYDE and Qwen test channels
+# Build BREYDE AI v0.1.36 with isolated BREYDE and Qwen test channels
 name: Release BREYDE AI APK
 
 on:
@@ -11,15 +11,15 @@ on:
       source_ref:
         description: "Rama privada que se va a compilar"
         required: true
-        default: "feature/breyde-ai-learning-feedback-commands-20261126"
+        default: "feature/breyde-ai-engine-routing-20261126"
       version:
         description: "Versión de BREYDE AI"
         required: true
-        default: "0.1.35"
+        default: "0.1.36"
       version_code:
         description: "Código interno de versión"
         required: true
-        default: "36"
+        default: "38"
 
 permissions:
   contents: write
@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-learning-feedback-commands-20261126' }}
-      APP_VERSION: ${{ inputs.version || '0.1.35' }}
-      APP_VERSION_CODE: ${{ inputs.version_code || '37' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'feature/breyde-ai-engine-routing-20261126' }}
+      APP_VERSION: ${{ inputs.version || '0.1.36' }}
+      APP_VERSION_CODE: ${{ inputs.version_code || '38' }}
     steps:
       - name: Check private repository token
         env:
