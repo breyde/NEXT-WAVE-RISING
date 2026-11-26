@@ -1,4 +1,4 @@
-# Build BREYDE AI v0.1.37 with guarded APK installer
+# Build BREYDE AI v0.1.37 with guarded APK installer and Drive document picker
 name: Release BREYDE AI APK
 
 on:
@@ -63,6 +63,8 @@ jobs:
           test -s breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
           grep -q \.ApkInstallerActivity breyde-ai/app/src/main/AndroidManifest.xml
           grep -q "INSTALAR APK" breyde-ai/app/src/main/java/com/breyde/ai/MainActivity.java
+          grep -q "ACTION_OPEN_DOCUMENT" breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
+          grep -q "com.breyde.ai" breyde-ai/app/src/main/java/com/breyde/ai/ApkInstallerActivity.java
           grep -q "applicationId 'com.breyde.ai'" breyde-ai/app/build.gradle
           echo "Proyecto BREYDE AI verificado."
 
