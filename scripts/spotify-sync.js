@@ -50,8 +50,8 @@ function spotifyTrackUri(value) {
   if (uriMatch) return "spotify:track:" + uriMatch[1];
   let url;
   try { url = new URL(raw); } catch (_) { return null; }
-  if (!/(^|\\.)open\\.spotify\\.com$/i.test(url.hostname)) return null;
-  const match = url.pathname.match(/^\\/(?:intl-[a-z]{2}\\/)?track\\/([A-Za-z0-9]{22})\\/?$/i);
+  if (!/(^|\.)open\.spotify\.com$/i.test(url.hostname)) return null;
+  const match = url.pathname.match(/^\/(?:intl-[a-z]{2}\/)?track\/([A-Za-z0-9]{22})\/?$/i);
   return match ? "spotify:track:" + match[1] : null;
 }
 
