@@ -115,7 +115,7 @@ jobs:
           body: |
             Versión 1.0.8 firmada con el mismo certificado estable de BREYDE SCREEN.
             Conserva el paquete com.breyde.monitor y los datos locales al actualizar.
-            Interfaz móvil ajustada a la referencia: cabecera compacta, plataformas activas únicas distribuidas en el ancho disponible, IP pública IPv4 visible y tarjetas TVBox que abren la captura en directo al tocarlas. Autenticación BREYDE REMOTE cifrada con Android Keystore y firma compartida de BREYDE SCREEN.
+            Interfaz móvil ajustada a la referencia: cabecera compacta, plataformas activas únicas distribuidas en el ancho disponible, IP pública IPv4 visible y tarjetas TVBox que abren la captura en directo al tocarlas. La vista de captura muestra errores del servidor y estado EN DIRECTO. Autenticación BREYDE REMOTE cifrada con Android Keystore y firma compartida de BREYDE SCREEN.
           files: |
             release/breyde-monitor.apk
             release/SHA256SUMS.txt
