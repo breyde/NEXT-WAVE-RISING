@@ -67,6 +67,7 @@ jobs:
           grep -Fq '/api/remote/device-name' "$MAIN"
           grep -Fq '/api/remote/agent?nodeId=' "$MAIN"
           grep -Fq 'RESOLUCIÓN DE ENTRADA' "$MAIN"
+          grep -Fq 'new int[]{480,720,1080}' "$MAIN"
           grep -Fq '1080p' "$MAIN"
           grep -Fq 'win.setLayout(-1,-1)' "$MAIN"
           grep -Fq 'edit.setText("⚙")' "$MAIN"
@@ -121,7 +122,7 @@ jobs:
             Corrección del gesto de ordenación de TVBoxes.
             Activa 🔃 para ordenar. Las tarjetas se elevan con animación 3D; al arrastrar, la lista hace auto-scroll en los bordes y las tarjetas se recolocan al pasar sobre ellas para dejar hueco en tiempo real. Pulsa 🔃 o TERMINAR para guardar. Los dispositivos nuevos se añaden al final.
             Mantiene el icono global ⚒️ arriba y el engranaje ⚙️ pequeño en cada ficha de TVBox.
-            El visor incorpora un cuadro BREYDE IA que envía órdenes al TVBox abierto, selector de resolución de entrada (360p/480p/720p/1080p) y pantalla completa. La barra inferior prioriza CERRAR con mayor anchura.
+            El visor incorpora un cuadro BREYDE IA que envía órdenes al TVBox abierto, selector de resolución de entrada (480p/720p/1080p) y pantalla completa. La barra inferior prioriza CERRAR con mayor anchura.
             Mantiene com.breyde.monitor y la firma estable compartida para actualizar sin desinstalar.
           files: |
             release/breyde-monitor.apk
