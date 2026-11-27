@@ -83,7 +83,7 @@ jobs:
           grep -Fq 'sharedName' "$SERVICE"
           grep -Fq 'GUARDAR NOMBRE EN BREYDE REMOTE' "$MAIN"
           grep -Fq 'sharedDeviceName' "$MAIN"
-          grep -Fq 'versionCode 57' tvbox-screen/app/build.gradle
+          grep -Fq 'versionCode 56' tvbox-screen/app/build.gradle
           grep -Fq "versionName '2.9.36'" tvbox-screen/app/build.gradle
           grep -Fq "am force-stop com.breyde.tvscreen" "$MAIN"
           grep -Fq "am force-stop com.breyde.tvscreen" "$UPDATER"
