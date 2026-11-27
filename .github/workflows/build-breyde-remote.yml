@@ -162,7 +162,7 @@ jobs:
 
       - name: Verify package, version and signature
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.33' }}
+          APP_VERSION: ${{ inputs.version || '2.9.35' }}
           APP_VERSION_CODE: ${{ inputs.version_code || '56' }}
         run: |
           set -euo pipefail
