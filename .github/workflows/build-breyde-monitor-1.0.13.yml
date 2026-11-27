@@ -10,7 +10,7 @@ on:
       source_ref:
         description: "Rama privada de BREYDE Monitor"
         required: true
-        default: "fix/monitor-tvbox-ordering-1.0.13-20261127"
+        default: "fix/monitor-tvbox-manual-toggle-1.0.13-20261127"
 permissions:
   contents: write
 jobs:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'fix/monitor-tvbox-ordering-1.0.13-20261127' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'fix/monitor-tvbox-manual-toggle-1.0.13-20261127' }}
     steps:
       - name: Validate private source token
         env:
