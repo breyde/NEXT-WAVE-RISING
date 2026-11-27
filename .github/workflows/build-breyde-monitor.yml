@@ -81,17 +81,17 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='1' versionName='1.0.0'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='2' versionName='1.0.1'"
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
           sha256sum release/breyde-monitor.apk | tee release/SHA256SUMS.txt
       - name: Publish BREYDE Monitor release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-monitor-v1.0.0
-          name: BREYDE MONITOR v1.0.0
+          tag_name: breyde-monitor-v1.0.1
+          name: BREYDE MONITOR v1.0.1
           body: |
-            Primera versión de la aplicación monitorizadora BREYDE.
+            Versión 1.0.1 de la aplicación monitorizadora BREYDE con configuración por TVBox y avisos en segundo plano.
             Base de integración: BREYDE TV SCREEN 2.9.33 y BREYDE REMOTE.
             Incluye panel multidispositivo, actividad multimedia y visualización/tacto remoto de pantalla.
           files: |
