@@ -1,4 +1,4 @@
-name: Build and publish BREYDE TV SCREEN 2.9.36
+name: Build and publish BREYDE TV SCREEN 2.9.37
 # Build from the verified full source branch used by the working 2.9.29 / code 50 APK.
 
 on:
@@ -12,7 +12,7 @@ on:
       version:
         description: "Versión de Breyde TV Screen"
         required: true
-        default: "2.9.36"
+        default: "2.9.37"
       version_code:
         description: "Código interno monotónico; debe ser superior a 54"
         required: true
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    name: Build full TVScreen ${{ inputs.version || '2.9.36' }}
+    name: Build full TVScreen ${{ inputs.version || '2.9.37' }}
     runs-on: ubuntu-latest
     timeout-minutes: 32
     steps:
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
-          ref: feature/2.9.36-320p-from-2.9.35
+          ref: feature/2.9.37-320p-from-2.9.35
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
@@ -130,8 +130,8 @@ jobs:
       - name: Set requested monotonic version
         working-directory: private-source/tvbox-screen
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.36' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '56' }}
+          APP_VERSION: ${{ inputs.version || '2.9.37' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '57' }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -163,8 +163,8 @@ jobs:
 
       - name: Verify package, version and signature
         env:
-          APP_VERSION: ${{ inputs.version || '2.9.36' }}
-          APP_VERSION_CODE: ${{ inputs.version_code || '56' }}
+          APP_VERSION: ${{ inputs.version || '2.9.37' }}
+          APP_VERSION_CODE: ${{ inputs.version_code || '57' }}
         run: |
           set -euo pipefail
           APK="private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk"
@@ -182,12 +182,12 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version || '2.9.36' }}
-          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.36' }}
+          tag_name: v${{ inputs.version || '2.9.37' }}
+          name: BREYDE TV SCREEN v${{ inputs.version || '2.9.37' }}
           body: |
-            VersionCode: ${{ inputs.version_code || '56' }}
+            VersionCode: ${{ inputs.version_code || '57' }}
             Base funcional: BREYDE TV SCREEN 2.9.33 (código 55), commit verificado.
-            Fuente: feature/2.9.36-320p-from-2.9.35.
+            Fuente: feature/2.9.37-320p-from-2.9.35.
             Incluye sincronización bidireccional del nombre compartido entre la APK y BREYDE REMOTE, conservando el resto de funciones de la base.
             Incluye comprobación de actualización por versionCode, bloqueo de retrocesos, parada de procesos antes de instalar y búsqueda multimedia nativa.
             Instalación remota de BREYDE AI: subida desde móvil o selección desde Google Drive en el TV Box; verificación de paquete, firma y versión.
