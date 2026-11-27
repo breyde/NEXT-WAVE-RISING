@@ -53,8 +53,8 @@ jobs:
           test -s tvbox-screen/app/build.gradle
           grep -q "applicationId 'com.breyde.monitor'" monitor-app/app/build.gradle
           grep -Fq '/api/remote/status' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
-          grep -q "versionCode 5" monitor-app/app/build.gradle
-          grep -q "versionName '1.0.4'" monitor-app/app/build.gradle
+          grep -q "versionCode 6" monitor-app/app/build.gradle
+          grep -q "versionName '1.0.5'" monitor-app/app/build.gradle
           grep -q "breyde-tv-release.keystore" monitor-app/app/build.gradle
           echo "Monitor identity, API bridge and shared signing source verified. Build config reads SCREEN signing values locally."
       - name: Set up Java 17
@@ -90,7 +90,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='5' versionName='1.0.4'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='6' versionName='1.0.5'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
@@ -98,12 +98,12 @@ jobs:
       - name: Publish BREYDE Monitor release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-monitor-v1.0.4
-          name: BREYDE MONITOR v1.0.4
+          tag_name: breyde-monitor-v1.0.5
+          name: BREYDE MONITOR v1.0.5
           body: |
-            Versión 1.0.4 firmada con el mismo certificado estable de BREYDE SCREEN.
+            Versión 1.0.5 firmada con el mismo certificado estable de BREYDE SCREEN.
             Conserva el paquete com.breyde.monitor y los datos locales al actualizar.
-            Base de integración: BREYDE TV SCREEN 2.9.33 y BREYDE REMOTE.
+            Conexión corregida: GET /api/remote/nodes, nodeId y GET /api/media-activity. Interfaz visual renovada siguiendo la referencia del usuario.
           files: |
             release/breyde-monitor.apk
             release/SHA256SUMS.txt
