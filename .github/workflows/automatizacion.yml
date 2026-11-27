@@ -39,6 +39,7 @@ on:
           - none
           - active_to_monthly
           - queue_to_active
+          - queue_append_active
           - featured_to_queue
           - annual_to_monthly
         default: none
