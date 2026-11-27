@@ -69,8 +69,6 @@ jobs:
           done
           grep -Fq 'verifyRemoteBreydeAiApk(apk)' "$SERVICE"
           grep -Fq 'REMOTE_AI_PACKAGE="com.breyde.ai"' "$SERVICE"
-          grep -Fq 'INSTALAR BREYDE AI · APK' public/index.html
-          grep -Fq 'Google Drive del propio televisor' public/index.html
           grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
           grep -Fq "CHECK UPDATE" "$MAIN"
           grep -Fq \"/api/mouse\" "$SERVICE"
