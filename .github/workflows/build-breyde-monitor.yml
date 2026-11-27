@@ -56,9 +56,14 @@ jobs:
           grep -Fq 'optJSONArray("devices")' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'deviceId' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'POST","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
-          grep -Fq 'import android.widget.HorizontalScrollView;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
-          grep -q "versionCode 7" monitor-app/app/build.gradle
-          grep -q "versionName '1.0.6'" monitor-app/app/build.gradle
+          grep -Fq 'new BreydeIconView(this,"breyde",54)' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          test -s monitor-app/app/src/main/java/com/breyde/monitor/BreydeIconView.java
+          test -s monitor-app/app/src/main/java/com/breyde/monitor/SecureCredentials.java
+          grep -Fq 'SecureCredentials.save(this,u,p)' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'setRequestProperty("Authorization",authorization())' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'setRequestProperty("Authorization",authorization())' monitor-app/app/src/main/java/com/breyde/monitor/MonitorService.java
+          grep -q "versionCode 8" monitor-app/app/build.gradle
+          grep -q "versionName '1.0.7'" monitor-app/app/build.gradle
           grep -q "breyde-tv-release.keystore" monitor-app/app/build.gradle
           echo "Monitor identity, API bridge and shared signing source verified. Build config reads SCREEN signing values locally."
       - name: Set up Java 17
@@ -94,7 +99,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='7' versionName='1.0.6'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='8' versionName='1.0.7'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
@@ -102,12 +107,12 @@ jobs:
       - name: Publish BREYDE Monitor release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-monitor-v1.0.6
-          name: BREYDE MONITOR v1.0.6
+          tag_name: breyde-monitor-v1.0.7
+          name: BREYDE MONITOR v1.0.7
           body: |
-            Versión 1.0.6 firmada con el mismo certificado estable de BREYDE SCREEN.
+            Versión 1.0.7 firmada con el mismo certificado estable de BREYDE SCREEN.
             Conserva el paquete com.breyde.monitor y los datos locales al actualizar.
-            Contrato correcto de BREYDE REMOTE: GET /api/remote/status, devices, deviceId y POST /api/remote/request para POST /api/media-activity. Interfaz visual según referencia del usuario.
+            Panel gráfico nativo con iconos vectoriales dibujados en Canvas, cabecera BREYDE, TVBox y navegación gráfica. Login de BREYDE REMOTE por HTTP Basic; credenciales cifradas con Android Keystore y aplicadas también al servicio en segundo plano.
           files: |
             release/breyde-monitor.apk
             release/SHA256SUMS.txt
