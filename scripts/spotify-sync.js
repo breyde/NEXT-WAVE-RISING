@@ -18,7 +18,10 @@ async function request(url, options = {}) {
   try { data = text ? JSON.parse(text) : {}; } catch (_) {}
   if (!response.ok) {
     const detail = data.error?.message || data.error_description || text || response.statusText;
-    throw new Error("Spotify API " + response.status + ": " + detail);
+    const error = new Error("Spotify API " + response.status + ": " + detail);
+    error.status = response.status;
+    error.url = url;
+    throw error;
   }
   return data;
 }
@@ -47,8 +50,8 @@ function spotifyTrackUri(value) {
   if (uriMatch) return "spotify:track:" + uriMatch[1];
   let url;
   try { url = new URL(raw); } catch (_) { return null; }
-  if (!/(^|\.)open\.spotify\.com$/i.test(url.hostname)) return null;
-  const match = url.pathname.match(/^\/(?:intl-[a-z]{2}\/)?track\/([A-Za-z0-9]{22})\/?$/i);
+  if (!/(^|\\.)open\\.spotify\\.com$/i.test(url.hostname)) return null;
+  const match = url.pathname.match(/^\\/(?:intl-[a-z]{2}\\/)?track\\/([A-Za-z0-9]{22})\\/?$/i);
   return match ? "spotify:track:" + match[1] : null;
 }
 
@@ -58,8 +61,7 @@ async function getPlaylistConfig() {
   return { ref, data: snap.exists ? snap.data() : {} };
 }
 
-async function ensurePlaylist(token, config, key, name, description) {
-  if (config[key]) return config[key];
+async function createPrivatePlaylist(token, name, description) {
   const playlist = await request("https://api.spotify.com/v1/me/playlists", {
     method: "POST",
     headers: {
@@ -71,10 +73,16 @@ async function ensurePlaylist(token, config, key, name, description) {
   if (!playlist.id || playlist.public !== false) {
     throw new Error("Spotify no confirmó la creación privada de " + name + ".");
   }
-  config[key] = playlist.id;
-  await config._ref.set({ [key]: playlist.id, updatedAt: Date.now() }, { merge: true });
-  console.log("Playlist privada preparada: " + name);
+  console.log("Playlist privada creada: " + name + " (" + playlist.id + ")");
   return playlist.id;
+}
+
+async function ensurePlaylist(token, config, key, name, description) {
+  if (config[key]) return config[key];
+  const playlistId = await createPrivatePlaylist(token, name, description);
+  config[key] = playlistId;
+  await config._ref.set({ [key]: playlistId, updatedAt: Date.now() }, { merge: true });
+  return playlistId;
 }
 
 async function readTracks(collectionName) {
@@ -124,14 +132,23 @@ async function replacePlaylist(token, playlistId, uris) {
   if (!definitions.length) throw new Error("No se ha seleccionado ninguna copia temporal válida.");
 
   for (const item of definitions) {
-    const playlistId = await ensurePlaylist(token, config, item.key, item.name, item.description);
+    let playlistId = await ensurePlaylist(token, config, item.key, item.name, item.description);
     const tracks = await readTracks(item.source);
-    await replacePlaylist(token, playlistId, tracks.uris);
+    try {
+      await replacePlaylist(token, playlistId, tracks.uris);
+    } catch (error) {
+      if (error.status !== 404) throw error;
+      console.warn("La playlist guardada para " + item.name + " devuelve 404. Se creará una nueva; la lista fuente de Firebase no se modifica.");
+      playlistId = await createPrivatePlaylist(token, item.name, item.description);
+      config[item.key] = playlistId;
+      await saved.ref.set({ [item.key]: playlistId, updatedAt: Date.now() }, { merge: true });
+      await replacePlaylist(token, playlistId, tracks.uris);
+    }
     console.log(item.name + ": " + tracks.uris.length + " canciones sincronizadas; " +
       tracks.skipped + " enlaces no válidos omitidos de " + tracks.sourceCount + " registros.");
   }
-  await saved.ref.set({ lastSyncAt: Date.now(), lastSyncStatus: "success" }, { merge: true });
-  console.log("Sincronización de las tres playlists privadas completada.");
+  await saved.ref.set({ lastSyncAt: Date.now(), lastSyncStatus: "success", lastSyncError: null }, { merge: true });
+  console.log("Sincronización de las playlists privadas completada.");
 })().catch(async error => {
   console.error(error);
   try {
