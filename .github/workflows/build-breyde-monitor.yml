@@ -144,3 +144,18 @@ jobs:
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish BREYDE TV SCREEN release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: breyde-tv-screen-v2.9.34
+          name: BREYDE TV SCREEN v2.9.34
+          body: |
+            BREYDE SCREEN con sincronización de nombre compartido.
+            Los nombres modificados desde REMOTE o MONITOR se guardan en el TV Box y se restauran al reconectar.
+            Mantiene el paquete com.breyde.tvscreen y la firma estable existente.
+          files: |
+            release/breyde-tv-screen.apk
+            release/TVSCREEN-SHA256SUMS.txt
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
