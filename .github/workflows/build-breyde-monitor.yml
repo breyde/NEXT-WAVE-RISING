@@ -60,6 +60,9 @@ jobs:
           grep -Fq 'private String[] platformMeta' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'head.setOnClickListener(v->{if(n.connected)openStream(n);});' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'IPv4 · ' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'if(meta==null)continue;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq '/api/stream-mode' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'device.publicIp=remotePublicIPv4(req)' server.js
           test -s monitor-app/app/src/main/java/com/breyde/monitor/BreydeIconView.java
           test -s monitor-app/app/src/main/java/com/breyde/monitor/SecureCredentials.java
           grep -Fq 'SecureCredentials.save(this,u,p)' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
