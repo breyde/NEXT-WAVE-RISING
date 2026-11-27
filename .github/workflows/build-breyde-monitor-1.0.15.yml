@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/build-breyde-monitor-1.0.16.yml"
+      - ".github/workflows/build-breyde-monitor-1.0.15.yml"
   workflow_dispatch:
     inputs:
       source_ref:
