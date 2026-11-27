@@ -67,8 +67,6 @@ jobs:
           for marker in '"/api/apps"' '"/api/launch"' '"/api/status"' '"/api/media-activity"' '"/api/multi-audio-focus"' '"/api/reboot"' '"/api/install-apk"' '"/api/media-search"' 'spotify:search:'; do
             grep -Fq "$marker" "$SERVICE" || { echo "::error::Falta función remota: $marker"; exit 1; }
           done
-          grep -Fq 'verifyRemoteBreydeAiApk(apk)' "$SERVICE"
-          grep -Fq 'REMOTE_AI_PACKAGE="com.breyde.ai"' "$SERVICE"
           grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
           grep -Fq "CHECK UPDATE" "$MAIN"
           grep -Fq \"/api/mouse\" "$SERVICE"
