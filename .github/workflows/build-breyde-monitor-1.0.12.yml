@@ -1,0 +1,121 @@
+# Rebuild with the fixed single-hold drag gesture.
+name: Build and publish BREYDE Monitor 1.0.12
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-breyde-monitor-1.0.12.yml"
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Rama privada de BREYDE Monitor"
+        required: true
+        default: "fix/monitor-tvbox-ordering-1.0.12-20261127"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE_REF: ${{ inputs.source_ref || 'fix/monitor-tvbox-ordering-1.0.12-20261127' }}
+    steps:
+      - name: Validate private source token
+        env:
+          SOURCE_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_TOKEN" || { echo "::error::Falta TVSCREEN_REPO_TOKEN"; exit 1; }
+      - name: Checkout private BREYDE source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: ${{ env.SOURCE_REF }}
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-source
+          persist-credentials: false
+      - name: Restore shared stable signing key
+        working-directory: private-source
+        run: |
+          set -euo pipefail
+          mkdir -p tvbox-screen/signing
+          base64 --decode tvbox-screen/signing/breyde-tv-release.keystore.b64 > tvbox-screen/signing/breyde-tv-release.keystore
+          test -s tvbox-screen/signing/breyde-tv-release.keystore
+          chmod 600 tvbox-screen/signing/breyde-tv-release.keystore
+      - name: Verify Monitor source and fixed drag gesture
+        working-directory: private-source
+        run: |
+          set -euo pipefail
+          test -s monitor-app/settings.gradle
+          test -s monitor-app/app/build.gradle
+          test -s monitor-app/app/src/main/AndroidManifest.xml
+          MAIN=monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          test -s "$MAIN"
+          grep -q "applicationId 'com.breyde.monitor'" monitor-app/app/build.gradle
+          grep -q "versionCode 13" monitor-app/app/build.gradle
+          grep -q "versionName '1.0.12'" monitor-app/app/build.gradle
+          grep -Fq 'orderHandler.postDelayed(holdTask[0],3000)' "$MAIN"
+          grep -Fq 'card.startDragAndDrop(data,new View.DragShadowBuilder(card),node,0)' "$MAIN"
+          grep -Fq 'setOrderHintVisibility(card,true)' "$MAIN"
+          grep -Fq 'tvbox_manual_order' "$MAIN"
+          grep -Fq 'finishOrdering()' "$MAIN"
+          grep -Fq '/api/remote/status' "$MAIN"
+          grep -Fq '/api/remote/device-name' "$MAIN"
+          test -s monitor-app/app/src/main/java/com/breyde/monitor/BreydeIconView.java
+          test -s monitor-app/app/src/main/java/com/breyde/monitor/SecureCredentials.java
+          test -s tvbox-screen/signing/breyde-tv-release.keystore
+          echo "Monitor 1.0.12 source, 3-second direct drag and stable signing material verified."
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Install Android SDK platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: "8.9"
+      - name: Build signed BREYDE Monitor APK
+        working-directory: private-source/monitor-app
+        run: |
+          set -euo pipefail
+          gradle --no-daemon :app:assembleRelease --stacktrace --info 2>&1 | tee "$GITHUB_WORKSPACE/monitor-build.log"
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: breyde-monitor-1.0.12-build-diagnostics
+          path: monitor-build.log
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Verify APK identity, signature and checksum
+        run: |
+          set -euo pipefail
+          APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='13' versionName='1.0.12'"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
+          mkdir -p release
+          cp "$APK" release/breyde-monitor.apk
+          sha256sum release/breyde-monitor.apk | tee release/SHA256SUMS.txt
+      - name: Publish BREYDE Monitor 1.0.12
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: breyde-monitor-v1.0.12
+          name: BREYDE MONITOR v1.0.12
+          body: |
+            Corrección del gesto de ordenación de TVBoxes.
+            Mantén pulsada cualquier zona de una tarjeta durante 3 segundos: al entrar en modo ordenar, el arrastre comienza en ese mismo gesto, sin tener que soltar y volver a mantener pulsado.
+            El modo ordenar no reconstruye las tarjetas mientras el dedo sigue pulsado. El botón TERMINAR guarda el orden manual; los dispositivos nuevos se añaden al final.
+            Mantiene com.breyde.monitor y la firma estable compartida para actualizar sin desinstalar.
+          files: |
+            release/breyde-monitor.apk
+            release/SHA256SUMS.txt
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
