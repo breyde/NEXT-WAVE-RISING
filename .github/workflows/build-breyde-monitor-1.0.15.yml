@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'fix/monitor-auto-scroll-live-reorder-1.0.15-20261127' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'feature/monitor-ai-stream-controls-1.0.15-20261127' }}
     steps:
       - name: Validate private source token
         env:
