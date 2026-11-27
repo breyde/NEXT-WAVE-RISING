@@ -58,7 +58,7 @@ jobs:
           grep -Fq 'POST","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'new BreydeIconView(this,"breyde",48)' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'private String[] platformMeta' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
-          grep -Fq 'head.setOnClickListener(v->{if(n.connected)openStream(n);});' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'head.setOnClickListener(v->showCapture.run());' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'IPv4 · ' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'if(meta==null)continue;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq '/api/stream-mode' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
