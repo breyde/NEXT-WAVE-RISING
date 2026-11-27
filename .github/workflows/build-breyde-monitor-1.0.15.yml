@@ -1,4 +1,4 @@
-# Rebuild with the manual TVBox ordering with edge auto-scroll and live placeholder movement.
+# Rebuild with the auto-landscape viewer, AI error detail, and manual TVBox ordering.
 name: Build and publish BREYDE Monitor 1.0.16
 on:
   push:
@@ -10,7 +10,7 @@ on:
       source_ref:
         description: "Rama privada de BREYDE Monitor"
         required: true
-        default: "feature/monitor-ai-stream-controls-1.0.16-20261127"
+        default: "feature/monitor-ai-stream-controls-1.0.15-20261127"
 permissions:
   contents: write
 jobs:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'feature/monitor-ai-stream-controls-1.0.16-20261127' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'feature/monitor-ai-stream-controls-1.0.15-20261127' }}
     steps:
       - name: Validate private source token
         env:
@@ -108,7 +108,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='16' versionName='1.0.16'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='17' versionName='1.0.16'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
