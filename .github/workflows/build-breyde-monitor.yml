@@ -114,10 +114,26 @@ jobs:
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
           sha256sum release/breyde-monitor.apk | tee release/SHA256SUMS.txt
+      - name: Checkout BREYDE TV SCREEN main source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: main
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-screen
+          persist-credentials: false
+      - name: Restore existing BREYDE SCREEN signing key
+        working-directory: private-screen
+        run: |
+          set -euo pipefail
+          mkdir -p tvbox-screen/signing
+          base64 --decode tvbox-screen/signing/breyde-tv-release.keystore.b64 > tvbox-screen/signing/breyde-tv-release.keystore
+          test -s tvbox-screen/signing/breyde-tv-release.keystore
+          chmod 600 tvbox-screen/signing/breyde-tv-release.keystore
       - name: Confirm TV Screen launcher resource fix
-        run: test -s private-source/tvbox-screen/app/src/main/res/drawable/breyde_launcher.xml
+        run: test -s private-screen/tvbox-screen/app/src/main/res/drawable/breyde_launcher.xml
       - name: Build signed BREYDE TV SCREEN release APK
-        working-directory: private-source/tvbox-screen
+        working-directory: private-screen/tvbox-screen
         run: |
           set -euo pipefail
           gradle --no-daemon :app:assembleRelease --stacktrace --info 2>&1 | tee "$GITHUB_WORKSPACE/screen-build.log"
