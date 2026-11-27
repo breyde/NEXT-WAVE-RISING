@@ -4234,7 +4234,7 @@
           // Solo consultar de nuevo si clientGeo todavía no contiene un país válido.
           let safeGeo = clientGeo || null;
           if (!safeGeo || !/^[A-Z]{2}$/.test(String(safeGeo.countryCode || "").toUpperCase()) || !safeGeo.country) {
-            await initClientIp();
+            try { await initClientIp(); } catch (geoError) { console.warn("Geolocalización opcional no disponible:", geoError); }
             safeGeo = clientGeo || null;
           }
           const countryCode = String(safeGeo?.countryCode || "").toUpperCase();
@@ -4260,7 +4260,12 @@
           receipt.classList.remove("hidden"); $("submissionForm").reset(); $("confirmSaveCheckbox").checked = false;
           $("submissionForm").classList.add("opacity-50", "pointer-events-none");
           loadAllLists();
-        } catch (e) { err("Error de conexión.", "Connection error."); }
+        } catch (e) {
+          console.error("Error al enviar propuesta:", e);
+          const code = e && e.code ? String(e.code) : "";
+          const detail = e && e.message ? String(e.message) : String(e || "Error desconocido");
+          err((code ? code + ": " : "") + detail, (code ? code + ": " : "") + detail);
+        }
         finally { btn.disabled = false; btn.textContent = (translations[currentLang] || translations.es).submitBtn; }
       });
 
