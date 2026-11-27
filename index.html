@@ -848,6 +848,12 @@
             </select>
             <p id="spotifyWeeklyUserLimitStatus" class="text-xs text-zinc-300 bg-zinc-900/70 rounded-xl p-3">Cargando configuración…</p>
           </div>
+          <div class="glass rounded-2xl p-5 space-y-3 border border-amber-500/30">
+            <h3 class="font-bold text-amber-300 text-sm uppercase">🔓 Permitir envíos todo el tiempo</h3>
+            <p class="text-[11px] text-zinc-400">Activado por defecto: permite enviar canciones también viernes y sábado. Desmárcalo para prohibir temporalmente los envíos; el cambio se guarda automáticamente.</p>
+            <label class="flex items-center gap-3 text-sm text-zinc-200 cursor-pointer"><input type="checkbox" id="spotifySubmissionsAlwaysAllowed" class="accent-emerald-500" checked><span>Permitir envíos siempre (incluidos viernes y sábado)</span></label>
+            <p id="spotifySubmissionsAllowedStatus" class="text-xs text-zinc-300">Cargando configuración…</p>
+          </div>
           <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
             <h3 class="font-bold text-emerald-300 text-sm uppercase">➕ Añadir cola semanal a ON AIR</h3>
             <p class="text-[11px] text-zinc-400">Añade todas las canciones de la cola semanal al final de la lista activa. Conserva lo que ya está en ON AIR y mantiene intacta la cola semanal. No duplica canciones que ya estén activas.</p>
@@ -2941,6 +2947,8 @@
         const snap = await db.collection("settings").doc("spotifyPlaylists").get();
         const data = snap.exists ? snap.data() : {};
         if (box) box.checked = data.autoPublishEnabled === true;
+        const always = $("spotifySubmissionsAlwaysAllowed"); if (always) always.checked = data.submissionsAlwaysAllowed !== false;
+        const allowStatus = $("spotifySubmissionsAllowedStatus"); if (allowStatus) allowStatus.textContent = data.submissionsAlwaysAllowed === false ? "Estado: envíos prohibidos por el administrador." : "Estado: envíos permitidos todos los días.";
         const limit = $("spotifyWeeklyUserLimit");
         if (limit) limit.value = String(Number.isInteger(data.weeklySongsPerUser) && data.weeklySongsPerUser >= 0 && data.weeklySongsPerUser <= 10 ? data.weeklySongsPerUser : 1);
         const limitStatus = $("spotifyWeeklyUserLimitStatus");
@@ -3070,6 +3078,11 @@
           alert("No se pudo guardar el límite: " + err.message);
           loadSpotifySyncSettings();
         }
+      }
+      if (e.target && e.target.id === "spotifySubmissionsAlwaysAllowed") {
+        const allowed = e.target.checked, status = $("spotifySubmissionsAllowedStatus");
+        try { await db.collection("settings").doc("spotifyPlaylists").set({ submissionsAlwaysAllowed: allowed, submissionsAlwaysAllowedUpdatedAt: Date.now() }, { merge: true }); weeklySubmissionsAlwaysAllowed = allowed; if (status) status.textContent = allowed ? "Guardado: envíos permitidos todos los días." : "Guardado: envíos prohibidos por el administrador."; applyWeeklySubmissionAvailability(); }
+        catch (err) { e.target.checked = !allowed; if (status) status.textContent = "No se pudo guardar: " + err.message; alert("No se pudo guardar el permiso de envíos: " + err.message); }
       }
       if (e.target && e.target.id === "spotifyAutoPublishCheckbox") {
         try {
@@ -4145,11 +4158,11 @@
         } catch (e) { alert("Credenciales incorrectas."); }
       });
 
-      $("confirmSaveCheckbox").addEventListener("change", e => {
-        $("submissionForm").classList.toggle("opacity-50", !e.target.checked);
-        $("submissionForm").classList.toggle("pointer-events-none", !e.target.checked);
-      });
+      $("confirmSaveCheckbox").addEventListener("change", () => applyWeeklySubmissionAvailability());
 
+      let weeklySubmissionsAlwaysAllowed = true;
+      function applyWeeklySubmissionAvailability() { const f = $("submissionForm"); if (!f) return; const blocked = !weeklySubmissionsAlwaysAllowed && [5,6].includes(new Date().getDay()); const lock = blocked || !$("confirmSaveCheckbox").checked; f.classList.toggle("opacity-50", lock); f.classList.toggle("pointer-events-none", lock); }
+      async function loadWeeklySubmissionAvailability() { try { const snap = await db.collection("settings").doc("spotifyPlaylists").get(); weeklySubmissionsAlwaysAllowed = !(snap.exists && snap.data().submissionsAlwaysAllowed === false); applyWeeklySubmissionAvailability(); } catch(e) { console.warn("No se pudo cargar permiso de envíos", e); } }
       const clock = () => {
         try {
           const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
@@ -4163,9 +4176,9 @@
           // El navegador solo refleja el cierre local de votaciones como protección visual adicional.
           if (day === 4 && h >= 22) updateVotingUI(false);
 
-          if (day === 5 || day === 6) { 
+          if ((day === 5 || day === 6) && !weeklySubmissionsAlwaysAllowed) { 
             document.getElementById("statusBadge").textContent = (translations[currentLang] || translations.es).statusClosed; 
-            document.getElementById("submissionForm").classList.add("opacity-50", "pointer-events-none");
+            applyWeeklySubmissionAvailability();
             updateVotingUI(config.votingActive);
             document.getElementById("cdDays").textContent = "00";
             document.getElementById("cdHours").textContent = "00";
@@ -4328,6 +4341,7 @@
         alert("Cola Semanal copiada.");
       });
 
+      loadWeeklySubmissionAvailability();
       clock();
       setInterval(clock, 1000);
       loadConfig().then(() => {
