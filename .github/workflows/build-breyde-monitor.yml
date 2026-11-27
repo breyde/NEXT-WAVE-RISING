@@ -53,6 +53,7 @@ jobs:
           test -s tvbox-screen/app/build.gradle
           grep -q "applicationId 'com.breyde.monitor'" monitor-app/app/build.gradle
           grep -Fq '/api/remote/nodes' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'import android.widget.HorizontalScrollView;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'nodeId' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'GET","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -q "versionCode 6" monitor-app/app/build.gradle
