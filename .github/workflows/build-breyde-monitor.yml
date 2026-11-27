@@ -114,6 +114,20 @@ jobs:
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
           sha256sum release/breyde-monitor.apk | tee release/SHA256SUMS.txt
+      - name: Build signed BREYDE TV SCREEN release APK
+        working-directory: private-source/tvbox-screen
+        run: |
+          set -euo pipefail
+          gradle --no-daemon :app:assembleRelease --stacktrace --info 2>&1 | tee "$GITHUB_WORKSPACE/screen-build.log"
+      - name: Verify signed TV SCREEN APK
+        run: |
+          set -euo pipefail
+          APK="private-source/tvbox-screen/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.tvscreen' versionCode='54' versionName='2.9.34'"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
+          cp "$APK" release/breyde-tv-screen.apk
+          sha256sum release/breyde-tv-screen.apk | tee release/TVSCREEN-SHA256SUMS.txt
       - name: Publish BREYDE Monitor release
         uses: softprops/action-gh-release@v2
         with:
