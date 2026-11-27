@@ -124,7 +124,7 @@ jobs:
       - name: Verify signed TV SCREEN APK
         run: |
           set -euo pipefail
-          APK="private-source/tvbox-screen/app/build/outputs/apk/release/app-release.apk"
+          APK="private-screen/tvbox-screen/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.tvscreen' versionCode='54' versionName='2.9.34'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
