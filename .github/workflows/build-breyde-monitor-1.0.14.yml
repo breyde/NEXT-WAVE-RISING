@@ -10,7 +10,7 @@ on:
       source_ref:
         description: "Rama privada de BREYDE Monitor"
         required: true
-        default: "fix/monitor-tvbox-manual-toggle-1.0.14-20261127"
+        default: "fix/monitor-auto-scroll-live-reorder-1.0.14-20261127"
 permissions:
   contents: write
 jobs:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'fix/monitor-tvbox-manual-toggle-1.0.14-20261127' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'fix/monitor-auto-scroll-live-reorder-1.0.14-20261127' }}
     steps:
       - name: Validate private source token
         env:
@@ -102,7 +102,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='14' versionName='1.0.14'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='15' versionName='1.0.14'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
