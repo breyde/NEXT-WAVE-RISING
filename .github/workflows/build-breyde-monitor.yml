@@ -112,7 +112,7 @@ jobs:
           body: |
             Versión 1.0.7 firmada con el mismo certificado estable de BREYDE SCREEN.
             Conserva el paquete com.breyde.monitor y los datos locales al actualizar.
-            Panel gráfico nativo con iconos vectoriales dibujados en Canvas, cabecera BREYDE, TVBox y navegación gráfica. Login de BREYDE REMOTE por HTTP Basic; credenciales cifradas con Android Keystore y aplicadas también al servicio en segundo plano.
+            Panel gráfico nativo con iconos vectoriales dibujados en Canvas, cabecera BREYDE, TVBox y navegación gráfica. Login de BREYDE REMOTE por HTTP Basic; credenciales cifradas con Android Keystore y aplicadas también al servicio en segundo plano. Verificación final del diseño e indicadores vectoriales de plataforma.
           files: |
             release/breyde-monitor.apk
             release/SHA256SUMS.txt
