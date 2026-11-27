@@ -1,3 +1,4 @@
+# Rebuild trigger: include the final card-wide reorder affordance.
 name: Build and publish BREYDE Monitor 1.0.11
 on:
   push:
