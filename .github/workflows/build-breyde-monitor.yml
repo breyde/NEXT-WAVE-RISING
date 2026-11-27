@@ -114,6 +114,8 @@ jobs:
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
           sha256sum release/breyde-monitor.apk | tee release/SHA256SUMS.txt
+      - name: Confirm TV Screen launcher resource fix
+        run: test -s private-source/tvbox-screen/app/src/main/res/drawable/breyde_launcher.xml
       - name: Build signed BREYDE TV SCREEN release APK
         working-directory: private-source/tvbox-screen
         run: |
