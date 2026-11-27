@@ -52,7 +52,9 @@ jobs:
           test -s monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           test -s tvbox-screen/app/build.gradle
           grep -q "applicationId 'com.breyde.monitor'" monitor-app/app/build.gradle
-          grep -Fq '/api/remote/status' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq '/api/remote/nodes' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'nodeId' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'GET","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -q "versionCode 6" monitor-app/app/build.gradle
           grep -q "versionName '1.0.5'" monitor-app/app/build.gradle
           grep -q "breyde-tv-release.keystore" monitor-app/app/build.gradle
