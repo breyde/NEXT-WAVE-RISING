@@ -848,6 +848,11 @@
             </select>
             <p id="spotifyWeeklyUserLimitStatus" class="text-xs text-zinc-300 bg-zinc-900/70 rounded-xl p-3">Cargando configuración…</p>
           </div>
+          <div class="glass rounded-2xl p-5 space-y-3 border border-emerald-500/30">
+            <h3 class="font-bold text-emerald-300 text-sm uppercase">➕ Añadir cola semanal a ON AIR</h3>
+            <p class="text-[11px] text-zinc-400">Añade todas las canciones de la cola semanal al final de la lista activa. Conserva lo que ya está en ON AIR y mantiene intacta la cola semanal. No duplica canciones que ya estén activas.</p>
+            <button type="button" onclick="triggerManualListRotation('queue_append_active')" class="w-full px-3 py-3 rounded-xl bg-emerald-500/20 text-emerald-200 border border-emerald-500/40 font-bold text-xs">➕ Añadir toda la cola semanal al final de ON AIR</button>
+          </div>
         </div>
 
         <!-- BACKUPS -->
@@ -2984,6 +2989,10 @@
         queue_to_active: {
           label: "pasar toda la COLA SEMANAL a la LISTA ACTIVA de la app",
           confirm: "Se moverán los temas de submissions a active_list, reiniciando sus votos. La lista activa debe estar vacía. Se limpiará también la cola pública semanal. Se guardará una copia de seguridad. No se tocará Spotify."
+        },
+        queue_append_active: {
+          label: "añadir toda la COLA SEMANAL al final de ON AIR",
+          confirm: "Se añadirán al final de active_list las canciones de submissions que aún no estén en ON AIR. No se borrarán canciones activas ni se vaciará la cola semanal. Se guardará una copia de seguridad. No se tocará Spotify."
         },
         featured_to_queue: {
           label: "añadir el TEMA DESTACADO a la COLA SEMANAL de la app",
