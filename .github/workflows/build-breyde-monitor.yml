@@ -61,14 +61,17 @@ jobs:
           grep -Fq 'head.setOnClickListener(v->showCapture.run());' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'IPv4 · ' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'if(meta==null)continue;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'if(!isConfigured(n,app[1]))continue;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'icon.setActiveDot(active);' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'c.drawCircle(cx,cy,r,p);' monitor-app/app/src/main/java/com/breyde/monitor/BreydeIconView.java
           grep -Fq '/api/stream-mode' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           test -s monitor-app/app/src/main/java/com/breyde/monitor/BreydeIconView.java
           test -s monitor-app/app/src/main/java/com/breyde/monitor/SecureCredentials.java
           grep -Fq 'SecureCredentials.save(this,u,p)' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'setRequestProperty("Authorization",authorization())' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'setRequestProperty("Authorization",authorization())' monitor-app/app/src/main/java/com/breyde/monitor/MonitorService.java
-          grep -q "versionCode 9" monitor-app/app/build.gradle
-          grep -q "versionName '1.0.8'" monitor-app/app/build.gradle
+          grep -q "versionCode 10" monitor-app/app/build.gradle
+          grep -q "versionName '1.0.9'" monitor-app/app/build.gradle
           grep -q "breyde-tv-release.keystore" monitor-app/app/build.gradle
           echo "Monitor identity, API bridge and shared signing source verified. Build config reads SCREEN signing values locally."
       - name: Set up Java 17
@@ -104,7 +107,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='9' versionName='1.0.8'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='10' versionName='1.0.9'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
@@ -112,12 +115,12 @@ jobs:
       - name: Publish BREYDE Monitor release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-monitor-v1.0.8
-          name: BREYDE MONITOR v1.0.8
+          tag_name: breyde-monitor-v1.0.9
+          name: BREYDE MONITOR v1.0.9
           body: |
             Versión 1.0.8 firmada con el mismo certificado estable de BREYDE SCREEN.
             Conserva el paquete com.breyde.monitor y los datos locales al actualizar.
-            Interfaz móvil ajustada a la referencia: cabecera compacta, plataformas activas únicas distribuidas en el ancho disponible, IP pública IPv4 visible y tarjetas TVBox que abren la captura en directo al tocarlas. La vista de captura muestra errores del servidor y estado EN DIRECTO. Autenticación BREYDE REMOTE cifrada con Android Keystore y firma compartida de BREYDE SCREEN.
+            Iconos de plataformas configuradas visibles aunque el TVBox esté offline, con punto verde/gris de estado, orla dorada Premium e iconos circulares compactos. Se conserva la IP pública IPv4, captura directa al tocar el TVBox, autenticación cifrada con Android Keystore y firma compartida de BREYDE SCREEN.
           files: |
             release/breyde-monitor.apk
             release/SHA256SUMS.txt
