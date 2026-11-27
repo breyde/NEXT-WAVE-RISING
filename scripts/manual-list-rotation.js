@@ -4,7 +4,7 @@ const SERVICE_ACCOUNT = process.env.FIREBASE_SERVICE_ACCOUNT;
 const EXPECTED_FIREBASE_PROJECT = "pruebas-73346";
 const ACTION = String(process.env.MANUAL_LIST_ACTION || "none").toLowerCase();
 if (!SERVICE_ACCOUNT) throw new Error("Falta FIREBASE_SERVICE_ACCOUNT.");
-if (!["active_to_monthly", "queue_to_active", "featured_to_queue", "annual_to_monthly"].includes(ACTION)) {
+if (!["active_to_monthly", "queue_to_active", "queue_append_active", "featured_to_queue", "annual_to_monthly"].includes(ACTION)) {
   throw new Error("Acción de rotación manual no válida: " + ACTION);
 }
 const serviceAccount = JSON.parse(SERVICE_ACCOUNT);
@@ -213,6 +213,47 @@ async function featuredToQueue() {
   console.log("Tema destacado añadido a la cola semanal interna. Spotify no se ha modificado.");
 }
 
+async function queueAppendActive() {
+  const data = await snapshotCollections(["submissions", "active_list", "weekly_public"]);
+  const queue = data.submissions.slice().sort((a,b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
+  const active = data.active_list;
+  if (!queue.length) throw new Error("La cola semanal está vacía.");
+  await saveVerifiedBackup(data);
+
+  const activeRef = db.collection("active_list");
+  const existingUrls = new Set(active.map(x => String(x.url || "").split("?")[0]).filter(Boolean));
+  const existingIds = new Set(active.map(x => x.id));
+  const uniqueQueue = [];
+  for (const item of queue) {
+    const url = String(item.url || "").split("?")[0];
+    if ((url && existingUrls.has(url)) || existingIds.has(item.id)) continue;
+    uniqueQueue.push(item);
+    if (url) existingUrls.add(url);
+    existingIds.add(item.id);
+  }
+  if (!uniqueQueue.length) throw new Error("Todas las canciones de la cola ya están en ON AIR. No se ha añadido nada.");
+
+  const maxTimestamp = active.reduce((max,item)=>Math.max(max,Number(item.timestamp)||0),now);
+  const ops = [];
+  uniqueQueue.forEach((item,index) => {
+    const record = Object.fromEntries(Object.entries(item).filter(([key])=>key!=="id"));
+    const id = item.id && !active.some(x=>x.id===item.id) ? item.id : "weekly_append_" + suffix + "_" + index;
+    ops.push({type:"set",ref:activeRef.doc(id),data:{
+      ...record,
+      timestamp: maxTimestamp + index + 1,
+      dateString: record.dateString || new Date(now).toLocaleString("es-ES",{timeZone:"Europe/Madrid"}),
+      votes: 0,
+      voters: []
+    }});
+  });
+  await commitOperations(ops);
+  const check = await activeRef.get();
+  if (check.size !== active.length + uniqueQueue.length) {
+    throw new Error("La verificación no coincide: ON AIR tiene " + check.size + " canciones; se esperaban " + (active.length + uniqueQueue.length) + ". La cola semanal se conserva y hay copia de seguridad.");
+  }
+  console.log("Correcto: " + uniqueQueue.length + " canciones añadidas al final de ON AIR. La cola semanal y las canciones que ya estaban activas se conservaron.");
+}
+
 async function queueToActive() {
   const data = await snapshotCollections(["submissions", "active_list", "weekly_public"]);
   const queue = data.submissions;
@@ -290,6 +331,7 @@ async function queueToActive() {
   if (ACTION === "active_to_monthly") await activeToMonthly();
   else if (ACTION === "annual_to_monthly") await annualToMonthly();
   else if (ACTION === "queue_to_active") await queueToActive();
+  else if (ACTION === "queue_append_active") await queueAppendActive();
   else if (ACTION === "featured_to_queue") await featuredToQueue();
   await db.collection("settings").doc("manualListRotation").set({
     lastAction: ACTION, lastRunAt: now, lastStatus: "success"
