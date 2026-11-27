@@ -4219,15 +4219,13 @@
           const emailDigest = await crypto.subtle.digest("SHA-256", emailBytes);
           const userKey = Array.from(new Uint8Array(emailDigest), b => b.toString(16).padStart(2, "0")).join("");
           const snap = await db.collection("weekly_public").get();
-          let userSongCount = 0, dupUser = false, dupTrack = false;
+          let userSongCount = 0, dupTrack = false;
           snap.forEach(d => {
             const data = d.data();
             if (data.userKey === userKey) userSongCount++;
-            if ((data.artist || "").toLowerCase() === artist.toLowerCase()) dupUser = true;
             if (data.url?.split("?")[0] === cleanUrl) dupTrack = true;
           });
           if (userSongCount >= userLimit) { fb.textContent = currentLang === 'es' ? "⚠️ Has alcanzado el límite de " + userLimit + " canción(es) por usuario en esta edición." : "⚠️ You have reached the limit of " + userLimit + " track(s) per user this edition."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
-          if (dupUser) { fb.textContent = currentLang === 'es' ? "⚠️ Ya hay una propuesta de ese artista en esta edición." : "⚠️ This artist already has a submission this edition."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
           if (dupTrack) { fb.textContent = currentLang === 'es' ? "⚠️ Esta canción ya está en la cola." : "⚠️ Track already in queue."; fb.className = "text-xs text-center text-amber-400 font-medium"; fb.classList.remove("hidden"); return; }
 
           // Reutilizar la geolocalización ya detectada para los visitantes.
