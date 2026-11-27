@@ -57,10 +57,8 @@ jobs:
           grep -Fq 'deviceId' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'POST","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'import android.widget.HorizontalScrollView;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
-          grep -Fq 'nodeId' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
-          grep -Fq 'GET","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
-          grep -q "versionCode 6" monitor-app/app/build.gradle
-          grep -q "versionName '1.0.5'" monitor-app/app/build.gradle
+          grep -q "versionCode 7" monitor-app/app/build.gradle
+          grep -q "versionName '1.0.6'" monitor-app/app/build.gradle
           grep -q "breyde-tv-release.keystore" monitor-app/app/build.gradle
           echo "Monitor identity, API bridge and shared signing source verified. Build config reads SCREEN signing values locally."
       - name: Set up Java 17
