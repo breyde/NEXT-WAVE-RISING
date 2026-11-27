@@ -65,13 +65,15 @@ jobs:
           grep -Fq 'icon.setActiveDot(active);' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'c.drawCircle(cx,cy,r,p);' monitor-app/app/src/main/java/com/breyde/monitor/BreydeIconView.java
           grep -Fq '/api/stream-mode' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq '/api/remote/device-name' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'ESPERANDO NUEVA IMAGEN' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           test -s monitor-app/app/src/main/java/com/breyde/monitor/BreydeIconView.java
           test -s monitor-app/app/src/main/java/com/breyde/monitor/SecureCredentials.java
           grep -Fq 'SecureCredentials.save(this,u,p)' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'setRequestProperty("Authorization",authorization())' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'setRequestProperty("Authorization",authorization())' monitor-app/app/src/main/java/com/breyde/monitor/MonitorService.java
-          grep -q "versionCode 10" monitor-app/app/build.gradle
-          grep -q "versionName '1.0.9'" monitor-app/app/build.gradle
+          grep -q "versionCode 11" monitor-app/app/build.gradle
+          grep -q "versionName '1.0.10'" monitor-app/app/build.gradle
           grep -q "breyde-tv-release.keystore" monitor-app/app/build.gradle
           echo "Monitor identity, API bridge and shared signing source verified. Build config reads SCREEN signing values locally."
       - name: Set up Java 17
@@ -107,7 +109,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='10' versionName='1.0.9'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='11' versionName='1.0.10'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
@@ -115,10 +117,11 @@ jobs:
       - name: Publish BREYDE Monitor release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-monitor-v1.0.9
-          name: BREYDE MONITOR v1.0.9
+          tag_name: breyde-monitor-v1.0.10
+          name: BREYDE MONITOR v1.0.10
           body: |
-            Versión 1.0.8 firmada con el mismo certificado estable de BREYDE SCREEN.
+            Versión 1.0.10 firmada con el mismo certificado estable de BREYDE SCREEN.
+            Nombres compartidos con BREYDE REMOTE y BREYDE SCREEN; recuperación de captura sin confundir una pausa temporal con desconexión.
             Conserva el paquete com.breyde.monitor y los datos locales al actualizar.
             Iconos de plataformas configuradas visibles aunque el TVBox esté offline, con punto verde/gris de estado, orla dorada Premium e iconos circulares compactos. Se conserva la IP pública IPv4, captura directa al tocar el TVBox, autenticación cifrada con Android Keystore y firma compartida de BREYDE SCREEN.
           files: |
