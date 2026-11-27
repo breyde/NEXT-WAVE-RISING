@@ -19,31 +19,13 @@ jobs:
     env:
       SOURCE_REF: ${{ inputs.source_ref || 'feature/monitor-app-dashboard-20261127' }}
     steps:
-      - name: Check required private-source and signing secrets
+      - name: Check private-source token
         env:
           SOURCE_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
-          SIGNING_KEY: ${{ secrets.MONITOR_SIGNING_KEY_BASE64 }}
-          STORE_PASSWORD: ${{ secrets.MONITOR_SIGNING_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.MONITOR_SIGNING_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.MONITOR_SIGNING_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          for item in SOURCE_TOKEN SIGNING_KEY STORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
-            if [ -z "${!item}" ]; then
-              echo "::error::Falta el secreto requerido: $item"
-              exit 1
-            fi
-          done
-      - name: Prepare persistent Android signing key
-        env:
-          SIGNING_KEY: ${{ secrets.MONITOR_SIGNING_KEY_BASE64 }}
-        run: |
-          set -euo pipefail
-          printf '%s' "$SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/monitor-release.jks"
-          test -s "$RUNNER_TEMP/monitor-release.jks"
-          chmod 600 "$RUNNER_TEMP/monitor-release.jks"
-          echo "MONITOR_KEYSTORE_FILE=$RUNNER_TEMP/monitor-release.jks" >> "$GITHUB_ENV"
-      - name: Checkout private BREYDE Monitor source
+          test -n "$SOURCE_TOKEN" || { echo "::error::Falta TVSCREEN_REPO_TOKEN"; exit 1; }
+      - name: Checkout private BREYDE source
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
@@ -51,6 +33,40 @@ jobs:
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
+      - name: Reuse the exact BREYDE SCREEN release signing key
+        working-directory: private-source
+        run: |
+          set -euo pipefail
+          KEY_B64="tvbox-screen/signing/breyde-tv-release.keystore.b64"
+          SCREEN_GRADLE="tvbox-screen/app/build.gradle"
+          test -s "$KEY_B64"
+          test -s "$SCREEN_GRADLE"
+          KEYSTORE="$RUNNER_TEMP/breyde-tv-release.keystore"
+          base64 --decode "$KEY_B64" > "$KEYSTORE"
+          test -s "$KEYSTORE"
+          chmod 600 "$KEYSTORE"
+          python3 - "$SCREEN_GRADLE" "$KEYSTORE" "$GITHUB_ENV" <<'PY'
+          import re, sys
+          from pathlib import Path
+          gradle_path, keystore_path, env_path = sys.argv[1:]
+          source = Path(gradle_path).read_text()
+          def extract(name):
+              match = re.search(r"\\b" + name + r"\\s+'([^']+)'", source)
+              if not match:
+                  raise SystemExit("No se pudo leer la configuración de firma estable de BREYDE SCREEN")
+              return match.group(1)
+          values = {
+              "MONITOR_KEYSTORE_FILE": keystore_path,
+              "MONITOR_KEYSTORE_PASSWORD": extract("storePassword"),
+              "MONITOR_KEY_ALIAS": extract("keyAlias"),
+              "MONITOR_KEY_PASSWORD": extract("keyPassword"),
+          }
+          with open(env_path, "a") as out:
+              for key, value in values.items():
+                  out.write(f"{key}={value}\\n")
+          PY
+          keytool -list -keystore "$KEYSTORE" -storepass "$MONITOR_KEYSTORE_PASSWORD" -alias "$MONITOR_KEY_ALIAS" >/dev/null
+          echo "Clave estable compartida de BREYDE SCREEN verificada; no se ha creado ni duplicado otra firma."
       - name: Verify isolated Monitor project
         working-directory: private-source
         run: |
@@ -81,10 +97,6 @@ jobs:
           gradle-version: "8.9"
       - name: Build signed BREYDE Monitor release APK
         working-directory: private-source/monitor-app
-        env:
-          MONITOR_KEYSTORE_PASSWORD: ${{ secrets.MONITOR_SIGNING_STORE_PASSWORD }}
-          MONITOR_KEY_ALIAS: ${{ secrets.MONITOR_SIGNING_KEY_ALIAS }}
-          MONITOR_KEY_PASSWORD: ${{ secrets.MONITOR_SIGNING_KEY_PASSWORD }}
         run: |
           set +e
           gradle --no-daemon :app:assembleRelease --stacktrace --info 2>&1 | tee "$GITHUB_WORKSPACE/monitor-build.log"
@@ -114,7 +126,7 @@ jobs:
           tag_name: breyde-monitor-v1.0.4
           name: BREYDE MONITOR v1.0.4
           body: |
-            Versión 1.0.4: APK de publicación firmada con clave persistente para permitir actualizaciones sin desinstalar.
+            Versión 1.0.4: firmada con el mismo certificado estable de BREYDE SCREEN para permitir actualizaciones futuras.
             Conserva el paquete com.breyde.monitor y los datos locales de la aplicación.
             Base de integración: BREYDE TV SCREEN 2.9.33 y BREYDE REMOTE.
           files: |
