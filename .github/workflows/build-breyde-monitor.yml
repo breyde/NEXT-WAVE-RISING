@@ -52,7 +52,10 @@ jobs:
           test -s monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           test -s tvbox-screen/app/build.gradle
           grep -q "applicationId 'com.breyde.monitor'" monitor-app/app/build.gradle
-          grep -Fq '/api/remote/nodes' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq '/api/remote/status' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'optJSONArray("devices")' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'deviceId' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
+          grep -Fq 'POST","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'import android.widget.HorizontalScrollView;' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'nodeId' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
           grep -Fq 'GET","/api/media-activity' monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java
@@ -93,7 +96,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='6' versionName='1.0.5'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='7' versionName='1.0.6'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
@@ -101,12 +104,12 @@ jobs:
       - name: Publish BREYDE Monitor release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: breyde-monitor-v1.0.5
-          name: BREYDE MONITOR v1.0.5
+          tag_name: breyde-monitor-v1.0.6
+          name: BREYDE MONITOR v1.0.6
           body: |
-            Versión 1.0.5 firmada con el mismo certificado estable de BREYDE SCREEN.
+            Versión 1.0.6 firmada con el mismo certificado estable de BREYDE SCREEN.
             Conserva el paquete com.breyde.monitor y los datos locales al actualizar.
-            Conexión corregida: GET /api/remote/nodes, nodeId y GET /api/media-activity. Interfaz visual renovada siguiendo la referencia del usuario.
+            Contrato correcto de BREYDE REMOTE: GET /api/remote/status, devices, deviceId y POST /api/remote/request para POST /api/media-activity. Interfaz visual según referencia del usuario.
           files: |
             release/breyde-monitor.apk
             release/SHA256SUMS.txt
