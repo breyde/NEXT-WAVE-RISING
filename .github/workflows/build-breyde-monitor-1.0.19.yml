@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p monitor-app/app/src/main/res/drawable-nodpi
-          base64 --decode monitor-app/assets/breyde_ai_icon.webp.b64 > monitor-app/app/src/main/res/drawable-nodpi/breyde_ai_icon.webp
+          base64 --decode monitor-app/assets/breyde_ai_icon_256.webp.b64 > monitor-app/app/src/main/res/drawable-nodpi/breyde_ai_icon.webp
           test -s monitor-app/app/src/main/res/drawable-nodpi/breyde_ai_icon.webp
           file monitor-app/app/src/main/res/drawable-nodpi/breyde_ai_icon.webp
       - name: Restore shared stable signing key
