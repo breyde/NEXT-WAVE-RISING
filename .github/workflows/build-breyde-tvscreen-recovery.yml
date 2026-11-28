@@ -1,4 +1,4 @@
-name: Build and publish BREYDE TV SCREEN recovery 2.9.39
+name: Build and publish BREYDE TV SCREEN 2.9.40
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
-          ref: feature/2.9.36-320p-from-2.9.35
+          ref: feature/2.9.40-image540-scroll
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
@@ -48,8 +48,11 @@ jobs:
             grep -Fq "$marker" "$SERVICE"
           done
           grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
-          grep -Fq "versionCode 56" tvbox-screen/app/build.gradle
-          grep -Fq "versionName '2.9.35'" tvbox-screen/app/build.gradle
+          grep -Fq "versionCode 60" tvbox-screen/app/build.gradle
+          grep -Fq "versionName '2.9.40'" tvbox-screen/app/build.gradle
+          grep -Fq '"image-540"' "$SERVICE"
+          grep -Fq '"/api/stream-transmission"' "$SERVICE"
+          grep -Fq 'TRANSMISIÓN · ' "$MAIN"
           grep -Fq "releaseVersionCode" "$MAIN"
           grep -Fq "releaseVersionCode" "$UPDATER"
           grep -Fq 'am force-stop com.breyde.tvscreen' "$MAIN"
@@ -85,7 +88,7 @@ jobs:
           assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
           PY
 
-      - name: Set recovery version 2.9.39 code 59
+      - name: Set recovery version 2.9.40 code 60
         working-directory: private-source/tvbox-screen
         run: |
           python3 - <<'PY'
@@ -93,9 +96,9 @@ jobs:
           from pathlib import Path
           p=Path("app/build.gradle")
           s=p.read_text()
-          s=re.sub(r"versionCode\s+\d+","versionCode 59",s,count=1)
-          s=re.sub(r"versionName\s+'[^']+'","versionName '2.9.39'",s,count=1)
-          assert "versionCode 59" in s and "versionName '2.9.39'" in s
+          s=re.sub(r"versionCode\s+\d+","versionCode 60",s,count=1)
+          s=re.sub(r"versionName\s+'[^']+'","versionName '2.9.40'",s,count=1)
+          assert "versionCode 60" in s and "versionName '2.9.40'" in s
           p.write_text(s)
           PY
 
@@ -115,18 +118,19 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           BADGING="$("$AAPT" dump badging "$APK")"
-          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='59' versionName='2.9.39'"
+          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='59' versionName='2.9.40'"
           "$APKSIGNER" verify --verbose "$APK"
           mkdir -p release
           cp "$APK" release/breyde-tv-screen.apk
+          ! unzip -Z1 "$APK" | grep -Eq '^lib/(arm64-v8a|x86_64)/' || { echo "::error::El APK contiene bibliotecas solo de 64 bits"; exit 1; }
           sha256sum release/breyde-tv-screen.apk
           stat -c "APK size: %s bytes" release/breyde-tv-screen.apk
 
-      - name: Publish recovery release
+      - name: Publish 2.9.40 release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v2.9.39
-          name: BREYDE TV SCREEN v2.9.39 — recuperación estable
+          tag_name: v2.9.40
+          name: BREYDE TV SCREEN v2.9.40 — imagen cada 2 s · 540p
           body: |
             Recovery build based on the exact stable source branch used by v2.9.37.
             VersionCode 59. Restores the 2.9.37 code line; excludes the experimental image-frame transmission changes from 2.9.38.
