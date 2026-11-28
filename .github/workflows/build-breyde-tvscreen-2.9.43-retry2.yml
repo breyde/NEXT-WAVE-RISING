@@ -1,0 +1,150 @@
+name: Build and publish BREYDE TV SCREEN 2.9.43 — recovery attempt 2 after regex fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-breyde-tvscreen-2.9.43-retry2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - name: Check private repository token
+        env:
+          TVSCREEN_REPO_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+        run: |
+          test -n "$TVSCREEN_REPO_TOKEN" || { echo "::error::Falta TVSCREEN_REPO_TOKEN"; exit 1; }
+
+      - name: Checkout restored TV Screen 2.9.41 source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: fix/2.9.41-visible-scrollbar
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-source
+          persist-credentials: false
+
+      - name: Verify restored TV Screen source — no Monitor selector port
+        working-directory: private-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          MAIN="tvbox-screen/app/src/main/java/com/breyde/tvscreen/MainActivity.java"
+          SERVICE="tvbox-screen/app/src/main/java/com/breyde/tvscreen/ScreenCaptureService.java"
+          UPDATER="tvbox-screen/app/src/main/java/com/breyde/tvscreen/UpdateJobService.java"
+          test -s "$MAIN" && test -s "$SERVICE" && test -s "$UPDATER"
+          test "$(wc -l < "$MAIN")" -ge 500
+          test "$(wc -l < "$SERVICE")" -ge 500
+          for marker in "VOLVER A LA VERSIÓN ANTERIOR" "REINICIAR TV BOX" "BUSCAR ACTUALIZACIONES" "CONECTAR Y COMPARTIR PANTALLA" "DETECCIÓN MULTIMEDIA"; do
+            grep -Fq "$marker" "$MAIN"
+          done
+          for marker in '"/api/apps"' '"/api/launch"' '"/api/status"' '"/api/media-activity"' '"/api/multi-audio-focus"' '"/api/reboot"' '"/api/install-apk"' '"/api/media-search"' 'spotify:search:' '"/api/mouse"' '"/api/adb/status"'; do
+            grep -Fq "$marker" "$SERVICE"
+          done
+          grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
+          grep -Fq '"image-540"' "$SERVICE"
+          grep -Fq '"/api/stream-transmission"' "$SERVICE"
+          grep -Fq 'TRANSMISIÓN · ' "$MAIN"
+          grep -Fq "releaseVersionCode" "$MAIN"
+          grep -Fq "releaseVersionCode" "$UPDATER"
+          grep -Fq 'am force-stop com.breyde.tvscreen' "$MAIN"
+          grep -Fq 'am force-stop com.breyde.tvscreen' "$UPDATER"
+          ! grep -Fq 'showStreamQualitySelector()' "$MAIN"
+          ! grep -Fq 'streamQualityButton' "$MAIN"
+          ! grep -Fq 'streamQualityHeight' "$MAIN"
+          echo "Restored TV Screen source verified: prior features retained; mistaken Monitor selector port absent."
+
+      - name: Set up Java 17 and Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Restore stable signing key and launcher icon
+        working-directory: private-source
+        run: |
+          mkdir -p tvbox-screen/signing
+          base64 --decode tvbox-screen/signing/breyde-tv-release.keystore.b64 > tvbox-screen/signing/breyde-tv-release.keystore
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          source=Path("tvbox-screen/branding/breyde-remote-icon.png.b64")
+          target=Path("tvbox-screen/app/src/main/res/mipmap-nodpi/ic_launcher.png")
+          data=b"".join(source.read_bytes().split())
+          target.parent.mkdir(parents=True,exist_ok=True)
+          target.write_bytes(base64.b64decode(data+b"="*(-len(data)%4),validate=True))
+          assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
+          PY
+
+      - name: Set recovery version 2.9.43 code 63
+        working-directory: private-source/tvbox-screen
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          p=Path("app/build.gradle")
+          s=p.read_text()
+n1=re.subn(r"versionCode\s+\d+","versionCode 63",s,count=1)
+s=n1[0]
+n2=re.subn(r"versionName\s+\'[^\']+\'","versionName \'2.9.43\'",s,count=1)
+s=n2[0]
+assert n1[1] == 1, f"versionCode replacements: {n1[1]}"
+assert n2[1] == 1, f"versionName replacements: {n2[1]}"
+assert "versionCode 63" in s and "versionName \'2.9.43\'" in s
+          p.write_text(s)
+          PY
+
+      - uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.9'
+
+      - name: Compile BREYDE TV SCREEN 2.9.43 recovery APK
+        working-directory: private-source/tvbox-screen
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify package, version, signature and 32-bit compatibility
+        run: |
+          set -euo pipefail
+          APK="private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          BADGING="$("$AAPT" dump badging "$APK")"
+          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='63' versionName='2.9.43'"
+          "$APKSIGNER" verify --verbose "$APK"
+          mkdir -p release
+          cp "$APK" release/breyde-tv-screen.apk
+          ! unzip -Z1 "$APK" | grep -Eq '^lib/(arm64-v8a|x86_64)/' || { echo "::error::El APK contiene bibliotecas solo de 64 bits"; exit 1; }
+          sha256sum release/breyde-tv-screen.apk
+          stat -c "APK size: %s bytes" release/breyde-tv-screen.apk
+
+      - name: Publish recovery 2.9.43 release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.9.43
+          name: BREYDE TV SCREEN v2.9.43 — recuperación
+          body: |
+            Recovery build following the incorrect 2.9.42 project change.
+            Restores the TV Screen 2.9.41 source line, preserving the existing TV Screen features and removing the mistakenly ported Monitor resolution selector.
+            VersionCode: 63 (in-place update from 2.9.42).
+            Package: com.breyde.tvscreen.
+            Signed with the existing stable release key.
+            32-bit compatibility checked.
+          files: release/breyde-tv-screen.apk
+          fail_on_unmatched_files: true
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
