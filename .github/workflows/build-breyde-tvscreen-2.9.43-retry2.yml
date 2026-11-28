@@ -96,13 +96,13 @@ jobs:
           import re
           from pathlib import Path
           p=Path("app/build.gradle")
-          s=p.read_text()
-n1=re.subn(r"versionCode\s+\d+","versionCode 63",s,count=1)
-s=n1[0]
-n2=re.subn(r"versionName\s+\'[^\']+\'","versionName \'2.9.43\'",s,count=1)
-s=n2[0]
-assert n1[1] == 1, f"versionCode replacements: {n1[1]}"
-assert n2[1] == 1, f"versionName replacements: {n2[1]}"
+          n1=re.subn(r"versionCode\s+\d+","versionCode 63",s,count=1)
+          s=n1[0]
+          n2=re.subn(r"versionName\s+'[^']+'","versionName '2.9.43'",s,count=1)
+          s=n2[0]
+          assert n1[1] == 1, f"versionCode replacements: {n1[1]}"
+          assert n2[1] == 1, f"versionName replacements: {n2[1]}"
+          assert "versionCode 63" in s and "versionName '2.9.43'" in s
 assert "versionCode 63" in s and "versionName \'2.9.43\'" in s
           p.write_text(s)
           PY
