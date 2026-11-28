@@ -44,6 +44,7 @@ jobs:
           grep -Fq '"image-540"' "$MAIN"
           grep -Fq '"continuous"' "$MAIN"
           grep -Fq 'TRANSMISIÓN Y RESOLUCIÓN' "$MAIN"
+          grep -Fq 'R.drawable.breyde_monitor_icon' "$MAIN"
           ! grep -Fq 'com.breyde.tvscreen' "$MAIN"
           echo "Verified: BREYDE Monitor app source, version 1.0.21 and stream selector."
 
