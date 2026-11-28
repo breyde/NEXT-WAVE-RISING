@@ -9,7 +9,7 @@ on:
       source_ref:
         description: "Rama privada de BREYDE Monitor"
         required: true
-        default: "feature/monitor-ai-link-icon-align-1.0.20-20261128"
+        default: "feature/monitor-core-route-icon-fix-status-left-1.0.20-20261128"
 permissions:
   contents: write
 jobs:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SOURCE_REF: ${{ inputs.source_ref || 'feature/monitor-ai-link-icon-align-1.0.20-20261128' }}
+      SOURCE_REF: ${{ inputs.source_ref || 'feature/monitor-core-route-icon-fix-status-left-1.0.20-20261128' }}
     steps:
       - name: Validate private source token
         env:
@@ -105,7 +105,7 @@ jobs:
           set -euo pipefail
           APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
           test -s "$APK"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='20' versionName='1.0.20'"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.breyde.monitor' versionCode='21' versionName='1.0.20'"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee signing-certificate.txt
           mkdir -p release
           cp "$APK" release/breyde-monitor.apk
