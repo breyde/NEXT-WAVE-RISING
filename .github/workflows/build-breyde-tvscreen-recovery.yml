@@ -133,7 +133,7 @@ jobs:
           name: BREYDE TV SCREEN v2.9.40 — imagen cada 2 s · 540p
           body: |
             Based on stable 2.9.37 with image-every-2-seconds at 540p, web/app selector and remote vertical scroll.
-            VersionCode 60. Package: com.breyde.tvscreen. Signed with the existing stable release key. 32-bit compatibility checked.
+            VersionCode: 60. Package: com.breyde.tvscreen. Signed with the existing stable release key. 32-bit compatibility checked.
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
           overwrite_files: true
