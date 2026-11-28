@@ -48,8 +48,8 @@ jobs:
             grep -Fq "$marker" "$SERVICE"
           done
           grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
-          grep -Fq "versionCode 61" tvbox-screen/app/build.gradle
-          grep -Fq "versionName '2.9.41'" tvbox-screen/app/build.gradle
+          grep -Fq "versionCode 60" tvbox-screen/app/build.gradle
+          grep -Fq "versionName '2.9.40'" tvbox-screen/app/build.gradle
           grep -Fq '"image-540"' "$SERVICE"
           grep -Fq '"/api/stream-transmission"' "$SERVICE"
           grep -Fq 'TRANSMISIÓN · ' "$MAIN"
@@ -106,7 +106,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Compile BREYDE TV SCREEN 2.9.40 APK
+      - name: Compile BREYDE TV SCREEN 2.9.41 APK
         working-directory: private-source/tvbox-screen
         run: gradle --no-daemon :app:assembleDebug
 
@@ -126,7 +126,7 @@ jobs:
           sha256sum release/breyde-tv-screen.apk
           stat -c "APK size: %s bytes" release/breyde-tv-screen.apk
 
-      - name: Publish 2.9.40 release
+      - name: Publish 2.9.41 release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v2.9.41
