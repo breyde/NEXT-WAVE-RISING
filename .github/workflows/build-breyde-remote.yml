@@ -85,7 +85,7 @@ jobs:
           grep -Fq 'sharedName' "$SERVICE"
           grep -Fq 'GUARDAR NOMBRE EN BREYDE REMOTE' "$MAIN"
           grep -Fq 'sharedDeviceName' "$MAIN"
-          grep -Fq 'versionCode 56' tvbox-screen/app/build.gradle
+          grep -Fq 'versionCode 58' tvbox-screen/app/build.gradle
           grep -Fq "versionName '2.9.38'" tvbox-screen/app/build.gradle
           grep -Fq "am force-stop com.breyde.tvscreen" "$MAIN"
           grep -Fq "am force-stop com.breyde.tvscreen" "$UPDATER"
@@ -189,8 +189,8 @@ jobs:
           body: |
             VersionCode: ${{ inputs.version_code || '58' }}
             Base funcional: BREYDE TV SCREEN 2.9.33 (código 55), commit verificado.
-            Fuente: feature/2.9.38-320p-from-2.9.35.
-            Incluye sincronización bidireccional del nombre compartido entre la APK y BREYDE REMOTE, conservando el resto de funciones de la base.
+            Fuente: feature/2.9.38-image-frame-stream.
+            Incluye transmisión seleccionable de vídeo continuo o imagen 540p cada 2 segundos, con selector compartido en web y móvil.
             Incluye comprobación de actualización por versionCode, bloqueo de retrocesos, parada de procesos antes de instalar y búsqueda multimedia nativa.
             Instalación remota de BREYDE AI: subida desde móvil o selección desde Google Drive en el TV Box; verificación de paquete, firma y versión.
           generate_release_notes: true
