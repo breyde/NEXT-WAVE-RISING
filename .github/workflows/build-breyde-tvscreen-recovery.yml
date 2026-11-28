@@ -88,7 +88,7 @@ jobs:
           assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
           PY
 
-      - name: Set recovery version 2.9.40 code 60
+      - name: Set 2.9.40 version code 60
         working-directory: private-source/tvbox-screen
         run: |
           python3 - <<'PY'
@@ -106,7 +106,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Compile stable recovery APK
+      - name: Compile BREYDE TV SCREEN 2.9.40 APK
         working-directory: private-source/tvbox-screen
         run: gradle --no-daemon :app:assembleDebug
 
@@ -118,7 +118,7 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           BADGING="$("$AAPT" dump badging "$APK")"
-          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='59' versionName='2.9.40'"
+          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='60' versionName='2.9.40'"
           "$APKSIGNER" verify --verbose "$APK"
           mkdir -p release
           cp "$APK" release/breyde-tv-screen.apk
@@ -132,9 +132,8 @@ jobs:
           tag_name: v2.9.40
           name: BREYDE TV SCREEN v2.9.40 — imagen cada 2 s · 540p
           body: |
-            Recovery build based on the exact stable source branch used by v2.9.37.
-            VersionCode 59. Restores the 2.9.37 code line; excludes the experimental image-frame transmission changes from 2.9.38.
-            Package: com.breyde.tvscreen. Signed with the existing stable release key.
+            Based on stable 2.9.37 with image-every-2-seconds at 540p, web/app selector and remote vertical scroll.
+            VersionCode 60. Package: com.breyde.tvscreen. Signed with the existing stable release key. 32-bit compatibility checked.
           files: release/breyde-tv-screen.apk
           fail_on_unmatched_files: true
         env:
