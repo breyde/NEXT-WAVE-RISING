@@ -1,0 +1,137 @@
+name: Build and publish BREYDE TV SCREEN recovery 2.9.39
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-breyde-tvscreen-recovery.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - name: Check private repository token
+        env:
+          TVSCREEN_REPO_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+        run: |
+          test -n "$TVSCREEN_REPO_TOKEN" || { echo "::error::Falta TVSCREEN_REPO_TOKEN"; exit 1; }
+
+      - name: Checkout exact stable source used for 2.9.37
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: feature/2.9.36-320p-from-2.9.35
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-source
+          persist-credentials: false
+
+      - name: Verify stable source and required features
+        working-directory: private-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          MAIN="tvbox-screen/app/src/main/java/com/breyde/tvscreen/MainActivity.java"
+          SERVICE="tvbox-screen/app/src/main/java/com/breyde/tvscreen/ScreenCaptureService.java"
+          UPDATER="tvbox-screen/app/src/main/java/com/breyde/tvscreen/UpdateJobService.java"
+          test -s "$MAIN" && test -s "$SERVICE" && test -s "$UPDATER"
+          test "$(wc -l < "$MAIN")" -ge 500
+          test "$(wc -l < "$SERVICE")" -ge 500
+          for marker in "VOLVER A LA VERSIÓN ANTERIOR" "REINICIAR TV BOX" "BUSCAR ACTUALIZACIONES" "CONECTAR Y COMPARTIR PANTALLA" "DETECCIÓN MULTIMEDIA"; do
+            grep -Fq "$marker" "$MAIN"
+          done
+          for marker in '"/api/apps"' '"/api/launch"' '"/api/status"' '"/api/media-activity"' '"/api/multi-audio-focus"' '"/api/reboot"' '"/api/install-apk"' '"/api/media-search"' 'spotify:search:' '"/api/mouse"' '"/api/adb/status"'; do
+            grep -Fq "$marker" "$SERVICE"
+          done
+          grep -Fq "MediaActivityListener.snapshot(this)" "$SERVICE"
+          grep -Fq "versionCode 56" tvbox-screen/app/build.gradle
+          grep -Fq "versionName '2.9.35'" tvbox-screen/app/build.gradle
+          grep -Fq "releaseVersionCode" "$MAIN"
+          grep -Fq "releaseVersionCode" "$UPDATER"
+          grep -Fq 'am force-stop com.breyde.tvscreen' "$MAIN"
+          grep -Fq 'am force-stop com.breyde.tvscreen' "$UPDATER"
+          echo "Fuente estable equivalente a la compilación 2.9.37 verificada."
+
+      - name: Set up Java 17 and Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Restore stable signing key and launcher icon
+        working-directory: private-source
+        run: |
+          mkdir -p tvbox-screen/signing
+          base64 --decode tvbox-screen/signing/breyde-tv-release.keystore.b64 > tvbox-screen/signing/breyde-tv-release.keystore
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          source=Path("tvbox-screen/branding/breyde-remote-icon.png.b64")
+          target=Path("tvbox-screen/app/src/main/res/mipmap-nodpi/ic_launcher.png")
+          data=b"".join(source.read_bytes().split())
+          target.parent.mkdir(parents=True,exist_ok=True)
+          target.write_bytes(base64.b64decode(data+b"="*(-len(data)%4),validate=True))
+          assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
+          PY
+
+      - name: Set recovery version 2.9.39 code 59
+        working-directory: private-source/tvbox-screen
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          p=Path("app/build.gradle")
+          s=p.read_text()
+          s=re.sub(r"versionCode\s+\d+","versionCode 59",s,count=1)
+          s=re.sub(r"versionName\s+'[^']+'","versionName '2.9.39'",s,count=1)
+          assert "versionCode 59" in s and "versionName '2.9.39'" in s
+          p.write_text(s)
+          PY
+
+      - uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.9'
+
+      - name: Compile stable recovery APK
+        working-directory: private-source/tvbox-screen
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify package, version, signature and 32-bit compatibility
+        run: |
+          set -euo pipefail
+          APK="private-source/tvbox-screen/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          BADGING="$("$AAPT" dump badging "$APK")"
+          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='59' versionName='2.9.39'"
+          "$APKSIGNER" verify --verbose "$APK"
+          mkdir -p release
+          cp "$APK" release/breyde-tv-screen.apk
+          sha256sum release/breyde-tv-screen.apk
+          stat -c "APK size: %s bytes" release/breyde-tv-screen.apk
+
+      - name: Publish recovery release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.9.39
+          name: BREYDE TV SCREEN v2.9.39 — recuperación estable
+          body: |
+            Recovery build based on the exact stable source branch used by v2.9.37.
+            VersionCode 59. Restores the 2.9.37 code line; excludes the experimental image-frame transmission changes from 2.9.38.
+            Package: com.breyde.tvscreen. Signed with the existing stable release key.
+          files: release/breyde-tv-screen.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
