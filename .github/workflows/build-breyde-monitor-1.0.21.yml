@@ -47,6 +47,16 @@ jobs:
           ! grep -Fq 'com.breyde.tvscreen' "$MAIN"
           echo "Verified: BREYDE Monitor app source, version 1.0.21 and stream selector."
 
+      - name: Restore original BREYDE AI launcher icon
+        working-directory: private-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p monitor-app/app/src/main/res/drawable-nodpi
+          base64 --decode monitor-app/assets/breyde_monitor_icon.webp.b64 > monitor-app/app/src/main/res/drawable-nodpi/breyde_monitor_icon.webp
+          test -s monitor-app/app/src/main/res/drawable-nodpi/breyde_monitor_icon.webp
+          file monitor-app/app/src/main/res/drawable-nodpi/breyde_monitor_icon.webp
+
       - name: Restore existing stable signing key
         working-directory: private-source
         run: |
