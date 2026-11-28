@@ -1,0 +1,109 @@
+name: Build and publish BREYDE Monitor 1.0.21
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-breyde-monitor-1.0.21.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - name: Check private repository token
+        env:
+          TVSCREEN_REPO_TOKEN: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+        run: |
+          test -n "$TVSCREEN_REPO_TOKEN" || { echo "::error::Falta TVSCREEN_REPO_TOKEN"; exit 1; }
+
+      - name: Checkout BREYDE Monitor 1.0.21 source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: feature/monitor-1.0.21-stream-mode-selector-20261128
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: private-source
+          persist-credentials: false
+
+      - name: Verify Monitor project and requested base
+        working-directory: private-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          GRADLE="monitor-app/app/build.gradle"
+          MAIN="monitor-app/app/src/main/java/com/breyde/monitor/MainActivity.java"
+          test -s "$GRADLE" && test -s "$MAIN"
+          grep -Fq "applicationId 'com.breyde.monitor'" "$GRADLE"
+          grep -Fq "versionCode 22" "$GRADLE"
+          grep -Fq "versionName '1.0.21'" "$GRADLE"
+          grep -Fq '"image-540"' "$MAIN"
+          grep -Fq '"continuous"' "$MAIN"
+          grep -Fq 'TRANSMISIÓN Y RESOLUCIÓN' "$MAIN"
+          ! grep -Fq 'com.breyde.tvscreen' "$MAIN"
+          echo "Verified: BREYDE Monitor app source, version 1.0.21 and stream selector."
+
+      - name: Restore existing stable signing key
+        working-directory: private-source
+        run: |
+          mkdir -p tvbox-screen/signing
+          base64 --decode tvbox-screen/signing/breyde-tv-release.keystore.b64 > tvbox-screen/signing/breyde-tv-release.keystore
+          test -s tvbox-screen/signing/breyde-tv-release.keystore
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install Android SDK 35 tools
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: "8.9"
+
+      - name: Compile signed BREYDE Monitor release APK
+        working-directory: private-source/monitor-app
+        run: gradle --no-daemon :app:assembleRelease
+
+      - name: Verify package, version, signature and 32-bit compatibility
+        run: |
+          set -euo pipefail
+          APK="private-source/monitor-app/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          BADGING="$("$AAPT" dump badging "$APK")"
+          echo "$BADGING" | grep -F "package: name='com.breyde.monitor' versionCode='22' versionName='1.0.21'"
+          "$APKSIGNER" verify --verbose "$APK"
+          ! unzip -Z1 "$APK" | grep -Eq '^lib/(arm64-v8a|x86_64)/' || { echo "::error::El APK contiene bibliotecas solo de 64 bits"; exit 1; }
+          mkdir -p release
+          cp "$APK" release/breyde-monitor.apk
+          sha256sum release/breyde-monitor.apk
+          stat -c "APK size: %s bytes" release/breyde-monitor.apk
+
+      - name: Publish BREYDE Monitor 1.0.21 release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.21
+          name: BREYDE Monitor 1.0.21
+          body: |
+            BREYDE Monitor update.
+            Base source: BREYDE Monitor 1.0.20.
+            Adds the transmission selector: continuous 480p/720p/1080p and image-by-image 540p.
+            Package: com.breyde.monitor.
+            VersionCode: 22.
+            Signed release APK; native 64-bit-only libraries check passed.
+          files: release/breyde-monitor.apk
+          fail_on_unmatched_files: true
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
