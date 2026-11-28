@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: breyde/BREYDE-VIDEO-STUDIO
-          ref: fix/2.9.42-visible-scrollbar
+          ref: feature/2.9.42-monitor-resolution-selector
           token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
           path: private-source
           persist-credentials: false
@@ -94,7 +94,7 @@ jobs:
           assert target.read_bytes().startswith(bytes.fromhex("89504e470d0a1a0a"))
           PY
 
-      - name: Set 2.9.42 version code 61
+      - name: Set 2.9.42 version code 62
         working-directory: private-source/tvbox-screen
         run: |
           python3 - <<'PY'
@@ -104,7 +104,7 @@ jobs:
           s=p.read_text()
           s=re.sub(r"versionCode\s+\d+","versionCode 62",s,count=1)
           s=re.sub(r"versionName\s+'[^']+'","versionName '2.9.42'",s,count=1)
-          assert "versionCode 61" in s and "versionName '2.9.42'" in s
+          assert "versionCode 62" in s and "versionName '2.9.42'" in s
           p.write_text(s)
           PY
 
@@ -124,7 +124,7 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           BADGING="$("$AAPT" dump badging "$APK")"
-          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='61' versionName='2.9.42'"
+          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='62' versionName='2.9.42'"
           "$APKSIGNER" verify --verbose "$APK"
           mkdir -p release
           cp "$APK" release/breyde-tv-screen.apk
@@ -139,7 +139,7 @@ jobs:
           name: BREYDE TV SCREEN v2.9.42 — selector 480p/720p/1080p
           body: |
             Based on BREYDE TV SCREEN 2.9.41. Adds the BREYDE Monitor 1.0.20 resolution selector (480p, 720p, 1080p), persistent selection for Root Screen Cap and MediaProjection, and keeps image-every-2-seconds fixed at 540p while remembering the selected continuous resolution.
-            VersionCode: 61.
+            VersionCode: 62.
             Package: com.breyde.tvscreen.
             Signed with the existing stable release key.
             32-bit compatibility checked.
