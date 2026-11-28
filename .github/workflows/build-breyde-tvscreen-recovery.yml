@@ -96,9 +96,9 @@ jobs:
           from pathlib import Path
           p=Path("app/build.gradle")
           s=p.read_text()
-          s=re.sub(r"versionCode\s+\d+","versionCode 60",s,count=1)
-          s=re.sub(r"versionName\s+'[^']+'","versionName '2.9.40'",s,count=1)
-          assert "versionCode 60" in s and "versionName '2.9.40'" in s
+          s=re.sub(r"versionCode\s+\d+","versionCode 61",s,count=1)
+          s=re.sub(r"versionName\s+'[^']+'","versionName '2.9.41'",s,count=1)
+          assert "versionCode 61" in s and "versionName '2.9.41'" in s
           p.write_text(s)
           PY
 
@@ -118,7 +118,7 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           BADGING="$("$AAPT" dump badging "$APK")"
-          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='60' versionName='2.9.40'"
+          echo "$BADGING" | grep -F "package: name='com.breyde.tvscreen' versionCode='61' versionName='2.9.41'"
           "$APKSIGNER" verify --verbose "$APK"
           mkdir -p release
           cp "$APK" release/breyde-tv-screen.apk
