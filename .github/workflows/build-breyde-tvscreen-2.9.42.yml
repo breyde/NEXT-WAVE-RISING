@@ -63,7 +63,7 @@ jobs:
           grep -Fq "releaseVersionCode" "$UPDATER"
           grep -Fq 'am force-stop com.breyde.tvscreen' "$MAIN"
           grep -Fq 'am force-stop com.breyde.tvscreen' "$UPDATER"
-          echo "TV Screen 2.9.41 base plus Monitor 1.0.20 480p/720p/1080p selector and persisted quality API verified."
+          echo "Final TV Screen selector methods, persisted 480p/720p/1080p state, and Root/MediaProjection quality API verified."
 
       - name: Set up Java 17 and Android SDK
         uses: actions/setup-java@v4
