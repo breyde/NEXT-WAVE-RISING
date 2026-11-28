@@ -1,0 +1,61 @@
+name: Inspect TV Screen 2.9.38 changes against stable 2.9.37
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/inspect-tvscreen-2938-diff.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout stable 2.9.37 source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: feature/2.9.36-320p-from-2.9.35
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: stable
+          persist-credentials: false
+
+      - name: Checkout experimental 2.9.38 source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: feature/2.9.38-image-frame-stream
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: experimental
+          persist-credentials: false
+
+      - name: Generate reviewable diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          git -C stable rev-parse HEAD | tee review/stable.sha
+          git -C experimental rev-parse HEAD | tee review/experimental.sha
+          git -C stable diff --no-index --stat ../stable/tvbox-screen ../experimental/tvbox-screen > review/stat.txt || true
+          diff -ruN stable/tvbox-screen experimental/tvbox-screen > review/tvbox-screen.patch || test "$?" -eq 1
+          echo "=== SOURCE REFS ==="
+          cat review/stable.sha review/experimental.sha
+          echo "=== DIFF STAT ==="
+          cat review/stat.txt
+          echo "=== CHANGED FILES ==="
+          grep -E '^diff -ruN ' review/tvbox-screen.patch | head -100 || true
+          echo "=== NEW STREAM MARKERS ==="
+          grep -Ein 'frame.?stream|image.?frame|960|540|2000|scroll|ScrollView|streamMode|transmission' review/tvbox-screen.patch | head -200 || true
+
+      - name: Upload source diff for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: tvscreen-2937-to-2938-source-diff
+          path: review/
+          if-no-files-found: error
+          retention-days: 2
