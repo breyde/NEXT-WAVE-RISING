@@ -1,0 +1,63 @@
+name: Export stable TV Screen source for 2.9.40 integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/export-tvscreen-source.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout stable Android source
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/BREYDE-VIDEO-STUDIO
+          ref: feature/2.9.36-320p-from-2.9.35
+          token: ${{ secrets.TVSCREEN_REPO_TOKEN }}
+          path: stable
+          persist-credentials: false
+
+      - name: Checkout web repository
+        uses: actions/checkout@v4
+        with:
+          repository: breyde/NEXT-WAVE-RISING
+          ref: main
+          path: web
+          persist-credentials: false
+
+      - name: Collect relevant source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p export/android export/web
+          cp stable/tvbox-screen/app/src/main/java/com/breyde/tvscreen/MainActivity.java export/android/
+          cp stable/tvbox-screen/app/src/main/java/com/breyde/tvscreen/ScreenCaptureService.java export/android/
+          find stable/tvbox-screen/app/src/main -type f \( -name '*.xml' -o -name '*.java' \) | sort > export/android-file-list.txt
+          grep -RilE 'BREYDE REMOTE|stream-quality|stream-mode|stream-transmission|remoteControlPanel|screen-container|screen-frame' web --exclude-dir=.git --exclude='*.map' --exclude='*.min.js' | head -80 > export/web-file-list.txt || true
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            mkdir -p "export/web/$(dirname "${f#web/}")"
+            cp "$f" "export/web/${f#web/}"
+          done < export/web-file-list.txt
+          cp export/android-file-list.txt export/
+          cp export/web-file-list.txt export/
+          tar -czf tvscreen-29340-source.tar.gz export
+          echo "=== ANDROID FILES ==="
+          cat export/android-file-list.txt
+          echo "=== WEB MATCHES ==="
+          cat export/web-file-list.txt
+
+      - name: Upload source bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: tvscreen-29340-integration-source
+          path: tvscreen-29340-source.tar.gz
+          if-no-files-found: error
+          retention-days: 2
